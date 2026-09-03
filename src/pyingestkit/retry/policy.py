@@ -17,6 +17,7 @@ RetryAfterResolver = Callable[[BaseException], float | None]
 
 DEFAULT_RETRY_STATUS_CODES = frozenset({408, 425, 429, 500, 502, 503, 504})
 DEFAULT_RETRY_METHODS = frozenset({"GET", "HEAD"})
+_SYSTEM_RANDOM = random.SystemRandom()
 
 
 @dataclass(frozen=True, slots=True)
@@ -90,14 +91,18 @@ class RetryPolicy:
                     return min(self.max_delay_seconds, max(0.0, requested))
 
             exponent = max(0, state.attempt_number - 1)
-            delay = min(
-                self.max_delay_seconds,
-                self.initial_delay_seconds * (2**exponent),
+            delay: float = float(
+                min(
+                    self.max_delay_seconds,
+                    self.initial_delay_seconds * (2**exponent),
+                )
             )
             if self.jitter and delay > 0:
-                delay = min(
-                    self.max_delay_seconds,
-                    delay + random.uniform(0.0, self.initial_delay_seconds),
+                delay = float(
+                    min(
+                        self.max_delay_seconds,
+                        delay + _SYSTEM_RANDOM.uniform(0.0, self.initial_delay_seconds),
+                    )
                 )
             return delay
 
