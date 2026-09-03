@@ -25,7 +25,7 @@ def fetch_local(context: RunContext):
 
 @job(
     id="demo.local_file",
-    version="0.2.0rc1",
+    version="0.2.0",
     description="Demonstration job that ingests a local file into immutable RAW storage.",
 )
 def local_file_job() -> None:
