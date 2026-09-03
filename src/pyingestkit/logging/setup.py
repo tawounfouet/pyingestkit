@@ -6,15 +6,28 @@ from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
 from rich.console import Console
-from rich.logging import RichHandler
 
 from pyingestkit.config.models import LoggingConfig, LogOutputFormat
 
 from .filters import ContextFilter, RedactingFilter
-from .formatters import JsonFormatter
+from .formatters import JsonFormatter, PlainTerminalFormatter, RichTerminalFormatter
 
-_PLAIN_FORMAT = "%(asctime)s %(levelname)s %(name)s %(log_context)s%(message)s"
-_RICH_FORMAT = "%(log_context)s%(message)s"
+
+
+
+class _StableRichHandler(logging.Handler):
+    """Rich-backed handler with a stable no-wrap terminal layout."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.console = Console(stderr=True)
+
+    def emit(self, record: logging.LogRecord) -> None:
+        try:
+            rendered = self.format(record)
+            self.console.print(rendered, markup=True, soft_wrap=True)
+        except Exception:
+            self.handleError(record)
 
 
 def _level(value: str) -> int:
@@ -31,21 +44,14 @@ def _attach_common_filters(handler: logging.Handler) -> None:
 
 def _console_handler(config: LoggingConfig) -> logging.Handler:
     if config.format is LogOutputFormat.RICH:
-        handler: logging.Handler = RichHandler(
-            console=Console(stderr=True),
-            rich_tracebacks=True,
-            show_time=True,
-            show_level=True,
-            show_path=False,
-            markup=False,
-        )
-        handler.setFormatter(logging.Formatter(_RICH_FORMAT))
+        handler: logging.Handler = _StableRichHandler()
+        handler.setFormatter(RichTerminalFormatter())
     elif config.format is LogOutputFormat.JSON:
         handler = logging.StreamHandler(sys.stderr)
         handler.setFormatter(JsonFormatter())
     else:
         handler = logging.StreamHandler(sys.stderr)
-        handler.setFormatter(logging.Formatter(_PLAIN_FORMAT))
+        handler.setFormatter(PlainTerminalFormatter())
     handler.setLevel(_level(config.level))
     _attach_common_filters(handler)
     return handler
@@ -67,7 +73,7 @@ def _file_handler(config: LoggingConfig) -> logging.Handler | None:
     if file_config.format is LogOutputFormat.JSON:
         handler.setFormatter(JsonFormatter())
     else:
-        handler.setFormatter(logging.Formatter(_PLAIN_FORMAT))
+        handler.setFormatter(PlainTerminalFormatter())
     _attach_common_filters(handler)
     return handler
 
@@ -78,17 +84,14 @@ def configure_logging(
     level_override: str | None = None,
     format_override: LogOutputFormat | None = None,
 ) -> None:
-    """Configure application logging explicitly.
-
-    PyIngestKit modules only obtain named loggers. Handlers are configured here,
-    normally by the CLI/application boundary, never as an import side effect.
-    """
+    """Configure application logging explicitly at the CLI/application boundary."""
     effective = config.model_copy(
         update={
             **({"level": level_override.upper()} if level_override else {}),
             **({"format": format_override} if format_override else {}),
         }
     )
+    _level(effective.level)
 
     root = logging.getLogger()
     for handler in tuple(root.handlers):
@@ -107,7 +110,6 @@ def configure_logging(
         root.addHandler(logging.NullHandler())
     root.setLevel(min(active_levels) if active_levels else logging.CRITICAL + 1)
 
-    # Keep PyIngestKit loggers delegated to the configured application root.
     package_logger = logging.getLogger("pyingestkit")
     package_logger.setLevel(logging.NOTSET)
     package_logger.propagate = True

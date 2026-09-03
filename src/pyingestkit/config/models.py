@@ -54,6 +54,31 @@ class LoggingConfig(BaseModel):
         return normalized
 
 
+class MetadataBackend(str, Enum):
+    SQLITE = "sqlite"
+    POSTGRES = "postgres"
+
+
+class SQLiteMetadataConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    path: Path | None = None
+
+
+class PostgresMetadataConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    dsn_env: str = "PYINGEST_DATABASE_URL"
+
+
+class MetadataConfig(BaseModel):
+    """Queryable runtime metadata backend configuration."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    backend: MetadataBackend = MetadataBackend.SQLITE
+    sqlite: SQLiteMetadataConfig = Field(default_factory=SQLiteMetadataConfig)
+    postgres: PostgresMetadataConfig = Field(default_factory=PostgresMetadataConfig)
+
+
 class RuntimeConfig(BaseModel):
     """Validated runtime defaults loaded from project configuration."""
 
@@ -70,4 +95,5 @@ class PyIngestKitConfig(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     runtime: RuntimeConfig = Field(default_factory=RuntimeConfig)
+    metadata: MetadataConfig = Field(default_factory=MetadataConfig)
     logging: LoggingConfig = Field(default_factory=LoggingConfig)

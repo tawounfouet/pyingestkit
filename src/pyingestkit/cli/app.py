@@ -5,13 +5,12 @@ from typing import Annotated
 import typer
 
 from pyingestkit import __version__
-from pyingestkit.cli.commands import inspect_command, jobs_command, run_command
+from pyingestkit.cli.commands import inspect_command, jobs_command, run_command, runs_command, status_command
 from pyingestkit.cli.console import console
 
 
 def _version_callback(value: bool) -> None:
     if value:
-        # Version output is intentionally plain text for shell scripting and tests.
         typer.echo(f"pyingest {__version__}")
         raise typer.Exit()
 
@@ -32,22 +31,17 @@ app = typer.Typer(
 def root(
     version: Annotated[
         bool,
-        typer.Option(
-            "--version",
-            "-V",
-            help="Show the PyIngestKit CLI version and exit.",
-            callback=_version_callback,
-            is_eager=True,
-        ),
+        typer.Option("--version", "-V", help="Show the PyIngestKit CLI version and exit.", callback=_version_callback, is_eager=True),
     ] = False,
 ) -> None:
-    """PyIngestKit command-line interface."""
     del version
 
 
 app.command("jobs", help="List installed ingestion jobs.")(jobs_command)
 app.command("inspect", help="Inspect an installed ingestion job.")(inspect_command)
 app.command("run", help="Execute an installed ingestion job.")(run_command)
+app.command("runs", help="List persisted ingestion runs.")(runs_command)
+app.command("status", help="Inspect one persisted ingestion run.")(status_command)
 
 
 @app.command("help")

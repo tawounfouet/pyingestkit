@@ -11,3 +11,9 @@
 - ADR-009 Secret handling policy
 - ADR-010 Production-grade dependency policy
 - ADR-011 Logging policy
+- ADR-012 Unified workspace layout
+- ADR-013 MetadataStore abstraction
+- ADR-014 SQLite as default metadata backend
+- ADR-015 Operational logs vs runtime events
+- ADR-016 Declarative decorator API
+- ADR-017 Decorator API compiles to imperative model

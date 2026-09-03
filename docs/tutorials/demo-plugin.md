@@ -1,46 +1,27 @@
-# Tutorial — Install and run the demo job pack
+# Tutorial — Install and run the declarative demo job pack
 
-PyIngestKit itself contains no business jobs. The repository ships a separate example distribution under `examples/plugin_package`.
-
-## 1. Install the framework
+PyIngestKit contains no business jobs. The repository ships a separate job-pack distribution under `examples/plugin_package`.
 
 ```bash
 python -m pip install -e .
-```
-
-At this point `pyingest jobs` may legitimately return no jobs.
-
-## 2. Install the demo job pack
-
-```bash
 python -m pip install -e examples/plugin_package
 ```
 
-The package declares:
+The package exposes a `JobDefinition`:
 
 ```toml
 [project.entry-points."pyingestkit.jobs"]
-demo-local-file = "pyingestkit_demo_jobs.local_file:job"
+demo-local-file = "pyingestkit_demo_jobs.local_file:job_definition"
 ```
 
-## 3. Discover and inspect
+The implementation uses `@step` and `@job`; discovery compiles it to the imperative model before Runner execution.
 
 ```bash
 pyingest jobs
 pyingest inspect demo.local_file
-```
-
-## 4. Execute through YAML
-
-```bash
 pyingest run demo.local_file --config examples/plugin_package/demo.yml
+pyingest runs
+pyingest status <run-id-prefix>
 ```
 
-## 5. Execute through runtime parameters
-
-```bash
-pyingest run demo.local_file \
-  --param path=examples/plugin_package/data/sample.txt
-```
-
-The job is instantiated with zero arguments. The source path is resolved at execution time from `RunContext.parameters`.
+The demo uses the same default `.pyingest/` workspace as the framework; it does not create `.pyingest-demo/`.

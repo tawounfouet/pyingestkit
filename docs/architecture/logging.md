@@ -1,68 +1,12 @@
-# Logging architecture
+# Logging
 
-PyIngestKit separates **log emission** from **log configuration**.
+PyIngestKit uses standard Python `logging`; the CLI owns handler configuration. Rich is the human terminal renderer. JSON is used for structured file/CI output.
 
-```text
-Framework / Job Plugin
-        │
-        │ logging.getLogger(__name__)
-        ▼
-Python LogRecord
-        │
-        ▼
-Application / CLI configuration
-        │
-        ├── RichHandler → stderr
-        ├── StreamHandler → stderr
-        ├── JSON formatter → stderr
-        └── RotatingFileHandler → file
-```
-
-## Context
-
-During a run, PyIngestKit enriches records using `contextvars`:
+Official terminal shape:
 
 ```text
-run_id
-job_id
-step
+2026-09-03 17:42:03  INFO    [run=785c1cdc job=demo.local_file] Run started
+2026-09-03 17:42:03  INFO    [run=785c1cdc job=demo.local_file step=FetchLocal] Step started
 ```
 
-This keeps the context safe across nested calls without passing logger objects through every function.
-
-## Output streams
-
-Human and diagnostic logs are emitted to **stderr**.
-
-Machine command payloads such as `pyingest run --json` remain on **stdout**, so shell pipelines can consume them without log contamination.
-
-## Configuration
-
-Example:
-
-```yaml
-logging:
-  level: INFO
-  format: rich
-  console: true
-  file:
-    enabled: true
-    path: .pyingest/logs/pyingest.log
-    level: DEBUG
-    format: json
-    max_bytes: 10000000
-    backup_count: 5
-```
-
-CLI overrides:
-
-```bash
-pyingest run demo.local_file \
-  --config pyingest.yml \
-  --log-level DEBUG \
-  --log-format plain
-```
-
-## Library rule
-
-No module is allowed to call `logging.basicConfig()` or attach application handlers at import time.
+Terminal timestamps are local and run IDs short. JSON/DB timestamps are timezone-aware ISO-8601 and UUIDs remain full. Lifecycle boundaries are INFO; technical details are DEBUG. `-v` maps to DEBUG and `-q` to WARNING. Logs go to stderr so JSON command payloads remain clean on stdout.

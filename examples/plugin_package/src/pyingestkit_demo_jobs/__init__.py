@@ -1,3 +1,3 @@
-from .local_file import DemoLocalFileJob, job
+from .local_file import fetch_local, job, job_definition, local_file_job
 
-__all__ = ["DemoLocalFileJob", "job"]
+__all__ = ["fetch_local", "job", "job_definition", "local_file_job"]

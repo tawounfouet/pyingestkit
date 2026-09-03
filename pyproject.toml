@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyingestkit"
-version = "0.1.4"
+dynamic = ["version"]
 description = "Composable ingestion tooling for Python."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -40,6 +40,8 @@ dev = [
   "twine>=6",
 ]
 
+postgres = ["psycopg[binary]>=3.2,<4"]
+
 [project.scripts]
 pyingest = "pyingestkit.cli.main:main"
 
@@ -48,6 +50,10 @@ package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+
+[tool.setuptools.dynamic]
+version = {attr = "pyingestkit._version.__version__"}
 
 [tool.setuptools.package-data]
 pyingestkit = ["py.typed"]

@@ -17,15 +17,14 @@ class CliSmokeTests(unittest.TestCase):
     def test_version(self) -> None:
         result = self.runner.invoke(app, ["--version"])
         self.assertEqual(result.exit_code, 0, result.output)
-        self.assertIn("0.1.4", result.output)
+        self.assertIn("0.1.5", result.output)
         self.assertNotIn("\x1b", result.output)
 
     def test_root_help(self) -> None:
         result = self.runner.invoke(app, ["--help"])
         self.assertEqual(result.exit_code, 0, result.output)
-        self.assertIn("jobs", result.output)
-        self.assertIn("inspect", result.output)
-        self.assertIn("run", result.output)
+        for command in ("jobs", "inspect", "run", "runs", "status"):
+            self.assertIn(command, result.output)
 
     def test_help_command(self) -> None:
         result = self.runner.invoke(app, ["help"])
@@ -33,16 +32,14 @@ class CliSmokeTests(unittest.TestCase):
         self.assertIn("PyIngestKit", result.output)
 
     def test_jobs_json_with_no_plugins(self) -> None:
-        # Keep this contract deterministic even when unrelated PyIngestKit plugins
-        # are installed in the developer/test environment.
         with patch(
-            "pyingestkit.cli.commands.jobs.get_registry",
-            return_value=JobRegistry(),
+            "pyingestkit.cli.commands.jobs.get_registry_with_diagnostics",
+            return_value=(JobRegistry(), ()),
         ):
             result = self.runner.invoke(app, ["jobs", "--json"])
         self.assertEqual(result.exit_code, 0, result.output)
-        self.assertEqual(json.loads(result.output), [])
-        self.assertNotIn("\x1b", result.output)
+        self.assertEqual(json.loads(result.stdout), [])
+        self.assertNotIn("\x1b", result.stdout)
 
     def test_inspect_missing_job_id_is_validation_error(self) -> None:
         result = self.runner.invoke(app, ["inspect"])

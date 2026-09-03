@@ -70,3 +70,7 @@ Trade-offs:
 ## Future extensions
 
 Potential adapters may be added for OpenTelemetry or other observability backends without changing the framework logging API.
+
+## V0.1.5 stabilization
+
+The terminal convention is frozen as local `YYYY-MM-DD HH:mm:ss`, colored level, short 8-character run ID, job ID and optional step. Full UUIDs and timezone-aware ISO-8601 timestamps remain in structured JSON/metadata. Step lifecycle boundaries are INFO; technical implementation detail is DEBUG. `-v` selects DEBUG and `-q` WARNING. Operational logs remain distinct from persisted runtime events (ADR-015).

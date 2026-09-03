@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 from uuid import UUID, uuid4
 
+from pyingestkit.core.exceptions import StorageError
 from pyingestkit.provenance.hashing import sha256_bytes
 
 from .base import ArtifactStore
@@ -57,7 +58,13 @@ class LocalArtifactStore(ArtifactStore):
         self.prepare_run(job_id, run_id)
         digest = sha256_bytes(data)
         path = self.path_for(job_id, run_id, f"raw/{_safe(name)}")
-        path.write_bytes(data)
+        try:
+            with path.open("xb") as handle:
+                handle.write(data)
+        except FileExistsError as exc:
+            raise StorageError(
+                f"RAW artifacts are immutable: refusing to overwrite existing path {path}"
+            ) from exc
         logger.debug("RAW artifact written path=%s bytes=%d sha256=%s", path, len(data), digest)
         return RawArtifact(
             artifact_id=str(uuid4()),

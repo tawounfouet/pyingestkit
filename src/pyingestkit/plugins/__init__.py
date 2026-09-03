@@ -1,3 +1,17 @@
-from .discovery import discover_jobs, load_registry
+from .discovery import (
+    DiscoveryReport,
+    PluginFailure,
+    discover_jobs,
+    discover_plugins,
+    load_registry,
+    load_registry_with_diagnostics,
+)
 
-__all__ = ["discover_jobs", "load_registry"]
+__all__ = [
+    "DiscoveryReport",
+    "PluginFailure",
+    "discover_jobs",
+    "discover_plugins",
+    "load_registry",
+    "load_registry_with_diagnostics",
+]

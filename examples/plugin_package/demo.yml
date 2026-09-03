@@ -1,8 +1,11 @@
 runtime:
-  workspace: .pyingest-demo
+  workspace: .pyingest
   fixture_mode: false
   parameters:
     path: examples/plugin_package/data/sample.txt
+
+metadata:
+  backend: sqlite
 
 logging:
   level: INFO
@@ -10,7 +13,7 @@ logging:
   console: true
   file:
     enabled: true
-    path: .pyingest-demo/logs/pyingest.log
+    path: .pyingest/logs/pyingest.log
     level: DEBUG
     format: json
     max_bytes: 1000000

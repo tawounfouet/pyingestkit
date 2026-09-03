@@ -13,12 +13,13 @@ from pyingestkit.cli.common import (
     fail,
     get_job_or_exit,
     get_registry,
+    metadata_store_or_exit,
     parse_param_assignments,
     parse_params_json,
+    project_config_or_exit,
 )
 from pyingestkit.cli.console import console
-from pyingestkit.config import LogOutputFormat, PyIngestKitConfig, load_config
-from pyingestkit.core.exceptions import ConfigurationError
+from pyingestkit.config import LogOutputFormat
 from pyingestkit.logging import configure_logging
 from pyingestkit.runtime.runner import Runner
 
@@ -27,78 +28,57 @@ def run_command(
     job_id: Annotated[str, typer.Argument(help="Namespaced ingestion job ID to execute.")],
     config: Annotated[
         Path | None,
-        typer.Option(
-            "--config",
-            "-c",
-            help="YAML project configuration file.",
-            exists=True,
-            file_okay=True,
-            dir_okay=False,
-            readable=True,
-        ),
+        typer.Option("--config", "-c", help="YAML project configuration file.", exists=True, file_okay=True, dir_okay=False, readable=True),
     ] = None,
     workspace: Annotated[
         Path | None,
-        typer.Option(
-            "--workspace",
-            "-w",
-            help="Workspace used for run artifacts. Overrides configuration.",
-            file_okay=False,
-            dir_okay=True,
-        ),
+        typer.Option("--workspace", "-w", help="Workspace used for run artifacts and default SQLite metadata.", file_okay=False, dir_okay=True),
     ] = None,
     fixture: Annotated[
         bool | None,
-        typer.Option(
-            "--fixture/--no-fixture",
-            help="Enable or disable fixture mode. Overrides configuration.",
-        ),
+        typer.Option("--fixture/--no-fixture", help="Enable or disable fixture mode. Overrides configuration."),
     ] = None,
     params_json: Annotated[
         str | None,
-        typer.Option(
-            "--params-json",
-            help="Runtime parameters encoded as a JSON object; overrides matching YAML values.",
-        ),
+        typer.Option("--params-json", help="Runtime parameters encoded as a JSON object."),
     ] = None,
     param: Annotated[
         list[str] | None,
-        typer.Option(
-            "--param",
-            "-p",
-            help="Runtime parameter as KEY=VALUE. Repeatable; overrides YAML/--params-json values.",
-        ),
+        typer.Option("--param", "-p", help="Runtime parameter as KEY=VALUE. Repeatable."),
     ] = None,
     log_level: Annotated[
         str | None,
-        typer.Option(
-            "--log-level",
-            help="Override the configured logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL).",
-        ),
+        typer.Option("--log-level", help="Explicit console logging level."),
     ] = None,
     log_format: Annotated[
         LogOutputFormat | None,
-        typer.Option(
-            "--log-format",
-            help="Override console log format: rich, plain, or json.",
-            case_sensitive=False,
-        ),
+        typer.Option("--log-format", help="Override console log format: rich, plain, or json.", case_sensitive=False),
     ] = None,
+    verbose: Annotated[
+        bool,
+        typer.Option("--verbose", "-v", help="Enable DEBUG console logging."),
+    ] = False,
+    quiet: Annotated[
+        bool,
+        typer.Option("--quiet", "-q", help="Only show WARNING and above on the console."),
+    ] = False,
     json_output: Annotated[
         bool,
-        typer.Option("--json", help="Emit machine-readable JSON instead of Rich output."),
+        typer.Option("--json", help="Emit machine-readable JSON instead of Rich result output."),
     ] = False,
 ) -> None:
     """Execute an installed ingestion job."""
-    try:
-        project_config = load_config(config) if config is not None else PyIngestKitConfig()
-    except ConfigurationError as exc:
-        fail(str(exc), code=2)
+    if verbose and quiet:
+        fail("--verbose and --quiet are mutually exclusive", code=2)
+    if log_level is not None and (verbose or quiet):
+        fail("--log-level cannot be combined with --verbose/--quiet", code=2)
 
+    project_config = project_config_or_exit(config)
+    level_override = log_level or ("DEBUG" if verbose else "WARNING" if quiet else None)
     try:
         configure_logging(
             project_config.logging,
-            level_override=log_level,
+            level_override=level_override,
             format_override=log_format,
         )
     except ValueError as exc:
@@ -112,7 +92,11 @@ def run_command(
         parameters.update(parse_params_json(params_json))
     parameters.update(parse_param_assignments(param))
 
-    runner = Runner(LocalArtifactStore(effective_workspace))
+    metadata_store = metadata_store_or_exit(project_config, workspace=effective_workspace)
+    runner = Runner(
+        LocalArtifactStore(effective_workspace),
+        metadata_store=metadata_store,
+    )
     result = runner.run(job, parameters=parameters, fixture_mode=effective_fixture)
     payload = {
         "run_id": result.run_id,
@@ -130,22 +114,19 @@ def run_command(
         status_style = "bold green" if result.succeeded else "bold red"
         console.print(
             Panel.fit(
-                f"[{status_style}]{result.status.value}[/{status_style}]  "
-                f"[bold]{result.job_id}[/bold]\n"
+                f"[{status_style}]{result.status.value}[/{status_style}]  [bold]{result.job_id}[/bold]\n"
                 f"run_id: {result.run_id}\n"
                 f"duration: {result.duration_seconds:.3f}s",
                 title="PyIngestKit Run",
             )
         )
-
         steps = Table(title="Steps", show_header=True, header_style="bold")
         steps.add_column("Step")
         steps.add_column("Status")
         steps.add_column("Duration", justify="right")
-        for step in result.steps:
-            steps.add_row(step.step_name, step.status.value, f"{step.duration_seconds:.3f}s")
+        for step_result in result.steps:
+            steps.add_row(step_result.step_name, step_result.status.value, f"{step_result.duration_seconds:.3f}s")
         console.print(steps)
-
         if result.error:
             console.print(f"[bold red]Error:[/bold red] {result.error}")
         for warning in result.warnings:

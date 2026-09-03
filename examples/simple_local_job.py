@@ -1,35 +1,30 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
 
-from pyingestkit import Job, Pipeline, RunContext, Step
+from pyingestkit import RunContext, Runner, job, step
 from pyingestkit.artifacts import LocalArtifactStore
-from pyingestkit.core.exceptions import ConfigurationError
-from pyingestkit.runtime import Runner
+from pyingestkit.metadata import SQLiteMetadataStore
 from pyingestkit.sources import LocalSource
 
 
-class FetchLocal(Step):
-    def execute(self, context: RunContext, data: Any) -> Any:
-        raw_path = context.parameter("path")
-        if raw_path in (None, ""):
-            raise ConfigurationError("Runtime parameter 'path' is required")
-        return LocalSource(Path(str(raw_path))).fetch(context)
+@step(name="FetchLocal")
+def fetch_local(context: RunContext):
+    return LocalSource(Path(str(context.parameter("path")))).fetch(context)
 
 
-class DemoJob(Job):
-    id = "demo.local_file"
-    version = "0.1.0"
-    description = "Minimal standalone local ingestion example"
-
-    def pipeline(self) -> Pipeline:
-        return Pipeline([FetchLocal()])
+@job(id="demo.local_file", version="0.1.0")
+def local_file_job() -> None:
+    fetch_local()
 
 
 if __name__ == "__main__":
-    sample = Path("examples/plugin_package/data/sample.txt")
-    result = Runner(LocalArtifactStore(".pyingest")).run(
-        DemoJob(), parameters={"path": str(sample)}
+    workspace = Path(".pyingest")
+    result = Runner(
+        LocalArtifactStore(workspace),
+        metadata_store=SQLiteMetadataStore.for_workspace(workspace),
+    ).run(
+        local_file_job.build(),
+        parameters={"path": "examples/plugin_package/data/sample.txt"},
     )
     print(result)

@@ -7,8 +7,8 @@ import typer
 from rich.panel import Panel
 from rich.table import Table
 
-from pyingestkit.cli.common import get_registry
-from pyingestkit.cli.console import console
+from pyingestkit.cli.common import get_registry_with_diagnostics
+from pyingestkit.cli.console import console, error_console
 
 
 def jobs_command(
@@ -18,18 +18,22 @@ def jobs_command(
     ] = False,
 ) -> None:
     """List installed ingestion jobs."""
-    jobs = get_registry().list()
+    registry, failures = get_registry_with_diagnostics()
+    jobs = registry.list()
+
+    if failures:
+        error_console.print(
+            f"[yellow]Warning:[/yellow] {len(failures)} plugin(s) failed to load; "
+            "healthy plugins remain available."
+        )
+        for failure in failures:
+            error_console.print(f"  [yellow]- {failure.entry_point}:[/yellow] {failure.error}")
 
     if json_output:
         payload = [
-            {
-                "id": job.id,
-                "version": job.version,
-                "description": job.description,
-            }
+            {"id": job.id, "version": job.version, "description": job.description}
             for job in jobs
         ]
-        # Machine-readable output must never contain Rich markup or ANSI escape codes.
         typer.echo(json.dumps(payload, ensure_ascii=False))
         return
 

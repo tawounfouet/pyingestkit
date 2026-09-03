@@ -8,11 +8,11 @@ version = "0.1.0"
 description = "Installable demonstration job pack for PyIngestKit."
 requires-python = ">=3.11"
 dependencies = [
-  "pyingestkit>=0.1.4,<0.2",
+  "pyingestkit>=0.1.5,<0.2",
 ]
 
 [project.entry-points."pyingestkit.jobs"]
-demo-local-file = "pyingestkit_demo_jobs.local_file:job"
+demo-local-file = "pyingestkit_demo_jobs.local_file:job_definition"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

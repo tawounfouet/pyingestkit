@@ -1,0 +1,31 @@
+name: CI
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e ".[dev]"
+      - run: python -m pip install -e examples/plugin_package
+      - run: python -m compileall -q src tests examples
+      - run: pytest --cov=pyingestkit --cov-report=term-missing
+      - run: ruff check src tests examples/plugin_package/src examples/plugin_package/tests
+      - run: mypy src/pyingestkit
+      - run: bandit -q -r src/pyingestkit examples/plugin_package/src
+      - run: python -m build
+      - run: python -m build examples/plugin_package
+      - run: pyingest --version
+      - run: pyingest jobs
+      - run: pyingest run demo.local_file --config examples/plugin_package/demo.yml
+      - run: pyingest runs

@@ -3,12 +3,19 @@ runtime:
   fixture_mode: false
   parameters: {}
 
+metadata:
+  backend: sqlite
+  sqlite:
+    path: null
+  postgres:
+    dsn_env: PYINGEST_DATABASE_URL
+
 logging:
   level: INFO
   format: rich
   console: true
   file:
-    enabled: false
+    enabled: true
     path: .pyingest/logs/pyingest.log
     level: DEBUG
     format: json

@@ -2,6 +2,34 @@
 
 All notable changes to PyIngestKit are documented here.
 
+## [0.1.5] - 2026-09-03
+
+### Foundation consolidation
+
+- Unified the default workspace on `.pyingest/`; the demo no longer creates `.pyingest-demo/`.
+- Added `MetadataStore` as a runtime persistence contract distinct from `ArtifactStore`.
+- Added SQLite as the default CLI metadata backend at `.pyingest/state/pyingest.sqlite3`.
+- Added an optional PostgreSQL adapter contract and `postgres` installation extra using lazy Psycopg loading.
+- Persisted runs, steps, artifacts, validations, publications and structural runtime events.
+- Added `pyingest runs` and `pyingest status` with JSON modes and run-ID prefix resolution.
+- Added the declarative `@step` / `@job` API with `StepDefinition`, `StepInvocation`, `JobDefinition` and deterministic `PipelineBuilder`.
+- Kept the imperative `Job` / `Step` / `Pipeline` API as the low-level contract; decorators compile to it.
+- Migrated the bundled demo job pack to decorators and entry-point `JobDefinition` discovery.
+- Added `.fn(...)` as the explicit direct unit-test surface for decorated steps.
+- Added plugin failure isolation so a broken plugin does not hide healthy plugins.
+- Added `-v/--verbose` and `-q/--quiet` logging controls.
+- Stabilized terminal logs as local `YYYY-MM-DD HH:mm:ss`, colored level, short run ID, job and optional step context.
+- Changed step lifecycle boundaries to INFO; implementation details remain DEBUG.
+- Kept full UUIDs and timezone-aware ISO-8601 timestamps in JSON logs and metadata.
+- Added recursive secret-key redaction for persisted runtime parameters.
+- Enforced RAW immutability within a run by refusing silent overwrite.
+- Automatically registers RAW artifacts in both `manifest.json` and MetadataStore.
+- Critical lifecycle-hook failures now converge to a failed `RunResult` and persisted failure state when possible.
+- Added validation/publication metadata tables/contracts without forcing a universal business workflow.
+- Added new ADRs 012–017 and foundation architecture/guides.
+- Added CI/security workflow definitions and wheel-oriented smoke-test guidance.
+- Moved package version to a single `_version.py` source consumed dynamically by setuptools.
+
 ## [0.1.4] - 2026-09-03
 
 ### Added
@@ -14,78 +42,21 @@ All notable changes to PyIngestKit are documented here.
 - Runtime lifecycle logging in the runner, artifact store, and plugin discovery.
 - `--log-level` and `--log-format` CLI overrides.
 - ADR-011 documenting the logging policy and the decision not to impose Loguru on framework plugins.
-- Logging architecture documentation.
-
-### Changed
-
-- Version bumped to 0.1.4.
-- Demo configuration enables a rotating JSON file log in `.pyingest-demo/logs/`.
 
 ## [0.1.3] - 2026-09-03
 
-### Added
-- Added a real installable demo job package under `examples/plugin_package`.
-- Added the `pyingestkit.jobs` entry point `demo-local-file` exposing `demo.local_file`.
-- Added `examples/plugin_package/demo.yml` and a bundled sample input file.
-- Added repeatable `--param/-p KEY=VALUE` support to `pyingest run`.
-- Added typed CLI parameter parsing using YAML scalar semantics.
-- Added contract tests for the demo package, entry-point declaration, demo configuration, and zero-argument job contract.
-
-### Changed
-- Refactored the local-file demo job so discovery requires no constructor arguments.
-- Runtime source paths are now supplied through `RunContext.parameters`.
-- Updated the standalone Python example to use the same runtime-parameter model as the plugin package.
-- Documented the distinction between a standalone Python example and an installed PyIngestKit job pack.
-- Documented installation and end-to-end use of the bundled demo package.
-- Invalid YAML project configuration is now converted into a clean CLI error instead of escaping as an uncaught framework exception.
-
-### Fixed
-- Fixed the mismatch where documentation described a demo plugin but the delivered `examples/plugin_package` contained only a README.
-- Fixed the user-visible situation where `python examples/simple_local_job.py` worked but `pyingest inspect demo.local_file` failed because no entry point was actually installed.
-- Added the previously documented `examples/plugin_package/demo.yml` file.
+- Added a real installable demo job package and `pyingestkit.jobs` entry point.
+- Added repeatable typed `--param/-p KEY=VALUE` runtime parameters.
 
 ## [0.1.2] - 2026-09-03
 
-### Changed
-- Removed the zero-third-party-dependency architectural constraint.
-- Added ADR-010 defining a production-grade dependency policy.
-- Marked ADR-002 as superseded.
-- Added Pydantic and PyYAML as framework runtime dependencies.
-- Added validated YAML project configuration with strict unknown-key rejection.
-- Added `--config/-c` to `pyingest run`.
-- CLI runtime options override project YAML configuration.
-- Machine-readable CLI output now bypasses Rich completely.
-- `--version` now emits plain text without ANSI escape codes.
-
-### Fixed
-- Fixed `test_version`, which previously failed because Rich colorized the semantic version.
-- Fixed `jobs --json` contract testing by emitting raw JSON through Click/Typer instead of `Rich.Console.print_json()`.
-
-### Dependencies
-- `typer>=0.27,<0.28`
-- `rich>=15,<16`
-- `pydantic>=2.11,<3`
-- `PyYAML>=6,<7`
+- Replaced the artificial zero-third-party-dependency rule with governed production-grade dependencies.
+- Added Pydantic/PyYAML configuration and machine-safe CLI JSON output.
 
 ## [0.1.1] - 2026-09-03
 
-### Changed
-- Replaced the `argparse` CLI with Typer.
-- Added Rich tables, panels, formatted errors, and help rendering.
-- Added `pyingest help` in addition to native `--help` / `-h` support.
-- Added `--json` machine-readable output to `jobs`, `inspect`, and `run`.
-- Added `-V` as an alias for `--version` and `-w` for `--workspace`.
-- Split CLI implementation into app, command, console, and common helper modules.
+- Replaced argparse with Typer and Rich.
 
 ## [0.1.0] - 2026-09-03
 
-### Added
-- Minimal ingestion core: Job, Step, Pipeline, RunContext.
-- Runtime Runner with lifecycle events and standardized results.
-- LocalSource and LocalArtifactStore.
-- Immutable RAW artifacts with SHA-256 hashing.
-- Run manifest generation.
-- Basic validation rules and validation reports.
-- Atomic local publication.
-- Job registry and Python entry-point plugin discovery.
-- Minimal CLI: version, jobs, inspect, run.
+- Initial MVP foundation: core/runtime, LocalSource, RAW, SHA-256, manifest, validation, atomic publication, plugins and CLI.
