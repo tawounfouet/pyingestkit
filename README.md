@@ -1,10 +1,16 @@
 # PyIngestKit
 
+[![CI](https://github.com/tawounfouet/pyingestkit/actions/workflows/ci.yml/badge.svg)](https://github.com/tawounfouet/pyingestkit/actions/workflows/ci.yml)
+[![Security](https://github.com/tawounfouet/pyingestkit/actions/workflows/security.yml/badge.svg)](https://github.com/tawounfouet/pyingestkit/actions/workflows/security.yml)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Foundation](https://img.shields.io/badge/foundation-v0.1.6%20frozen-success.svg)](CHANGELOG.md)
+
 **PyIngestKit** is a focused Python framework for reliable, traceable batch ingestion.
 
 > Transform an external source into a reliable, validated, reproducible and publishable dataset without rewriting ingestion plumbing for every job.
 
-This repository contains **V0.1.6 — Foundation Persistence & Quality Hardening**, the V0.1.x foundation candidate that must pass `make verify` before V0.2 acquisition capabilities begin.
+This repository contains **V0.1.6 — Foundation Persistence & Quality Hardening**, the frozen V0.1.x Foundation baseline. The complete `make verify` gate is green; V0.2 acquisition capabilities can now evolve on top of this baseline without reopening Foundation concerns except for confirmed bugs or security issues.
 
 ## Product boundary
 
@@ -289,11 +295,11 @@ make build
 make verify
 ```
 
-`make verify` is the operational Foundation freeze gate. It aggregates functional tests, public API/compile checks, Ruff lint + formatting, Mypy strict typing, Bandit, pip-audit and package builds. V0.2 must not start while this command is red in the reference CI environment.
+`make verify` is the operational Foundation freeze gate. It aggregates functional tests, public API/compile checks, Ruff lint + formatting, Mypy strict typing, Bandit, pip-audit and package builds. V0.1.6 is the first frozen Foundation baseline for which this complete gate is green in the reference environment.
 
 ## V0.2 boundary
 
-Only after this foundation remains green should V0.2 add acquisition capabilities:
+V0.2 may now add acquisition capabilities on top of the frozen Foundation:
 
 - HTTP source/client;
 - retry policy;
