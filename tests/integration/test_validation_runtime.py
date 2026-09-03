@@ -57,12 +57,7 @@ class ValidationRuntimeIntegrationTests(unittest.TestCase):
             events = store.list_events(result.run_id)
             self.assertIn("VALIDATION_COMPLETED", {event.event_type for event in events})
             manifest_path = (
-                workspace
-                / "runs"
-                / "demo"
-                / "validation_runtime"
-                / result.run_id
-                / "manifest.json"
+                workspace / "runs" / "demo" / "validation_runtime" / result.run_id / "manifest.json"
             )
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
             self.assertEqual(manifest["validations"][0]["valid"], True)
