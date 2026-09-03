@@ -19,6 +19,20 @@ def _machine_value(value: Any) -> Any:
     return value
 
 
+def _step_value(step: StepResult) -> dict[str, Any]:
+    """Serialize step lifecycle metadata without arbitrary runtime outputs."""
+    return {
+        "step_name": step.step_name,
+        "status": step.status.value,
+        "started_at": step.started_at.isoformat(),
+        "completed_at": step.completed_at.isoformat(),
+        "duration_seconds": step.duration_seconds,
+        "error": step.error,
+        "warnings": list(step.warnings),
+        "metrics": dict(step.metrics),
+    }
+
+
 @dataclass(slots=True)
 class RunManifest:
     run_id: str
@@ -45,7 +59,17 @@ class RunManifest:
         self.error = result.error
 
     def as_dict(self) -> dict[str, Any]:
-        payload = _machine_value(asdict(self))
-        if not isinstance(payload, dict):
-            raise TypeError("RunManifest serialization must produce an object")
-        return payload
+        return {
+            "run_id": self.run_id,
+            "job_id": self.job_id,
+            "job_version": self.job_version,
+            "started_at": self.started_at.isoformat(),
+            "completed_at": self.completed_at.isoformat() if self.completed_at else None,
+            "status": self.status,
+            "artifacts": [_machine_value(asdict(artifact)) for artifact in self.artifacts],
+            "steps": [_step_value(step) for step in self.steps],
+            "validations": _machine_value(self.validations),
+            "metrics": dict(self.metrics),
+            "warnings": list(self.warnings),
+            "error": self.error,
+        }
