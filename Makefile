@@ -1,9 +1,12 @@
-.PHONY: install install-dev install-demo test test-demo check format quality security build wheel-smoke demo verify release-check clean
+.PHONY: bootstrap install install-dev install-demo test test-demo check format quality security build wheel-smoke demo verify release-check clean
+
+bootstrap:
+	python -m pip install --upgrade pip
 
 install:
 	python -m pip install -e .
 
-install-dev:
+install-dev: bootstrap
 	python -m pip install -e ".[dev]"
 
 install-demo:
@@ -29,7 +32,7 @@ quality:
 	ruff format --check src tests examples/plugin_package/src examples/plugin_package/tests
 	mypy src/pyingestkit
 
-security:
+security: bootstrap
 	bandit -q -r src/pyingestkit examples/plugin_package/src
 	pip-audit
 
