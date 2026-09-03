@@ -22,3 +22,6 @@
 - ADR-019 One persistence engine — no Peewee
 - ADR-020 Foundation verify gate
 - ADR-021 Schema evolution — no Alembic before demonstrated need
+
+- ADR-022 HTTPX as default HTTP transport
+- ADR-023 Retry policy, idempotency and Retry-After

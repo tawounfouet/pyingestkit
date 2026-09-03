@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.2.0a1] - 2026-09-03
+
+### Acquisition Alpha 1 — HTTP + Retry
+
+- added framework-owned `HttpRequest`, `HttpResponse` and `HttpClient` contracts;
+- added `HttpxClient` as the default synchronous HTTP adapter behind the framework protocol;
+- added bounded request timeouts and redirect control;
+- added `HttpSource.fetch_response()` as the Alpha 1 transport acquisition surface;
+- added `RetryPolicy` backed internally by Tenacity;
+- default retries are conservative: GET/HEAD and transient HTTP status allowlist only;
+- added bounded exponential backoff, optional jitter and `Retry-After` support;
+- mapped HTTPX timeouts/transport failures to PyIngestKit exceptions;
+- added URL/header redaction at representation/error/logging boundaries;
+- added offline HTTP tests based on `httpx.MockTransport`;
+- added ADR-022 and ADR-023;
+- preserved the V0.1.6 Foundation public API and deferred HTTP → RAW integration to Alpha 2.
+
 ## [0.1.6] - 2026-09-03
 
 ### Foundation Persistence & Quality Hardening
