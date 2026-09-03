@@ -65,9 +65,7 @@ class MemoryMetadataStore(MetadataStore):
 
     def record_step(self, run_id: str, position: int, result: StepResult) -> None:
         self.steps = [
-            row
-            for row in self.steps
-            if not (row.run_id == run_id and row.position == position)
+            row for row in self.steps if not (row.run_id == run_id and row.position == position)
         ]
         self.steps.append(
             StepRecord(

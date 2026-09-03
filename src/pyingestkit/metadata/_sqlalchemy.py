@@ -243,17 +243,23 @@ class _SQLAlchemyMetadataStore(MetadataStore):
 
     def get_run(self, run_id_or_prefix: str) -> RunRecord:
         with self.engine.connect() as connection:
-            exact = connection.execute(
-                select(runs).where(runs.c.run_id == run_id_or_prefix)
-            ).mappings().one_or_none()
+            exact = (
+                connection.execute(select(runs).where(runs.c.run_id == run_id_or_prefix))
+                .mappings()
+                .one_or_none()
+            )
             if exact is not None:
                 return self._run_record(exact)
-            matches = connection.execute(
-                select(runs)
-                .where(runs.c.run_id.like(f"{run_id_or_prefix}%"))
-                .order_by(runs.c.started_at.desc())
-                .limit(2)
-            ).mappings().all()
+            matches = (
+                connection.execute(
+                    select(runs)
+                    .where(runs.c.run_id.like(f"{run_id_or_prefix}%"))
+                    .order_by(runs.c.started_at.desc())
+                    .limit(2)
+                )
+                .mappings()
+                .all()
+            )
         if not matches:
             raise KeyError(run_id_or_prefix)
         if len(matches) > 1:
@@ -262,9 +268,13 @@ class _SQLAlchemyMetadataStore(MetadataStore):
 
     def list_steps(self, run_id: str) -> tuple[StepRecord, ...]:
         with self.engine.connect() as connection:
-            rows = connection.execute(
-                select(steps).where(steps.c.run_id == run_id).order_by(steps.c.position)
-            ).mappings().all()
+            rows = (
+                connection.execute(
+                    select(steps).where(steps.c.run_id == run_id).order_by(steps.c.position)
+                )
+                .mappings()
+                .all()
+            )
         return tuple(
             StepRecord(
                 id=cast(int | None, row["id"]),
@@ -320,9 +330,13 @@ class _SQLAlchemyMetadataStore(MetadataStore):
 
     def list_events(self, run_id: str) -> tuple[EventRecord, ...]:
         with self.engine.connect() as connection:
-            rows = connection.execute(
-                select(events).where(events.c.run_id == run_id).order_by(events.c.id)
-            ).mappings().all()
+            rows = (
+                connection.execute(
+                    select(events).where(events.c.run_id == run_id).order_by(events.c.id)
+                )
+                .mappings()
+                .all()
+            )
         return tuple(
             EventRecord(
                 id=cast(int | None, row["id"]),
@@ -340,9 +354,15 @@ class _SQLAlchemyMetadataStore(MetadataStore):
 
     def list_validations(self, run_id: str) -> tuple[ValidationRecord, ...]:
         with self.engine.connect() as connection:
-            rows = connection.execute(
-                select(validations).where(validations.c.run_id == run_id).order_by(validations.c.id)
-            ).mappings().all()
+            rows = (
+                connection.execute(
+                    select(validations)
+                    .where(validations.c.run_id == run_id)
+                    .order_by(validations.c.id)
+                )
+                .mappings()
+                .all()
+            )
         return tuple(
             ValidationRecord(
                 id=cast(int | None, row["id"]),
@@ -358,11 +378,15 @@ class _SQLAlchemyMetadataStore(MetadataStore):
 
     def list_publications(self, run_id: str) -> tuple[PublicationRecord, ...]:
         with self.engine.connect() as connection:
-            rows = connection.execute(
-                select(publications)
-                .where(publications.c.run_id == run_id)
-                .order_by(publications.c.id)
-            ).mappings().all()
+            rows = (
+                connection.execute(
+                    select(publications)
+                    .where(publications.c.run_id == run_id)
+                    .order_by(publications.c.id)
+                )
+                .mappings()
+                .all()
+            )
         return tuple(
             PublicationRecord(
                 id=cast(int | None, row["id"]),

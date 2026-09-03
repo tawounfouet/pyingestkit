@@ -71,9 +71,9 @@ class HttpRawProvenanceTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             workspace = Path(tmp) / ".pyingest"
             metadata = SQLiteMetadataStore.for_workspace(workspace)
-            result = Runner(
-                LocalArtifactStore(workspace), metadata_store=metadata
-            ).run(HttpRawJob(source))
+            result = Runner(LocalArtifactStore(workspace), metadata_store=metadata).run(
+                HttpRawJob(source)
+            )
 
             self.assertTrue(result.succeeded)
             records = metadata.list_artifacts(result.run_id)
@@ -90,7 +90,9 @@ class HttpRawProvenanceTests(unittest.TestCase):
             self.assertIn("REDACTED", record.resolved_url or "")
             self.assertEqual(Path(record.path).read_bytes(), _PAYLOAD)
 
-            manifest_path = workspace / "runs" / "demo" / "http_raw" / result.run_id / "manifest.json"
+            manifest_path = (
+                workspace / "runs" / "demo" / "http_raw" / result.run_id / "manifest.json"
+            )
             payload = json.loads(manifest_path.read_text(encoding="utf-8"))
             artifact = payload["artifacts"][0]
             expected_keys = {
