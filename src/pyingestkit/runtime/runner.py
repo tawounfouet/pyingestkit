@@ -280,7 +280,9 @@ class Runner:
                                     )
                                 )
                             except Exception as hook_exc:  # noqa: BLE001 - lifecycle hook boundary
-                                warnings.append(f"Failed emitting STEP_FAILED lifecycle event: {hook_exc}")
+                                warnings.append(
+                                    f"Failed emitting STEP_FAILED lifecycle event: {hook_exc}"
+                                )
                             break
             except Exception as exc:  # noqa: BLE001 - run lifecycle boundary
                 status = RunStatus.FAILED
