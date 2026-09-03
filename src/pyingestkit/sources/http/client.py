@@ -11,8 +11,7 @@ from .response import HttpResponse
 
 
 class HttpClient(Protocol):
-    def send(self, request: HttpRequest) -> HttpResponse:
-        ...
+    def send(self, request: HttpRequest) -> HttpResponse: ...
 
 
 class HttpxClient:

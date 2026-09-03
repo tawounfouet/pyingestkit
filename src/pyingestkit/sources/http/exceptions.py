@@ -42,4 +42,6 @@ class HttpStatusError(HttpError):
         self.url = url
         self.status_code = status_code
         self.headers = dict(headers or {})
-        super().__init__(f"HTTP request failed: {method} {sanitize_url(url)} returned {status_code}")
+        super().__init__(
+            f"HTTP request failed: {method} {sanitize_url(url)} returned {status_code}"
+        )
