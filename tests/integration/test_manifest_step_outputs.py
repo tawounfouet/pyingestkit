@@ -30,12 +30,7 @@ class ManifestStepOutputTests(unittest.TestCase):
 
             self.assertTrue(result.succeeded, result.error)
             manifest_path = (
-                workspace
-                / "runs"
-                / "demo"
-                / "manifest_dataset"
-                / result.run_id
-                / "manifest.json"
+                workspace / "runs" / "demo" / "manifest_dataset" / result.run_id / "manifest.json"
             )
             payload = json.loads(manifest_path.read_text(encoding="utf-8"))
             self.assertEqual(payload["steps"][0]["step_name"], "ProduceDataset")
