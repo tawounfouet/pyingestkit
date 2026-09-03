@@ -33,7 +33,7 @@ def status_command(
         typer.Option("--json", help="Emit machine-readable JSON."),
     ] = False,
 ) -> None:
-    """Inspect one persisted run, its steps, artifacts, and runtime events."""
+    """Inspect one persisted run, its artifacts, validations, and runtime events."""
     project_config = project_config_or_exit(config)
     effective_workspace = workspace or project_config.runtime.workspace
     store = metadata_store_or_exit(project_config, workspace=effective_workspace)
@@ -45,6 +45,7 @@ def status_command(
         fail(str(exc), code=2)
     steps = store.list_steps(run.run_id)
     artifacts = store.list_artifacts(run.run_id)
+    validations = store.list_validations(run.run_id)
     events = store.list_events(run.run_id)
 
     if json_output:
@@ -77,10 +78,26 @@ def status_command(
                     "kind": row.kind,
                     "path": row.path,
                     "source_uri": row.source_uri,
+                    "resolved_url": row.resolved_url,
+                    "status_code": row.status_code,
+                    "content_type": row.content_type,
+                    "etag": row.etag,
+                    "last_modified": row.last_modified,
+                    "retrieved_at": row.retrieved_at.isoformat(),
                     "sha256": row.sha256,
                     "size_bytes": row.size_bytes,
                 }
                 for row in artifacts
+            ],
+            "validations": [
+                {
+                    "rule": row.rule,
+                    "severity": row.severity,
+                    "status": row.status,
+                    "message": row.message,
+                    "metadata": row.metadata,
+                }
+                for row in validations
             ],
             "events": [
                 {
@@ -114,12 +131,12 @@ def status_command(
     step_table.add_column("Step")
     step_table.add_column("Status")
     step_table.add_column("Duration", justify="right")
-    for row in steps:
+    for step_record in steps:
         step_table.add_row(
-            str(row.position),
-            row.step_name,
-            row.status,
-            f"{row.duration_seconds:.3f}s",
+            str(step_record.position),
+            step_record.step_name,
+            step_record.status,
+            f"{step_record.duration_seconds:.3f}s",
         )
     console.print(step_table)
 
@@ -127,7 +144,25 @@ def status_command(
     artifact_table.add_column("Kind")
     artifact_table.add_column("Path")
     artifact_table.add_column("SHA-256")
-    for artifact in artifacts:
-        artifact_table.add_row(artifact.kind, artifact.path, artifact.sha256[:12] + "…")
+    for artifact_record in artifacts:
+        artifact_table.add_row(
+            artifact_record.kind, artifact_record.path, artifact_record.sha256[:12] + "…"
+        )
     console.print(artifact_table)
+
+    if validations:
+        validation_table = Table(title="Validations", show_header=True, header_style="bold")
+        validation_table.add_column("Rule")
+        validation_table.add_column("Status")
+        validation_table.add_column("Severity")
+        validation_table.add_column("Message")
+        for validation in validations:
+            validation_table.add_row(
+                validation.rule,
+                validation.status,
+                validation.severity,
+                validation.message,
+            )
+        console.print(validation_table)
+
     console.print(f"[dim]{len(events)} runtime event(s) persisted[/dim]")

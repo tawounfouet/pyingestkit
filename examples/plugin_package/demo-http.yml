@@ -1,0 +1,19 @@
+runtime:
+  workspace: .pyingest
+  fixture_mode: true
+  parameters: {}
+
+metadata:
+  backend: sqlite
+
+logging:
+  level: INFO
+  format: rich
+  console: true
+  file:
+    enabled: true
+    path: .pyingest/logs/pyingest.log
+    level: DEBUG
+    format: json
+    max_bytes: 1000000
+    backup_count: 3

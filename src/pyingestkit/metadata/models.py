@@ -45,6 +45,15 @@ class ArtifactRecord:
     size_bytes: int
     sha256: str
     created_at: datetime
+    resolved_url: str | None = None
+    status_code: int | None = None
+    etag: str | None = None
+    last_modified: str | None = None
+
+    @property
+    def retrieved_at(self) -> datetime:
+        """Acquisition timestamp; `created_at` remains the storage-compatible column name."""
+        return self.created_at
 
 
 @dataclass(frozen=True, slots=True)

@@ -3,17 +3,26 @@
 import logging as _stdlib_logging
 
 from ._version import __version__ as __version__
+from .contracts import DatasetContract, FieldContract
 from .core.context import RunContext
 from .core.job import Job
 from .core.pipeline import Pipeline
 from .core.result import RunResult, RunStatus, StepResult
 from .core.step import Step
+from .dataset import Dataset
 from .declarative import JobDefinition, StepDefinition, StepInvocation, job, step
+from .parsers import CsvParser, JsonParser
 from .runtime.runner import Runner
+from .validation import ValidationIssue, ValidationResult
 
 __all__ = [
+    "CsvParser",
+    "Dataset",
+    "DatasetContract",
+    "FieldContract",
     "Job",
     "JobDefinition",
+    "JsonParser",
     "Pipeline",
     "RunContext",
     "RunResult",
@@ -23,6 +32,8 @@ __all__ = [
     "StepDefinition",
     "StepInvocation",
     "StepResult",
+    "ValidationIssue",
+    "ValidationResult",
     "job",
     "step",
 ]

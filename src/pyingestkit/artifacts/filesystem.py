@@ -54,6 +54,10 @@ class LocalArtifactStore(ArtifactStore):
         data: bytes,
         source_uri: str,
         content_type: str | None = None,
+        resolved_url: str | None = None,
+        status_code: int | None = None,
+        etag: str | None = None,
+        last_modified: str | None = None,
     ) -> RawArtifact:
         self.prepare_run(job_id, run_id)
         digest = sha256_bytes(data)
@@ -74,6 +78,10 @@ class LocalArtifactStore(ArtifactStore):
             size_bytes=len(data),
             sha256=digest,
             path=str(path),
+            resolved_url=resolved_url,
+            status_code=status_code,
+            etag=etag,
+            last_modified=last_modified,
         )
 
     def write_json(self, job_id: str, run_id: UUID, relative_path: str, payload: Any) -> Path:

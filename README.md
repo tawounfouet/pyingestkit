@@ -10,7 +10,7 @@
 
 > Transform an external source into a reliable, validated, reproducible and publishable dataset without rewriting ingestion plumbing for every job.
 
-This repository contains **V0.1.6 — Foundation Persistence & Quality Hardening**, the frozen V0.1.x Foundation baseline. The complete `make verify` gate is green; V0.2 acquisition capabilities can now evolve on top of this baseline without reopening Foundation concerns except for confirmed bugs or security issues.
+This repository contains **V0.2.0 — Acquisition Release**, the first stable V0.2 release built on the frozen V0.1.6 Foundation. It connects HTTP acquisition, bounded retry, immutable RAW/provenance, CSV/JSON parsing, dependency-neutral datasets, dataset contracts, runtime validation evidence, manifests, metadata and events into complete reference slices.
 
 ## Product boundary
 
@@ -18,7 +18,7 @@ PyIngestKit owns **HOW TO INGEST**. External orchestrators own **WHEN TO RUN**.
 
 It is not Airflow, Dagster, Prefect, Celery, a distributed DAG scheduler, a Data Platform, a Data Catalog, an IAM platform, or an AI/agent framework.
 
-## What V0.1.6 provides
+## What V0.2.0 provides
 
 - recommended declarative `@job` / `@step` API;
 - advanced imperative `Job` / `Step` / `Pipeline` API;
@@ -37,7 +37,14 @@ It is not Airflow, Dagster, Prefect, Celery, a distributed DAG scheduler, a Data
 - `-v/--verbose`, `-q/--quiet`;
 - `pyingest runs` and `pyingest status`;
 - plugin failure isolation;
-- basic validation and atomic publication primitives.
+- basic validation and atomic publication primitives;
+- framework-owned synchronous HTTP acquisition through `HttpSource` / `HttpxClient`;
+- conservative bounded retries through `RetryPolicy`, including `Retry-After`;
+- sanitized HTTP provenance associated with immutable RAW artifacts;
+- dependency-neutral `Dataset`;
+- structural `CsvParser` and `JsonParser`;
+- `FieldContract` / `DatasetContract` validation without business normalization;
+- runtime-observed `ValidationResult` persisted to manifest/metadata/events.
 
 ## Installation
 
@@ -113,7 +120,11 @@ pyingest --version
 pyingest --help
 pyingest jobs
 pyingest inspect demo.local_file
+pyingest inspect demo.http_csv
+pyingest inspect demo.http_json
 pyingest run demo.local_file --config examples/plugin_package/demo.yml
+pyingest run demo.http_csv --config examples/plugin_package/demo-http.yml
+pyingest run demo.http_json --config examples/plugin_package/demo-http.yml
 pyingest runs
 pyingest status <run-id-or-prefix>
 ```
@@ -255,13 +266,95 @@ YAML
 explicit CLI runtime options
 ```
 
+## V0.2.0-a2 — HTTP → RAW acquisition
+
+Alpha 2 closes the first complete acquisition loop without introducing parsers:
+
+```text
+HttpSource
+    │
+    ▼
+HttpClient / HttpxClient
+    │
+    ├── RetryPolicy
+    │
+    ▼
+HTTP response bytes
+    │
+    ▼
+immutable RawArtifact + SHA-256
+    │
+    ├── manifest.json
+    └── MetadataStore
+```
+
+Example framework usage inside a job step:
+
+```python
+from pyingestkit.sources.http import HttpSource
+
+artifact = HttpSource(
+    "https://data.example.org/export.bin",
+    headers={"Authorization": "Bearer ..."},
+).fetch(context)
+```
+
+The returned `RawArtifact` records `source_uri`, `resolved_url`, HTTP status, content type, ETag, Last-Modified, retrieval time, byte size and SHA-256. Only a narrow provenance allow-list is persisted: authorization/cookie/API-key/token headers are never copied into RAW metadata or the manifest, and secret-looking URL/query values are redacted before persistence.
+
+HTTP-specific relational metadata lives in `artifact_http_provenance`, leaving the generic `artifacts` table backward-compatible with the Foundation / Alpha 1 schema.
+
+## V0.2.0-b1 — Dataset + CSV/JSON + Contracts
+
+Beta 1 adds the first structured-data layer above RAW artifacts:
+
+```text
+RawArtifact
+     │
+     ▼
+   Parser
+ ┌───┴────┐
+ ▼        ▼
+CSV      JSON
+ └───┬────┘
+     ▼
+  Dataset
+     │
+     ▼
+DatasetContract
+```
+
+`Dataset` is a PyIngestKit-owned, dependency-neutral container. It is deliberately **not** a Pandas, Polars, or Arrow abstraction. `CsvParser` preserves CSV cells as strings; `JsonParser` preserves JSON-native values. Neither parser trims, renames, enriches, flattens, or performs business type conversion.
+
+```python
+from pyingestkit import CsvParser, DatasetContract, FieldContract
+
+dataset = CsvParser().parse(raw_artifact)
+result = DatasetContract(
+    fields=(
+        FieldContract("id", nullable=False, expected_type=str, unique=True),
+        FieldContract("name", nullable=False, expected_type=str),
+    ),
+    allow_extra_fields=False,
+    min_rows=1,
+).validate(dataset)
+
+if not result.is_valid:
+    ...
+```
+
+The boundary is explicit: `Parser != business normalizer`, and `DatasetContract` validates without mutating the dataset.
+
 ## Demo
 
 ```bash
 python -m pip install -e examples/plugin_package
 pyingest jobs
 pyingest inspect demo.local_file
+pyingest inspect demo.http_csv
+pyingest inspect demo.http_json
 pyingest run demo.local_file --config examples/plugin_package/demo.yml
+pyingest run demo.http_csv --config examples/plugin_package/demo-http.yml
+pyingest run demo.http_json --config examples/plugin_package/demo-http.yml
 pyingest runs
 ```
 
@@ -293,18 +386,75 @@ make quality
 make security
 make build
 make verify
+make wheel-smoke
+make release-check
 ```
 
-`make verify` is the operational Foundation freeze gate. It aggregates functional tests, public API/compile checks, Ruff lint + formatting, Mypy strict typing, Bandit, pip-audit and package builds. V0.1.6 is the first frozen Foundation baseline for which this complete gate is green in the reference environment.
+`make verify` remains the complete source gate inherited from the Foundation: functional tests, public API/compile checks, Ruff lint + formatting, Mypy strict typing, Bandit, pip-audit and package builds. For V0.2.0, the release process adds a fresh-environment wheel smoke test over the built framework and demo-job wheels before artifacts are accepted.
 
-## V0.2 boundary
+## V0.2.0 acquisition release
 
-V0.2 may now add acquisition capabilities on top of the frozen Foundation:
+V0.2.0 completes the acquisition milestone that was built incrementally on the frozen Foundation:
 
-- HTTP source/client;
-- retry policy;
-- CSV parser;
-- JSON parser;
-- Dataset Contracts.
+- HTTP source/client — **released**;
+- retry policy — **released**;
+- HTTP → immutable RAW + provenance — **released**;
+- CSV parser — **released**;
+- JSON parser — **released**;
+- dependency-neutral Dataset — **released**;
+- Dataset Contracts — **released**.
 
 The complete stabilization rationale and guardrails are documented under `docs/architecture/foundation-stabilization-v0.1xx.md`.
+
+## V0.2.0 — complete acquisition reference slice
+
+The stable release connects the V0.2 layers into installable, executable reference jobs:
+
+```text
+demo.http_csv
+HttpSource -> Retry -> RAW -> CsvParser -> Dataset -> DatasetContract -> Validation
+
+demo.http_json
+HttpSource -> Retry -> RAW -> JsonParser -> Dataset -> DatasetContract -> Validation
+```
+
+Together with the Foundation demo, the expected installed job set is:
+
+```text
+demo.local_file
+demo.http_csv
+demo.http_json
+```
+
+Run the HTTP slices deterministically without network access:
+
+```bash
+pyingest run demo.http_csv --config examples/plugin_package/demo-http.yml
+pyingest run demo.http_json --config examples/plugin_package/demo-http.yml
+```
+
+The fixture transport is confined to the demo package. Production job code can pass a real `url` without fixture mode and uses `HttpxClient` through `HttpSource`.
+
+A `ValidationResult` returned by a step is now written to the manifest, indexed in MetadataStore, and announced through `VALIDATION_COMPLETED`. ERROR issues fail the run after evidence is persisted; warnings/review issues remain non-fatal.
+
+For a fresh development environment, upgrade packaging tooling before the security gate so `pip-audit` does not report vulnerabilities in an outdated `pip` executable itself:
+
+```bash
+python -m pip install --upgrade pip
+python -m pip install -e ".[dev]"
+```
+
+## V0.2.0 release artifacts
+
+The official release is validated as three complementary artifact families:
+
+```text
+pyingestkit-v0.2.0.zip
+dist/pyingestkit-0.2.0.tar.gz
+dist/pyingestkit-0.2.0-py3-none-any.whl
+examples/plugin_package/dist/pyingestkit_demo_jobs-0.2.0.tar.gz
+examples/plugin_package/dist/pyingestkit_demo_jobs-0.2.0-py3-none-any.whl
+pyingestkit-v0.2.0-validation-evidence.zip
+```
+
+The source ZIP excludes virtual environments, runtime workspaces, caches, build outputs, generated distributions, bytecode and egg-info directories. The validation-evidence ZIP contains command outputs and SHA-256 checksums, not source code.

@@ -13,3 +13,7 @@ class RawArtifact:
     size_bytes: int
     sha256: str
     path: str
+    resolved_url: str | None = None
+    status_code: int | None = None
+    etag: str | None = None
+    last_modified: str | None = None

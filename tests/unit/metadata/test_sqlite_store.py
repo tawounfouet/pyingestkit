@@ -17,7 +17,15 @@ class SQLiteStoreTests(unittest.TestCase):
             with closing(sqlite3.connect(path)) as connection:
                 rows = connection.execute("SELECT name FROM sqlite_master WHERE type='table'")
                 names = {row[0] for row in rows}
-            for table in ("runs", "steps", "artifacts", "validations", "publications", "events"):
+            for table in (
+                "runs",
+                "steps",
+                "artifacts",
+                "artifact_http_provenance",
+                "validations",
+                "publications",
+                "events",
+            ):
                 self.assertIn(table, names)
 
     def test_for_workspace_uses_standard_state_path(self) -> None:

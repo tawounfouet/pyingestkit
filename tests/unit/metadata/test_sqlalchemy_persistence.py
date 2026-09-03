@@ -50,6 +50,51 @@ class SQLAlchemyPersistenceTests(unittest.TestCase):
         )
         self.assertTrue(issubclass(PostgresMetadataStore, MetadataStore))
 
+    def test_sqlite_adds_a2_http_provenance_table_without_altering_artifacts(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "state" / "pyingest.sqlite3"
+            path.parent.mkdir(parents=True, exist_ok=True)
+            legacy_columns = {
+                "artifact_id",
+                "run_id",
+                "kind",
+                "path",
+                "source_uri",
+                "content_type",
+                "size_bytes",
+                "sha256",
+                "created_at",
+            }
+            with closing(sqlite3.connect(path)) as connection:
+                connection.execute(
+                    """CREATE TABLE artifacts (
+                        artifact_id TEXT PRIMARY KEY,
+                        run_id TEXT NOT NULL,
+                        kind TEXT NOT NULL,
+                        path TEXT NOT NULL,
+                        source_uri TEXT NOT NULL,
+                        content_type TEXT,
+                        size_bytes INTEGER NOT NULL,
+                        sha256 TEXT NOT NULL,
+                        created_at TEXT NOT NULL
+                    )"""
+                )
+                connection.commit()
+
+            store = SQLiteMetadataStore(path)
+            with store.engine.connect() as connection:
+                artifact_columns = {
+                    row[1] for row in connection.exec_driver_sql("PRAGMA table_info(artifacts)")
+                }
+                tables = {
+                    row[0]
+                    for row in connection.exec_driver_sql(
+                        "SELECT name FROM sqlite_master WHERE type='table'"
+                    )
+                }
+            self.assertEqual(artifact_columns, legacy_columns)
+            self.assertIn("artifact_http_provenance", tables)
+
     def test_sqlite_reads_v015_text_schema_without_migration(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "state" / "pyingest.sqlite3"
