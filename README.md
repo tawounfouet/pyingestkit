@@ -4,7 +4,7 @@
 
 > Transform an external source into a reliable, validated, reproducible and publishable dataset without rewriting ingestion plumbing for every job.
 
-This repository contains **V0.1.5 — Foundation Consolidation**, the stabilized V0.1.x foundation before V0.2 acquisition capabilities.
+This repository contains **V0.1.6 — Foundation Persistence & Quality Hardening**, the V0.1.x foundation candidate that must pass `make verify` before V0.2 acquisition capabilities begin.
 
 ## Product boundary
 
@@ -12,7 +12,7 @@ PyIngestKit owns **HOW TO INGEST**. External orchestrators own **WHEN TO RUN**.
 
 It is not Airflow, Dagster, Prefect, Celery, a distributed DAG scheduler, a Data Platform, a Data Catalog, an IAM platform, or an AI/agent framework.
 
-## What V0.1.5 provides
+## What V0.1.6 provides
 
 - recommended declarative `@job` / `@step` API;
 - advanced imperative `Job` / `Step` / `Pipeline` API;
@@ -24,7 +24,8 @@ It is not Airflow, Dagster, Prefect, Celery, a distributed DAG scheduler, a Data
 - manifest generation with automatic RAW artifact registration;
 - `MetadataStore` abstraction;
 - SQLite metadata backend by default;
-- optional PostgreSQL metadata adapter (`pyingestkit[postgres]`);
+- SQLAlchemy 2.x Core as the internal metadata persistence engine;
+- optional PostgreSQL metadata adapter (`pyingestkit[postgres]` + psycopg);
 - persisted runs, steps, artifacts, validations, publications, and structural runtime events;
 - Rich/plain/JSON logging, rotating files, contextual logging, secret redaction;
 - `-v/--verbose`, `-q/--quiet`;
@@ -260,6 +261,24 @@ pyingest runs
 
 The demo plugin itself is authored with `@step` / `@job` and exposes a `JobDefinition` through the `pyingestkit.jobs` entry-point group.
 
+## Persistence implementation guardrail
+
+`MetadataStore` is the framework contract. SQLAlchemy is an **internal persistence detail**:
+
+```text
+Runner / CLI
+    ↓
+MetadataStore
+    ↓
+SQLAlchemy Core
+   ├── SQLite
+   └── PostgreSQL + psycopg
+```
+
+Domain records (`RunRecord`, `StepRecord`, etc.) remain plain Python dataclasses. PyIngestKit does not expose SQLAlchemy sessions, declarative models, columns, or engines through its top-level job API. Peewee is deliberately not introduced: one persistence engine is enough. Alembic remains deferred until schema migration requirements are demonstrated by real releases.
+
+SQLite enables foreign keys, WAL journal mode and a bounded busy timeout. PostgreSQL remains selected only through the `MetadataStore` adapter and a DSN sourced from an environment variable.
+
 ## Quality gates
 
 ```bash
@@ -267,9 +286,10 @@ make test
 make quality
 make security
 make build
+make verify
 ```
 
-Foundation CI is intended to validate compileall, pytest, coverage, Ruff, Mypy, Bandit, pip-audit, wheel build/install, demo plugin wheel install, and CLI smoke tests.
+`make verify` is the operational Foundation freeze gate. It aggregates functional tests, public API/compile checks, Ruff lint + formatting, Mypy strict typing, Bandit, pip-audit and package builds. V0.2 must not start while this command is red in the reference CI environment.
 
 ## V0.2 boundary
 

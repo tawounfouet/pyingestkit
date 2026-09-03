@@ -9,6 +9,7 @@ from pyingestkit.plugins.discovery import discover_plugins
 
 class Healthy(Job):
     id = "demo.healthy"
+
     def pipeline(self) -> Pipeline:
         return Pipeline([])
 
@@ -18,6 +19,7 @@ class FakeEntryPoint:
         self.name = name
         self.value = value
         self.error = error
+
     def load(self):
         if self.error:
             raise self.error

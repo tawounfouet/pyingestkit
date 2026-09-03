@@ -13,9 +13,25 @@ from pyingestkit.cli.console import console
 
 def status_command(
     run_id: Annotated[str, typer.Argument(help="Full run UUID or unique prefix.")],
-    config: Annotated[Path | None, typer.Option("--config", "-c", exists=True, file_okay=True, dir_okay=False, readable=True)] = None,
-    workspace: Annotated[Path | None, typer.Option("--workspace", "-w", file_okay=False, dir_okay=True)] = None,
-    json_output: Annotated[bool, typer.Option("--json", help="Emit machine-readable JSON.")] = False,
+    config: Annotated[
+        Path | None,
+        typer.Option(
+            "--config",
+            "-c",
+            exists=True,
+            file_okay=True,
+            dir_okay=False,
+            readable=True,
+        ),
+    ] = None,
+    workspace: Annotated[
+        Path | None,
+        typer.Option("--workspace", "-w", file_okay=False, dir_okay=True),
+    ] = None,
+    json_output: Annotated[
+        bool,
+        typer.Option("--json", help="Emit machine-readable JSON."),
+    ] = False,
 ) -> None:
     """Inspect one persisted run, its steps, artifacts, and runtime events."""
     project_config = project_config_or_exit(config)
@@ -46,15 +62,34 @@ def status_command(
                 "error": run.error,
             },
             "steps": [
-                {"position": row.position, "name": row.step_name, "status": row.status, "duration_seconds": row.duration_seconds, "error": row.error}
+                {
+                    "position": row.position,
+                    "name": row.step_name,
+                    "status": row.status,
+                    "duration_seconds": row.duration_seconds,
+                    "error": row.error,
+                }
                 for row in steps
             ],
             "artifacts": [
-                {"artifact_id": row.artifact_id, "kind": row.kind, "path": row.path, "source_uri": row.source_uri, "sha256": row.sha256, "size_bytes": row.size_bytes}
+                {
+                    "artifact_id": row.artifact_id,
+                    "kind": row.kind,
+                    "path": row.path,
+                    "source_uri": row.source_uri,
+                    "sha256": row.sha256,
+                    "size_bytes": row.size_bytes,
+                }
                 for row in artifacts
             ],
             "events": [
-                {"type": row.event_type, "timestamp": row.timestamp.isoformat(), "step": row.step, "level": row.level, "metadata": row.metadata}
+                {
+                    "type": row.event_type,
+                    "timestamp": row.timestamp.isoformat(),
+                    "step": row.step,
+                    "level": row.level,
+                    "metadata": row.metadata,
+                }
                 for row in events
             ],
         }
@@ -69,7 +104,8 @@ def status_command(
     metadata.add_row("Version", run.job_version)
     metadata.add_row("Status", run.status)
     metadata.add_row("Started", run.started_at.astimezone().strftime("%Y-%m-%d %H:%M:%S"))
-    metadata.add_row("Duration", f"{run.duration_seconds:.3f}s" if run.duration_seconds is not None else "—")
+    duration = f"{run.duration_seconds:.3f}s" if run.duration_seconds is not None else "—"
+    metadata.add_row("Duration", duration)
     metadata.add_row("Error", run.error or "—")
     console.print(metadata)
 
@@ -79,14 +115,19 @@ def status_command(
     step_table.add_column("Status")
     step_table.add_column("Duration", justify="right")
     for row in steps:
-        step_table.add_row(str(row.position), row.step_name, row.status, f"{row.duration_seconds:.3f}s")
+        step_table.add_row(
+            str(row.position),
+            row.step_name,
+            row.status,
+            f"{row.duration_seconds:.3f}s",
+        )
     console.print(step_table)
 
     artifact_table = Table(title="Artifacts", show_header=True, header_style="bold")
     artifact_table.add_column("Kind")
     artifact_table.add_column("Path")
     artifact_table.add_column("SHA-256")
-    for row in artifacts:
-        artifact_table.add_row(row.kind, row.path, row.sha256[:12] + "…")
+    for artifact in artifacts:
+        artifact_table.add_row(artifact.kind, artifact.path, artifact.sha256[:12] + "…")
     console.print(artifact_table)
     console.print(f"[dim]{len(events)} runtime event(s) persisted[/dim]")

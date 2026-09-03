@@ -4,7 +4,14 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from .models import ArtifactRecord, EventRecord, PublicationRecord, RunRecord, StepRecord, ValidationRecord
+from .models import (
+    ArtifactRecord,
+    EventRecord,
+    PublicationRecord,
+    RunRecord,
+    StepRecord,
+    ValidationRecord,
+)
 
 if TYPE_CHECKING:
     from pyingestkit.artifacts.raw import RawArtifact
@@ -25,34 +32,48 @@ class MetadataStore(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def start_run(self, context: "RunContext") -> None:
+    def start_run(self, context: RunContext) -> None:
         raise NotImplementedError
 
     @abstractmethod
-    def finish_run(self, result: "RunResult") -> None:
+    def finish_run(self, result: RunResult) -> None:
         raise NotImplementedError
 
     @abstractmethod
-    def record_step(self, run_id: str, position: int, result: "StepResult") -> None:
+    def record_step(self, run_id: str, position: int, result: StepResult) -> None:
         raise NotImplementedError
 
     @abstractmethod
-    def record_artifact(self, run_id: str, artifact: "RawArtifact", *, kind: str = "raw") -> None:
+    def record_artifact(self, run_id: str, artifact: RawArtifact, *, kind: str = "raw") -> None:
         raise NotImplementedError
 
     @abstractmethod
-    def record_event(self, event: "Event") -> None:
+    def record_event(self, event: Event) -> None:
         raise NotImplementedError
 
     @abstractmethod
     def record_validation(
-        self, run_id: str, *, rule: str, severity: str, status: str, message: str, metadata: dict[str, object] | None = None
+        self,
+        run_id: str,
+        *,
+        rule: str,
+        severity: str,
+        status: str,
+        message: str,
+        metadata: dict[str, object] | None = None,
     ) -> None:
         raise NotImplementedError
 
     @abstractmethod
     def record_publication(
-        self, run_id: str, *, dataset_id: str, status: str, candidate_path: str | None = None, published_path: str | None = None, published_at: datetime | None = None
+        self,
+        run_id: str,
+        *,
+        dataset_id: str,
+        status: str,
+        candidate_path: str | None = None,
+        published_path: str | None = None,
+        published_at: datetime | None = None,
     ) -> None:
         raise NotImplementedError
 

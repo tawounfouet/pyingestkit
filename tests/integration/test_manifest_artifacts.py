@@ -19,6 +19,7 @@ class Fetch(Step):
 
 class Demo(Job):
     id = "demo.manifest_artifact"
+
     def pipeline(self) -> Pipeline:
         return Pipeline([Fetch()])
 
@@ -37,8 +38,13 @@ class ManifestArtifactTests(unittest.TestCase):
             manifest = next(workspace.rglob("manifest.json"))
             payload = json.loads(manifest.read_text(encoding="utf-8"))
             self.assertEqual(len(payload["artifacts"]), 1)
+            self.assertIn("T", payload["started_at"])
+            self.assertIn("T", payload["artifacts"][0]["retrieved_at"])
             self.assertEqual(len(store.list_artifacts(result.run_id)), 1)
-            self.assertEqual(payload["artifacts"][0]["sha256"], store.list_artifacts(result.run_id)[0].sha256)
+            self.assertEqual(
+                payload["artifacts"][0]["sha256"],
+                store.list_artifacts(result.run_id)[0].sha256,
+            )
 
 
 if __name__ == "__main__":

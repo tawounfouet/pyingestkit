@@ -1,7 +1,14 @@
 from .base import MetadataStore
 from .factory import create_metadata_store
 from .memory import MemoryMetadataStore
-from .models import ArtifactRecord, EventRecord, PublicationRecord, RunRecord, StepRecord, ValidationRecord
+from .models import (
+    ArtifactRecord,
+    EventRecord,
+    PublicationRecord,
+    RunRecord,
+    StepRecord,
+    ValidationRecord,
+)
 from .postgres import PostgresMetadataStore
 from .sqlite import SQLiteMetadataStore
 

@@ -22,6 +22,7 @@ class VerboseStep(Step):
 
 class Demo(Job):
     id = "demo.cli_history"
+
     def pipeline(self) -> Pipeline:
         return Pipeline([VerboseStep()])
 
@@ -31,7 +32,9 @@ class CliRunHistoryTests(unittest.TestCase):
         self.runner = CliRunner()
         registry = JobRegistry()
         registry.register(Demo())
-        self.registry_patch = patch("pyingestkit.cli.commands.run.get_registry", return_value=registry)
+        self.registry_patch = patch(
+            "pyingestkit.cli.commands.run.get_registry", return_value=registry
+        )
         self.registry_patch.start()
 
     def tearDown(self) -> None:
@@ -44,7 +47,9 @@ class CliRunHistoryTests(unittest.TestCase):
     def test_run_then_runs_then_status(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             workspace = Path(tmp) / ".pyingest"
-            run_result = self.runner.invoke(app, ["run", "demo.cli_history", "--workspace", str(workspace), "--json"])
+            run_result = self.runner.invoke(
+                app, ["run", "demo.cli_history", "--workspace", str(workspace), "--json"]
+            )
             self.assertEqual(run_result.exit_code, 0, run_result.output)
             payload = json.loads(run_result.stdout)
             self.assertTrue((workspace / "state" / "pyingest.sqlite3").is_file())
@@ -54,7 +59,10 @@ class CliRunHistoryTests(unittest.TestCase):
             runs = json.loads(runs_result.stdout)
             self.assertEqual(runs[0]["run_id"], payload["run_id"])
 
-            status_result = self.runner.invoke(app, ["status", payload["run_id"][:8], "--workspace", str(workspace), "--json"])
+            status_result = self.runner.invoke(
+                app,
+                ["status", payload["run_id"][:8], "--workspace", str(workspace), "--json"],
+            )
             self.assertEqual(status_result.exit_code, 0, status_result.output)
             status = json.loads(status_result.stdout)
             self.assertEqual(status["run"]["status"], "SUCCESS")
@@ -67,7 +75,9 @@ class CliRunHistoryTests(unittest.TestCase):
 
     def test_verbose_exposes_debug_console_log(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
-            result = self.runner.invoke(app, ["run", "demo.cli_history", "--workspace", tmp, "-v", "--json"])
+            result = self.runner.invoke(
+                app, ["run", "demo.cli_history", "--workspace", tmp, "-v", "--json"]
+            )
             self.assertEqual(result.exit_code, 0, result.output)
             self.assertIn("internal debug marker", result.stderr)
             self.assertNotIn("internal debug marker", result.stdout)
@@ -75,7 +85,9 @@ class CliRunHistoryTests(unittest.TestCase):
 
     def test_quiet_suppresses_info_logs(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
-            result = self.runner.invoke(app, ["run", "demo.cli_history", "--workspace", tmp, "-q", "--json"])
+            result = self.runner.invoke(
+                app, ["run", "demo.cli_history", "--workspace", tmp, "-q", "--json"]
+            )
             self.assertEqual(result.exit_code, 0, result.output)
             self.assertNotIn("Run started", result.stderr)
             json.loads(result.stdout)

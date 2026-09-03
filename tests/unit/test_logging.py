@@ -37,7 +37,12 @@ class LoggingTests(unittest.TestCase):
             log_path = Path(tmp) / "logs" / "pyingest.log"
             config = LoggingConfig(
                 console=False,
-                file=FileLoggingConfig(enabled=True, path=log_path, level="INFO", format=LogOutputFormat.JSON),
+                file=FileLoggingConfig(
+                    enabled=True,
+                    path=log_path,
+                    level="INFO",
+                    format=LogOutputFormat.JSON,
+                ),
             )
             configure_logging(config)
             logger = logging.getLogger("pyingestkit.tests.logging")
@@ -56,7 +61,9 @@ class LoggingTests(unittest.TestCase):
         original_stderr = __import__("sys").stderr
         try:
             __import__("sys").stderr = stream
-            configure_logging(LoggingConfig(level="INFO", format=LogOutputFormat.PLAIN, console=True))
+            configure_logging(
+                LoggingConfig(level="INFO", format=LogOutputFormat.PLAIN, console=True)
+            )
             with log_context(
                 run_id="785c1cdc-3735-4a0b-97d7-304bb2702a80",
                 job_id="demo.local_file",
@@ -77,7 +84,12 @@ class LoggingTests(unittest.TestCase):
             configure_logging(
                 LoggingConfig(
                     console=False,
-                    file=FileLoggingConfig(enabled=True, path=log_path, level="DEBUG", format=LogOutputFormat.PLAIN),
+                    file=FileLoggingConfig(
+                        enabled=True,
+                        path=log_path,
+                        level="DEBUG",
+                        format=LogOutputFormat.PLAIN,
+                    ),
                 )
             )
             logging.getLogger("pyingestkit.tests.logging").debug("plain log works")

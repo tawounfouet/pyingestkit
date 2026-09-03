@@ -3,14 +3,14 @@ from __future__ import annotations
 from collections import defaultdict
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 from typing import Any
 
 from .exceptions import HookError
 
 
-class EventType(str, Enum):
+class EventType(StrEnum):
     RUN_STARTED = "RUN_STARTED"
     STEP_STARTED = "STEP_STARTED"
     STEP_SUCCEEDED = "STEP_SUCCEEDED"
@@ -23,7 +23,7 @@ class EventType(str, Enum):
     RUN_FAILED = "RUN_FAILED"
 
 
-class HookPolicy(str, Enum):
+class HookPolicy(StrEnum):
     BEST_EFFORT = "BEST_EFFORT"
     CRITICAL = "CRITICAL"
 
@@ -33,7 +33,7 @@ class Event:
     type: EventType
     run_id: str
     job_id: str
-    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
     payload: dict[str, Any] = field(default_factory=dict)
 
 
@@ -64,7 +64,7 @@ class EventBus:
         for subscription in self._subscriptions.get(event.type, []):
             try:
                 subscription.callback(event)
-            except Exception as exc:  # hook boundary
+            except Exception as exc:  # noqa: BLE001 - user hook isolation boundary
                 if subscription.policy is HookPolicy.CRITICAL:
                     raise HookError(f"Critical hook failed for {event.type}: {exc}") from exc
                 warnings.append(f"Best-effort hook failed for {event.type}: {exc}")

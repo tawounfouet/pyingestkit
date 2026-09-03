@@ -28,15 +28,32 @@ def run_command(
     job_id: Annotated[str, typer.Argument(help="Namespaced ingestion job ID to execute.")],
     config: Annotated[
         Path | None,
-        typer.Option("--config", "-c", help="YAML project configuration file.", exists=True, file_okay=True, dir_okay=False, readable=True),
+        typer.Option(
+            "--config",
+            "-c",
+            help="YAML project configuration file.",
+            exists=True,
+            file_okay=True,
+            dir_okay=False,
+            readable=True,
+        ),
     ] = None,
     workspace: Annotated[
         Path | None,
-        typer.Option("--workspace", "-w", help="Workspace used for run artifacts and default SQLite metadata.", file_okay=False, dir_okay=True),
+        typer.Option(
+            "--workspace",
+            "-w",
+            help="Workspace used for run artifacts and default SQLite metadata.",
+            file_okay=False,
+            dir_okay=True,
+        ),
     ] = None,
     fixture: Annotated[
         bool | None,
-        typer.Option("--fixture/--no-fixture", help="Enable or disable fixture mode. Overrides configuration."),
+        typer.Option(
+            "--fixture/--no-fixture",
+            help="Enable or disable fixture mode. Overrides configuration.",
+        ),
     ] = None,
     params_json: Annotated[
         str | None,
@@ -52,7 +69,11 @@ def run_command(
     ] = None,
     log_format: Annotated[
         LogOutputFormat | None,
-        typer.Option("--log-format", help="Override console log format: rich, plain, or json.", case_sensitive=False),
+        typer.Option(
+            "--log-format",
+            help="Override console log format: rich, plain, or json.",
+            case_sensitive=False,
+        ),
     ] = None,
     verbose: Annotated[
         bool,
@@ -114,7 +135,8 @@ def run_command(
         status_style = "bold green" if result.succeeded else "bold red"
         console.print(
             Panel.fit(
-                f"[{status_style}]{result.status.value}[/{status_style}]  [bold]{result.job_id}[/bold]\n"
+                f"[{status_style}]{result.status.value}[/{status_style}]  "
+                f"[bold]{result.job_id}[/bold]\n"
                 f"run_id: {result.run_id}\n"
                 f"duration: {result.duration_seconds:.3f}s",
                 title="PyIngestKit Run",
@@ -125,7 +147,11 @@ def run_command(
         steps.add_column("Status")
         steps.add_column("Duration", justify="right")
         for step_result in result.steps:
-            steps.add_row(step_result.step_name, step_result.status.value, f"{step_result.duration_seconds:.3f}s")
+            steps.add_row(
+                step_result.step_name,
+                step_result.status.value,
+                f"{step_result.duration_seconds:.3f}s",
+            )
         console.print(steps)
         if result.error:
             console.print(f"[bold red]Error:[/bold red] {result.error}")

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from .step_definition import StepDefinition
@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 class StepInvocation:
     """One sequential use of a StepDefinition inside a declarative job."""
 
-    definition: "StepDefinition"
+    definition: StepDefinition[Any, Any]
     args: tuple[Any, ...] = ()
     kwargs: dict[str, Any] | None = None
 

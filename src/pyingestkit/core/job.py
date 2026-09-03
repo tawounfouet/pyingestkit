@@ -18,9 +18,9 @@ class Job(ABC):
         raise NotImplementedError
 
     def validate_definition(self) -> None:
-        if not getattr(self, "id", "").strip():
+        if not self.id.strip():
             raise ValueError("Job.id must be a non-empty namespaced identifier")
         if "." not in self.id:
             raise ValueError("Job.id must be namespaced, e.g. 'public.postal_codes'")
-        if not getattr(self, "version", "").strip():
+        if not self.version.strip():
             raise ValueError("Job.version must be non-empty")

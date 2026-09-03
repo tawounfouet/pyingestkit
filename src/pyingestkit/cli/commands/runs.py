@@ -16,13 +16,37 @@ def _local_time(value: datetime) -> str:
     return value.astimezone().strftime("%Y-%m-%d %H:%M:%S")
 
 
+def _status_style(status: str) -> str:
+    if status == "SUCCESS":
+        return "green"
+    if status == "FAILED":
+        return "red"
+    return "yellow"
+
+
 def runs_command(
-    config: Annotated[Path | None, typer.Option("--config", "-c", exists=True, file_okay=True, dir_okay=False, readable=True)] = None,
-    workspace: Annotated[Path | None, typer.Option("--workspace", "-w", file_okay=False, dir_okay=True)] = None,
+    config: Annotated[
+        Path | None,
+        typer.Option(
+            "--config",
+            "-c",
+            exists=True,
+            file_okay=True,
+            dir_okay=False,
+            readable=True,
+        ),
+    ] = None,
+    workspace: Annotated[
+        Path | None,
+        typer.Option("--workspace", "-w", file_okay=False, dir_okay=True),
+    ] = None,
     job_id: Annotated[str | None, typer.Option("--job", help="Filter by job ID.")] = None,
     status: Annotated[str | None, typer.Option("--status", help="Filter by run status.")] = None,
     limit: Annotated[int, typer.Option("--limit", min=1, max=1000)] = 50,
-    json_output: Annotated[bool, typer.Option("--json", help="Emit machine-readable JSON.")] = False,
+    json_output: Annotated[
+        bool,
+        typer.Option("--json", help="Emit machine-readable JSON."),
+    ] = False,
 ) -> None:
     """List persisted ingestion runs from the configured MetadataStore."""
     project_config = project_config_or_exit(config)
@@ -30,7 +54,7 @@ def runs_command(
     store = metadata_store_or_exit(project_config, workspace=effective_workspace)
     rows = store.list_runs(job_id=job_id, status=status, limit=limit)
     if json_output:
-        typer.echo(json.dumps([
+        payload = [
             {
                 "run_id": row.run_id,
                 "job_id": row.job_id,
@@ -42,7 +66,8 @@ def runs_command(
                 "error": row.error,
             }
             for row in rows
-        ], ensure_ascii=False))
+        ]
+        typer.echo(json.dumps(payload, ensure_ascii=False))
         return
 
     table = Table(title="Recent ingestion runs", show_header=True, header_style="bold")
@@ -52,12 +77,13 @@ def runs_command(
     table.add_column("Status")
     table.add_column("Duration", justify="right")
     for row in rows:
-        style = "green" if row.status == "SUCCESS" else "red" if row.status == "FAILED" else "yellow"
+        style = _status_style(row.status)
+        duration = f"{row.duration_seconds:.3f}s" if row.duration_seconds is not None else "—"
         table.add_row(
             _local_time(row.started_at),
             row.run_id[:8],
             row.job_id,
             f"[{style}]{row.status}[/{style}]",
-            f"{row.duration_seconds:.3f}s" if row.duration_seconds is not None else "—",
+            duration,
         )
     console.print(table)

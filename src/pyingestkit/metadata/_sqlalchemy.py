@@ -1,0 +1,385 @@
+from __future__ import annotations
+
+import json
+from datetime import UTC, datetime
+from typing import Any, cast
+
+from sqlalchemy import insert, select, update
+from sqlalchemy.engine import Engine, RowMapping
+
+from pyingestkit.artifacts.raw import RawArtifact
+from pyingestkit.core.context import RunContext
+from pyingestkit.core.events import Event
+from pyingestkit.core.result import RunResult, StepResult
+from pyingestkit.logging.filters import redact_mapping
+
+from ._schema import artifacts, events, metadata, publications, runs, steps, validations
+from .base import MetadataStore
+from .models import (
+    ArtifactRecord,
+    EventRecord,
+    PublicationRecord,
+    RunRecord,
+    StepRecord,
+    ValidationRecord,
+)
+
+
+def _event_level(event: Event) -> str:
+    return "ERROR" if event.type.value.endswith("FAILED") else "INFO"
+
+
+def _json_safe(value: object) -> Any:
+    """Return a JSON-compatible value while preserving redaction semantics."""
+    return json.loads(json.dumps(value, ensure_ascii=False, default=str))
+
+
+def _mapping(value: object) -> dict[str, Any]:
+    if isinstance(value, dict):
+        return cast(dict[str, Any], value)
+    return {}
+
+
+def _required_datetime(value: object) -> datetime:
+    if isinstance(value, datetime):
+        return value
+    if isinstance(value, str):
+        return datetime.fromisoformat(value)
+    raise TypeError(f"Expected datetime-compatible value, got {type(value).__name__}")
+
+
+def _optional_datetime(value: object) -> datetime | None:
+    if value is None:
+        return None
+    return _required_datetime(value)
+
+
+class _SQLAlchemyMetadataStore(MetadataStore):
+    """Shared SQLAlchemy Core implementation behind concrete metadata adapters."""
+
+    def __init__(self, engine: Engine) -> None:
+        self.engine = engine
+        self.initialize()
+
+    def initialize(self) -> None:
+        metadata.create_all(self.engine)
+
+    def start_run(self, context: RunContext) -> None:
+        parameters = _json_safe(redact_mapping(dict(context.parameters)))
+        with self.engine.begin() as connection:
+            connection.execute(
+                insert(runs).values(
+                    run_id=str(context.run_id),
+                    job_id=context.job_id,
+                    job_version=context.job_version,
+                    status="RUNNING",
+                    started_at=context.started_at,
+                    completed_at=None,
+                    duration_seconds=None,
+                    fixture_mode=context.fixture_mode,
+                    parameters_json=parameters,
+                    error=None,
+                    created_at=datetime.now(UTC),
+                )
+            )
+
+    def finish_run(self, result: RunResult) -> None:
+        with self.engine.begin() as connection:
+            connection.execute(
+                update(runs)
+                .where(runs.c.run_id == result.run_id)
+                .values(
+                    status=result.status.value,
+                    completed_at=result.completed_at,
+                    duration_seconds=result.duration_seconds,
+                    error=result.error,
+                )
+            )
+
+    def record_step(self, run_id: str, position: int, result: StepResult) -> None:
+        values = {
+            "run_id": run_id,
+            "position": position,
+            "step_name": result.step_name,
+            "status": result.status.value,
+            "started_at": result.started_at,
+            "completed_at": result.completed_at,
+            "duration_seconds": result.duration_seconds,
+            "error": result.error,
+            "metrics_json": _json_safe(result.metrics),
+        }
+        with self.engine.begin() as connection:
+            existing_id = connection.execute(
+                select(steps.c.id).where(
+                    steps.c.run_id == run_id,
+                    steps.c.position == position,
+                )
+            ).scalar_one_or_none()
+            if existing_id is None:
+                connection.execute(insert(steps).values(**values))
+            else:
+                connection.execute(update(steps).where(steps.c.id == existing_id).values(**values))
+
+    def record_artifact(self, run_id: str, artifact: RawArtifact, *, kind: str = "raw") -> None:
+        with self.engine.begin() as connection:
+            exists = connection.execute(
+                select(artifacts.c.artifact_id).where(
+                    artifacts.c.artifact_id == artifact.artifact_id
+                )
+            ).scalar_one_or_none()
+            if exists is not None:
+                return
+            connection.execute(
+                insert(artifacts).values(
+                    artifact_id=artifact.artifact_id,
+                    run_id=run_id,
+                    kind=kind,
+                    path=artifact.path,
+                    source_uri=artifact.source_uri,
+                    content_type=artifact.content_type,
+                    size_bytes=artifact.size_bytes,
+                    sha256=artifact.sha256,
+                    created_at=artifact.retrieved_at,
+                )
+            )
+
+    def record_event(self, event: Event) -> None:
+        step = event.payload.get("step")
+        with self.engine.begin() as connection:
+            connection.execute(
+                insert(events).values(
+                    run_id=event.run_id,
+                    job_id=event.job_id,
+                    step=str(step) if step else None,
+                    event_type=event.type.value,
+                    level=_event_level(event),
+                    message=event.type.value.replace("_", " ").title(),
+                    timestamp=event.timestamp,
+                    metadata_json=_json_safe(redact_mapping(dict(event.payload))),
+                )
+            )
+
+    def record_validation(
+        self,
+        run_id: str,
+        *,
+        rule: str,
+        severity: str,
+        status: str,
+        message: str,
+        metadata: dict[str, object] | None = None,
+    ) -> None:
+        with self.engine.begin() as connection:
+            connection.execute(
+                insert(validations).values(
+                    run_id=run_id,
+                    rule=rule,
+                    severity=severity,
+                    status=status,
+                    message=message,
+                    metadata_json=_json_safe(redact_mapping(dict(metadata or {}))),
+                )
+            )
+
+    def record_publication(
+        self,
+        run_id: str,
+        *,
+        dataset_id: str,
+        status: str,
+        candidate_path: str | None = None,
+        published_path: str | None = None,
+        published_at: datetime | None = None,
+    ) -> None:
+        with self.engine.begin() as connection:
+            connection.execute(
+                insert(publications).values(
+                    run_id=run_id,
+                    dataset_id=dataset_id,
+                    status=status,
+                    candidate_path=candidate_path,
+                    published_path=published_path,
+                    published_at=published_at,
+                )
+            )
+
+    def list_runs(
+        self,
+        *,
+        job_id: str | None = None,
+        status: str | None = None,
+        limit: int = 50,
+    ) -> tuple[RunRecord, ...]:
+        statement = select(runs)
+        if job_id is not None:
+            statement = statement.where(runs.c.job_id == job_id)
+        if status is not None:
+            statement = statement.where(runs.c.status == status.upper())
+        statement = statement.order_by(runs.c.started_at.desc()).limit(max(1, limit))
+        with self.engine.connect() as connection:
+            rows = connection.execute(statement).mappings().all()
+        return tuple(self._run_record(row) for row in rows)
+
+    def get_run(self, run_id_or_prefix: str) -> RunRecord:
+        with self.engine.connect() as connection:
+            exact = (
+                connection.execute(select(runs).where(runs.c.run_id == run_id_or_prefix))
+                .mappings()
+                .one_or_none()
+            )
+            if exact is not None:
+                return self._run_record(exact)
+            matches = (
+                connection.execute(
+                    select(runs)
+                    .where(runs.c.run_id.like(f"{run_id_or_prefix}%"))
+                    .order_by(runs.c.started_at.desc())
+                    .limit(2)
+                )
+                .mappings()
+                .all()
+            )
+        if not matches:
+            raise KeyError(run_id_or_prefix)
+        if len(matches) > 1:
+            raise ValueError(f"Ambiguous run ID prefix: {run_id_or_prefix}")
+        return self._run_record(matches[0])
+
+    def list_steps(self, run_id: str) -> tuple[StepRecord, ...]:
+        with self.engine.connect() as connection:
+            rows = (
+                connection.execute(
+                    select(steps).where(steps.c.run_id == run_id).order_by(steps.c.position)
+                )
+                .mappings()
+                .all()
+            )
+        return tuple(
+            StepRecord(
+                id=cast(int | None, row["id"]),
+                run_id=cast(str, row["run_id"]),
+                position=cast(int, row["position"]),
+                step_name=cast(str, row["step_name"]),
+                status=cast(str, row["status"]),
+                started_at=_required_datetime(row["started_at"]),
+                completed_at=_required_datetime(row["completed_at"]),
+                duration_seconds=cast(float, row["duration_seconds"]),
+                error=cast(str | None, row["error"]),
+                metrics=_mapping(row["metrics_json"]),
+            )
+            for row in rows
+        )
+
+    def list_artifacts(self, run_id: str) -> tuple[ArtifactRecord, ...]:
+        with self.engine.connect() as connection:
+            rows = (
+                connection.execute(
+                    select(artifacts)
+                    .where(artifacts.c.run_id == run_id)
+                    .order_by(artifacts.c.created_at)
+                )
+                .mappings()
+                .all()
+            )
+        return tuple(
+            ArtifactRecord(
+                artifact_id=cast(str, row["artifact_id"]),
+                run_id=cast(str, row["run_id"]),
+                kind=cast(str, row["kind"]),
+                path=cast(str, row["path"]),
+                source_uri=cast(str, row["source_uri"]),
+                content_type=cast(str | None, row["content_type"]),
+                size_bytes=cast(int, row["size_bytes"]),
+                sha256=cast(str, row["sha256"]),
+                created_at=_required_datetime(row["created_at"]),
+            )
+            for row in rows
+        )
+
+    def list_events(self, run_id: str) -> tuple[EventRecord, ...]:
+        with self.engine.connect() as connection:
+            rows = (
+                connection.execute(
+                    select(events).where(events.c.run_id == run_id).order_by(events.c.id)
+                )
+                .mappings()
+                .all()
+            )
+        return tuple(
+            EventRecord(
+                id=cast(int | None, row["id"]),
+                run_id=cast(str, row["run_id"]),
+                job_id=cast(str, row["job_id"]),
+                step=cast(str | None, row["step"]),
+                event_type=cast(str, row["event_type"]),
+                level=cast(str, row["level"]),
+                message=cast(str, row["message"]),
+                timestamp=_required_datetime(row["timestamp"]),
+                metadata=_mapping(row["metadata_json"]),
+            )
+            for row in rows
+        )
+
+    def list_validations(self, run_id: str) -> tuple[ValidationRecord, ...]:
+        with self.engine.connect() as connection:
+            rows = (
+                connection.execute(
+                    select(validations)
+                    .where(validations.c.run_id == run_id)
+                    .order_by(validations.c.id)
+                )
+                .mappings()
+                .all()
+            )
+        return tuple(
+            ValidationRecord(
+                id=cast(int | None, row["id"]),
+                run_id=cast(str, row["run_id"]),
+                rule=cast(str, row["rule"]),
+                severity=cast(str, row["severity"]),
+                status=cast(str, row["status"]),
+                message=cast(str, row["message"]),
+                metadata=_mapping(row["metadata_json"]),
+            )
+            for row in rows
+        )
+
+    def list_publications(self, run_id: str) -> tuple[PublicationRecord, ...]:
+        with self.engine.connect() as connection:
+            rows = (
+                connection.execute(
+                    select(publications)
+                    .where(publications.c.run_id == run_id)
+                    .order_by(publications.c.id)
+                )
+                .mappings()
+                .all()
+            )
+        return tuple(
+            PublicationRecord(
+                id=cast(int | None, row["id"]),
+                run_id=cast(str, row["run_id"]),
+                dataset_id=cast(str, row["dataset_id"]),
+                status=cast(str, row["status"]),
+                candidate_path=cast(str | None, row["candidate_path"]),
+                published_path=cast(str | None, row["published_path"]),
+                published_at=_optional_datetime(row["published_at"]),
+            )
+            for row in rows
+        )
+
+    @staticmethod
+    def _run_record(row: RowMapping) -> RunRecord:
+        return RunRecord(
+            run_id=cast(str, row["run_id"]),
+            job_id=cast(str, row["job_id"]),
+            job_version=cast(str, row["job_version"]),
+            status=cast(str, row["status"]),
+            started_at=_required_datetime(row["started_at"]),
+            completed_at=_optional_datetime(row["completed_at"]),
+            duration_seconds=cast(float | None, row["duration_seconds"]),
+            fixture_mode=bool(row["fixture_mode"]),
+            parameters=_mapping(row["parameters_json"]),
+            error=cast(str | None, row["error"]),
+            created_at=_required_datetime(row["created_at"]),
+        )

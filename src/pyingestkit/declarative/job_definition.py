@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable
+from typing import Any
 
 from pyingestkit.core.job import Job
 from pyingestkit.core.pipeline import Pipeline
@@ -33,12 +34,11 @@ class DeclarativeJob(Job):
 
 @dataclass
 class JobDefinition:
-    fn: Callable[[], None]
+    fn: Callable[[], Any]
     id: str
     version: str = "0.1.0"
     description: str = ""
     depends_on: tuple[str, ...] = ()
-
 
     def build(self) -> Job:
         builder = PipelineBuilder()
@@ -46,7 +46,9 @@ class JobDefinition:
             result = self.fn()
         if result is not None:
             raise TypeError("A @job function must declare steps and return None")
-        pipeline = Pipeline(invocation.definition.to_step(invocation) for invocation in builder.invocations)
+        pipeline = Pipeline(
+            invocation.definition.to_step(invocation) for invocation in builder.invocations
+        )
         job = DeclarativeJob(
             job_id=self.id,
             version=self.version,

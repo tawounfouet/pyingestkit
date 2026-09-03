@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
+requires = ["setuptools>=77", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -8,18 +8,19 @@ dynamic = ["version"]
 description = "Composable ingestion tooling for Python."
 readme = "README.md"
 requires-python = ">=3.11"
-license = { text = "MIT" }
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [{ name = "Thomas Awounfouet" }]
 dependencies = [
   "typer>=0.27,<0.28",
   "rich>=15,<16",
   "pydantic>=2.11,<3",
   "PyYAML>=6,<7",
+  "SQLAlchemy>=2.0,<3",
 ]
 classifiers = [
   "Development Status :: 2 - Pre-Alpha",
   "Intended Audience :: Developers",
-  "License :: OSI Approved :: MIT License",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
@@ -33,13 +34,13 @@ dev = [
   "pytest-randomly>=3.15",
   "ruff>=0.6",
   "mypy>=1.11",
+  "types-PyYAML",
   "bandit>=1.8",
   "pip-audit>=2.9",
   "pre-commit>=4",
   "build>=1.2",
   "twine>=6",
 ]
-
 postgres = ["psycopg[binary]>=3.2,<4"]
 
 [project.scripts]
@@ -51,7 +52,6 @@ package-dir = {"" = "src"}
 [tool.setuptools.packages.find]
 where = ["src"]
 
-
 [tool.setuptools.dynamic]
 version = {attr = "pyingestkit._version.__version__"}
 
@@ -61,6 +61,9 @@ pyingestkit = ["py.typed"]
 [tool.ruff]
 target-version = "py311"
 line-length = 100
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "UP", "B", "BLE", "PYI"]
 
 [tool.mypy]
 python_version = "3.11"

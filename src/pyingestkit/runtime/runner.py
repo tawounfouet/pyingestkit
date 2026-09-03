@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
 import logging
+from collections.abc import Iterable
+from datetime import UTC, datetime
 from time import perf_counter
 from typing import Any
 
@@ -27,6 +28,7 @@ def _raw_artifacts(value: Any, *, _seen: set[int] | None = None) -> tuple[RawArt
     if identity in seen:
         return ()
     seen.add(identity)
+    values: Iterable[Any]
     if isinstance(value, dict):
         values = value.values()
     elif isinstance(value, (list, tuple, set, frozenset)):
@@ -103,7 +105,7 @@ class Runner:
                 for position, step in enumerate(job.pipeline(), start=1):
                     with log_context(step=step.step_name):
                         logger.info("Step started")
-                        step_started_at = datetime.now(timezone.utc)
+                        step_started_at = datetime.now(UTC)
                         step_clock = perf_counter()
                         try:
                             warnings.extend(
@@ -117,7 +119,7 @@ class Runner:
                                 )
                             )
                             data = step.execute(context, data)
-                            completed_at = datetime.now(timezone.utc)
+                            completed_at = datetime.now(UTC)
                             step_result = StepResult(
                                 step_name=step.step_name,
                                 status=RunStatus.SUCCESS,
@@ -148,8 +150,8 @@ class Runner:
                                     )
                                 )
                             )
-                        except Exception as exc:
-                            completed_at = datetime.now(timezone.utc)
+                        except Exception as exc:  # noqa: BLE001 - user step execution boundary
+                            completed_at = datetime.now(UTC)
                             error = f"{exc.__class__.__name__}: {exc}"
                             step_result = StepResult(
                                 step_name=step.step_name,
@@ -184,17 +186,17 @@ class Runner:
                                         )
                                     )
                                 )
-                            except Exception as hook_exc:
+                            except Exception as hook_exc:  # noqa: BLE001 - lifecycle hook boundary
                                 warnings.append(
                                     f"Failed emitting STEP_FAILED lifecycle event: {hook_exc}"
                                 )
                             break
-            except Exception as exc:
+            except Exception as exc:  # noqa: BLE001 - run lifecycle boundary
                 status = RunStatus.FAILED
                 error = f"{exc.__class__.__name__}: {exc}"
                 logger.exception("Run lifecycle failed")
 
-            completed_at = datetime.now(timezone.utc)
+            completed_at = datetime.now(UTC)
             duration_seconds = perf_counter() - started_clock
 
             def build_result() -> RunResult:
@@ -220,7 +222,7 @@ class Runner:
                     job.id, context.run_id, "manifest.json", manifest.as_dict()
                 )
                 logger.debug("Run manifest written path=%s", manifest_path)
-            except Exception as exc:
+            except Exception as exc:  # noqa: BLE001 - artifact backend boundary
                 status = RunStatus.FAILED
                 error = f"{exc.__class__.__name__}: {exc}"
                 logger.exception("Run manifest write failed")
@@ -239,7 +241,7 @@ class Runner:
                         )
                     )
                 )
-            except Exception as exc:
+            except Exception as exc:  # noqa: BLE001 - final lifecycle hook boundary
                 status = RunStatus.FAILED
                 error = f"{exc.__class__.__name__}: {exc}"
                 fallback = Event(
@@ -261,7 +263,7 @@ class Runner:
                     job.id, context.run_id, "manifest.json", manifest.as_dict()
                 )
                 logger.debug("Run manifest finalized path=%s", manifest_path)
-            except Exception:
+            except Exception:  # noqa: BLE001 - best-effort manifest finalization boundary
                 # If the first write already failed this may fail again. Metadata
                 # remains authoritative for the failure and the exception is logged.
                 logger.exception("Unable to finalize run manifest")

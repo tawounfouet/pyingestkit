@@ -17,3 +17,8 @@
 - ADR-015 Operational logs vs runtime events
 - ADR-016 Declarative decorator API
 - ADR-017 Decorator API compiles to imperative model
+
+- ADR-018 SQLAlchemy metadata persistence engine
+- ADR-019 One persistence engine — no Peewee
+- ADR-020 Foundation verify gate
+- ADR-021 Schema evolution — no Alembic before demonstrated need

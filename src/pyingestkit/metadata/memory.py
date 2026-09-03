@@ -1,8 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import replace
-from datetime import datetime, timezone
-from typing import Any
+from datetime import UTC, datetime
 
 from pyingestkit.artifacts.raw import RawArtifact
 from pyingestkit.core.context import RunContext
@@ -11,7 +10,14 @@ from pyingestkit.core.result import RunResult, StepResult
 from pyingestkit.logging.filters import redact_mapping
 
 from .base import MetadataStore
-from .models import ArtifactRecord, EventRecord, PublicationRecord, RunRecord, StepRecord, ValidationRecord
+from .models import (
+    ArtifactRecord,
+    EventRecord,
+    PublicationRecord,
+    RunRecord,
+    StepRecord,
+    ValidationRecord,
+)
 
 
 def _event_level(event: Event) -> str:
@@ -33,7 +39,6 @@ class MemoryMetadataStore(MetadataStore):
         return None
 
     def start_run(self, context: RunContext) -> None:
-        now = datetime.now(timezone.utc)
         self.runs[str(context.run_id)] = RunRecord(
             run_id=str(context.run_id),
             job_id=context.job_id,
@@ -45,7 +50,7 @@ class MemoryMetadataStore(MetadataStore):
             fixture_mode=context.fixture_mode,
             parameters=redact_mapping(dict(context.parameters)),
             error=None,
-            created_at=now,
+            created_at=datetime.now(UTC),
         )
 
     def finish_run(self, result: RunResult) -> None:
@@ -59,6 +64,9 @@ class MemoryMetadataStore(MetadataStore):
         )
 
     def record_step(self, run_id: str, position: int, result: StepResult) -> None:
+        self.steps = [
+            row for row in self.steps if not (row.run_id == run_id and row.position == position)
+        ]
         self.steps.append(
             StepRecord(
                 id=len(self.steps) + 1,
@@ -75,6 +83,8 @@ class MemoryMetadataStore(MetadataStore):
         )
 
     def record_artifact(self, run_id: str, artifact: RawArtifact, *, kind: str = "raw") -> None:
+        if any(row.artifact_id == artifact.artifact_id for row in self.artifacts):
+            return
         self.artifacts.append(
             ArtifactRecord(
                 artifact_id=artifact.artifact_id,
@@ -105,8 +115,16 @@ class MemoryMetadataStore(MetadataStore):
             )
         )
 
-
-    def record_validation(self, run_id: str, *, rule: str, severity: str, status: str, message: str, metadata: dict[str, object] | None = None) -> None:
+    def record_validation(
+        self,
+        run_id: str,
+        *,
+        rule: str,
+        severity: str,
+        status: str,
+        message: str,
+        metadata: dict[str, object] | None = None,
+    ) -> None:
         self.validations.append(
             ValidationRecord(
                 id=len(self.validations) + 1,
@@ -119,7 +137,16 @@ class MemoryMetadataStore(MetadataStore):
             )
         )
 
-    def record_publication(self, run_id: str, *, dataset_id: str, status: str, candidate_path: str | None = None, published_path: str | None = None, published_at: datetime | None = None) -> None:
+    def record_publication(
+        self,
+        run_id: str,
+        *,
+        dataset_id: str,
+        status: str,
+        candidate_path: str | None = None,
+        published_path: str | None = None,
+        published_at: datetime | None = None,
+    ) -> None:
         self.publications.append(
             PublicationRecord(
                 id=len(self.publications) + 1,
@@ -132,13 +159,19 @@ class MemoryMetadataStore(MetadataStore):
             )
         )
 
-    def list_runs(self, *, job_id: str | None = None, status: str | None = None, limit: int = 50) -> tuple[RunRecord, ...]:
+    def list_runs(
+        self,
+        *,
+        job_id: str | None = None,
+        status: str | None = None,
+        limit: int = 50,
+    ) -> tuple[RunRecord, ...]:
         rows = sorted(self.runs.values(), key=lambda row: row.started_at, reverse=True)
         if job_id:
             rows = [row for row in rows if row.job_id == job_id]
         if status:
             rows = [row for row in rows if row.status == status.upper()]
-        return tuple(rows[:limit])
+        return tuple(rows[: max(1, limit)])
 
     def get_run(self, run_id_or_prefix: str) -> RunRecord:
         if run_id_or_prefix in self.runs:
@@ -151,7 +184,12 @@ class MemoryMetadataStore(MetadataStore):
         return matches[0]
 
     def list_steps(self, run_id: str) -> tuple[StepRecord, ...]:
-        return tuple(sorted((row for row in self.steps if row.run_id == run_id), key=lambda row: row.position))
+        return tuple(
+            sorted(
+                (row for row in self.steps if row.run_id == run_id),
+                key=lambda row: row.position,
+            )
+        )
 
     def list_artifacts(self, run_id: str) -> tuple[ArtifactRecord, ...]:
         return tuple(row for row in self.artifacts if row.run_id == run_id)

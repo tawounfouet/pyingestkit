@@ -68,3 +68,7 @@ Trade-offs:
 - compatibility must be tested in CI.
 
 These trade-offs are accepted as normal responsibilities of a production-grade Python framework.
+
+## V0.1.6 persistence update
+
+SQLAlchemy 2.x is a justified runtime dependency because it replaces duplicated backend SQL, provides safe bound-parameter statement construction, and gives SQLite/PostgreSQL a common persistence implementation behind `MetadataStore`. PyIngestKit intentionally does **not** add Peewee: dependency governance favors one mature persistence toolkit per responsibility.

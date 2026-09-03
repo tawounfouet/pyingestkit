@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.1.6] - 2026-09-03
+
+### Foundation Persistence & Quality Hardening
+
+- adopted SQLAlchemy 2.x Core as the single internal metadata persistence engine;
+- retained `MetadataStore` as the stable framework contract and plain dataclass records as the domain-facing metadata model;
+- refactored SQLite and PostgreSQL metadata adapters onto shared SQLAlchemy tables/statements;
+- kept SQLite as the default backend with foreign keys, WAL mode and bounded busy timeout;
+- normalized standard PostgreSQL DSNs to the psycopg SQLAlchemy dialect while keeping `psycopg` optional via `[postgres]`;
+- explicitly rejected Peewee as a second ORM and deferred Alembic until schema migration requirements are demonstrated;
+- removed hand-built dynamic SQL from the PostgreSQL adapter, eliminating the V0.1.5 Bandit B608 root cause;
+- modernized Python 3.11+ code patterns (`datetime.UTC`, `StrEnum`, `collections.abc`, `Self`) and documented justified broad-exception isolation boundaries;
+- modernized project licensing metadata to PEP 639 / SPDX form;
+- added explicit Ruff lint policy, Ruff formatting gate, Mypy strict gate, Bandit and pip-audit gates;
+- added aggregate `make verify` as the release/foundation-freeze criterion;
+- added ADR-021 to defer Alembic until a released schema change requires compatible in-place migration;
+- added SQLAlchemy persistence tests and SQLite WAL/foreign-key checks;
+- preserved the public top-level API and the existing SQLite table names (`runs`, `steps`, `artifacts`, `validations`, `publications`, `events`).
+
 All notable changes to PyIngestKit are documented here.
 
 ## [0.1.5] - 2026-09-03

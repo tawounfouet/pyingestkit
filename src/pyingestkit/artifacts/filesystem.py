@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import logging
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 from uuid import UUID, uuid4
@@ -69,7 +69,7 @@ class LocalArtifactStore(ArtifactStore):
         return RawArtifact(
             artifact_id=str(uuid4()),
             source_uri=source_uri,
-            retrieved_at=datetime.now(timezone.utc),
+            retrieved_at=datetime.now(UTC),
             content_type=content_type,
             size_bytes=len(data),
             sha256=digest,
@@ -79,7 +79,9 @@ class LocalArtifactStore(ArtifactStore):
     def write_json(self, job_id: str, run_id: UUID, relative_path: str, payload: Any) -> Path:
         path = self.path_for(job_id, run_id, relative_path)
         temp = path.with_name(f".{path.name}.tmp")
-        temp.write_text(json.dumps(payload, indent=2, sort_keys=True, default=str), encoding="utf-8")
+        temp.write_text(
+            json.dumps(payload, indent=2, sort_keys=True, default=str), encoding="utf-8"
+        )
         temp.replace(path)
         logger.debug("JSON artifact written path=%s", path)
         return path

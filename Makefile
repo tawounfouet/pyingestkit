@@ -1,4 +1,4 @@
-.PHONY: install install-dev install-demo test test-demo check quality security build demo clean
+.PHONY: install install-dev install-demo test test-demo check format quality security build demo verify clean
 
 install:
 	python -m pip install -e .
@@ -20,17 +20,24 @@ check: test test-demo
 	PYTHONPATH=src python scripts/check_public_api.py
 	python -m compileall -q src tests examples/plugin_package/src examples/plugin_package/tests
 
+format:
+	ruff check --fix src tests examples/plugin_package/src examples/plugin_package/tests
+	ruff format src tests examples/plugin_package/src examples/plugin_package/tests
+
 quality:
 	ruff check src tests examples/plugin_package/src examples/plugin_package/tests
+	ruff format --check src tests examples/plugin_package/src examples/plugin_package/tests
 	mypy src/pyingestkit
 
 security:
 	bandit -q -r src/pyingestkit examples/plugin_package/src
 	pip-audit
 
-build: check
+build:
 	python -m build
 	python -m build examples/plugin_package
+
+verify: check quality security build
 
 demo: install-demo
 	pyingest jobs
@@ -40,3 +47,4 @@ demo: install-demo
 
 clean:
 	rm -rf .pyingest build dist *.egg-info .pytest_cache .mypy_cache .ruff_cache
+	find src examples -type d -name '*.egg-info' -prune -exec rm -rf {} +

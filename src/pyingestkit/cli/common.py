@@ -12,7 +12,11 @@ from pyingestkit.core.exceptions import ConfigurationError
 from pyingestkit.core.job import Job
 from pyingestkit.core.registry import JobRegistry
 from pyingestkit.metadata import MetadataStore, create_metadata_store
-from pyingestkit.plugins.discovery import PluginFailure, load_registry, load_registry_with_diagnostics
+from pyingestkit.plugins.discovery import (
+    PluginFailure,
+    load_registry,
+    load_registry_with_diagnostics,
+)
 
 from .console import error_console
 

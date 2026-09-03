@@ -31,8 +31,7 @@ def jobs_command(
 
     if json_output:
         payload = [
-            {"id": job.id, "version": job.version, "description": job.description}
-            for job in jobs
+            {"id": job.id, "version": job.version, "description": job.description} for job in jobs
         ]
         typer.echo(json.dumps(payload, ensure_ascii=False))
         return

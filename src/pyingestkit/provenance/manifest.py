@@ -8,6 +8,17 @@ from pyingestkit.artifacts.raw import RawArtifact
 from pyingestkit.core.result import RunResult, StepResult
 
 
+def _machine_value(value: Any) -> Any:
+    """Normalize manifest values to stable machine-readable JSON primitives."""
+    if isinstance(value, datetime):
+        return value.isoformat()
+    if isinstance(value, dict):
+        return {str(key): _machine_value(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_machine_value(item) for item in value]
+    return value
+
+
 @dataclass(slots=True)
 class RunManifest:
     run_id: str
@@ -34,4 +45,7 @@ class RunManifest:
         self.error = result.error
 
     def as_dict(self) -> dict[str, Any]:
-        return asdict(self)
+        payload = _machine_value(asdict(self))
+        if not isinstance(payload, dict):
+            raise TypeError("RunManifest serialization must produce an object")
+        return payload

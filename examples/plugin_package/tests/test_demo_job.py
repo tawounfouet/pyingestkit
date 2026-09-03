@@ -4,10 +4,11 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from pyingestkit_demo_jobs.local_file import job_definition
+
 from pyingestkit.artifacts import LocalArtifactStore
 from pyingestkit.metadata import SQLiteMetadataStore
 from pyingestkit.runtime import Runner
-from pyingestkit_demo_jobs.local_file import job_definition
 
 
 class DemoJobTests(unittest.TestCase):

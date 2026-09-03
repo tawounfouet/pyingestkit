@@ -13,9 +13,13 @@ class RawImmutabilityTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             store = LocalArtifactStore(tmp)
             run_id = uuid4()
-            store.write_raw("demo.raw", run_id, name="x.txt", data=b"one", source_uri="memory://one")
+            store.write_raw(
+                "demo.raw", run_id, name="x.txt", data=b"one", source_uri="memory://one"
+            )
             with self.assertRaises(StorageError):
-                store.write_raw("demo.raw", run_id, name="x.txt", data=b"two", source_uri="memory://two")
+                store.write_raw(
+                    "demo.raw", run_id, name="x.txt", data=b"two", source_uri="memory://two"
+                )
 
 
 if __name__ == "__main__":

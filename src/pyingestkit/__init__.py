@@ -2,6 +2,7 @@
 
 import logging as _stdlib_logging
 
+from ._version import __version__ as __version__
 from .core.context import RunContext
 from .core.job import Job
 from .core.pipeline import Pipeline
@@ -9,7 +10,6 @@ from .core.result import RunResult, RunStatus, StepResult
 from .core.step import Step
 from .declarative import JobDefinition, StepDefinition, StepInvocation, job, step
 from .runtime.runner import Runner
-from ._version import __version__
 
 __all__ = [
     "Job",

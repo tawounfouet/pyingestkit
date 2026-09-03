@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 from importlib.metadata import EntryPoint, entry_points
-import logging
 from typing import Any
 
 from pyingestkit.core.exceptions import PluginError
@@ -62,11 +62,17 @@ def discover_plugins() -> DiscoveryReport:
             job = _coerce_job(loaded, entry_point)
             job.validate_definition()
             jobs.append(job)
-            logger.debug("Loaded ingestion plugin entry_point=%s job_id=%s", entry_point.name, job.id)
-        except Exception as exc:
+            logger.debug(
+                "Loaded ingestion plugin entry_point=%s job_id=%s", entry_point.name, job.id
+            )
+        except Exception as exc:  # noqa: BLE001 - third-party plugin isolation boundary
             error = f"{exc.__class__.__name__}: {exc}"
             failures.append(PluginFailure(entry_point.name, error))
-            logger.error("Failed loading ingestion plugin entry_point=%s error=%s", entry_point.name, error)
+            logger.error(
+                "Failed loading ingestion plugin entry_point=%s error=%s",
+                entry_point.name,
+                error,
+            )
     return DiscoveryReport(tuple(jobs), tuple(failures))
 
 

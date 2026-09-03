@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import tempfile
 import unittest
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from pyingestkit import Job, Pipeline, RunContext, Step
@@ -24,7 +24,9 @@ class Demo(Job):
 
 
 def exercise(test: unittest.TestCase, store, workspace: Path) -> None:
-    result = Runner(LocalArtifactStore(workspace), metadata_store=store).run(Demo(), initial_data={"ok": True})
+    result = Runner(LocalArtifactStore(workspace), metadata_store=store).run(
+        Demo(), initial_data={"ok": True}
+    )
     test.assertTrue(result.succeeded)
     run = store.get_run(result.run_id[:8])
     test.assertEqual(run.status, "SUCCESS")
@@ -45,7 +47,7 @@ def exercise(test: unittest.TestCase, store, workspace: Path) -> None:
     test.assertEqual(len(validations), 1)
     test.assertEqual(validations[0].metadata["token"], "***REDACTED***")
 
-    published_at = datetime.now(timezone.utc)
+    published_at = datetime.now(UTC)
     store.record_publication(
         result.run_id,
         dataset_id="demo.dataset",

@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 from typing import Any
 
 
-class RunStatus(str, Enum):
+class RunStatus(StrEnum):
     PENDING = "PENDING"
     RUNNING = "RUNNING"
     SUCCESS = "SUCCESS"
@@ -15,7 +15,7 @@ class RunStatus(str, Enum):
 
 
 def utcnow() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 @dataclass(frozen=True, slots=True)

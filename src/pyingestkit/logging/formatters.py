@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from rich.markup import escape
@@ -21,7 +21,7 @@ def _terminal_timestamp(record: logging.LogRecord) -> str:
 
 
 def _context(record: logging.LogRecord) -> str:
-    return str(getattr(record, "log_context", ""))
+    return str(record.__dict__.get("log_context", ""))
 
 
 class PlainTerminalFormatter(logging.Formatter):
@@ -57,13 +57,13 @@ class JsonFormatter(logging.Formatter):
 
     def format(self, record: logging.LogRecord) -> str:
         payload: dict[str, Any] = {
-            "timestamp": datetime.fromtimestamp(record.created, tz=timezone.utc).isoformat(),
+            "timestamp": datetime.fromtimestamp(record.created, tz=UTC).isoformat(),
             "level": record.levelname,
             "logger": record.name,
             "message": record.getMessage(),
         }
         for key in ("run_id", "job_id", "step"):
-            value = getattr(record, key, None)
+            value = record.__dict__.get(key)
             if value:
                 payload[key] = value
         if record.exc_info:

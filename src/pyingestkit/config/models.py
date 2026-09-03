@@ -1,14 +1,14 @@
 from __future__ import annotations
 
 import logging
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
-class LogOutputFormat(str, Enum):
+class LogOutputFormat(StrEnum):
     RICH = "rich"
     PLAIN = "plain"
     JSON = "json"
@@ -54,7 +54,7 @@ class LoggingConfig(BaseModel):
         return normalized
 
 
-class MetadataBackend(str, Enum):
+class MetadataBackend(StrEnum):
     SQLITE = "sqlite"
     POSTGRES = "postgres"
 

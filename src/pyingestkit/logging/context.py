@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Iterator
 from contextlib import contextmanager
 from contextvars import ContextVar, Token
-from typing import Iterator
 
 _RUN_ID: ContextVar[str | None] = ContextVar("pyingestkit_run_id", default=None)
 _JOB_ID: ContextVar[str | None] = ContextVar("pyingestkit_job_id", default=None)

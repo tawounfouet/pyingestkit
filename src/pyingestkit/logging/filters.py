@@ -8,10 +8,15 @@ from typing import Any
 from .context import current_log_context
 
 _SECRET_PATTERNS = (
-    re.compile(r"(?i)(password|passwd|secret|token|api[_-]?key|client[_-]?secret)\s*([=:])\s*([^\s,;]+)"),
+    re.compile(
+        r"(?i)(password|passwd|secret|token|api[_-]?key|client[_-]?secret)"
+        r"\s*([=:])\s*([^\s,;]+)"
+    ),
     re.compile(r"(?i)(authorization\s*[:=]\s*bearer\s+)([^\s,;]+)"),
 )
-_SECRET_KEY = re.compile(r"(?i)(password|passwd|secret|token|api[_-]?key|client[_-]?secret|authorization)")
+_SECRET_KEY = re.compile(
+    r"(?i)(password|passwd|secret|token|api[_-]?key|client[_-]?secret|authorization)"
+)
 
 
 def redact_text(value: str) -> str:
@@ -28,31 +33,40 @@ def redact_mapping(value: Mapping[str, Any]) -> dict[str, Any]:
     """Recursively redact secret-looking configuration/runtime parameter keys."""
     result: dict[str, Any] = {}
     for key, item in value.items():
-        if _SECRET_KEY.search(str(key)):
-            result[str(key)] = "***REDACTED***"
+        key_text = str(key)
+        if _SECRET_KEY.search(key_text):
+            result[key_text] = "***REDACTED***"
         elif isinstance(item, Mapping):
-            result[str(key)] = redact_mapping(item)
+            result[key_text] = redact_mapping(item)
         elif isinstance(item, list):
-            result[str(key)] = [redact_mapping(v) if isinstance(v, Mapping) else v for v in item]
+            result[key_text] = [
+                redact_mapping(entry) if isinstance(entry, Mapping) else entry for entry in item
+            ]
+        elif isinstance(item, str):
+            result[key_text] = redact_text(item)
         else:
-            result[str(key)] = item
+            result[key_text] = item
     return result
 
 
 class ContextFilter(logging.Filter):
     def filter(self, record: logging.LogRecord) -> bool:
         context = current_log_context()
-        record.run_id = context["run_id"] or ""
-        record.run_short_id = record.run_id[:8] if record.run_id else ""
-        record.job_id = context["job_id"] or ""
-        record.step = context["step"] or ""
-        parts = []
-        if record.run_short_id:
-            parts.append(f"run={record.run_short_id}")
-        if record.job_id:
-            parts.append(f"job={record.job_id}")
-        if record.step:
-            parts.append(f"step={record.step}")
+        run_id = context["run_id"] or ""
+        job_id = context["job_id"] or ""
+        step = context["step"] or ""
+        run_short_id = run_id[:8] if run_id else ""
+        record.run_id = run_id
+        record.run_short_id = run_short_id
+        record.job_id = job_id
+        record.step = step
+        parts: list[str] = []
+        if run_short_id:
+            parts.append(f"run={run_short_id}")
+        if job_id:
+            parts.append(f"job={job_id}")
+        if step:
+            parts.append(f"step={step}")
         record.log_context = f"[{' '.join(parts)}]" if parts else ""
         return True
 

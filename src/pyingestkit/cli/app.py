@@ -5,7 +5,13 @@ from typing import Annotated
 import typer
 
 from pyingestkit import __version__
-from pyingestkit.cli.commands import inspect_command, jobs_command, run_command, runs_command, status_command
+from pyingestkit.cli.commands import (
+    inspect_command,
+    jobs_command,
+    run_command,
+    runs_command,
+    status_command,
+)
 from pyingestkit.cli.console import console
 
 
@@ -31,7 +37,13 @@ app = typer.Typer(
 def root(
     version: Annotated[
         bool,
-        typer.Option("--version", "-V", help="Show the PyIngestKit CLI version and exit.", callback=_version_callback, is_eager=True),
+        typer.Option(
+            "--version",
+            "-V",
+            help="Show the PyIngestKit CLI version and exit.",
+            callback=_version_callback,
+            is_eager=True,
+        ),
     ] = False,
 ) -> None:
     del version

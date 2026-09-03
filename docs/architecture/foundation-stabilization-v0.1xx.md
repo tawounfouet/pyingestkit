@@ -3,66 +3,110 @@
 **Document de référence d’architecture et de stabilisation**  
 **Projet :** PyIngestKit  
 **Périmètre :** Foundation V0.1.x  
-**Cible de consolidation :** V0.1.5 — Foundation Consolidation  
+**Cible de consolidation :** V0.1.6 — Foundation Persistence & Quality Hardening  
 **Étape suivante autorisée :** V0.2 — Acquisition & Dataset Contracts  
 **Date :** 2026-09-03  
-**Statut :** Proposition consolidée à figer avant V0.2
-
-> **Implementation note — V0.1.5:** this repository implements the Foundation Consolidation described by this plan. The document is retained as the design baseline and guardrail reference.
+**Statut :** V0.1.5 implémentée et validée fonctionnellement ; V0.1.6 obligatoire pour rendre tous les gates qualité/sécurité verts avant V0.2
 
 ---
 
 ## 0. Résumé exécutif
 
-PyIngestKit a atteint en V0.1.4 un premier socle exécutable et démontrable : CLI Typer/Rich, plugins Python via entry points, exécution de jobs, artefacts RAW, SHA-256, manifest, validation basique, publication atomique, configuration YAML/Pydantic, logging structuré et package de démonstration installable.
+PyIngestKit a désormais franchi deux étapes distinctes de sa Foundation :
 
-Avant d’ajouter les capacités V0.2 (`HTTP`, retry, CSV/JSON, Dataset Contracts), plusieurs fondations doivent toutefois être **stabilisées** afin d’éviter de propager des choix transitoires dans tous les futurs jobs et plugins.
+- **V0.1.4** : CLI Typer/Rich, configuration YAML/Pydantic, logging Rich + JSON, plugin pack installable ;
+- **V0.1.5** : consolidation fonctionnelle du runtime avec workspace unique, `MetadataStore`, SQLite par défaut, historique des runs, events persistés, API déclarative `@job` / `@step`, RAW immuable, manifest enrichi et CLI `runs/status`.
 
-La consolidation V0.1.x doit notamment figer :
+Les essais réels de la V0.1.5 confirment que la Foundation est **fonctionnellement cohérente** :
 
-1. un **workspace unique** `.pyingest/` ;
-2. une séparation claire entre **ArtifactStore** et **MetadataStore** ;
-3. **SQLite comme MetadataStore par défaut**, avec PostgreSQL comme adapter ;
-4. la distinction entre **logs opérationnels** et **événements runtime persistés** ;
-5. un format terminal Rich stable avec timestamp, niveau, contexte de run/job/step ;
-6. une **Decorator API `@job` / `@step`** recommandée par défaut ;
-7. le maintien de l’API impérative comme contrat bas niveau et API avancée ;
-8. une doctrine stricte empêchant PyIngestKit de dériver vers un orchestrateur DAG, un scheduler distribué ou une plateforme généraliste ;
-9. un jeu de tests de contrat garantissant que les backends, plugins et APIs restent interchangeables ;
-10. des critères de sortie explicites avant toute ouverture du chantier V0.2.
+```text
+un seul workspace .pyingest/
+SQLite alimenté
+runs / steps / artifacts / events persistés
+logs terminal Rich timestampés
+logs JSON structurés
+plugin déclaratif découvert via entry point
+manifest relié au RAW
+CLI runs / status opérationnelle
+55 tests pytest verts
+54 tests unittest verts
+build wheel/sdist réussi
+```
 
-La cible est donc :
+Cependant, les quality/security gates exécutés localement ont révélé que la Foundation n’est **pas encore entièrement green** :
+
+```text
+Ruff          → 56 erreurs
+Bandit        → 4 findings B608 Medium/Medium
+Mypy strict   → non atteint tant que Ruff bloque make quality
+pip-audit     → non atteint tant que Bandit bloque make security
+Packaging     → build OK mais warnings PEP 639 / license metadata
+```
+
+La V0.1.5 doit donc être considérée comme :
+
+> **fonctionnellement consolidée, mais pas encore gelée comme Foundation production-grade.**
+
+La dernière étape avant V0.2 devient une **V0.1.6 — Foundation Persistence & Quality Hardening**, sans nouvelle capacité d’ingestion métier. Son rôle est de :
+
+1. intégrer **SQLAlchemy 2.x** comme moteur interne de persistence metadata ;
+2. supprimer la duplication SQL manuelle SQLite/PostgreSQL ;
+3. conserver `MetadataStore` comme contrat public et empêcher toute fuite ORM dans le core ;
+4. garder SQLite comme backend local par défaut ;
+5. garder PostgreSQL comme backend interchangeable via adapter + `psycopg` optionnel ;
+6. éliminer les constructions SQL dynamiques signalées par Bandit ;
+7. rendre **Ruff, Ruff format, Mypy strict, Bandit et pip-audit réellement verts** ;
+8. moderniser le packaging PEP 639 ;
+9. introduire un gate agrégé `make verify` dont l’exit code `0` devient la condition d’ouverture de V0.2 ;
+10. conserver tous les garde-fous de scope : pas de scheduler, pas de DAG distribué, pas de Data Platform, pas de second ORM, pas d’Alembic prématuré.
+
+La trajectoire finale devient :
 
 ```text
 V0.1.4
 ────────────────────────────────
-CLI
-Plugins
-RAW
-Manifest
-Validation basique
-Publication atomique
+CLI Typer/Rich
 Configuration YAML/Pydantic
+Plugins
+RAW / Manifest
 Logging Rich + JSON
 
                 ↓
 
-V0.1.5
+V0.1.5 — IMPLEMENTED
 FOUNDATION CONSOLIDATION
 ────────────────────────────────
 Workspace unifié
 MetadataStore
 SQLite par défaut
 PostgreSQL adapter contract
-Runtime events persistés
+Runs / steps / artifacts / events persistés
 Logging terminal stabilisé
 -v / -q
 CLI runs / status
 Decorator API @job / @step
 Builder déclaratif → modèle impératif
-Plugin demo migré vers decorators
-Tests de contrats / intégration renforcés
-ADR consolidés
+RAW immuable
+Manifest enrichi
+Plugin isolation
+
+                ↓
+
+V0.1.6 — REQUIRED BEFORE V0.2
+PERSISTENCE & QUALITY HARDENING
+────────────────────────────────
+SQLAlchemy 2.x Core
+Persistence repository commun
+SQLite adapter SQLAlchemy
+PostgreSQL adapter SQLAlchemy + psycopg extra
+Ruff 0
+Ruff format green
+Mypy strict green
+Bandit 0 findings
+pip-audit green
+PEP 639 packaging clean
+make verify = 0
+wheel smoke tests green
 
                 ↓
 
@@ -75,8 +119,6 @@ CSV
 JSON
 Dataset Contracts
 ```
-
----
 
 # 1. Vision rappelée
 
@@ -213,11 +255,13 @@ Le principal garde-fou hérité de PyWorkflow Engine est le suivant :
 
 ---
 
-# 5. État actuel atteint en V0.1.4
+# 5. État réel atteint en V0.1.5
+
+La V0.1.5 n’est plus une simple cible : elle a été implémentée et testée sur un environnement local réel.
 
 ## 5.1 Core / Runtime
 
-La V0.1.4 possède déjà :
+Disponibles et validés :
 
 - `Job` ;
 - `Step` ;
@@ -229,30 +273,54 @@ La V0.1.4 possède déjà :
 - `JobRegistry` ;
 - `EventBus` ;
 - `Runner` ;
-- gestion des erreurs structurées ;
-- hooks best-effort / critical.
+- hooks best-effort / critical ;
+- persistence des runs réussis et échoués ;
+- persistence des steps ;
+- persistence des événements structurants ;
+- lifecycle cohérent même lors de plusieurs scénarios d’échec testés.
 
 ## 5.2 Artefacts / provenance
 
-Déjà disponibles :
+Disponibles et validés :
 
 - `LocalArtifactStore` ;
 - layout de run ;
 - `RawArtifact` ;
 - SHA-256 ;
+- RAW immuable dans un même run ;
 - `RunManifest` ;
+- artefacts RAW automatiquement référencés dans le manifest ;
+- artefacts RAW automatiquement référencés dans le `MetadataStore` ;
 - écriture JSON atomique ;
 - publication atomique via remplacement de fichier.
 
-## 5.3 Sources
+## 5.3 Workspace
 
-Déjà disponible :
+Le workspace est désormais unifié :
+
+```text
+.pyingest/
+├── logs/
+│   └── pyingest.log
+├── runs/
+│   └── <namespace>/<job>/<run_id>/...
+└── state/
+    └── pyingest.sqlite3
+```
+
+Le précédent `.pyingest-demo/` n’est plus créé par défaut.
+
+## 5.4 Sources
+
+Disponible :
 
 - `LocalSource`.
 
-## 5.4 Validation
+Les sources HTTP appartiennent à V0.2.
 
-Déjà disponibles :
+## 5.5 Validation / Publication
+
+Disponibles :
 
 - `ValidationSeverity` ;
 - `ValidationIssue` ;
@@ -260,20 +328,25 @@ Déjà disponibles :
 - `ValidationRule` ;
 - `MinimumRows` ;
 - `RequiredField` ;
-- `UniqueField`.
+- `UniqueField` ;
+- infrastructure `MetadataStore` prête pour validations et publications.
 
-## 5.5 Configuration
+Les tables `validations` et `publications` peuvent être vides pour un job qui ne déclenche aucun lifecycle de validation/publication : ce comportement est normal.
 
-Déjà disponibles :
+## 5.6 Configuration
+
+Disponibles :
 
 - `PyYAML` ;
 - `Pydantic` ;
 - validation stricte `extra="forbid"` ;
 - `pyingest.yml` ;
-- paramètres runtime ;
-- précédence de configuration.
+- configuration runtime ;
+- configuration metadata ;
+- configuration logging ;
+- précédence claire.
 
-Ordre de précédence actuel/cible :
+Ordre de précédence :
 
 ```text
 Framework defaults
@@ -287,32 +360,31 @@ pyingest.yml
 options CLI explicites
 ```
 
-## 5.6 CLI
+## 5.7 CLI
 
-La CLI repose désormais sur :
-
-- Typer ;
-- Rich.
-
-Commandes :
+La CLI repose sur Typer + Rich et expose :
 
 ```text
 pyingest jobs
 pyingest inspect
 pyingest run
+pyingest runs
+pyingest status
 pyingest help
 ```
 
-Sorties machine :
+Support :
 
 ```text
 --json
---version
+-v / --verbose
+-q / --quiet
+--log-level
 ```
 
-ne doivent pas être polluées par les codes ANSI Rich.
+Les logs utilisent `stderr` et les payloads `--json` utilisent `stdout`, ce qui permet la redirection machine-safe même si le terminal affiche les deux flux lorsqu’ils ne sont pas redirigés.
 
-## 5.7 Plugins
+## 5.8 Plugins
 
 Découverte via :
 
@@ -320,7 +392,7 @@ Découverte via :
 [project.entry-points."pyingestkit.jobs"]
 ```
 
-Le package démo est installable séparément et démontre correctement :
+Le package démo installable démontre :
 
 ```text
 plugin install
@@ -334,29 +406,77 @@ pyingest inspect
 pyingest run
 ```
 
-## 5.8 Logging
+Les plugins cassés sont isolés afin qu’un plugin tiers défectueux ne masque pas les plugins sains.
 
-La V0.1.4 utilise :
+## 5.9 Declarative API
+
+La V0.1.5 expose :
+
+- `@step` ;
+- `@job` ;
+- `StepDefinition` ;
+- `StepInvocation` ;
+- `JobDefinition` ;
+- `PipelineBuilder` ;
+- compilation vers le même modèle impératif ;
+- surface `.fn()` pour tests unitaires directs.
+
+La Decorator API devient la DX recommandée ; l’API impérative reste le modèle bas niveau stable.
+
+## 5.10 Logging
+
+Le logging repose sur :
 
 ```text
 Python logging
       +
-RichHandler
+Rich terminal rendering
       +
-JSON file logging
-      +
-RotatingFileHandler
+JSON rotating file logging
 ```
 
-Le framework utilise :
+Format terminal figé :
 
-```python
-logging.getLogger(__name__)
+```text
+2026-09-03 19:03:31  INFO     [run=f0dcc144 job=demo.local_file] Run started
+2026-09-03 19:03:31  INFO     [run=f0dcc144 job=demo.local_file step=FetchLocal] Step started
+2026-09-03 19:03:31  INFO     [run=f0dcc144 job=demo.local_file step=FetchLocal] Step succeeded 0.006s
+2026-09-03 19:03:31  INFO     [run=f0dcc144 job=demo.local_file] Run succeeded 0.024s
 ```
 
-et ne configure pas les handlers à l’import.
+Les fichiers JSON conservent l’UUID complet et un timestamp ISO 8601 timezone-aware.
 
----
+## 5.11 Persistance réelle observée
+
+SQLite contient déjà les tables :
+
+```text
+runs
+steps
+artifacts
+events
+validations
+publications
+```
+
+Les commandes `pyingest runs` et `pyingest status` interrogent ces métadonnées.
+
+## 5.12 Validation fonctionnelle V0.1.5
+
+État mesuré :
+
+```text
+pytest                 55 passed
+unittest               54 passed
+public API contract    OK
+compileall             OK
+wheel/sdist build      OK
+plugin wheel build     OK
+CLI smoke              OK
+SQLite persistence     OK
+```
+
+Cet état ne doit pas être confondu avec un état “quality gates green” : ce dernier est précisément l’objectif V0.1.6.
 
 # 6. Politique de dépendances
 
@@ -364,16 +484,21 @@ La contrainte historique `zero third-party dependency` est abandonnée.
 
 La doctrine devient :
 
-> PyIngestKit peut utiliser des dépendances tierces reconnues lorsque cela améliore la robustesse, la maintenabilité, la sécurité, la DX ou l’industrialisation.
+> PyIngestKit utilise des dépendances tierces reconnues lorsqu’elles réduisent la complexité réelle et améliorent robustesse, maintenabilité, sécurité, typage, DX ou industrialisation.
 
-Dépendances de socle déjà retenues :
+Dépendances de socle retenues :
 
-- `Typer` ;
-- `Rich` ;
-- `Pydantic` ;
-- `PyYAML`.
+- `Typer` — CLI ;
+- `Rich` — rendu terminal ;
+- `Pydantic` — configuration typée/validée ;
+- `PyYAML` — configuration YAML ;
+- **`SQLAlchemy 2.x` — persistence metadata multi-backend à partir de V0.1.6**.
 
-Le principe n’est donc pas :
+Dépendance optionnelle prévue :
+
+- `psycopg` via extra `[postgres]` pour PostgreSQL.
+
+Le principe n’est pas :
 
 ```text
 minimum de dépendances à tout prix
@@ -395,11 +520,12 @@ Garde-fous :
 - pas de dépendance ajoutée sans cas d’usage précis ;
 - pas de duplication d’une capacité mature existante ;
 - versions bornées raisonnablement ;
-- `pip-audit` dans le toolchain dev/CI ;
-- changelog des changements de dépendances majeurs ;
-- extras uniquement lorsque la dépendance est réellement optionnelle.
-
----
+- `pip-audit` obligatoire dans le gate sécurité ;
+- changelog des changements de dépendances structurants ;
+- extras uniquement lorsque la dépendance est réellement optionnelle ;
+- **un seul moteur de persistence interne : SQLAlchemy** ;
+- **Peewee n’est pas ajouté** : deux ORMs concurrents n’apporteraient aucune valeur ;
+- SQLAlchemy reste un détail interne de persistence et ne fuit pas dans le core ou l’API utilisateur.
 
 # 7. Ajustement n°1 — Workspace unique
 
@@ -581,6 +707,11 @@ Avantages :
 ```text
 metadata/
 ├── base.py
+├── models.py
+├── sqlalchemy/
+│   ├── schema.py
+│   ├── repository.py
+│   └── engine.py
 ├── sqlite.py
 └── postgres.py
 ```
@@ -709,21 +840,106 @@ Garde-fou : ne pas sur-normaliser trop tôt le schéma ; la V0.1.x doit couvrir 
 
 ---
 
-# 11. Ajustement n°4 — PostgreSQL comme adapter
+# 11. Ajustement n°4 — SQLAlchemy 2.x derrière les adapters SQLite/PostgreSQL
 
-## 11.1 Objectif
+## 11.1 Décision
 
-PostgreSQL doit devenir utile lorsqu’on passe à :
+À partir de V0.1.6, PyIngestKit doit remplacer le SQL manuel des `MetadataStore` par **SQLAlchemy 2.x**, en privilégiant **SQLAlchemy Core** pour la Foundation.
 
-- plusieurs machines ;
-- plusieurs workers ;
-- historique partagé ;
-- observabilité centralisée ;
-- dashboard partagé ;
-- forte concurrence ;
-- besoin de durabilité serveur.
+La décision n’est pas d’exposer un ORM aux auteurs de jobs. La décision est de disposer d’un moteur de persistence interne mature et portable.
 
-## 11.2 Configuration cible
+Architecture :
+
+```text
+Runner / CLI
+     │
+     ▼
+MetadataStore
+     │
+     ▼
+SQLAlchemy persistence layer
+     │
+ ┌───┴───────────────┐
+ ▼                   ▼
+SQLite              PostgreSQL
+stdlib sqlite3      psycopg extra
+```
+
+## 11.2 Pourquoi SQLAlchemy maintenant
+
+Le moment est approprié car :
+
+- la persistence metadata vient juste d’être introduite ;
+- le contrat public `MetadataStore` existe déjà ;
+- SQLite et PostgreSQL contiennent de la logique CRUD largement similaire ;
+- Bandit a déjà détecté 4 `B608` sur la construction SQL PostgreSQL ;
+- la Foundation n’a pas encore promis une compatibilité 1.0 ;
+- SQLAlchemy prépare naturellement une trajectoire de migrations futures sans obliger à introduire Alembic maintenant.
+
+## 11.3 SQLAlchemy Core avant ORM déclaratif
+
+Le choix recommandé pour V0.1.6 est :
+
+```text
+SQLAlchemy Core
+→ Table / Column
+→ select / insert / update
+→ Engine / Connection / Transaction
+```
+
+et non :
+
+```text
+faire de RunRecord / StepRecord des modèles ORM publics
+```
+
+Les objets PyIngestKit restent indépendants :
+
+```text
+DOMAIN / CONTRACT
+RunRecord
+StepRecord
+ArtifactRecord
+EventRecord
+ValidationRecord
+PublicationRecord
+
+          │ mapping interne
+          ▼
+
+PERSISTENCE
+SQLAlchemy tables / statements
+```
+
+## 11.4 Adapters conservés
+
+Même avec une couche SQLAlchemy commune, conserver :
+
+```text
+SQLiteMetadataStore
+PostgresMetadataStore
+```
+
+car les backends auront des besoins spécifiques.
+
+SQLite peut notamment appliquer :
+
+```text
+PRAGMA foreign_keys = ON
+journal_mode = WAL
+busy_timeout
+```
+
+PostgreSQL pourra ultérieurement définir :
+
+```text
+pooling
+SSL
+statement timeout
+schema dédié
+```
+
+## 11.5 Configuration cible
 
 SQLite :
 
@@ -731,7 +947,13 @@ SQLite :
 metadata:
   backend: sqlite
   sqlite:
-    path: .pyingest/state/pyingest.sqlite3
+    path: null
+```
+
+`path: null` signifie :
+
+```text
+<runtime.workspace>/state/pyingest.sqlite3
 ```
 
 PostgreSQL :
@@ -749,30 +971,48 @@ Puis :
 export PYINGEST_DATABASE_URL='postgresql://...'
 ```
 
-Garde-fou sécurité : **ne pas placer le DSN ou mot de passe PostgreSQL directement dans le YAML versionné**.
+Le framework peut normaliser en interne vers le dialecte SQLAlchemy/psycopg approprié afin de ne pas imposer au consommateur de connaître la syntaxe SQLAlchemy.
 
-## 11.3 Portabilité
+## 11.6 Garde-fous de persistence
 
-SQLite et PostgreSQL doivent passer une suite commune :
+- le `Runner` dépend uniquement de `MetadataStore` ;
+- aucune classe SQLAlchemy dans l’API top-level ;
+- aucun `Session`/`Base`/`Column` exposé aux jobs ;
+- aucun SQL dynamique via f-string ;
+- valeurs toujours bindées/paramétrées ;
+- Peewee non introduit ;
+- Alembic non introduit en V0.1.6 ;
+- préparer une stratégie de version de schéma, mais ne pas lancer un chantier migrations complet avant besoin réel ;
+- conserver des contract tests communs aux adapters.
+
+## 11.7 Pourquoi ne pas intégrer Peewee
+
+Peewee est un bon ORM léger, mais ajouter simultanément :
 
 ```text
-MetadataStore contract tests
+SQLAlchemy + Peewee
 ```
 
-Le runtime ne doit pas contenir :
+créerait :
 
-```python
-if backend == "sqlite":
-    ...
-elif backend == "postgres":
-    ...
+- deux abstractions concurrentes ;
+- deux modèles de transactions ;
+- deux conventions de query ;
+- deux surfaces de maintenance ;
+- aucun bénéfice fonctionnel pour l’utilisateur.
+
+Décision :
+
+```text
+SQLAlchemy → OUI
+Peewee     → NON
 ```
 
-partout dans le code.
+## 11.8 Migrations
 
-La sélection du backend doit se faire à la composition/configuration, pas au cœur du lifecycle.
+SQLAlchemy prépare naturellement Alembic, mais **Alembic reste hors V0.1.6**.
 
----
+Le besoin de migrations devra être déclenché par une vraie évolution de schéma à préserver en production, pas par anticipation.
 
 # 12. Ajustement n°5 — Logs opérationnels vs Runtime Events
 
@@ -1579,6 +1819,39 @@ avec diagnostic exploitable.
 
 ---
 
+## 30.7 Manifest écrit en plusieurs phases
+
+Les traces V0.1.5 montrent une écriture initiale puis une finalisation du manifest. Ce comportement n’est pas incorrect si les écritures sont atomiques, mais il doit être clarifié avant V1.0 :
+
+- soit conserver explicitement un **checkpoint + finalization** ;
+- soit construire le manifest en mémoire puis faire une seule écriture finale.
+
+Ce point est du polishing et ne bloque pas V0.1.6 sauf si le refactoring persistence le rend trivial à simplifier.
+
+## 30.8 `--json` et logs console
+
+`pyingest run --json` produit son payload sur `stdout` et les logs sur `stderr`. Le terminal affiche les deux flux ensemble, mais une redirection :
+
+```bash
+pyingest run ... --json > result.json
+```
+
+reste machine-safe.
+
+Garde-fou : ne pas mélanger réellement logs et payload JSON sur le même flux. Une éventuelle convention future `--json => console logging disabled` doit être décidée explicitement, pas introduite silencieusement.
+
+## 30.9 Normalisation ISO 8601 des manifests
+
+Les formats machine doivent converger vers :
+
+```text
+2026-09-03T17:03:31.824178+00:00
+```
+
+pour `started_at`, `completed_at`, `retrieved_at`, etc.
+
+L’objectif est d’aligner manifest, JSON logs, SQLite/PostgreSQL et futures APIs.
+
 # 31. Production-grade dependency policy
 
 La Foundation consolidée doit conserver une politique explicite :
@@ -1797,35 +2070,180 @@ Le résultat attendu :
 
 ---
 
-# 35. CI / Quality Gates
+# 35. CI / Quality Gates — état réel et cible V0.1.6
 
-La Foundation consolidée doit avoir des gates automatiques au minimum sur :
+## 35.1 État observé sur V0.1.5
+
+Les tests fonctionnels sont verts :
 
 ```text
-compileall
-pytest
-coverage
-ruff
-mypy
-bandit
-pip-audit
-build wheel
-wheel install smoke test
-plugin install smoke test
-CLI smoke tests
+pytest                 55 passed
+unittest               54 passed
+public API contract    OK
+compileall             OK
+build                   OK avec warnings packaging
 ```
 
-Recommandation : ajouter les workflows CI avant V0.2 si toujours absents.
+En revanche :
 
-Garde-fou : une feature Foundation n’est pas “Done” uniquement parce qu’elle fonctionne dans un checkout editable local.
+```text
+make quality
+→ FAIL
+→ Ruff : 56 erreurs
 
-Elle doit aussi fonctionner depuis les wheels construits.
+make security
+→ FAIL
+→ Bandit : 4 B608 Medium / Medium
+```
 
----
+Conséquences :
+
+- `mypy --strict` n’est pas encore prouvé green si Ruff arrête la target avant ;
+- `pip-audit` n’est pas encore prouvé green si Bandit arrête la target avant ;
+- le build réussit mais Setuptools remonte une dépréciation sur `project.license` au format table et sur le classifier MIT.
+
+## 35.2 Ruff
+
+Les findings actuels incluent notamment :
+
+```text
+I001   imports non triés
+UP017  datetime.UTC
+UP035  collections.abc
+UP037  annotations modernes
+F401   imports inutilisés
+B009   getattr constant
+BLE001 broad exception catches
+```
+
+La majorité est auto-fixable, mais la règle est :
+
+```text
+ruff check --fix
+→ OUI après review
+
+--unsafe-fixes
+→ NON par défaut
+```
+
+Les `except Exception` doivent être évalués par frontière :
+
+- **plugin discovery boundary** : catch large légitime pour isoler un plugin tiers ;
+- **user-code execution boundary dans Runner** : catch large légitime pour convertir une exception arbitraire en `FAILED RunResult` ;
+- **logging handler** : catch large potentiellement légitime pour respecter le contrat `logging.Handler.handleError`.
+
+Lorsque le catch large est volontaire, le code doit contenir une justification locale explicite plutôt qu’une suppression globale de `BLE001`.
+
+## 35.3 Bandit
+
+Les 4 `B608` proviennent de constructions de requêtes PostgreSQL contenant une interpolation de colonnes SQL.
+
+Même si les valeurs utilisateur sont paramétrées, la cible V0.1.6 est :
+
+```text
+aucune f-string SQL
+aucune concaténation SQL dynamique
+SQLAlchemy expressions / bound parameters
+```
+
+Ne pas résoudre ce sujet par `# nosec` lorsque le refactoring SQLAlchemy permet de supprimer la cause.
+
+## 35.4 Mypy strict
+
+Après Ruff :
+
+```bash
+mypy src/pyingestkit
+```
+
+doit terminer avec exit code `0` sous la configuration stricte du projet.
+
+Aucun “type: ignore” global ou massif ne doit être ajouté pour faire passer artificiellement le gate.
+
+## 35.5 pip-audit
+
+Après Bandit :
+
+```bash
+pip-audit
+```
+
+doit être exécuté réellement et documenté.
+
+Une vulnérabilité ne doit pas être masquée sans justification et plan de remédiation.
+
+## 35.6 Packaging PEP 639
+
+Remplacer :
+
+```toml
+license = { text = "MIT" }
+```
+
+par :
+
+```toml
+license = "MIT"
+```
+
+et retirer le classifier de licence devenu redondant si nécessaire.
+
+Objectif : build sans warnings de dépréciation Setuptools liés à la licence.
+
+## 35.7 Targets Make recommandées
+
+```makefile
+format:
+	ruff check --fix src tests examples/plugin_package/src examples/plugin_package/tests
+	ruff format src tests examples/plugin_package/src examples/plugin_package/tests
+
+quality:
+	ruff check src tests examples/plugin_package/src examples/plugin_package/tests
+	ruff format --check src tests examples/plugin_package/src examples/plugin_package/tests
+	mypy src/pyingestkit
+
+security:
+	bandit -r src/pyingestkit
+	pip-audit
+
+verify:
+	$(MAKE) check
+	$(MAKE) quality
+	$(MAKE) security
+	$(MAKE) build
+```
+
+Le gate ultime devient :
+
+```bash
+make verify
+```
+
+avec :
+
+```text
+exit code = 0
+```
+
+## 35.8 Définition stricte de “green”
+
+La Foundation n’est pas “green” parce que les tests passent. Elle est green lorsque :
+
+```text
+tests
++ static analysis
++ strict typing
++ security scan
++ dependency audit
++ packaging
++ wheel install smoke
+```
+
+sont tous verts.
 
 # 36. ADR à créer / mettre à jour
 
-## ADR nouveaux
+## ADR Foundation déjà introduits avec V0.1.5
 
 ```text
 ADR-012 — Unified workspace layout
@@ -1836,13 +2254,45 @@ ADR-016 — Declarative decorator API
 ADR-017 — Decorator API compiles to imperative model
 ```
 
+Ils doivent être relus afin de vérifier qu’ils décrivent l’état réellement livré en V0.1.5 et non uniquement l’intention initiale.
+
+## ADR à ajouter pour V0.1.6
+
+```text
+ADR-018 — SQLAlchemy 2.x as metadata persistence engine
+ADR-019 — One persistence engine: SQLAlchemy; Peewee rejected
+ADR-020 — Foundation quality/security gate and make verify policy
+ADR-021 — Schema evolution strategy: no Alembic before demonstrated need
+```
+
+ADR-018 doit expliciter :
+
+- SQLAlchemy Core privilégié ;
+- `MetadataStore` demeure le contrat ;
+- pas de fuite ORM dans les records/core ;
+- SQLite et PostgreSQL utilisent un repository commun lorsque pertinent ;
+- spécificités backend conservées dans les adapters.
+
+ADR-020 doit figer :
+
+```text
+make verify = 0
+```
+
+comme condition d’ouverture de V0.2.
+
 ## ADR à mettre à jour
 
 ```text
+ADR-010 — Production-grade dependency policy
 ADR-011 — Logging policy
+ADR-013 — MetadataStore abstraction
+ADR-014 — SQLite as default metadata backend
 ```
 
-pour intégrer :
+ADR-010 doit intégrer SQLAlchemy et la décision de ne pas ajouter Peewee.
+
+ADR-011 doit conserver :
 
 - timestamp terminal ;
 - contexte court ;
@@ -1855,9 +2305,9 @@ pour intégrer :
 
 Les ADR remplacés doivent rester présents et marqués `SUPERSEDED`, plutôt que supprimés.
 
----
-
 # 37. Documentation à créer / enrichir
+
+La V0.1.5 possède déjà une base documentaire importante. Avant le freeze V0.1.6, compléter ou vérifier :
 
 ```text
 docs/architecture/
@@ -1866,7 +2316,8 @@ docs/architecture/
 ├── logging.md
 ├── declarative-api.md
 ├── runtime-events.md
-└── plugin-model.md
+├── plugin-model.md
+└── persistence-sqlalchemy.md        # V0.1.6
 ```
 
 Guides :
@@ -1876,6 +2327,7 @@ docs/guides/
 ├── write-a-job-with-decorators.md
 ├── write-a-job-imperative.md
 ├── configure-metadata-store.md
+├── configure-postgres-metadata.md   # V0.1.6
 ├── inspect-run-history.md
 └── package-a-job-plugin.md
 ```
@@ -1886,9 +2338,14 @@ Tutoriel démo :
 docs/tutorials/demo-plugin.md
 ```
 
-à migrer vers `@job` / `@step`.
+La documentation V0.1.6 doit également expliquer :
 
----
+- pourquoi SQLAlchemy est interne ;
+- pourquoi Peewee n’est pas intégré ;
+- comment SQLite reste le défaut zéro-infrastructure ;
+- comment PostgreSQL devient un adapter partagé ;
+- ce que vérifie `make verify` ;
+- quelles exceptions Ruff/Bandit sont volontairement justifiées et lesquelles doivent être supprimées.
 
 # 38. README — nouvelle hiérarchie
 
@@ -1990,77 +2447,101 @@ Le build doit être déterministe, introspectable et testable.
 
 # 41. Définition de Done — Foundation V0.1.x
 
-La Foundation est considérée stabilisée seulement si :
+## 41.1 Acquis fonctionnels V0.1.5
 
 ### Architecture
 
-- [ ] un seul workspace par défaut `.pyingest/` ;
-- [ ] `ArtifactStore` et `MetadataStore` sont distincts ;
-- [ ] `Runner` dépend de `MetadataStore`, pas de SQLite ;
-- [ ] SQLite est le backend metadata par défaut ;
-- [ ] PostgreSQL satisfait le même contrat ou possède au minimum un adapter contract figé ;
-- [ ] manifest et metadata restent complémentaires.
+- [x] un seul workspace par défaut `.pyingest/` ;
+- [x] `ArtifactStore` et `MetadataStore` distincts ;
+- [x] `Runner` dépend de `MetadataStore`, pas de SQLite ;
+- [x] SQLite backend metadata par défaut ;
+- [x] PostgreSQL adapter contract présent ;
+- [x] manifest et metadata complémentaires.
 
 ### Runtime
 
-- [ ] runs persistés ;
-- [ ] steps persistés ;
-- [ ] failures persistées ;
-- [ ] artefacts principaux référencés ;
-- [ ] événements structurants persistés ;
-- [ ] lifecycle cohérent même en cas d’erreur critique.
+- [x] runs persistés ;
+- [x] steps persistés ;
+- [x] failures persistées ;
+- [x] artefacts principaux référencés ;
+- [x] événements structurants persistés ;
+- [x] RAW immuable ;
+- [x] lifecycle critique couvert par tests.
 
 ### Logging
 
-- [ ] format terminal officiel appliqué ;
-- [ ] timestamp local `YYYY-MM-DD HH:mm:ss` ;
-- [ ] run ID court ;
-- [ ] UUID complet en JSON/DB ;
-- [ ] lifecycle step en INFO ;
-- [ ] détails internes en DEBUG ;
-- [ ] `-v` ;
-- [ ] `-q` ;
-- [ ] JSON stdout non pollué ;
-- [ ] secrets redacted.
+- [x] format terminal officiel appliqué ;
+- [x] timestamp local `YYYY-MM-DD HH:mm:ss` ;
+- [x] run ID court ;
+- [x] UUID complet en JSON/DB ;
+- [x] lifecycle step en INFO ;
+- [x] détails internes en DEBUG ;
+- [x] `-v` ;
+- [x] `-q` ;
+- [x] séparation stdout/stderr ;
+- [x] secrets redacted.
 
 ### Declarative API
 
-- [ ] `@step` ;
-- [ ] `@job` ;
-- [ ] `StepDefinition` ;
-- [ ] `StepInvocation` ;
-- [ ] `JobDefinition` ;
-- [ ] `PipelineBuilder` ;
-- [ ] compilation vers le modèle impératif ;
-- [ ] `.fn()` pour tests directs ;
-- [ ] plugin loader compatible ;
-- [ ] demo migrée vers decorators.
+- [x] `@step` ;
+- [x] `@job` ;
+- [x] `StepDefinition` ;
+- [x] `StepInvocation` ;
+- [x] `JobDefinition` ;
+- [x] `PipelineBuilder` ;
+- [x] compilation vers le modèle impératif ;
+- [x] `.fn()` pour tests directs ;
+- [x] plugin loader compatible ;
+- [x] demo migrée vers decorators.
 
 ### CLI
 
-- [ ] `jobs` ;
-- [ ] `inspect` ;
-- [ ] `run` ;
-- [ ] `runs` ;
-- [ ] `status` ;
-- [ ] `--json` machine-safe ;
-- [ ] verbosity flags.
+- [x] `jobs` ;
+- [x] `inspect` ;
+- [x] `run` ;
+- [x] `runs` ;
+- [x] `status` ;
+- [x] `--json` machine-safe au niveau des flux ;
+- [x] verbosity flags.
 
-### Quality
+## 41.2 Blocants V0.1.6 avant V0.2
 
-- [ ] unit tests verts ;
-- [ ] integration tests verts ;
-- [ ] contract tests verts ;
-- [ ] wheel build vert ;
-- [ ] wheel install smoke vert ;
-- [ ] plugin wheel smoke vert ;
-- [ ] Ruff vert ;
-- [ ] Mypy vert ;
-- [ ] Bandit vert ;
-- [ ] pip-audit contrôlé ;
-- [ ] docs/ADR à jour.
+### Persistence hardening
 
----
+- [x] SQLAlchemy 2.x intégré ;
+- [x] SQLAlchemy Core utilisé pour le repository metadata ;
+- [x] SQLite adapter migré ;
+- [x] PostgreSQL adapter migré ;
+- [x] aucun SQL dynamique via f-string ;
+- [x] Peewee non introduit ;
+- [x] SQLAlchemy absent de l’API publique métier ;
+- [x] SQLite tuning minimum documenté/testé ;
+- [x] tests de contrat backend toujours verts.
+
+### Quality / Security
+
+- [ ] Ruff = 0 erreur ;
+- [ ] Ruff format --check vert ;
+- [ ] Mypy strict vert ;
+- [ ] Bandit = 0 finding bloquant ;
+- [ ] pip-audit exécuté et vert ou exceptions explicitement documentées ;
+- [x] packaging PEP 639 propre ;
+- [x] build sans warnings de licence Setuptools ;
+- [x] wheel install smoke vert ;
+- [x] plugin wheel smoke vert ;
+- [ ] `make verify` exit code `0` ;
+- [ ] CI reproduit exactement les mêmes gates.
+
+### Documentation
+
+- [x] ADR persistence SQLAlchemy ajouté ;
+- [x] ADR dependency policy mis à jour ;
+- [x] document Foundation reflète l’état réel ;
+- [x] changelog V0.1.6 complet.
+
+## 41.3 Condition d’ouverture de V0.2
+
+> **V0.2 ne démarre que lorsque tous les items V0.1.6 ci-dessus sont satisfaits ou explicitement dérogés par une décision d’architecture documentée.**
 
 # 42. Ce qui reste explicitement hors V0.1.x
 
@@ -2076,6 +2557,8 @@ Ne pas profiter du chantier Foundation pour ajouter :
 - diff engine complet ;
 - replay complet ;
 - PostgresTarget métier ;
+- Alembic/migrations complètes tant qu’aucune compatibilité de schéma réelle n’est à préserver ;
+- Peewee ou second ORM ;
 - S3 ;
 - MinIO ;
 - scheduler ;
@@ -2120,9 +2603,9 @@ V0.2 pourra alors s’appuyer sur :
 
 # 44. Roadmap recommandée
 
-## V0.1.5 — Foundation Consolidation
+## V0.1.5 — Foundation Consolidation — IMPLEMENTED
 
-Scope :
+Scope livré :
 
 ```text
 Unified workspace
@@ -2136,9 +2619,48 @@ runs/status CLI
 Decorator API
 Demo migration
 Manifest integration fixes
-RAW immutability fix
-Plugin isolation improvements
-ADR / docs / CI gates
+RAW immutability
+Plugin isolation
+ADR / docs / CI definitions
+```
+
+Statut : **V0.1.5 fonctionnellement vert ; V0.1.6 implémente le hardening persistence, les quality/security gates restent le critère de freeze à exécuter dans l’environnement dev/CI de référence**.
+
+## V0.1.6 — Foundation Persistence & Quality Hardening — IMPLEMENTED / GATES TO VERIFY
+
+Scope strict :
+
+```text
+SQLAlchemy 2.x dependency
+SQLAlchemy Core persistence layer
+Common metadata repository
+SQLite adapter refactor
+PostgreSQL adapter refactor
+psycopg optional extra
+SQLite foreign_keys / WAL / busy_timeout policy
+Remove dynamic raw SQL
+Ruff 0
+Ruff format green
+Mypy strict green
+Bandit green
+pip-audit green
+PEP 639 packaging clean
+make verify = 0
+wheel smoke tests
+CI parity
+```
+
+Explicitement hors scope V0.1.6 :
+
+```text
+HTTP
+Retry réseau
+CSV / JSON parsers
+Dataset Contracts
+Alembic complet
+Peewee
+nouveau scheduler
+nouveau DAG engine
 ```
 
 ## V0.2 — Acquisition
@@ -2199,8 +2721,6 @@ Critères :
 - publication atomique validée ;
 - politique de sécurité documentée.
 
----
-
 # 45. Pilotes de référence après Foundation
 
 Les pilotes restent :
@@ -2221,28 +2741,35 @@ Ils permettront de vérifier que la Foundation reste générique et n’est pas 
 
 # 46. Décisions à figer
 
-Les décisions proposées sont donc :
+Les décisions consolidées sont :
 
 1. **Decorator API par défaut** pour les auteurs de jobs.
 2. **Imperative API conservée** comme modèle bas niveau stable.
 3. **Un seul runtime** pour les deux APIs.
 4. **Un seul workspace par défaut** `.pyingest/`.
-5. **SQLite MetadataStore par défaut**.
-6. **PostgreSQL comme adapter interchangeable**.
-7. **ArtifactStore distinct du MetadataStore**.
-8. **Logs opérationnels distincts des events runtime**.
-9. **Python logging + Rich** comme convention.
-10. **Format terminal timestampé** figé.
-11. **JSON logs structurés** pour fichiers/collecte.
-12. **Secrets redacted**.
-13. **CLI runs/status** avant V0.2.
-14. **Pas de scheduler/DAG engine**.
-15. **Pas de timeout/retry générique non maîtrisé dans `@step`**.
-16. **Manifest conservé même avec SQLite**.
-17. **RAW immuable**.
-18. **Tests de contrats obligatoires pour adapters/plugins**.
-
----
+5. **ArtifactStore distinct du MetadataStore**.
+6. **SQLite MetadataStore par défaut**.
+7. **PostgreSQL backend interchangeable** pour les environnements partagés.
+8. **SQLAlchemy 2.x devient le moteur interne de persistence metadata en V0.1.6**.
+9. **SQLAlchemy Core privilégié** pour la Foundation ; pas d’ORM déclaratif qui contamine les records métier.
+10. **Peewee non intégré** : un seul moteur de persistence suffit.
+11. **psycopg reste optionnel** via extra PostgreSQL.
+12. **Alembic différé** jusqu’à l’apparition d’un vrai besoin de migrations de schéma compatibles.
+13. **Logs opérationnels distincts des events runtime**.
+14. **Python logging + Rich** comme convention.
+15. **Format terminal timestampé** figé.
+16. **JSON logs structurés** pour fichiers/collecte.
+17. **Secrets redacted**.
+18. **CLI runs/status** fait partie de la Foundation.
+19. **Pas de scheduler/DAG engine**.
+20. **Pas de timeout/retry générique non maîtrisé dans `@step`**.
+21. **Manifest conservé même avec SQLite/PostgreSQL**.
+22. **RAW immuable**.
+23. **Tests de contrats obligatoires pour adapters/plugins**.
+24. **Aucune SQL f-string dynamique dans les adapters**.
+25. **Les broad exception catches légitimes sont documentés localement aux frontières plugin/user-code**.
+26. **`make verify` exit 0 devient la définition opérationnelle du freeze Foundation**.
+27. **V0.2 ne commence pas avant le hardening V0.1.6**.
 
 # 47. Architecture cible finale avant V0.2
 
@@ -2268,44 +2795,97 @@ Les décisions proposées sont donc :
             ▼                      ▼                        ▼
        ArtifactStore          MetadataStore              Logging
             │                      │                        │
-            ▼              ┌───────┴────────┐       ┌──────┴──────┐
-      Local filesystem      ▼                ▼       ▼             ▼
-                          SQLite         PostgreSQL  Rich        JSON file
-            │                                      stderr
-            │
-            ▼
- .pyingest/runs / published
-
-MetadataStore
-      │
-      └── runs / steps / artifacts metadata / validations / publications / events
+            ▼                      ▼                 ┌──────┴──────┐
+      Local filesystem       SQLAlchemy 2.x          ▼             ▼
+                            Core repository       Rich        JSON file
+                                  │               stderr
+                         ┌────────┴────────┐
+                         ▼                 ▼
+                      SQLite          PostgreSQL
+                    default local      shared/server
+                         │                 │
+                    stdlib driver      psycopg extra
 ```
 
----
+Workspace :
+
+```text
+.pyingest/
+├── logs/
+│   └── pyingest.log
+├── runs/
+│   └── <namespace>/<job>/<run_id>/...
+├── state/
+│   └── pyingest.sqlite3
+└── published/
+    └── ...
+```
+
+Responsabilités :
+
+```text
+ArtifactStore
+→ RAW / staging / candidate / reports / manifests / published datasets
+
+MetadataStore
+→ runs / steps / artifact metadata / validations / publications / events
+
+SQLAlchemy
+→ persistence implementation detail only
+
+Logging
+→ diagnostic humain/opérationnel
+
+Events
+→ faits structurés persistables
+```
 
 # 48. Conclusion
 
-La V0.1.x ne doit pas être considérée comme une simple version “pré-HTTP”. Elle constitue le **contrat de fondation** sur lequel reposeront tous les futurs jobs et packages PyIngestKit.
+La V0.1.x constitue le **contrat de fondation** sur lequel reposeront tous les futurs jobs et packages PyIngestKit.
 
-Le bon ordre est donc :
+La V0.1.5 a démontré que les décisions fonctionnelles principales sont cohérentes :
 
 ```text
-STABILISER LES FONDATIONS
-          ↓
-FIGER LES CONTRATS
-          ↓
-FIGER LA DX
-          ↓
-FIGER LA PERSISTENCE
-          ↓
-FIGER L’OBSERVABILITÉ
-          ↓
-ENSUITE AJOUTER LES CAPACITÉS D’INGESTION
+workspace
+runtime
+plugins
+declarative API
+metadata
+SQLite
+logging
+manifest
+run history
 ```
 
-La cible recommandée est une **V0.1.5 “Foundation Consolidation”** suffisamment robuste pour que V0.2 puisse se concentrer exclusivement sur les capacités d’acquisition et de parsing, sans devoir rouvrir les décisions centrales du runtime.
+Mais les quality/security gates réels ont apporté une information essentielle :
+
+> **une Foundation production-grade n’est pas stabilisée tant que les tests fonctionnels sont verts mais que les gates statiques/sécurité échouent.**
+
+Le bon ordre devient donc :
+
+```text
+V0.1.5
+VALIDER LE COMPORTEMENT
+          ↓
+V0.1.6
+HARDEN LA PERSISTENCE
+          ↓
+UNIFIER SQLITE / POSTGRES VIA SQLALCHEMY
+          ↓
+RENDRE RUFF / MYPY / BANDIT / PIP-AUDIT VERTS
+          ↓
+NETTOYER LE PACKAGING
+          ↓
+make verify = 0
+          ↓
+FIGER LA FOUNDATION
+          ↓
+ENSUITE OUVRIR V0.2
+```
+
+La cible finale avant V0.2 est donc une **V0.1.6 “Foundation Persistence & Quality Hardening”**, avec un scope volontairement fermé.
 
 Le garde-fou ultime reste :
 
 > **PyIngestKit doit être excellent pour l’ingestion, pas moyen dans tous les domaines de la Data Platform.**
-

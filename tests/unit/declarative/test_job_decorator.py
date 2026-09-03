@@ -21,7 +21,7 @@ class JobDecoratorTests(unittest.TestCase):
         self.assertEqual(built.id, "demo.declarative")
         self.assertEqual(built.version, "1.2.3")
         self.assertEqual([item.step_name for item in built.pipeline()], ["First"])
-        self.assertEqual(getattr(built, "definition_style"), "declarative")
+        self.assertEqual(built.definition_style, "declarative")
 
 
 if __name__ == "__main__":

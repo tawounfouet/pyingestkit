@@ -18,13 +18,20 @@ jobs:
       - run: python -m pip install --upgrade pip
       - run: python -m pip install -e ".[dev]"
       - run: python -m pip install -e examples/plugin_package
-      - run: python -m compileall -q src tests examples
-      - run: pytest --cov=pyingestkit --cov-report=term-missing
-      - run: ruff check src tests examples/plugin_package/src examples/plugin_package/tests
-      - run: mypy src/pyingestkit
-      - run: bandit -q -r src/pyingestkit examples/plugin_package/src
-      - run: python -m build
-      - run: python -m build examples/plugin_package
+      - run: make check
+      - run: make quality
+
+  foundation-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e ".[dev]"
+      - run: python -m pip install -e examples/plugin_package
+      - run: make verify
       - run: pyingest --version
       - run: pyingest jobs
       - run: pyingest run demo.local_file --config examples/plugin_package/demo.yml

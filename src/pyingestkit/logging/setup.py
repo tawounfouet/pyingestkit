@@ -13,8 +13,6 @@ from .filters import ContextFilter, RedactingFilter
 from .formatters import JsonFormatter, PlainTerminalFormatter, RichTerminalFormatter
 
 
-
-
 class _StableRichHandler(logging.Handler):
     """Rich-backed handler with a stable no-wrap terminal layout."""
 
@@ -26,7 +24,7 @@ class _StableRichHandler(logging.Handler):
         try:
             rendered = self.format(record)
             self.console.print(rendered, markup=True, soft_wrap=True)
-        except Exception:
+        except Exception:  # noqa: BLE001 - logging must never break the ingestion runtime
             self.handleError(record)
 
 

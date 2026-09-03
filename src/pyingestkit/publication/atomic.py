@@ -21,7 +21,7 @@ class AtomicPublisher:
         try:
             shutil.copy2(source, temp)
             os.replace(temp, target)
-        except Exception as exc:
+        except OSError as exc:
             temp.unlink(missing_ok=True)
             raise PublicationError(f"Atomic publication failed: {exc}") from exc
         return target

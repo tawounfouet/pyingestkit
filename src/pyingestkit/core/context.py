@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass, field
-from datetime import date, datetime, timezone
-from typing import TYPE_CHECKING, Any, Mapping
+from datetime import UTC, date, datetime
+from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
 if TYPE_CHECKING:
@@ -13,9 +14,9 @@ if TYPE_CHECKING:
 class RunContext:
     job_id: str
     job_version: str
-    artifact_store: "ArtifactStore"
+    artifact_store: ArtifactStore
     run_id: UUID = field(default_factory=uuid4)
-    started_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    started_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     as_of: date | None = None
     fixture_mode: bool = False
     parameters: Mapping[str, Any] = field(default_factory=dict)

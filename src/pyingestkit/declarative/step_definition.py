@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import inspect
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable, Generic, ParamSpec, TypeVar
+from typing import Any, Generic, ParamSpec, TypeVar
 
 from pyingestkit.core.context import RunContext
 from pyingestkit.core.step import Step
@@ -38,7 +39,6 @@ class StepDefinition(Generic[P, R]):
 
     fn: Callable[P, R]
     name: str
-
 
     def __call__(self, *args: P.args, **kwargs: P.kwargs) -> StepInvocation:
         builder = current_builder()

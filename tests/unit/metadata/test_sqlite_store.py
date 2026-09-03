@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import sqlite3
 import tempfile
-from contextlib import closing
 import unittest
+from contextlib import closing
 from pathlib import Path
 
 from pyingestkit.metadata import SQLiteMetadataStore
@@ -15,7 +15,8 @@ class SQLiteStoreTests(unittest.TestCase):
             path = Path(tmp) / "state" / "pyingest.sqlite3"
             SQLiteMetadataStore(path)
             with closing(sqlite3.connect(path)) as connection:
-                names = {row[0] for row in connection.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+                rows = connection.execute("SELECT name FROM sqlite_master WHERE type='table'")
+                names = {row[0] for row in rows}
             for table in ("runs", "steps", "artifacts", "validations", "publications", "events"):
                 self.assertIn(table, names)
 

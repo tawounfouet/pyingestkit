@@ -17,6 +17,7 @@ class Pass(Step):
 
 class Demo(Job):
     id = "demo.events_persisted"
+
     def pipeline(self) -> Pipeline:
         return Pipeline([Pass()])
 
@@ -28,7 +29,10 @@ class RunEventsTests(unittest.TestCase):
             store = SQLiteMetadataStore.for_workspace(workspace)
             result = Runner(LocalArtifactStore(workspace), metadata_store=store).run(Demo())
             types = [row.event_type for row in store.list_events(result.run_id)]
-            self.assertEqual(types, ["RUN_STARTED", "STEP_STARTED", "STEP_SUCCEEDED", "RUN_SUCCEEDED"])
+            self.assertEqual(
+                types,
+                ["RUN_STARTED", "STEP_STARTED", "STEP_SUCCEEDED", "RUN_SUCCEEDED"],
+            )
 
 
 if __name__ == "__main__":

@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "Installable demonstration job pack for PyIngestKit."
 requires-python = ">=3.11"
 dependencies = [
-  "pyingestkit>=0.1.5,<0.2",
+  "pyingestkit>=0.1.6,<0.2",
 ]
 
 [project.entry-points."pyingestkit.jobs"]
