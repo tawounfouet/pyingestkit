@@ -1,4 +1,4 @@
-.PHONY: install install-dev install-demo test test-demo check format quality security build demo verify clean
+.PHONY: install install-dev install-demo test test-demo check format quality security build wheel-smoke demo verify release-check clean
 
 install:
 	python -m pip install -e .
@@ -37,12 +37,21 @@ build:
 	python -m build
 	python -m build examples/plugin_package
 
+wheel-smoke:
+	python scripts/wheel_smoke_test.py
+
 verify: check quality security build
+
+release-check: verify wheel-smoke
 
 demo: install-demo
 	pyingest jobs
 	pyingest inspect demo.local_file
+	pyingest inspect demo.http_csv
+	pyingest inspect demo.http_json
 	pyingest run demo.local_file --config examples/plugin_package/demo.yml
+	pyingest run demo.http_csv --config examples/plugin_package/demo-http.yml
+	pyingest run demo.http_json --config examples/plugin_package/demo-http.yml
 	pyingest runs
 
 clean:
