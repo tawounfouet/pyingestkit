@@ -1,0 +1,6 @@
+runtime:
+  workspace: .pyingest
+  fixture_mode: false
+  parameters:
+    path: examples/plugin_package/data/sample.txt
+    retries: 3

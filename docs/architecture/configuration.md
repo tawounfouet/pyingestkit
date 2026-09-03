@@ -1,8 +1,8 @@
 # Configuration
 
-PyIngestKit V0.1.2 uses **Pydantic** for schema validation and **PyYAML** for YAML project configuration.
+PyIngestKit V0.1.3 uses **Pydantic** for schema validation and **PyYAML** for YAML project configuration.
 
-Example `pyingest.yml`:
+## Project file
 
 ```yaml
 runtime:
@@ -12,20 +12,27 @@ runtime:
     source: local
 ```
 
-Run with:
+Unknown keys are rejected (`extra="forbid"`) so configuration drift fails early.
 
-```bash
-pyingest run my.namespace.job --config pyingest.yml
-```
-
-CLI values override configuration values:
+## Runtime precedence
 
 ```text
 framework defaults
-      ↓
-pyingest.yml
-      ↓
-CLI options
+        ↓
+YAML project configuration
+        ↓
+--params-json
+        ↓
+--param / -p KEY=VALUE
+        ↓
+explicit CLI runtime options
 ```
 
-Unknown configuration keys are rejected instead of being silently ignored.
+`--param/-p` is repeatable and uses YAML scalar parsing, preserving values such as booleans and integers.
+
+```bash
+pyingest run demo.local_file \
+  --param path=examples/plugin_package/data/sample.txt \
+  --param retries=3 \
+  --param enabled=true
+```

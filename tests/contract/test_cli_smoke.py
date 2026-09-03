@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import json
 import unittest
+from unittest.mock import patch
 
 from typer.testing import CliRunner
 
 from pyingestkit.cli.app import app
+from pyingestkit.core.registry import JobRegistry
 
 
 class CliSmokeTests(unittest.TestCase):
@@ -15,7 +17,7 @@ class CliSmokeTests(unittest.TestCase):
     def test_version(self) -> None:
         result = self.runner.invoke(app, ["--version"])
         self.assertEqual(result.exit_code, 0, result.output)
-        self.assertIn("0.1.2", result.output)
+        self.assertIn("0.1.3", result.output)
         self.assertNotIn("\x1b", result.output)
 
     def test_root_help(self) -> None:
@@ -31,7 +33,13 @@ class CliSmokeTests(unittest.TestCase):
         self.assertIn("PyIngestKit", result.output)
 
     def test_jobs_json_with_no_plugins(self) -> None:
-        result = self.runner.invoke(app, ["jobs", "--json"])
+        # Keep this contract deterministic even when unrelated PyIngestKit plugins
+        # are installed in the developer/test environment.
+        with patch(
+            "pyingestkit.cli.commands.jobs.get_registry",
+            return_value=JobRegistry(),
+        ):
+            result = self.runner.invoke(app, ["jobs", "--json"])
         self.assertEqual(result.exit_code, 0, result.output)
         self.assertEqual(json.loads(result.output), [])
         self.assertNotIn("\x1b", result.output)

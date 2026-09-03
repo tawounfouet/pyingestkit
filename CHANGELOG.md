@@ -2,6 +2,29 @@
 
 All notable changes to PyIngestKit are documented here.
 
+## [0.1.3] - 2026-09-03
+
+### Added
+- Added a real installable demo job package under `examples/plugin_package`.
+- Added the `pyingestkit.jobs` entry point `demo-local-file` exposing `demo.local_file`.
+- Added `examples/plugin_package/demo.yml` and a bundled sample input file.
+- Added repeatable `--param/-p KEY=VALUE` support to `pyingest run`.
+- Added typed CLI parameter parsing using YAML scalar semantics.
+- Added contract tests for the demo package, entry-point declaration, demo configuration, and zero-argument job contract.
+
+### Changed
+- Refactored the local-file demo job so discovery requires no constructor arguments.
+- Runtime source paths are now supplied through `RunContext.parameters`.
+- Updated the standalone Python example to use the same runtime-parameter model as the plugin package.
+- Documented the distinction between a standalone Python example and an installed PyIngestKit job pack.
+- Documented installation and end-to-end use of the bundled demo package.
+- Invalid YAML project configuration is now converted into a clean CLI error instead of escaping as an uncaught framework exception.
+
+### Fixed
+- Fixed the mismatch where documentation described a demo plugin but the delivered `examples/plugin_package` contained only a README.
+- Fixed the user-visible situation where `python examples/simple_local_job.py` worked but `pyingest inspect demo.local_file` failed because no entry point was actually installed.
+- Added the previously documented `examples/plugin_package/demo.yml` file.
+
 ## [0.1.2] - 2026-09-03
 
 ### Changed

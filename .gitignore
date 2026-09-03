@@ -11,5 +11,6 @@ build/
 .coverage
 htmlcov/
 .pyingest/
+.pyingest-demo/
 .DS_Store
 .env

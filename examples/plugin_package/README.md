@@ -1,10 +1,33 @@
-# Example plugin package
+# PyIngestKit Demo Jobs
 
-A real job package can expose PyIngestKit jobs with:
+This directory is a real installable Python job pack used to demonstrate PyIngestKit plugin discovery through Python entry points.
 
-```toml
-[project.entry-points."pyingestkit.jobs"]
-demo = "my_jobs:job"
+## Install
+
+From the PyIngestKit repository root, after installing PyIngestKit itself:
+
+```bash
+python -m pip install -e examples/plugin_package
 ```
 
-The exposed object may be a `Job` instance, a `Job` subclass, or a zero-argument factory returning a `Job`.
+Then verify discovery:
+
+```bash
+pyingest jobs
+pyingest inspect demo.local_file
+```
+
+Run with the provided YAML configuration:
+
+```bash
+pyingest run demo.local_file --config examples/plugin_package/demo.yml
+```
+
+Or provide the source file directly from the CLI:
+
+```bash
+pyingest run demo.local_file \
+  --param path=examples/plugin_package/data/sample.txt
+```
+
+The job reads its `path` value from `RunContext.parameters`, so the plugin can be instantiated with zero arguments as required by the entry-point contract.

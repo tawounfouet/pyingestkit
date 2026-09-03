@@ -9,9 +9,16 @@ from rich.panel import Panel
 from rich.table import Table
 
 from pyingestkit.artifacts.filesystem import LocalArtifactStore
-from pyingestkit.cli.common import get_job_or_exit, get_registry, parse_params_json
+from pyingestkit.cli.common import (
+    fail,
+    get_job_or_exit,
+    get_registry,
+    parse_param_assignments,
+    parse_params_json,
+)
 from pyingestkit.cli.console import console
 from pyingestkit.config import PyIngestKitConfig, load_config
+from pyingestkit.core.exceptions import ConfigurationError
 from pyingestkit.runtime.runner import Runner
 
 
@@ -53,6 +60,14 @@ def run_command(
             help="Runtime parameters encoded as a JSON object; overrides matching YAML values.",
         ),
     ] = None,
+    param: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--param",
+            "-p",
+            help="Runtime parameter as KEY=VALUE. Repeatable; overrides YAML/--params-json values.",
+        ),
+    ] = None,
     json_output: Annotated[
         bool,
         typer.Option("--json", help="Emit machine-readable JSON instead of Rich output."),
@@ -60,15 +75,17 @@ def run_command(
 ) -> None:
     """Execute an installed ingestion job."""
     job = get_job_or_exit(get_registry(), job_id)
-    project_config = load_config(config) if config is not None else PyIngestKitConfig()
+    try:
+        project_config = load_config(config) if config is not None else PyIngestKitConfig()
+    except ConfigurationError as exc:
+        fail(str(exc), code=2)
 
     effective_workspace = workspace or project_config.runtime.workspace
-    effective_fixture = (
-        fixture if fixture is not None else project_config.runtime.fixture_mode
-    )
+    effective_fixture = fixture if fixture is not None else project_config.runtime.fixture_mode
     parameters = dict(project_config.runtime.parameters)
     if params_json is not None:
         parameters.update(parse_params_json(params_json))
+    parameters.update(parse_param_assignments(param))
 
     runner = Runner(LocalArtifactStore(effective_workspace))
     result = runner.run(job, parameters=parameters, fixture_mode=effective_fixture)
