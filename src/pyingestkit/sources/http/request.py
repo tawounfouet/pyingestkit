@@ -3,10 +3,19 @@ from __future__ import annotations
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from types import MappingProxyType
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
-from .security import redact_headers, sanitize_url
+from .security import redact_headers, redact_query_params, sanitize_url
 
 QueryValue = str | int | float | bool | None
+
+
+def _query_value(value: QueryValue) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    return str(value)
 
 
 @dataclass(frozen=True, slots=True)
@@ -31,17 +40,32 @@ class HttpRequest:
         object.__setattr__(self, "params", MappingProxyType(dict(self.params)))
 
     @property
+    def effective_url(self) -> str:
+        """Requested URL including explicit params, before persistence redaction."""
+        parts = urlsplit(self.url)
+        query = parse_qsl(parts.query, keep_blank_values=True)
+        query.extend((name, _query_value(value)) for name, value in self.params.items())
+        return urlunsplit(
+            (parts.scheme, parts.netloc, parts.path, urlencode(query, doseq=True), parts.fragment)
+        )
+
+    @property
     def safe_url(self) -> str:
-        return sanitize_url(self.url)
+        """Persistence/log-safe requested URI including non-secret query parameters."""
+        return sanitize_url(self.effective_url)
 
     @property
     def safe_headers(self) -> Mapping[str, str]:
         return MappingProxyType(redact_headers(self.headers))
 
+    @property
+    def safe_params(self) -> Mapping[str, object]:
+        return MappingProxyType(redact_query_params(self.params))
+
     def __repr__(self) -> str:
         return (
             "HttpRequest("
             f"method={self.method!r}, url={self.safe_url!r}, headers={dict(self.safe_headers)!r}, "
-            f"params={dict(self.params)!r}, timeout_seconds={self.timeout_seconds!r}, "
+            f"params={dict(self.safe_params)!r}, timeout_seconds={self.timeout_seconds!r}, "
             f"follow_redirects={self.follow_redirects!r})"
         )

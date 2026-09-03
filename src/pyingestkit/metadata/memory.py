@@ -65,7 +65,9 @@ class MemoryMetadataStore(MetadataStore):
 
     def record_step(self, run_id: str, position: int, result: StepResult) -> None:
         self.steps = [
-            row for row in self.steps if not (row.run_id == run_id and row.position == position)
+            row
+            for row in self.steps
+            if not (row.run_id == run_id and row.position == position)
         ]
         self.steps.append(
             StepRecord(
@@ -96,6 +98,10 @@ class MemoryMetadataStore(MetadataStore):
                 size_bytes=artifact.size_bytes,
                 sha256=artifact.sha256,
                 created_at=artifact.retrieved_at,
+                resolved_url=artifact.resolved_url,
+                status_code=artifact.status_code,
+                etag=artifact.etag,
+                last_modified=artifact.last_modified,
             )
         )
 

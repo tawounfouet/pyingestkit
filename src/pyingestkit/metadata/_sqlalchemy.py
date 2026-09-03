@@ -13,7 +13,16 @@ from pyingestkit.core.events import Event
 from pyingestkit.core.result import RunResult, StepResult
 from pyingestkit.logging.filters import redact_mapping
 
-from ._schema import artifacts, events, metadata, publications, runs, steps, validations
+from ._schema import (
+    artifact_http_provenance,
+    artifacts,
+    events,
+    metadata,
+    publications,
+    runs,
+    steps,
+    validations,
+)
 from .base import MetadataStore
 from .models import (
     ArtifactRecord,
@@ -62,6 +71,8 @@ class _SQLAlchemyMetadataStore(MetadataStore):
         self.initialize()
 
     def initialize(self) -> None:
+        # New provenance capabilities use additive tables so existing Alpha 1
+        # SQLite/PostgreSQL metadata remains readable without in-place ALTERs.
         metadata.create_all(self.engine)
 
     def start_run(self, context: RunContext) -> None:
@@ -142,6 +153,16 @@ class _SQLAlchemyMetadataStore(MetadataStore):
                     created_at=artifact.retrieved_at,
                 )
             )
+            if artifact.status_code is not None:
+                connection.execute(
+                    insert(artifact_http_provenance).values(
+                        artifact_id=artifact.artifact_id,
+                        resolved_url=artifact.resolved_url,
+                        status_code=artifact.status_code,
+                        etag=artifact.etag,
+                        last_modified=artifact.last_modified,
+                    )
+                )
 
     def record_event(self, event: Event) -> None:
         step = event.payload.get("step")
@@ -222,23 +243,17 @@ class _SQLAlchemyMetadataStore(MetadataStore):
 
     def get_run(self, run_id_or_prefix: str) -> RunRecord:
         with self.engine.connect() as connection:
-            exact = (
-                connection.execute(select(runs).where(runs.c.run_id == run_id_or_prefix))
-                .mappings()
-                .one_or_none()
-            )
+            exact = connection.execute(
+                select(runs).where(runs.c.run_id == run_id_or_prefix)
+            ).mappings().one_or_none()
             if exact is not None:
                 return self._run_record(exact)
-            matches = (
-                connection.execute(
-                    select(runs)
-                    .where(runs.c.run_id.like(f"{run_id_or_prefix}%"))
-                    .order_by(runs.c.started_at.desc())
-                    .limit(2)
-                )
-                .mappings()
-                .all()
-            )
+            matches = connection.execute(
+                select(runs)
+                .where(runs.c.run_id.like(f"{run_id_or_prefix}%"))
+                .order_by(runs.c.started_at.desc())
+                .limit(2)
+            ).mappings().all()
         if not matches:
             raise KeyError(run_id_or_prefix)
         if len(matches) > 1:
@@ -247,13 +262,9 @@ class _SQLAlchemyMetadataStore(MetadataStore):
 
     def list_steps(self, run_id: str) -> tuple[StepRecord, ...]:
         with self.engine.connect() as connection:
-            rows = (
-                connection.execute(
-                    select(steps).where(steps.c.run_id == run_id).order_by(steps.c.position)
-                )
-                .mappings()
-                .all()
-            )
+            rows = connection.execute(
+                select(steps).where(steps.c.run_id == run_id).order_by(steps.c.position)
+            ).mappings().all()
         return tuple(
             StepRecord(
                 id=cast(int | None, row["id"]),
@@ -271,16 +282,23 @@ class _SQLAlchemyMetadataStore(MetadataStore):
         )
 
     def list_artifacts(self, run_id: str) -> tuple[ArtifactRecord, ...]:
-        with self.engine.connect() as connection:
-            rows = (
-                connection.execute(
-                    select(artifacts)
-                    .where(artifacts.c.run_id == run_id)
-                    .order_by(artifacts.c.created_at)
-                )
-                .mappings()
-                .all()
+        statement = (
+            select(
+                artifacts,
+                artifact_http_provenance.c.resolved_url,
+                artifact_http_provenance.c.status_code,
+                artifact_http_provenance.c.etag,
+                artifact_http_provenance.c.last_modified,
             )
+            .outerjoin(
+                artifact_http_provenance,
+                artifact_http_provenance.c.artifact_id == artifacts.c.artifact_id,
+            )
+            .where(artifacts.c.run_id == run_id)
+            .order_by(artifacts.c.created_at)
+        )
+        with self.engine.connect() as connection:
+            rows = connection.execute(statement).mappings().all()
         return tuple(
             ArtifactRecord(
                 artifact_id=cast(str, row["artifact_id"]),
@@ -292,19 +310,19 @@ class _SQLAlchemyMetadataStore(MetadataStore):
                 size_bytes=cast(int, row["size_bytes"]),
                 sha256=cast(str, row["sha256"]),
                 created_at=_required_datetime(row["created_at"]),
+                resolved_url=cast(str | None, row["resolved_url"]),
+                status_code=cast(int | None, row["status_code"]),
+                etag=cast(str | None, row["etag"]),
+                last_modified=cast(str | None, row["last_modified"]),
             )
             for row in rows
         )
 
     def list_events(self, run_id: str) -> tuple[EventRecord, ...]:
         with self.engine.connect() as connection:
-            rows = (
-                connection.execute(
-                    select(events).where(events.c.run_id == run_id).order_by(events.c.id)
-                )
-                .mappings()
-                .all()
-            )
+            rows = connection.execute(
+                select(events).where(events.c.run_id == run_id).order_by(events.c.id)
+            ).mappings().all()
         return tuple(
             EventRecord(
                 id=cast(int | None, row["id"]),
@@ -322,15 +340,9 @@ class _SQLAlchemyMetadataStore(MetadataStore):
 
     def list_validations(self, run_id: str) -> tuple[ValidationRecord, ...]:
         with self.engine.connect() as connection:
-            rows = (
-                connection.execute(
-                    select(validations)
-                    .where(validations.c.run_id == run_id)
-                    .order_by(validations.c.id)
-                )
-                .mappings()
-                .all()
-            )
+            rows = connection.execute(
+                select(validations).where(validations.c.run_id == run_id).order_by(validations.c.id)
+            ).mappings().all()
         return tuple(
             ValidationRecord(
                 id=cast(int | None, row["id"]),
@@ -346,15 +358,11 @@ class _SQLAlchemyMetadataStore(MetadataStore):
 
     def list_publications(self, run_id: str) -> tuple[PublicationRecord, ...]:
         with self.engine.connect() as connection:
-            rows = (
-                connection.execute(
-                    select(publications)
-                    .where(publications.c.run_id == run_id)
-                    .order_by(publications.c.id)
-                )
-                .mappings()
-                .all()
-            )
+            rows = connection.execute(
+                select(publications)
+                .where(publications.c.run_id == run_id)
+                .order_by(publications.c.id)
+            ).mappings().all()
         return tuple(
             PublicationRecord(
                 id=cast(int | None, row["id"]),

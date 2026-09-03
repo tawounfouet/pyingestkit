@@ -23,6 +23,10 @@ class ArtifactStore(ABC):
         data: bytes,
         source_uri: str,
         content_type: str | None = None,
+        resolved_url: str | None = None,
+        status_code: int | None = None,
+        etag: str | None = None,
+        last_modified: str | None = None,
     ) -> RawArtifact:
         raise NotImplementedError
 

@@ -7,7 +7,6 @@ from sqlalchemy import create_engine, event
 from sqlalchemy.engine import URL, Engine
 from sqlalchemy.pool import NullPool
 
-from ._schema import metadata
 from ._sqlalchemy import _SQLAlchemyMetadataStore
 
 
@@ -52,4 +51,4 @@ class SQLiteMetadataStore(_SQLAlchemyMetadataStore):
     def initialize(self) -> None:
         with self.engine.connect() as connection:
             connection.exec_driver_sql("PRAGMA journal_mode = WAL")
-        metadata.create_all(self.engine)
+        super().initialize()

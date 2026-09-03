@@ -2,9 +2,14 @@ from __future__ import annotations
 
 import logging
 from collections.abc import Mapping
+from pathlib import PurePosixPath
 from typing import Self
+from urllib.parse import unquote, urlsplit
 
+from pyingestkit.artifacts.raw import RawArtifact
+from pyingestkit.core.context import RunContext
 from pyingestkit.retry import RetryAttempt, RetryPolicy, parse_retry_after
+from pyingestkit.sources.base import Source
 
 from .client import HttpClient, HttpxClient
 from .exceptions import HttpStatusError, HttpTimeoutError, HttpTransportError
@@ -14,11 +19,19 @@ from .response import HttpResponse
 logger = logging.getLogger(__name__)
 
 
-class HttpSource:
-    """HTTP transport acquisition primitive for V0.2 Alpha 1.
+def _default_artifact_name(response: HttpResponse) -> str:
+    path = urlsplit(response.url).path
+    name = unquote(PurePosixPath(path).name)
+    return name or "response.bin"
 
-    Alpha 1 intentionally stops at HttpResponse. Alpha 2 will add the
-    ArtifactStore/RawArtifact bridge while preserving `fetch_response()`.
+
+class HttpSource(Source):
+    """Reliable HTTP acquisition source producing immutable RAW artifacts.
+
+    `fetch_response()` remains available for transport-level callers and tests.
+    `fetch(context)` is the Alpha 2 ingestion surface: successful response bytes
+    are written once to ArtifactStore with a SHA-256 digest and a deliberately
+    narrow, secret-free provenance allow-list.
     """
 
     def __init__(
@@ -32,6 +45,7 @@ class HttpSource:
         follow_redirects: bool = True,
         retry: RetryPolicy | None = None,
         client: HttpClient | None = None,
+        artifact_name: str | None = None,
     ) -> None:
         self.request = HttpRequest(
             method=method,
@@ -43,6 +57,7 @@ class HttpSource:
         )
         self.retry = retry or RetryPolicy()
         self._client = client
+        self.artifact_name = artifact_name
 
     @classmethod
     def from_request(
@@ -51,6 +66,7 @@ class HttpSource:
         *,
         retry: RetryPolicy | None = None,
         client: HttpClient | None = None,
+        artifact_name: str | None = None,
     ) -> Self:
         return cls(
             request.url,
@@ -61,6 +77,7 @@ class HttpSource:
             follow_redirects=request.follow_redirects,
             retry=retry,
             client=client,
+            artifact_name=artifact_name,
         )
 
     def fetch_response(self) -> HttpResponse:
@@ -131,3 +148,27 @@ class HttpSource:
             response.safe_url,
         )
         return response
+
+    def fetch(self, context: RunContext) -> RawArtifact:
+        response = self.fetch_response()
+        name = self.artifact_name or _default_artifact_name(response)
+        artifact = context.artifact_store.write_raw(
+            context.job_id,
+            context.run_id,
+            name=name,
+            data=response.content,
+            source_uri=self.request.safe_url,
+            content_type=response.content_type,
+            resolved_url=response.safe_url or self.request.safe_url,
+            status_code=response.status_code,
+            etag=response.etag,
+            last_modified=response.last_modified,
+        )
+        logger.debug(
+            "HTTP RAW artifact captured path=%s bytes=%d sha256=%s status=%d",
+            artifact.path,
+            artifact.size_bytes,
+            artifact.sha256,
+            response.status_code,
+        )
+        return artifact

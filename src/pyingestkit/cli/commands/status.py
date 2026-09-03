@@ -77,6 +77,12 @@ def status_command(
                     "kind": row.kind,
                     "path": row.path,
                     "source_uri": row.source_uri,
+                    "resolved_url": row.resolved_url,
+                    "status_code": row.status_code,
+                    "content_type": row.content_type,
+                    "etag": row.etag,
+                    "last_modified": row.last_modified,
+                    "retrieved_at": row.retrieved_at.isoformat(),
                     "sha256": row.sha256,
                     "size_bytes": row.size_bytes,
                 }
@@ -127,7 +133,7 @@ def status_command(
     artifact_table.add_column("Kind")
     artifact_table.add_column("Path")
     artifact_table.add_column("SHA-256")
-    for artifact in artifacts:
-        artifact_table.add_row(artifact.kind, artifact.path, artifact.sha256[:12] + "…")
+    for row in artifacts:
+        artifact_table.add_row(row.kind, row.path, row.sha256[:12] + "…")
     console.print(artifact_table)
     console.print(f"[dim]{len(events)} runtime event(s) persisted[/dim]")

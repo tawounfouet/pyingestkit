@@ -68,6 +68,21 @@ artifacts = Table(
 )
 Index("idx_artifacts_run", artifacts.c.run_id)
 
+artifact_http_provenance = Table(
+    "artifact_http_provenance",
+    metadata,
+    Column(
+        "artifact_id",
+        String,
+        ForeignKey("artifacts.artifact_id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
+    Column("resolved_url", Text),
+    Column("status_code", Integer, nullable=False),
+    Column("etag", Text),
+    Column("last_modified", Text),
+)
+
 validations = Table(
     "validations",
     metadata,

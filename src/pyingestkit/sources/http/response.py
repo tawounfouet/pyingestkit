@@ -22,13 +22,28 @@ class HttpResponse:
             raise ValueError("elapsed_seconds must be >= 0")
         object.__setattr__(self, "headers", MappingProxyType(dict(self.headers)))
 
+    def header(self, name: str) -> str | None:
+        expected = name.casefold()
+        for key, value in self.headers.items():
+            if key.casefold() == expected:
+                return value
+        return None
+
     @property
     def is_success(self) -> bool:
         return 200 <= self.status_code < 400
 
     @property
     def content_type(self) -> str | None:
-        return self.headers.get("content-type") or self.headers.get("Content-Type")
+        return self.header("content-type")
+
+    @property
+    def etag(self) -> str | None:
+        return self.header("etag")
+
+    @property
+    def last_modified(self) -> str | None:
+        return self.header("last-modified")
 
     @property
     def content_length(self) -> int:

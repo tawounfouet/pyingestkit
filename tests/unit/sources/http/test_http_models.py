@@ -23,6 +23,17 @@ class HttpModelsTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             HttpRequest(method="GET", url="https://example.org", timeout_seconds=0)
 
+    def test_explicit_secret_query_params_are_redacted(self) -> None:
+        request = HttpRequest(
+            "GET",
+            "https://example.test/data?page=1",
+            params={"api_key": "param-secret", "cursor": "abc"},
+        )
+        self.assertNotIn("param-secret", request.safe_url)
+        self.assertNotIn("param-secret", repr(request))
+        self.assertIn("cursor=abc", request.safe_url)
+        self.assertIn("REDACTED", request.safe_url)
+
     def test_response_does_not_repr_body_or_secret_headers(self) -> None:
         response = HttpResponse(
             status_code=200,

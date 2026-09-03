@@ -15,7 +15,11 @@ class HttpClient(Protocol):
 
 
 class HttpxClient:
-    """Default synchronous HTTP adapter behind the framework protocol."""
+    """Default synchronous HTTP adapter.
+
+    HTTPX is deliberately contained behind the HttpClient protocol so job code
+    and the rest of PyIngestKit do not depend on httpx.Response.
+    """
 
     def __init__(
         self,
@@ -32,9 +36,8 @@ class HttpxClient:
         try:
             response = self._client.request(
                 request.method,
-                request.url,
+                request.effective_url,
                 headers=dict(request.headers),
-                params=dict(request.params),
                 timeout=request.timeout_seconds,
                 follow_redirects=request.follow_redirects,
             )
@@ -43,8 +46,9 @@ class HttpxClient:
         except httpx.HTTPError as exc:
             raise HttpTransportError(request.method, request.url, exc.__class__.__name__) from exc
 
+        elapsed_seconds: float | None
         try:
-            elapsed_seconds: float | None = response.elapsed.total_seconds()
+            elapsed_seconds = response.elapsed.total_seconds()
         except RuntimeError:
             elapsed_seconds = None
         return HttpResponse(

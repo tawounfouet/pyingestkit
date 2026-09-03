@@ -21,18 +21,27 @@ def redact_headers(headers: Mapping[str, str]) -> dict[str, str]:
     }
 
 
+def redact_query_params(params: Mapping[str, object]) -> dict[str, object]:
+    """Redact secret-looking explicit query parameters without mutating the request."""
+    return {
+        name: (_REDACTED if _SENSITIVE_QUERY.search(name) else value)
+        for name, value in params.items()
+    }
+
+
 def sanitize_url(url: str) -> str:
     """Remove user-info secrets and secret-looking query values from a URL."""
 
     try:
         parts = urlsplit(url)
+        hostname = parts.hostname or ""
+        port_value = parts.port
     except ValueError:
         return url
 
-    hostname = parts.hostname or ""
     if ":" in hostname and not hostname.startswith("["):
         hostname = f"[{hostname}]"
-    port = f":{parts.port}" if parts.port is not None else ""
+    port = f":{port_value}" if port_value is not None else ""
     if parts.username is not None or parts.password is not None:
         netloc = f"{_REDACTED}:{_REDACTED}@{hostname}{port}"
     else:
