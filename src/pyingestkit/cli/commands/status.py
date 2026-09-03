@@ -120,12 +120,12 @@ def status_command(
     step_table.add_column("Step")
     step_table.add_column("Status")
     step_table.add_column("Duration", justify="right")
-    for row in steps:
+    for step_record in steps:
         step_table.add_row(
-            str(row.position),
-            row.step_name,
-            row.status,
-            f"{row.duration_seconds:.3f}s",
+            str(step_record.position),
+            step_record.step_name,
+            step_record.status,
+            f"{step_record.duration_seconds:.3f}s",
         )
     console.print(step_table)
 
@@ -133,7 +133,9 @@ def status_command(
     artifact_table.add_column("Kind")
     artifact_table.add_column("Path")
     artifact_table.add_column("SHA-256")
-    for row in artifacts:
-        artifact_table.add_row(row.kind, row.path, row.sha256[:12] + "…")
+    for artifact_record in artifacts:
+        artifact_table.add_row(
+            artifact_record.kind, artifact_record.path, artifact_record.sha256[:12] + "…"
+        )
     console.print(artifact_table)
     console.print(f"[dim]{len(events)} runtime event(s) persisted[/dim]")
