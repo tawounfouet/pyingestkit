@@ -1,5 +1,69 @@
 # Changelog
 
+## [0.2.0] - 2026-09-04
+
+### Acquisition Release
+
+- promoted the validated acquisition vertical slice from `0.2.0rc1` to stable `0.2.0`;
+- promoted the bundled demo job pack to `0.2.0` and its dependency to `pyingestkit>=0.2.0,<0.3`;
+- froze the reference job versions at `0.2.0` for `demo.local_file`, `demo.http_csv`, and `demo.http_json`;
+- retained fully offline HTTP tests, including socket-blocked E2E tests and deterministic `503 -> retry -> 200` fixture flows;
+- retained runtime validation evidence across manifest, MetadataStore, and lifecycle events;
+- added a release wheel-smoke gate that installs the framework and demo-job wheels into a fresh virtual environment before running the three reference jobs;
+- defined clean source ZIP and validation-evidence ZIP release artifacts with SHA-256 checksums;
+- completed the V0.2 acquisition milestone without reopening the frozen V0.1.6 Foundation contracts.
+
+## [0.2.0rc1] - 2026-09-04
+
+### Release Candidate — acquisition vertical slice E2E
+
+- added `demo.http_csv` and `demo.http_json` reference jobs alongside `demo.local_file`;
+- connected `HttpSource -> RetryPolicy -> RAW -> Parser -> Dataset -> DatasetContract -> ValidationResult`;
+- made `ValidationResult` observable by `Runner` through manifest, MetadataStore, and `VALIDATION_COMPLETED` events;
+- made ERROR validation results fail the producing step only after validation evidence is persisted;
+- exposed persisted validations through `pyingest status` and `pyingest status --json`;
+- added deterministic fixture HTTP transport in the demo plugin that exercises a 503 -> retry -> 200 sequence;
+- added socket-blocked reference job tests proving HTTP tests remain fully offline;
+- added CI smoke runs for all three reference jobs;
+- folded in the two Ruff formatting corrections reported against the delivered Beta 1 ZIP;
+- added ADR-027 and the RC1 E2E architecture note.
+
+## [0.2.0b1] - 2026-09-04
+
+### Beta 1 — Dataset + CSV/JSON + Contracts
+
+- added framework-owned `Dataset` as a dependency-neutral tabular container;
+- explicitly kept Pandas, Polars, and Arrow out of the core Dataset contract;
+- added `Parser` as the structural `RawArtifact -> Dataset` boundary;
+- added `CsvParser` with explicit encoding/delimiter/quote configuration and no business type coercion;
+- added `JsonParser` for object/array records with optional structural `records_path` selection;
+- preserved CSV values as strings and JSON native values without trimming, coercion, renaming, flattening, or enrichment;
+- added `FieldContract` and `DatasetContract` for schema, nullability, runtime type, uniqueness, extra-field, and row-count validation;
+- added immutable `ValidationResult` while retaining the V0.1 `ValidationReport` compatibility API;
+- enriched `ValidationIssue` with optional field/row coordinates without breaking its original constructor;
+- linked parsed datasets to the originating RAW artifact via `source_artifact_id`;
+- added RawArtifact -> CSV/JSON Parser -> Dataset -> DatasetContract integration tests;
+- added contract tests enforcing the no-Pandas/no-Polars/no-Arrow guardrail;
+- folded in the five Ruff formatting corrections reported against the delivered Alpha 2 ZIP;
+- added ADR-025 and ADR-026.
+
+## [0.2.0a2] - 2026-09-03
+
+### Acquisition Alpha 2 — HTTP → RAW + provenance
+
+- made `HttpSource` a framework `Source` and added `fetch(context) -> RawArtifact`;
+- preserved `fetch_response()` as the lower-level transport surface;
+- connected successful HTTP response bytes to immutable RAW storage and SHA-256 hashing;
+- added persisted HTTP acquisition provenance: `source_uri`, `resolved_url`, `status_code`, `content_type`, `etag`, `last_modified`, `retrieved_at`, `size_bytes`, `sha256`;
+- added `artifact_http_provenance` as a one-to-one MetadataStore table while keeping the generic `artifacts` table backward-compatible;
+- sanitized effective request/final URLs before persistence and prevented arbitrary request/response headers from entering artifacts, manifests or metadata;
+- added explicit redaction for secret-looking query parameters supplied through `HttpRequest.params`;
+- made `HttpxClient` send the same merged effective URI represented by `HttpRequest`, preserving query parameters already present in the base URL;
+- added offline end-to-end HTTP → RAW → manifest → SQLite tests using `httpx.MockTransport`;
+- added persistence tests proving credentials/tokens are absent from manifest/metadata surfaces;
+- fixed the Alpha 1 Ruff import-order packaging quirk that caused `make quality` / `make verify` to fail on the delivered ZIP;
+- added ADR-024.
+
 ## [0.2.0a1] - 2026-09-03
 
 ### Acquisition Alpha 1 — HTTP + Retry
