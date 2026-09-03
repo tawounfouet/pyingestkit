@@ -3,3 +3,15 @@ runtime:
   fixture_mode: false
   parameters:
     path: examples/plugin_package/data/sample.txt
+
+logging:
+  level: INFO
+  format: rich
+  console: true
+  file:
+    enabled: true
+    path: .pyingest-demo/logs/pyingest.log
+    level: DEBUG
+    format: json
+    max_bytes: 1000000
+    backup_count: 3

@@ -17,8 +17,9 @@ from pyingestkit.cli.common import (
     parse_params_json,
 )
 from pyingestkit.cli.console import console
-from pyingestkit.config import PyIngestKitConfig, load_config
+from pyingestkit.config import LogOutputFormat, PyIngestKitConfig, load_config
 from pyingestkit.core.exceptions import ConfigurationError
+from pyingestkit.logging import configure_logging
 from pyingestkit.runtime.runner import Runner
 
 
@@ -68,18 +69,42 @@ def run_command(
             help="Runtime parameter as KEY=VALUE. Repeatable; overrides YAML/--params-json values.",
         ),
     ] = None,
+    log_level: Annotated[
+        str | None,
+        typer.Option(
+            "--log-level",
+            help="Override the configured logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL).",
+        ),
+    ] = None,
+    log_format: Annotated[
+        LogOutputFormat | None,
+        typer.Option(
+            "--log-format",
+            help="Override console log format: rich, plain, or json.",
+            case_sensitive=False,
+        ),
+    ] = None,
     json_output: Annotated[
         bool,
         typer.Option("--json", help="Emit machine-readable JSON instead of Rich output."),
     ] = False,
 ) -> None:
     """Execute an installed ingestion job."""
-    job = get_job_or_exit(get_registry(), job_id)
     try:
         project_config = load_config(config) if config is not None else PyIngestKitConfig()
     except ConfigurationError as exc:
         fail(str(exc), code=2)
 
+    try:
+        configure_logging(
+            project_config.logging,
+            level_override=log_level,
+            format_override=log_format,
+        )
+    except ValueError as exc:
+        fail(str(exc), code=2)
+
+    job = get_job_or_exit(get_registry(), job_id)
     effective_workspace = workspace or project_config.runtime.workspace
     effective_fixture = fixture if fixture is not None else project_config.runtime.fixture_mode
     parameters = dict(project_config.runtime.parameters)

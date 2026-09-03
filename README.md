@@ -4,7 +4,7 @@
 
 > Bring your source. Define your transformations. Declare your checks. PyIngestKit handles the plumbing.
 
-This repository contains the **MVP V0.1.3** implementation:
+This repository contains the **MVP V0.1.4** implementation:
 
 - `Job`, `Step`, `Pipeline`, `RunContext`
 - standardized `StepResult` / `RunResult`
@@ -20,6 +20,7 @@ This repository contains the **MVP V0.1.3** implementation:
 - Typer + Rich production-grade CLI
 - Pydantic + PyYAML validated project configuration
 - repeatable typed runtime parameters through `--param/-p`
+- standard-library logging with Rich/plain/JSON handlers, rotating files, context enrichment, and secret redaction
 - a real installable demo job pack under `examples/plugin_package`
 
 ## Scope
@@ -39,7 +40,7 @@ Pydantic  → validated configuration models
 PyYAML    → YAML configuration and typed CLI parameter parsing
 ```
 
-Dependency additions are governed by ADR-010 and must have a clear framework-level purpose.
+Dependency additions are governed by ADR-010 and must have a clear framework-level purpose. Logging policy is governed by ADR-011.
 
 ## Installation
 
@@ -86,12 +87,27 @@ runtime:
   fixture_mode: false
   parameters:
     source: local
+
+logging:
+  level: INFO
+  format: rich
+  console: true
+  file:
+    enabled: false
+    path: .pyingest/logs/pyingest.log
+    level: DEBUG
+    format: json
+    max_bytes: 10000000
+    backup_count: 5ss
 ```
 
 Then:
 
 ```bash
 pyingest run <job-id> --config pyingest.yml
+pyingest run demo.local_file --config pyingest.yml
+
+pyingest run demo.local_file --config examples/plugin_package/demo.yml
 ```
 
 Runtime precedence is:
@@ -118,6 +134,45 @@ pyingest run <job-id> \
 ```
 
 Values use YAML scalar semantics, so integers and booleans remain typed.
+
+## Logging
+
+Framework modules and job plugins use the standard Python logging API:
+
+```python
+import logging
+
+logger = logging.getLogger(__name__)
+```
+
+PyIngestKit does not configure handlers during import. The CLI configures logging explicitly at execution time. This keeps the framework interoperable with third-party Python packages while still providing Rich terminal output.
+
+Supported console formats:
+
+```text
+rich   → interactive terminal logs
+plain  → conventional text logs
+json   → structured logs
+```
+
+CLI overrides:
+
+```bash
+pyingest run demo.local_file \
+  --config examples/plugin_package/demo.yml \
+  --log-level DEBUG \
+  --log-format plain
+```
+
+The demo configuration also enables a rotating JSON log file at:
+
+```text
+.pyingest-demo/logs/pyingest.log
+```
+
+Runtime records can carry `run_id`, `job_id`, and `step` context. Diagnostic logs go to stderr, so `--json` command payloads remain clean on stdout. Common password/token/API-key patterns are redacted before emission.
+
+Why standard `logging` rather than Loguru as the framework contract? PyIngestKit is a reusable library with independently developed plugins. Standard logging integrates natively with Python libraries, frameworks, test runners, and orchestrators. Rich remains the terminal presentation layer. Applications that standardize on Loguru can still bridge standard log records externally without forcing every PyIngestKit plugin to depend on Loguru.
 
 ## Plugin discovery
 
@@ -228,4 +283,4 @@ PYTHONPATH=examples/plugin_package/src python -m unittest discover \
 
 ## Status
 
-`0.1.3` is intentionally pre-stable. Public contracts may still evolve before `1.0.0`.
+`0.1.4` is intentionally pre-stable. Public contracts may still evolve before `1.0.0`.

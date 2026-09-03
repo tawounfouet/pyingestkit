@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from importlib.metadata import EntryPoint, entry_points
+import logging
 from typing import Any
 
 from pyingestkit.core.exceptions import PluginError
@@ -8,6 +9,7 @@ from pyingestkit.core.job import Job
 from pyingestkit.core.registry import JobRegistry
 
 ENTRY_POINT_GROUP = "pyingestkit.jobs"
+logger = logging.getLogger(__name__)
 
 
 def _entry_points() -> tuple[EntryPoint, ...]:
@@ -32,15 +34,19 @@ def _coerce_job(value: Any, entry_point: EntryPoint) -> Job:
 
 def discover_jobs() -> tuple[Job, ...]:
     jobs: list[Job] = []
-    for entry_point in _entry_points():
+    discovered = _entry_points()
+    logger.debug("Discovering ingestion plugins count=%d", len(discovered))
+    for entry_point in discovered:
         try:
             loaded = entry_point.load()
             job = _coerce_job(loaded, entry_point)
             job.validate_definition()
             jobs.append(job)
+            logger.debug("Loaded ingestion plugin entry_point=%s job_id=%s", entry_point.name, job.id)
         except Exception as exc:
             if isinstance(exc, PluginError):
                 raise
+            logger.exception("Failed loading ingestion plugin entry_point=%s", entry_point.name)
             raise PluginError(f"Failed loading plugin '{entry_point.name}': {exc}") from exc
     return tuple(jobs)
 

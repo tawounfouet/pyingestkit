@@ -4,3 +4,5 @@
 - [Product scope](architecture/product-scope.md)
 - [Ingestion lifecycle](architecture/ingestion-lifecycle.md)
 - [ADR index](adr/README.md)
+
+- [Logging architecture](architecture/logging.md)

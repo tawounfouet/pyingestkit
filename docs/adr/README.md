@@ -10,3 +10,4 @@
 - ADR-008 Metadata model
 - ADR-009 Secret handling policy
 - ADR-010 Production-grade dependency policy
+- ADR-011 Logging policy

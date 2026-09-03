@@ -2,6 +2,25 @@
 
 All notable changes to PyIngestKit are documented here.
 
+## [0.1.4] - 2026-09-03
+
+### Added
+
+- Production-grade logging configuration based on the Python standard `logging` API.
+- Rich, plain-text, and structured JSON console log formats.
+- Optional rotating file logging with independent level and format.
+- Context propagation for `run_id`, `job_id`, and `step` using `contextvars`.
+- Basic credential redaction for common password/token/API-key patterns.
+- Runtime lifecycle logging in the runner, artifact store, and plugin discovery.
+- `--log-level` and `--log-format` CLI overrides.
+- ADR-011 documenting the logging policy and the decision not to impose Loguru on framework plugins.
+- Logging architecture documentation.
+
+### Changed
+
+- Version bumped to 0.1.4.
+- Demo configuration enables a rotating JSON file log in `.pyingest-demo/logs/`.
+
 ## [0.1.3] - 2026-09-03
 
 ### Added

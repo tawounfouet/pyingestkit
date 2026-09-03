@@ -2,3 +2,15 @@ runtime:
   workspace: .pyingest
   fixture_mode: false
   parameters: {}
+
+logging:
+  level: INFO
+  format: rich
+  console: true
+  file:
+    enabled: false
+    path: .pyingest/logs/pyingest.log
+    level: DEBUG
+    format: json
+    max_bytes: 10000000
+    backup_count: 5

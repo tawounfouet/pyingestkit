@@ -36,3 +36,25 @@ pyingest run demo.local_file \
   --param retries=3 \
   --param enabled=true
 ```
+
+## Logging configuration
+
+The root project configuration also accepts a `logging` section:
+
+```yaml
+logging:
+  level: INFO
+  format: rich
+  console: true
+  file:
+    enabled: false
+    path: .pyingest/logs/pyingest.log
+    level: DEBUG
+    format: json
+    max_bytes: 10000000
+    backup_count: 5
+```
+
+`level` and `file.level` are validated by Pydantic. Accepted formats are `rich`, `plain`, and `json`.
+
+The CLI can override the console policy with `--log-level` and `--log-format`.

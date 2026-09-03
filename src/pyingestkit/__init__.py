@@ -1,5 +1,7 @@
 """PyIngestKit public API."""
 
+import logging
+
 from .core.context import RunContext
 from .core.job import Job
 from .core.pipeline import Pipeline
@@ -16,4 +18,7 @@ __all__ = [
     "StepResult",
 ]
 
-__version__ = "0.1.3"
+__version__ = "0.1.4"
+
+# Library best practice: never configure application handlers at import time.
+logging.getLogger(__name__).addHandler(logging.NullHandler())

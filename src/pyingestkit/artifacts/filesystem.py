@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import re
 from datetime import datetime, timezone
 from pathlib import Path
@@ -11,6 +12,8 @@ from pyingestkit.provenance.hashing import sha256_bytes
 
 from .base import ArtifactStore
 from .raw import RawArtifact
+
+logger = logging.getLogger(__name__)
 
 _SAFE = re.compile(r"[^A-Za-z0-9._-]+")
 
@@ -55,6 +58,7 @@ class LocalArtifactStore(ArtifactStore):
         digest = sha256_bytes(data)
         path = self.path_for(job_id, run_id, f"raw/{_safe(name)}")
         path.write_bytes(data)
+        logger.debug("RAW artifact written path=%s bytes=%d sha256=%s", path, len(data), digest)
         return RawArtifact(
             artifact_id=str(uuid4()),
             source_uri=source_uri,
@@ -70,4 +74,5 @@ class LocalArtifactStore(ArtifactStore):
         temp = path.with_name(f".{path.name}.tmp")
         temp.write_text(json.dumps(payload, indent=2, sort_keys=True, default=str), encoding="utf-8")
         temp.replace(path)
+        logger.debug("JSON artifact written path=%s", path)
         return path

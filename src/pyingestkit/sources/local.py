@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import mimetypes
 from pathlib import Path
 
@@ -8,6 +9,8 @@ from pyingestkit.core.context import RunContext
 from pyingestkit.core.exceptions import FetchError
 
 from .base import Source
+
+logger = logging.getLogger(__name__)
 
 
 class LocalSource(Source):
@@ -18,6 +21,7 @@ class LocalSource(Source):
     def fetch(self, context: RunContext) -> RawArtifact:
         if not self.path.exists() or not self.path.is_file():
             raise FetchError(f"Local source not found: {self.path}")
+        logger.debug("Reading local source path=%s", self.path)
         data = self.path.read_bytes()
         content_type, _ = mimetypes.guess_type(self.path.name)
         return context.artifact_store.write_raw(

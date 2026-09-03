@@ -1,6 +1,16 @@
 runtime:
   workspace: .pyingest
   fixture_mode: false
-  parameters:
-    path: examples/plugin_package/data/sample.txt
-    retries: 3
+  parameters: {}
+
+logging:
+  level: INFO
+  format: rich
+  console: true
+  file:
+    enabled: false
+    path: .pyingest/logs/pyingest.log
+    level: DEBUG
+    format: json
+    max_bytes: 10000000
+    backup_count: 5
