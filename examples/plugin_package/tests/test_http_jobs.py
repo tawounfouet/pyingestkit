@@ -7,11 +7,12 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+from pyingestkit_demo_jobs.http_csv import job_definition as csv_job_definition
+from pyingestkit_demo_jobs.http_json import job_definition as json_job_definition
+
 from pyingestkit.artifacts import LocalArtifactStore
 from pyingestkit.metadata import SQLiteMetadataStore
 from pyingestkit.runtime import Runner
-from pyingestkit_demo_jobs.http_csv import job_definition as csv_job_definition
-from pyingestkit_demo_jobs.http_json import job_definition as json_job_definition
 
 
 class HttpDemoJobTests(unittest.TestCase):
