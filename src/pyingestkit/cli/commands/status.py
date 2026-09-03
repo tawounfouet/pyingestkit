@@ -33,7 +33,7 @@ def status_command(
         typer.Option("--json", help="Emit machine-readable JSON."),
     ] = False,
 ) -> None:
-    """Inspect one persisted run, its steps, artifacts, and runtime events."""
+    """Inspect one persisted run, its artifacts, validations, and runtime events."""
     project_config = project_config_or_exit(config)
     effective_workspace = workspace or project_config.runtime.workspace
     store = metadata_store_or_exit(project_config, workspace=effective_workspace)
@@ -45,6 +45,7 @@ def status_command(
         fail(str(exc), code=2)
     steps = store.list_steps(run.run_id)
     artifacts = store.list_artifacts(run.run_id)
+    validations = store.list_validations(run.run_id)
     events = store.list_events(run.run_id)
 
     if json_output:
@@ -87,6 +88,16 @@ def status_command(
                     "size_bytes": row.size_bytes,
                 }
                 for row in artifacts
+            ],
+            "validations": [
+                {
+                    "rule": row.rule,
+                    "severity": row.severity,
+                    "status": row.status,
+                    "message": row.message,
+                    "metadata": row.metadata,
+                }
+                for row in validations
             ],
             "events": [
                 {
@@ -138,4 +149,20 @@ def status_command(
             artifact_record.kind, artifact_record.path, artifact_record.sha256[:12] + "…"
         )
     console.print(artifact_table)
+
+    if validations:
+        validation_table = Table(title="Validations", show_header=True, header_style="bold")
+        validation_table.add_column("Rule")
+        validation_table.add_column("Status")
+        validation_table.add_column("Severity")
+        validation_table.add_column("Message")
+        for validation in validations:
+            validation_table.add_row(
+                validation.rule,
+                validation.status,
+                validation.severity,
+                validation.message,
+            )
+        console.print(validation_table)
+
     console.print(f"[dim]{len(events)} runtime event(s) persisted[/dim]")

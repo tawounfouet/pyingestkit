@@ -174,10 +174,7 @@ class DatasetContract:
                     issues.append(
                         ValidationIssue(
                             "field.unique_unhashable",
-                            (
-                                f"Field {contract.name!r} contains a value that cannot be "
-                                "compared for uniqueness"
-                            ),
+                            f"Field {contract.name!r} contains a value that cannot be compared for uniqueness",
                             ValidationSeverity.ERROR,
                             field=contract.name,
                             row_index=row_index,

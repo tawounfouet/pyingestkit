@@ -16,9 +16,7 @@ class DatasetContractTests(unittest.TestCase):
             allow_extra_fields=False,
             min_rows=1,
         )
-
         result = contract.validate(dataset)
-
         self.assertIsInstance(result, ValidationResult)
         self.assertTrue(result.is_valid)
         self.assertEqual(result.error_count, 0)
@@ -39,10 +37,8 @@ class DatasetContractTests(unittest.TestCase):
             ),
             allow_extra_fields=False,
         )
-
         result = contract.validate(dataset)
         codes = [issue.code for issue in result.issues]
-
         self.assertFalse(result.is_valid)
         self.assertIn("field.required", codes)
         self.assertIn("field.null", codes)
@@ -55,21 +51,17 @@ class DatasetContractTests(unittest.TestCase):
 
     def test_row_bounds_are_contract_concerns(self) -> None:
         dataset = Dataset([{"id": 1}])
-
         too_small = DatasetContract(min_rows=2).validate(dataset)
         too_large = DatasetContract(max_rows=0).validate(dataset)
-
         self.assertEqual(too_small.issues[0].code, "dataset.min_rows")
         self.assertEqual(too_large.issues[0].code, "dataset.max_rows")
 
     def test_contract_validation_does_not_mutate_dataset(self) -> None:
         dataset = Dataset([{"id": "001", "name": " Alice "}])
         before = dataset.to_rows()
-
         DatasetContract(
             fields=(FieldContract("id", expected_type=int), FieldContract("name"))
         ).validate(dataset)
-
         self.assertEqual(dataset.to_rows(), before)
 
 

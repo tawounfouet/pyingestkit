@@ -25,14 +25,12 @@ def fetch_local(context: RunContext):
 
 @job(
     id="demo.local_file",
-    version="0.1.0",
+    version="0.2.0rc1",
     description="Demonstration job that ingests a local file into immutable RAW storage.",
 )
 def local_file_job() -> None:
     fetch_local()
 
 
-# Entry-point friendly alias. Exposes a JobDefinition, not a runtime instance.
 job_definition = local_file_job
-# Backward-compatible example alias retained for V0.1.x callers.
 job = local_file_job

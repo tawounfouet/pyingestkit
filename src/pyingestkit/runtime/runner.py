@@ -10,11 +10,13 @@ from pyingestkit.artifacts.base import ArtifactStore
 from pyingestkit.artifacts.raw import RawArtifact
 from pyingestkit.core.context import RunContext
 from pyingestkit.core.events import Event, EventBus, EventType
+from pyingestkit.core.exceptions import ValidationError
 from pyingestkit.core.job import Job
 from pyingestkit.core.result import RunResult, RunStatus, StepResult
 from pyingestkit.logging import log_context
 from pyingestkit.metadata import MemoryMetadataStore, MetadataStore
 from pyingestkit.provenance.manifest import RunManifest
+from pyingestkit.validation import ValidationResult, ValidationSeverity
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +43,30 @@ def _raw_artifacts(value: Any, *, _seen: set[int] | None = None) -> tuple[RawArt
     return tuple(artifacts)
 
 
+def _validation_results(
+    value: Any, *, _seen: set[int] | None = None
+) -> tuple[ValidationResult, ...]:
+    """Extract validation results from common nested step outputs."""
+    if isinstance(value, ValidationResult):
+        return (value,)
+    seen = _seen if _seen is not None else set()
+    identity = id(value)
+    if identity in seen:
+        return ()
+    seen.add(identity)
+    values: Iterable[Any]
+    if isinstance(value, dict):
+        values = value.values()
+    elif isinstance(value, (list, tuple, set, frozenset)):
+        values = value
+    else:
+        return ()
+    results: list[ValidationResult] = []
+    for item in values:
+        results.extend(_validation_results(item, _seen=seen))
+    return tuple(results)
+
+
 class Runner:
     """Execute a Job against ArtifactStore and MetadataStore contracts.
 
@@ -63,6 +89,60 @@ class Runner:
     def _emit(self, event: Event) -> tuple[str, ...]:
         self.metadata_store.record_event(event)
         return self.events.emit(event)
+
+    def _record_validation_result(
+        self,
+        *,
+        run_id: str,
+        job_id: str,
+        step_name: str,
+        result: ValidationResult,
+        manifest: RunManifest,
+    ) -> tuple[str, ...]:
+        status = "PASSED" if result.is_valid else "FAILED"
+        severity = "INFO" if result.is_valid else ValidationSeverity.ERROR.value
+        summary = (
+            f"Dataset validation {status.lower()}: "
+            f"{result.error_count} error(s), {result.warning_count} warning(s)"
+        )
+        metadata = {
+            "step": step_name,
+            "valid": result.is_valid,
+            "error_count": result.error_count,
+            "warning_count": result.warning_count,
+            "issue_count": len(result.issues),
+        }
+        self.metadata_store.record_validation(
+            run_id,
+            rule="dataset_contract",
+            severity=severity,
+            status=status,
+            message=summary,
+            metadata=metadata,
+        )
+        for issue in result.issues:
+            issue_status = "FAILED" if issue.severity is ValidationSeverity.ERROR else "REVIEW"
+            self.metadata_store.record_validation(
+                run_id,
+                rule=issue.rule,
+                severity=issue.severity.value,
+                status=issue_status,
+                message=issue.message,
+                metadata={
+                    "step": step_name,
+                    "field": issue.field,
+                    "row_index": issue.row_index,
+                },
+            )
+        manifest.validations.append({"step": step_name, **result.as_dict()})
+        return self._emit(
+            Event(
+                EventType.VALIDATION_COMPLETED,
+                run_id,
+                job_id,
+                payload=metadata,
+            )
+        )
 
     def run(
         self,
@@ -119,6 +199,25 @@ class Runner:
                                 )
                             )
                             data = step.execute(context, data)
+                            validations = _validation_results(data)
+                            for validation in validations:
+                                warnings.extend(
+                                    self._record_validation_result(
+                                        run_id=run_id,
+                                        job_id=job.id,
+                                        step_name=step.step_name,
+                                        result=validation,
+                                        manifest=manifest,
+                                    )
+                                )
+                            validation_errors = sum(
+                                validation.error_count for validation in validations
+                            )
+                            if validation_errors:
+                                raise ValidationError(
+                                    f"Dataset validation failed with {validation_errors} error(s)"
+                                )
+
                             completed_at = datetime.now(UTC)
                             step_result = StepResult(
                                 step_name=step.step_name,
@@ -133,10 +232,7 @@ class Runner:
                             for artifact in _raw_artifacts(data):
                                 manifest.add_artifact(artifact)
                                 self.metadata_store.record_artifact(run_id, artifact, kind="raw")
-                            logger.info(
-                                "Step succeeded %.3fs",
-                                step_result.duration_seconds,
-                            )
+                            logger.info("Step succeeded %.3fs", step_result.duration_seconds)
                             warnings.extend(
                                 self._emit(
                                     Event(
@@ -166,9 +262,6 @@ class Runner:
                                 and step_results[-1].step_name == step.step_name
                                 and step_results[-1].status is RunStatus.SUCCESS
                             ):
-                                # A critical post-step hook may fail after the successful
-                                # execution result was recorded. Replace that result rather
-                                # than emitting two records for one pipeline position.
                                 step_results[-1] = step_result
                             else:
                                 step_results.append(step_result)
@@ -187,9 +280,7 @@ class Runner:
                                     )
                                 )
                             except Exception as hook_exc:  # noqa: BLE001 - lifecycle hook boundary
-                                warnings.append(
-                                    f"Failed emitting STEP_FAILED lifecycle event: {hook_exc}"
-                                )
+                                warnings.append(f"Failed emitting STEP_FAILED lifecycle event: {hook_exc}")
                             break
             except Exception as exc:  # noqa: BLE001 - run lifecycle boundary
                 status = RunStatus.FAILED
@@ -213,8 +304,6 @@ class Runner:
                     warnings=tuple(warnings),
                 )
 
-            # Manifest writing is part of the run lifecycle. A failure here must
-            # not leave queryable metadata claiming SUCCESS.
             provisional = build_result()
             manifest.finalize(provisional)
             try:
@@ -256,7 +345,6 @@ class Runner:
             result = build_result()
             self.metadata_store.finish_run(result)
 
-            # Rewrite the manifest so final hook warnings/failures are reflected.
             manifest.finalize(result)
             try:
                 manifest_path = self.artifact_store.write_json(
@@ -264,8 +352,6 @@ class Runner:
                 )
                 logger.debug("Run manifest finalized path=%s", manifest_path)
             except Exception:  # noqa: BLE001 - best-effort manifest finalization boundary
-                # If the first write already failed this may fail again. Metadata
-                # remains authoritative for the failure and the exception is logged.
                 logger.exception("Unable to finalize run manifest")
 
             if result.succeeded:
