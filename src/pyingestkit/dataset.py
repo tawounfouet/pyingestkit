@@ -82,7 +82,5 @@ class Dataset:
     @overload
     def __getitem__(self, index: slice) -> Sequence[Mapping[str, Any]]: ...
 
-    def __getitem__(
-        self, index: int | slice
-    ) -> Mapping[str, Any] | Sequence[Mapping[str, Any]]:
+    def __getitem__(self, index: int | slice) -> Mapping[str, Any] | Sequence[Mapping[str, Any]]:
         return self.rows[index]
