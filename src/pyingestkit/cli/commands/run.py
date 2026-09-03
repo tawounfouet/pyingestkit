@@ -11,29 +11,48 @@ from rich.table import Table
 from pyingestkit.artifacts.filesystem import LocalArtifactStore
 from pyingestkit.cli.common import get_job_or_exit, get_registry, parse_params_json
 from pyingestkit.cli.console import console
+from pyingestkit.config import PyIngestKitConfig, load_config
 from pyingestkit.runtime.runner import Runner
 
 
 def run_command(
     job_id: Annotated[str, typer.Argument(help="Namespaced ingestion job ID to execute.")],
+    config: Annotated[
+        Path | None,
+        typer.Option(
+            "--config",
+            "-c",
+            help="YAML project configuration file.",
+            exists=True,
+            file_okay=True,
+            dir_okay=False,
+            readable=True,
+        ),
+    ] = None,
     workspace: Annotated[
-        Path,
+        Path | None,
         typer.Option(
             "--workspace",
             "-w",
-            help="Workspace used for run artifacts.",
+            help="Workspace used for run artifacts. Overrides configuration.",
             file_okay=False,
             dir_okay=True,
         ),
-    ] = Path(".pyingest"),
+    ] = None,
     fixture: Annotated[
-        bool,
-        typer.Option("--fixture", help="Run in fixture mode for reproducible/offline inputs."),
-    ] = False,
+        bool | None,
+        typer.Option(
+            "--fixture/--no-fixture",
+            help="Enable or disable fixture mode. Overrides configuration.",
+        ),
+    ] = None,
     params_json: Annotated[
-        str,
-        typer.Option("--params-json", help="Runtime parameters encoded as a JSON object."),
-    ] = "{}",
+        str | None,
+        typer.Option(
+            "--params-json",
+            help="Runtime parameters encoded as a JSON object; overrides matching YAML values.",
+        ),
+    ] = None,
     json_output: Annotated[
         bool,
         typer.Option("--json", help="Emit machine-readable JSON instead of Rich output."),
@@ -41,10 +60,18 @@ def run_command(
 ) -> None:
     """Execute an installed ingestion job."""
     job = get_job_or_exit(get_registry(), job_id)
-    parameters = parse_params_json(params_json)
+    project_config = load_config(config) if config is not None else PyIngestKitConfig()
 
-    runner = Runner(LocalArtifactStore(workspace))
-    result = runner.run(job, parameters=parameters, fixture_mode=fixture)
+    effective_workspace = workspace or project_config.runtime.workspace
+    effective_fixture = (
+        fixture if fixture is not None else project_config.runtime.fixture_mode
+    )
+    parameters = dict(project_config.runtime.parameters)
+    if params_json is not None:
+        parameters.update(parse_params_json(params_json))
+
+    runner = Runner(LocalArtifactStore(effective_workspace))
+    result = runner.run(job, parameters=parameters, fixture_mode=effective_fixture)
     payload = {
         "run_id": result.run_id,
         "job_id": result.job_id,
@@ -56,7 +83,7 @@ def run_command(
     }
 
     if json_output:
-        console.print_json(json.dumps(payload))
+        typer.echo(json.dumps(payload, ensure_ascii=False))
     else:
         status_style = "bold green" if result.succeeded else "bold red"
         console.print(

@@ -15,7 +15,8 @@ class CliSmokeTests(unittest.TestCase):
     def test_version(self) -> None:
         result = self.runner.invoke(app, ["--version"])
         self.assertEqual(result.exit_code, 0, result.output)
-        self.assertIn("0.1.1", result.output)
+        self.assertIn("0.1.2", result.output)
+        self.assertNotIn("\x1b", result.output)
 
     def test_root_help(self) -> None:
         result = self.runner.invoke(app, ["--help"])
@@ -33,6 +34,7 @@ class CliSmokeTests(unittest.TestCase):
         result = self.runner.invoke(app, ["jobs", "--json"])
         self.assertEqual(result.exit_code, 0, result.output)
         self.assertEqual(json.loads(result.output), [])
+        self.assertNotIn("\x1b", result.output)
 
     def test_inspect_missing_job_id_is_validation_error(self) -> None:
         result = self.runner.invoke(app, ["inspect"])

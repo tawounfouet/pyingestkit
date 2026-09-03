@@ -1,10 +1,10 @@
 # PyIngestKit
 
-**PyIngestKit** is a small, composable Python framework for reliable batch ingestion.
+**PyIngestKit** is a composable Python framework for reliable batch ingestion.
 
 > Bring your source. Define your transformations. Declare your checks. PyIngestKit handles the plumbing.
 
-This repository contains the **MVP V0.1** implementation defined by the PyIngestKit architecture:
+This repository contains the **MVP V0.1.2** implementation:
 
 - `Job`, `Step`, `Pipeline`, `RunContext`
 - standardized `StepResult` / `RunResult`
@@ -17,8 +17,8 @@ This repository contains the **MVP V0.1** implementation defined by the PyIngest
 - atomic file publication
 - `JobRegistry`
 - plugin discovery through Python entry points
-- production-grade `pyingest` CLI powered by Typer and Rich
-- stdlib-only ingestion runtime; Typer + Rich production-grade CLI
+- Typer + Rich production-grade CLI
+- Pydantic + PyYAML validated project configuration
 
 ## Scope
 
@@ -26,17 +26,32 @@ PyIngestKit is an ingestion framework. It is **not** a scheduler, distributed ex
 
 External tools decide **WHEN** to run. PyIngestKit owns **HOW TO INGEST**.
 
+## Runtime dependencies
+
+PyIngestKit intentionally uses established third-party packages when they improve framework quality and reduce bespoke infrastructure code:
+
+```text
+Typer     → CLI contracts
+Rich      → terminal UX
+Pydantic  → validated configuration models
+PyYAML    → YAML configuration loading
+```
+
+The project does **not** enforce a zero-third-party-dependency constraint. Dependency additions remain governed by ADR-010 and must have a clear framework-level purpose.
+
+## Installation
 
 ```bash
 python3.12 -m venv .venv
 source .venv/bin/activate
-
-pip install -e .
-
-
-# python -m pip install -e .
+python -m pip install -e .
 ```
-The ingestion runtime remains stdlib-only. Typer and Rich are installed as CLI dependencies and are isolated under `pyingestkit.cli`.
+
+Development installation:
+
+```bash
+python -m pip install -e ".[dev]"
+```
 
 ## CLI
 
@@ -46,7 +61,7 @@ pyingest --help
 pyingest help
 pyingest jobs
 pyingest inspect <job-id>
-pyingest run <job-id> --workspace .pyingest
+pyingest run <job-id>
 
 # Machine-readable output
 pyingest jobs --json
@@ -54,7 +69,31 @@ pyingest inspect <job-id> --json
 pyingest run <job-id> --json
 ```
 
-Jobs installed by other packages are discovered through:
+Machine-readable output is plain JSON without ANSI/Rich formatting.
+
+## YAML configuration
+
+Create `pyingest.yml`:
+
+```yaml
+runtime:
+  workspace: .pyingest
+  fixture_mode: false
+  parameters:
+    source: local
+```
+
+Then:
+
+```bash
+pyingest run <job-id> --config pyingest.yml
+```
+
+CLI options override YAML values.
+
+## Plugin discovery
+
+Jobs installed by other packages are discovered through Python entry points:
 
 ```toml
 [project.entry-points."pyingestkit.jobs"]
@@ -78,12 +117,16 @@ my_job = "my_package.jobs:job"
 
 ## Tests
 
-After installing the project (which installs Typer and Rich for the CLI), run:
-
 ```bash
 PYTHONPATH=src python -m unittest discover -s tests -v
 ```
 
+Or, after installing the development dependencies:
+
+```bash
+pytest
+```
+
 ## Status
 
-`0.1.1` is intentionally pre-stable. Public contracts may still evolve before `1.0.0`.
+`0.1.2` is intentionally pre-stable. Public contracts may still evolve before `1.0.0`.

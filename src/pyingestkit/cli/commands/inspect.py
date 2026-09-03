@@ -28,7 +28,7 @@ def inspect_command(
     }
 
     if json_output:
-        console.print_json(json.dumps(payload))
+        typer.echo(json.dumps(payload, ensure_ascii=False))
         return
 
     metadata = Table(title=f"Job · {job.id}", show_header=False, box=None)

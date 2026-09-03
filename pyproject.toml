@@ -4,15 +4,17 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyingestkit"
-version = "0.1.1"
+version = "0.1.2"
 description = "Composable ingestion tooling for Python."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
 authors = [{ name = "Thomas Awounfouet" }]
 dependencies = [
-  "typer>=0.26,<0.28",
-  "rich>=15.0,<16",
+  "typer>=0.27,<0.28",
+  "rich>=15,<16",
+  "pydantic>=2.11,<3",
+  "PyYAML>=6,<7",
 ]
 classifiers = [
   "Development Status :: 2 - Pre-Alpha",
@@ -27,10 +29,15 @@ classifiers = [
 [project.optional-dependencies]
 dev = [
   "pytest>=8",
+  "pytest-cov>=6",
   "pytest-randomly>=3.15",
   "ruff>=0.6",
   "mypy>=1.11",
+  "bandit>=1.8",
+  "pip-audit>=2.9",
+  "pre-commit>=4",
   "build>=1.2",
+  "twine>=6",
 ]
 
 [project.scripts]

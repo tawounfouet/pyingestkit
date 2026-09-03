@@ -21,18 +21,16 @@ def jobs_command(
     jobs = get_registry().list()
 
     if json_output:
-        console.print_json(
-            json.dumps(
-                [
-                    {
-                        "id": job.id,
-                        "version": job.version,
-                        "description": job.description,
-                    }
-                    for job in jobs
-                ]
-            )
-        )
+        payload = [
+            {
+                "id": job.id,
+                "version": job.version,
+                "description": job.description,
+            }
+            for job in jobs
+        ]
+        # Machine-readable output must never contain Rich markup or ANSI escape codes.
+        typer.echo(json.dumps(payload, ensure_ascii=False))
         return
 
     if not jobs:

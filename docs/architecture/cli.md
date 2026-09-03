@@ -1,36 +1,34 @@
 # CLI architecture
 
-PyIngestKit V0.1.1 uses **Typer** for command contracts and **Rich** for terminal rendering.
+PyIngestKit uses **Typer** for command contracts and **Rich** for human-facing terminal rendering.
+
+## Commands
 
 ```text
-pyingest
-├── jobs
-├── inspect <job-id>
-├── run <job-id>
-└── help
+pyingest --version
+pyingest --help
+pyingest help
+pyingest jobs
+pyingest inspect <job-id>
+pyingest run <job-id>
 ```
 
-Native help is available through:
+`run` supports project configuration:
 
 ```bash
-pyingest --help
-pyingest jobs --help
-pyingest inspect --help
-pyingest run --help
+pyingest run <job-id> --config pyingest.yml
 ```
 
-`pyingest help` is retained as a discoverability alias for the root help screen.
+## Human vs machine output
 
-Human-facing output uses Rich tables and panels. Commands that expose structured data also provide `--json` for scripting and automation.
+Human-facing output uses Rich tables, panels, and formatted errors.
 
-The CLI is deliberately isolated from the ingestion runtime:
+Machine-facing output deliberately bypasses Rich:
 
-```text
-Typer / Rich
-    │
-    ▼
-pyingestkit.cli
-    │
-    ▼
-PyIngestKit runtime (stdlib-only)
+```bash
+pyingest jobs --json
+pyingest inspect <job-id> --json
+pyingest run <job-id> --json
 ```
+
+JSON and `--version` are emitted as plain text without Rich markup or ANSI escape sequences. This keeps shell scripting, CI parsing, and contract tests deterministic.

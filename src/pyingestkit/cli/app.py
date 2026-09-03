@@ -11,7 +11,8 @@ from pyingestkit.cli.console import console
 
 def _version_callback(value: bool) -> None:
     if value:
-        console.print(f"pyingest {__version__}")
+        # Version output is intentionally plain text for shell scripting and tests.
+        typer.echo(f"pyingest {__version__}")
         raise typer.Exit()
 
 

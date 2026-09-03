@@ -1,44 +1,16 @@
-# ADR-002 — Zero third-party dependency **core**
+# ADR-002 — Zero third-party dependency core
 
-**Status:** Amended in V0.1.1  
-**Previous status:** Accepted for V0.1.0
+**Status:** Superseded by ADR-010  
+**Date:** 2026-09-03
 
-## Context
+## Historical decision
 
-V0.1.0 shipped a standard-library-only distribution because the CLI was implemented with `argparse`.
-The CLI is part of the PyIngestKit MVP and is now intentionally implemented with Typer and Rich to provide a production-grade command experience.
+The initial PyIngestKit architecture proposed a stdlib-only core to minimize dependency surface and avoid coupling the ingestion runtime to infrastructure libraries.
 
-## Decision
+## Superseded
 
-The **PyIngestKit non-CLI runtime remains free of third-party dependencies**.
+This constraint was intentionally removed in V0.1.2.
 
-Third-party dependencies are allowed in `pyingestkit.cli` when they serve the product CLI directly. V0.1.1 therefore declares:
+PyIngestKit is an industrial Python framework, and selected third-party packages are acceptable when they provide a strong, maintained, production-grade contract and remove low-value custom infrastructure code.
 
-```text
-typer
-rich
-```
-
-as distribution dependencies.
-
-The following namespaces remain stdlib-only:
-
-```text
-core
-runtime
-sources
-artifacts
-provenance
-validation
-publication
-plugins
-```
-
-A repository check enforces this boundary.
-
-## Consequences
-
-- `pip install pyingestkit` provides a working `pyingest` CLI immediately.
-- The ingestion engine remains independent from Typer and Rich.
-- Importing or embedding the framework runtime does not require CLI abstractions.
-- Future CLI dependencies must remain isolated under `pyingestkit.cli`.
+See **ADR-010 — Production-grade dependency policy**.
