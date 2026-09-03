@@ -7,8 +7,13 @@ sys.path.insert(0, str(root / "src"))
 import pyingestkit
 
 expected = {
+    "CsvParser",
+    "Dataset",
+    "DatasetContract",
+    "FieldContract",
     "Job",
     "JobDefinition",
+    "JsonParser",
     "Pipeline",
     "RunContext",
     "RunResult",
@@ -18,12 +23,14 @@ expected = {
     "StepDefinition",
     "StepInvocation",
     "StepResult",
+    "ValidationIssue",
+    "ValidationResult",
     "job",
     "step",
 }
 actual = set(pyingestkit.__all__)
 if actual != expected:
     raise SystemExit(f"Unexpected public API. expected={sorted(expected)} actual={sorted(actual)}")
-if pyingestkit.__version__ != "0.2.0a2":
+if pyingestkit.__version__ != "0.2.0b1":
     raise SystemExit(f"Unexpected version: {pyingestkit.__version__}")
-print("OK: public API matches V0.2.0-a2 Foundation-compatible contract")
+print("OK: public API matches V0.2.0-b1 Dataset/Parser/Contract contract")
