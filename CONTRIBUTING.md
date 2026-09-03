@@ -16,8 +16,17 @@
 ```bash
 python3.12 -m venv .venv
 source .venv/bin/activate
+python -m pip install --upgrade pip
 python -m pip install -e ".[dev]"
 ```
+
+Or use the Makefile bootstrap-aware target:
+
+```bash
+make install-dev
+```
+
+`make install-dev`, `make security`, `make verify`, and `make release-check` keep the packaging toolchain safe by upgrading `pip` before dependency auditing. This prevents `pip-audit` from failing because of a vulnerable `pip` bundled with a newly created virtual environment rather than because of a PyIngestKit dependency.
 
 ## Local checks
 
@@ -28,7 +37,7 @@ make quality
 make security
 ```
 
-The minimal checks do not require network access once the project dependencies are installed:
+The minimal checks do not require network access once the project dependencies are installed. The security gate may access the package index when its bootstrap step upgrades `pip` and when `pip-audit` resolves vulnerability data.
 
 ```bash
 PYTHONPATH=src python -m unittest discover -s tests -v
