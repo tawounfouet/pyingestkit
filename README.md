@@ -17,16 +17,14 @@ This repository contains the **MVP V0.1** implementation defined by the PyIngest
 - atomic file publication
 - `JobRegistry`
 - plugin discovery through Python entry points
-- minimal `pyingest` CLI
-- zero mandatory third-party runtime dependencies
+- production-grade `pyingest` CLI powered by Typer and Rich
+- stdlib-only ingestion runtime; Typer + Rich production-grade CLI
 
 ## Scope
 
 PyIngestKit is an ingestion framework. It is **not** a scheduler, distributed executor, Data Platform, Data Catalog, AI framework, web application, or universal integration platform.
 
 External tools decide **WHEN** to run. PyIngestKit owns **HOW TO INGEST**.
-
-## Installation
 
 
 ```bash
@@ -38,16 +36,22 @@ pip install -e .
 
 # python -m pip install -e .
 ```
-
-No mandatory third-party runtime dependency is required.
+The ingestion runtime remains stdlib-only. Typer and Rich are installed as CLI dependencies and are isolated under `pyingestkit.cli`.
 
 ## CLI
 
 ```bash
 pyingest --version
+pyingest --help
+pyingest help
 pyingest jobs
 pyingest inspect <job-id>
 pyingest run <job-id> --workspace .pyingest
+
+# Machine-readable output
+pyingest jobs --json
+pyingest inspect <job-id> --json
+pyingest run <job-id> --json
 ```
 
 Jobs installed by other packages are discovered through:
@@ -74,7 +78,7 @@ my_job = "my_package.jobs:job"
 
 ## Tests
 
-The MVP test suite only needs the Python standard library:
+After installing the project (which installs Typer and Rich for the CLI), run:
 
 ```bash
 PYTHONPATH=src python -m unittest discover -s tests -v
@@ -82,4 +86,4 @@ PYTHONPATH=src python -m unittest discover -s tests -v
 
 ## Status
 
-`0.1.0` is intentionally pre-stable. Public contracts may still evolve before `1.0.0`.
+`0.1.1` is intentionally pre-stable. Public contracts may still evolve before `1.0.0`.
