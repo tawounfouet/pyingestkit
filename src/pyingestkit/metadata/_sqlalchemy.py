@@ -17,20 +17,26 @@ from ._schema import (
     artifact_http_provenance,
     artifacts,
     dataset_diffs,
+    dataset_version_runs,
+    dataset_versions,
     events,
     metadata,
     publications,
+    published_datasets,
     runs,
     steps,
     validations,
 )
 from .base import MetadataStore
-from .capabilities import DiffMetadataCapability
+from .capabilities import DiffMetadataCapability, VersionMetadataCapability
 from .models import (
     ArtifactRecord,
+    DatasetVersionRecord,
+    DatasetVersionRunRecord,
     DiffRecord,
     EventRecord,
     PublicationRecord,
+    PublishedDatasetRecord,
     RunRecord,
     StepRecord,
     ValidationRecord,
@@ -66,7 +72,7 @@ def _optional_datetime(value: object) -> datetime | None:
     return _required_datetime(value)
 
 
-class _SQLAlchemyMetadataStore(MetadataStore, DiffMetadataCapability):
+class _SQLAlchemyMetadataStore(MetadataStore, DiffMetadataCapability, VersionMetadataCapability):
     """Shared SQLAlchemy Core implementation behind concrete metadata adapters."""
 
     def __init__(self, engine: Engine) -> None:
@@ -466,4 +472,108 @@ class _SQLAlchemyMetadataStore(MetadataStore, DiffMetadataCapability):
             parameters=_mapping(row["parameters_json"]),
             error=cast(str | None, row["error"]),
             created_at=_required_datetime(row["created_at"]),
+        )
+
+
+    def record_dataset_version(self, record: DatasetVersionRecord) -> None:
+        with self.engine.begin() as connection:
+            exists = connection.execute(
+                select(dataset_versions.c.version_id).where(
+                    dataset_versions.c.dataset_id == record.dataset_id,
+                    dataset_versions.c.version_id == record.version_id,
+                )
+            ).first()
+            if exists is None:
+                connection.execute(
+                    insert(dataset_versions).values(
+                        dataset_id=record.dataset_id,
+                        version_id=record.version_id,
+                        fingerprint=record.fingerprint,
+                        snapshot_uri=record.snapshot_uri,
+                        created_from_run_id=record.created_from_run_id,
+                        job_id=record.job_id,
+                        job_version=record.job_version,
+                        source_artifact_id=record.source_artifact_id,
+                        source_raw_sha256=record.source_raw_sha256,
+                        created_at=record.created_at,
+                    )
+                )
+
+    def record_dataset_version_run(self, record: DatasetVersionRunRecord) -> None:
+        with self.engine.begin() as connection:
+            exists = connection.execute(
+                select(dataset_version_runs.c.run_id).where(
+                    dataset_version_runs.c.dataset_id == record.dataset_id,
+                    dataset_version_runs.c.version_id == record.version_id,
+                    dataset_version_runs.c.run_id == record.run_id,
+                )
+            ).first()
+            if exists is None:
+                connection.execute(
+                    insert(dataset_version_runs).values(
+                        dataset_id=record.dataset_id,
+                        version_id=record.version_id,
+                        run_id=record.run_id,
+                        created_at=record.created_at,
+                    )
+                )
+
+    def list_dataset_versions(self, dataset_id: str) -> tuple[DatasetVersionRecord, ...]:
+        with self.engine.connect() as connection:
+            rows = connection.execute(
+                select(dataset_versions)
+                .where(dataset_versions.c.dataset_id == dataset_id)
+                .order_by(dataset_versions.c.created_at.desc(), dataset_versions.c.version_id.desc())
+            ).mappings().all()
+        return tuple(
+            DatasetVersionRecord(
+                dataset_id=cast(str, row["dataset_id"]),
+                version_id=cast(str, row["version_id"]),
+                fingerprint=cast(str, row["fingerprint"]),
+                snapshot_uri=cast(str, row["snapshot_uri"]),
+                created_from_run_id=cast(str, row["created_from_run_id"]),
+                job_id=cast(str, row["job_id"]),
+                job_version=cast(str, row["job_version"]),
+                source_artifact_id=cast(str | None, row["source_artifact_id"]),
+                source_raw_sha256=cast(str | None, row["source_raw_sha256"]),
+                created_at=_required_datetime(row["created_at"]),
+            )
+            for row in rows
+        )
+
+    def record_published_dataset(self, record: PublishedDatasetRecord) -> None:
+        with self.engine.begin() as connection:
+            exists = connection.execute(
+                select(published_datasets.c.dataset_id).where(
+                    published_datasets.c.dataset_id == record.dataset_id
+                )
+            ).first()
+            values = dict(
+                version_id=record.version_id,
+                published_from_run_id=record.published_from_run_id,
+                published_at=record.published_at,
+            )
+            if exists is None:
+                connection.execute(
+                    insert(published_datasets).values(dataset_id=record.dataset_id, **values)
+                )
+            else:
+                connection.execute(
+                    published_datasets.update()
+                    .where(published_datasets.c.dataset_id == record.dataset_id)
+                    .values(**values)
+                )
+
+    def get_published_dataset(self, dataset_id: str) -> PublishedDatasetRecord | None:
+        with self.engine.connect() as connection:
+            row = connection.execute(
+                select(published_datasets).where(published_datasets.c.dataset_id == dataset_id)
+            ).mappings().one_or_none()
+        if row is None:
+            return None
+        return PublishedDatasetRecord(
+            dataset_id=cast(str, row["dataset_id"]),
+            version_id=cast(str, row["version_id"]),
+            published_from_run_id=cast(str, row["published_from_run_id"]),
+            published_at=_required_datetime(row["published_at"]),
         )

@@ -44,3 +44,11 @@ class HookError(IngestionError):
 
 class DiffError(IngestionError):
     """Raised when a dataset diff cannot be computed deterministically."""
+
+
+class SnapshotError(IngestionError):
+    """Raised when a Dataset snapshot cannot be encoded, verified, or loaded."""
+
+
+class VersionStoreError(IngestionError):
+    """Raised when immutable dataset version storage cannot satisfy its contract."""

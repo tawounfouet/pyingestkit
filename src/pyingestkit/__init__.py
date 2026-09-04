@@ -17,7 +17,16 @@ from .profiling import DatasetProfile, DatasetProfiler, FieldProfile
 from .quality import QualityReport
 from .runtime.runner import Runner
 from .validation import ValidationIssue, ValidationResult
-from .versioning import DatasetFingerprint, DatasetFingerprinter, DatasetFingerprintPolicy
+from .versioning import (
+    DatasetFingerprint,
+    DatasetFingerprinter,
+    DatasetFingerprintPolicy,
+    DatasetVersion,
+    DatasetVersionStore,
+    FilesystemDatasetVersionStore,
+    PublishedDataset,
+    SnapshotCodec,
+)
 
 __all__ = [
     "CsvParser",
@@ -30,24 +39,29 @@ __all__ = [
     "DatasetFingerprintPolicy",
     "DatasetProfile",
     "DatasetProfiler",
+    "DatasetVersion",
+    "DatasetVersionStore",
     "DiffEntry",
     "DiffKind",
     "DiffPolicy",
     "ExcelParser",
     "FieldContract",
     "FieldProfile",
+    "FilesystemDatasetVersionStore",
     "Job",
     "JobDefinition",
     "JsonParser",
     "NdjsonParser",
     "ParquetParser",
     "Pipeline",
+    "PublishedDataset",
     "QualityReport",
     "RunContext",
     "RunResult",
     "RunStatus",
     "Runner",
     "SchemaDiff",
+    "SnapshotCodec",
     "Step",
     "StepDefinition",
     "StepInvocation",

@@ -1,12 +1,15 @@
 from .base import MetadataStore
-from .capabilities import DiffMetadataCapability
+from .capabilities import DiffMetadataCapability, VersionMetadataCapability
 from .factory import create_metadata_store
 from .memory import MemoryMetadataStore
 from .models import (
     ArtifactRecord,
+    DatasetVersionRecord,
+    DatasetVersionRunRecord,
     DiffRecord,
     EventRecord,
     PublicationRecord,
+    PublishedDatasetRecord,
     RunRecord,
     StepRecord,
     ValidationRecord,
@@ -16,6 +19,8 @@ from .sqlite import SQLiteMetadataStore
 
 __all__ = [
     "ArtifactRecord",
+    "DatasetVersionRecord",
+    "DatasetVersionRunRecord",
     "DiffMetadataCapability",
     "DiffRecord",
     "EventRecord",
@@ -23,9 +28,11 @@ __all__ = [
     "MetadataStore",
     "PostgresMetadataStore",
     "PublicationRecord",
+    "PublishedDatasetRecord",
     "RunRecord",
     "SQLiteMetadataStore",
     "StepRecord",
     "ValidationRecord",
+    "VersionMetadataCapability",
     "create_metadata_store",
 ]

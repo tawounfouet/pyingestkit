@@ -106,3 +106,33 @@ class DiffRecord:
     entries_truncated: bool
     report_path: str
     created_at: datetime
+
+
+@dataclass(frozen=True, slots=True)
+class DatasetVersionRecord:
+    dataset_id: str
+    version_id: str
+    fingerprint: str
+    snapshot_uri: str
+    created_from_run_id: str
+    job_id: str
+    job_version: str
+    source_artifact_id: str | None
+    source_raw_sha256: str | None
+    created_at: datetime
+
+
+@dataclass(frozen=True, slots=True)
+class DatasetVersionRunRecord:
+    dataset_id: str
+    version_id: str
+    run_id: str
+    created_at: datetime
+
+
+@dataclass(frozen=True, slots=True)
+class PublishedDatasetRecord:
+    dataset_id: str
+    version_id: str
+    published_from_run_id: str
+    published_at: datetime

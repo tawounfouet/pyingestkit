@@ -146,3 +146,39 @@ Index(
     dataset_diffs.c.dataset_id,
     dataset_diffs.c.created_at.desc(),
 )
+
+
+dataset_versions = Table(
+    "dataset_versions",
+    metadata,
+    Column("dataset_id", String, primary_key=True),
+    Column("version_id", String, primary_key=True),
+    Column("fingerprint", String, nullable=False),
+    Column("snapshot_uri", Text, nullable=False),
+    Column("created_from_run_id", String, nullable=False),
+    Column("job_id", String, nullable=False),
+    Column("job_version", String, nullable=False),
+    Column("source_artifact_id", String),
+    Column("source_raw_sha256", String),
+    Column("created_at", UTCDateTime(), nullable=False),
+)
+Index("idx_dataset_versions_dataset_created", dataset_versions.c.dataset_id, dataset_versions.c.created_at.desc())
+
+dataset_version_runs = Table(
+    "dataset_version_runs",
+    metadata,
+    Column("dataset_id", String, primary_key=True),
+    Column("version_id", String, primary_key=True),
+    Column("run_id", String, primary_key=True),
+    Column("created_at", UTCDateTime(), nullable=False),
+)
+Index("idx_dataset_version_runs_run", dataset_version_runs.c.run_id)
+
+published_datasets = Table(
+    "published_datasets",
+    metadata,
+    Column("dataset_id", String, primary_key=True),
+    Column("version_id", String, nullable=False),
+    Column("published_from_run_id", String, nullable=False),
+    Column("published_at", UTCDateTime(), nullable=False),
+)
