@@ -32,8 +32,7 @@ jobs:
       - run: python -m pip install --upgrade pip
       - run: python -m pip install -e ".[dev]"
       - run: python -m pip install -e examples/plugin_package
-      - run: make verify
-      - run: make wheel-smoke
+      - run: make release-check
       - run: pyingest --version
       - run: pyingest jobs
       - run: pyingest run demo.local_file --config examples/plugin_package/demo.yml
@@ -43,10 +42,10 @@ jobs:
       - run: pyingest run demo.excel_quality --config examples/plugin_package/demo-quality.yml
       - run: pyingest run demo.parquet_quality --config examples/plugin_package/demo-quality.yml
       - run: pyingest runs
-      - name: Upload V0.4.0-rc1 source artifact
+      - name: Upload V0.4.0 stable source artifact
         uses: actions/upload-artifact@v4
         with:
-          name: pyingestkit-v0.4.0-rc1-diff-replay-versioning-e2e
+          name: pyingestkit-v0.4.0
           path: |
             .
             !.git/**

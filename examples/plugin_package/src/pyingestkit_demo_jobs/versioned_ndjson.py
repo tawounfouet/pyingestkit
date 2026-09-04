@@ -88,7 +88,7 @@ def fetch_versioned_ndjson(context: RunContext) -> RawArtifact:
 
     if not context.fixture_mode:
         raise ConfigurationError(
-            "demo.versioned_ndjson is an offline RC reference job and requires fixture_mode=true"
+            "demo.versioned_ndjson is an offline stable reference job and requires fixture_mode=true"
         )
     return HttpSource(
         SOURCE_URL,
@@ -150,8 +150,8 @@ def diff_version_publish(context: RunContext, data: dict[str, object]) -> dict[s
 
 @job(
     id=DATASET_ID,
-    version="0.4.0rc1",
-    description="RC1 NDJSON V1 -> V2 -> diff -> version -> publish -> replay E2E slice.",
+    version="0.4.0",
+    description="Stable V0.4 NDJSON V1 -> V2 -> diff -> version -> publish -> replay E2E slice.",
 )
 def versioned_ndjson_job() -> None:
     fetch_versioned_ndjson()

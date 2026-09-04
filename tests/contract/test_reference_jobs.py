@@ -65,7 +65,7 @@ class ReferenceJobContractTests(unittest.TestCase):
                 ],
             )
             self.assertEqual([len(job.build().pipeline()) for job in jobs], [1, 3, 3, 4, 4, 4, 5])
-            self.assertTrue(all(job.version == "0.4.0rc1" for job in jobs))
+            self.assertTrue(all(job.version == "0.4.0" for job in jobs))
         finally:
             sys.path.remove(src)
 

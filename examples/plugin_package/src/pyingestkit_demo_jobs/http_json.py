@@ -48,7 +48,7 @@ def validate_json_dataset(data: Dataset) -> ValidationResult:
 
 @job(
     id="demo.http_json",
-    version="0.4.0rc1",
+    version="0.4.0",
     description="Reference HTTP -> RAW -> JSON -> Dataset -> validation vertical slice.",
 )
 def http_json_job() -> None:

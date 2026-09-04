@@ -8,8 +8,8 @@ import tempfile
 import venv
 from pathlib import Path
 
-FRAMEWORK_VERSION = "0.4.0rc1"
-DEMO_VERSION = "0.4.0rc1"
+FRAMEWORK_VERSION = "0.4.0"
+DEMO_VERSION = "0.4.0"
 QUALITY_JOBS = ("demo.ndjson_quality", "demo.excel_quality", "demo.parquet_quality")
 VERSIONED_JOB = "demo.versioned_ndjson"
 
@@ -177,7 +177,7 @@ def main() -> int:
         assert isinstance(first, dict)
         assert isinstance(second, dict)
         if first.get("status") != "SUCCESS" or second.get("status") != "SUCCESS":
-            raise SystemExit("Versioned RC1 reference runs did not succeed")
+            raise SystemExit("Versioned stable reference runs did not succeed")
 
         second_run_id = str(second["run_id"])
         diff_path = (
@@ -192,7 +192,7 @@ def main() -> int:
         diff = json.loads(diff_path.read_text(encoding="utf-8"))
         expected_summary = {"added": 1, "removed": 1, "changed": 1, "unchanged": 1}
         if diff.get("summary") != expected_summary:
-            raise SystemExit(f"Unexpected RC1 diff summary: {diff.get('summary')}")
+            raise SystemExit(f"Unexpected stable diff summary: {diff.get('summary')}")
 
         versions = json_command(
             [str(pyingest), "versions", VERSIONED_JOB, "--workspace", str(workspace), "--json"],
@@ -266,7 +266,7 @@ def main() -> int:
 
     shutil.rmtree(workspace, ignore_errors=True)
     print(
-        "OK: V0.4.0-rc1 wheels execute seven reference jobs and prove "
+        "OK: V0.4.0 stable wheels execute seven reference jobs and prove "
         "V1 -> V2 -> diff -> publish -> strict RAW replay"
     )
     return 0

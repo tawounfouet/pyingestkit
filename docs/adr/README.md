@@ -48,3 +48,9 @@
 
 - [ADR-039 — Strict replay from historical RAW](ADR-039-replay-strict-historical-raw.md)
 - [ADR-040 — Replay lineage and verification](ADR-040-replay-lineage-and-verification.md)
+
+## V0.4.0 stable format freeze
+
+V0.4.0 freezes the ADR-034 canonical Dataset fingerprint codec at version `1` and the ADR-036
+Dataset snapshot format at `snapshot_version = "1"`. Portable diff reports are frozen at
+`report_version = "1"` as documented by the V0.4 release validation guide.
