@@ -72,7 +72,16 @@ jobs:
       - name: Release gate — build distributions
         run: make build
       - name: Release gate — wheel smoke
-        run: make wheel-smoke
+        run: |
+          set -o pipefail
+          make wheel-smoke 2>&1 | tee wheel-smoke.log
+      - name: Upload wheel-smoke diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pyingestkit-v0.5.0-b2-wheel-smoke-diagnostics
+          path: wheel-smoke.log
+          if-no-files-found: ignore
       - run: pyingest --version
       - run: pyingest jobs
       - run: pyingest run demo.local_file --config examples/plugin_package/demo.yml
