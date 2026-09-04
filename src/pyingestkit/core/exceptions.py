@@ -40,3 +40,8 @@ class PluginError(IngestionError):
 
 class HookError(IngestionError):
     pass
+
+
+class DiffError(IngestionError):
+    """Raised when a dataset diff cannot be computed deterministically."""
+

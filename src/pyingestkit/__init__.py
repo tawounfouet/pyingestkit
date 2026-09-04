@@ -11,18 +11,28 @@ from .core.result import RunResult, RunStatus, StepResult
 from .core.step import Step
 from .dataset import Dataset
 from .declarative import JobDefinition, StepDefinition, StepInvocation, job, step
+from .diff import DatasetDiff, DatasetDiffer, DiffEntry, DiffKind, DiffPolicy, SchemaDiff
 from .parsers import CsvParser, ExcelParser, JsonParser, NdjsonParser, ParquetParser
 from .profiling import DatasetProfile, DatasetProfiler, FieldProfile
 from .quality import QualityReport
 from .runtime.runner import Runner
 from .validation import ValidationIssue, ValidationResult
+from .versioning import DatasetFingerprint, DatasetFingerprinter, DatasetFingerprintPolicy
 
 __all__ = [
     "CsvParser",
     "Dataset",
     "DatasetContract",
+    "DatasetDiff",
+    "DatasetDiffer",
+    "DatasetFingerprint",
+    "DatasetFingerprinter",
+    "DatasetFingerprintPolicy",
     "DatasetProfile",
     "DatasetProfiler",
+    "DiffEntry",
+    "DiffKind",
+    "DiffPolicy",
     "ExcelParser",
     "FieldContract",
     "FieldProfile",
@@ -37,6 +47,7 @@ __all__ = [
     "RunResult",
     "RunStatus",
     "Runner",
+    "SchemaDiff",
     "Step",
     "StepDefinition",
     "StepInvocation",
