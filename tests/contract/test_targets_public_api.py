@@ -15,7 +15,7 @@ from pyingestkit.targets import (
 
 
 class TargetsPublicApiTests(unittest.TestCase):
-    def test_a1_target_types_are_public(self) -> None:
+    def test_a2_target_types_remain_public(self) -> None:
         expected = {
             "LoadMode",
             "PostgresTarget",
@@ -34,11 +34,11 @@ class TargetsPublicApiTests(unittest.TestCase):
         self.assertIs(pyingestkit.TargetLoadStatus, TargetLoadStatus)
         self.assertIs(pyingestkit.LoadMode, LoadMode)
 
-    def test_postgres_a1_capabilities_do_not_claim_future_milestones(self) -> None:
-        capabilities = PostgresTarget.A1_CAPABILITIES
+    def test_postgres_a2_capabilities_claim_copy_but_not_future_load_modes(self) -> None:
+        capabilities = PostgresTarget.A2_CAPABILITIES
         self.assertTrue(capabilities.transactional)
         self.assertTrue(capabilities.append)
-        self.assertFalse(capabilities.bulk_load)
+        self.assertTrue(capabilities.bulk_load)
         self.assertFalse(capabilities.truncate_load)
         self.assertFalse(capabilities.replace)
         self.assertFalse(capabilities.staging)
