@@ -63,6 +63,6 @@ expected = {
 actual = set(pyingestkit.__all__)
 if actual != expected:
     raise SystemExit(f"Unexpected public API. expected={sorted(expected)} actual={sorted(actual)}")
-if pyingestkit.__version__ != "0.5.0a1":
+if pyingestkit.__version__ != "0.5.0a2":
     raise SystemExit(f"Unexpected version: {pyingestkit.__version__}")
-print("OK: public API matches V0.5.0-a1 Target / PostgreSQL foundation contract")
+print("OK: public API matches V0.5.0-a2 PostgreSQL schema mapping / COPY contract")
