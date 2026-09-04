@@ -44,6 +44,7 @@ class RunManifest:
     artifacts: list[RawArtifact] = field(default_factory=list)
     steps: list[StepResult] = field(default_factory=list)
     validations: list[dict[str, Any]] = field(default_factory=list)
+    reports: list[dict[str, Any]] = field(default_factory=list)
     metrics: dict[str, int | float] = field(default_factory=dict)
     warnings: list[str] = field(default_factory=list)
     error: str | None = None
@@ -69,6 +70,7 @@ class RunManifest:
             "artifacts": [_machine_value(asdict(artifact)) for artifact in self.artifacts],
             "steps": [_step_value(step) for step in self.steps],
             "validations": _machine_value(self.validations),
+            "reports": _machine_value(self.reports),
             "metrics": dict(self.metrics),
             "warnings": list(self.warnings),
             "error": self.error,

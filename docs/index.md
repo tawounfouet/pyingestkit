@@ -31,7 +31,23 @@
 - [Demo plugin tutorial](tutorials/demo-plugin.md)
 - [V0.2.0 release validation](guides/release-validation-v0.2.0.md)
 
-## Reviews
+## V0.3 — Quality & Formats
 
-- [Stabilisation Qualité et Qualification Finale (v0.2.0)](reviews/v0.2.0-quality-and-release-stabilization.md)
-- [Stabilisation Qualité, Typage et Sécurité (v0.1.6)](reviews/quality-and-security-stabilization.md)
+- [V0.3 architecture plan](architecture/quality-formats-v0.3.md)
+- [Dataset Contracts V2](guides/dataset-contracts-v2.md)
+- [Dataset profiling](guides/dataset-profiling.md)
+- [Quality reports](guides/quality-reports.md)
+- [NDJSON + Excel](guides/ndjson-excel.md)
+- [Parquet](guides/parquet.md)
+
+## V0.3.0 RC1
+
+- [Quality & Formats E2E architecture](architecture/quality-formats-e2e-rc1.md)
+- [ADR-033 — Materialized Dataset boundary](adr/ADR-033-materialized-dataset-boundary.md)
+- [RC1 technical review](reviews/v0.3.0-rc1-quality-formats-e2e-review.md)
+
+## V0.3.0 stable release
+
+- [Quality & Formats release architecture](architecture/quality-formats-release-v0.3.0.md)
+- [Release validation guide](guides/release-validation-v0.3.0.md)
+- [Stable release technical review](reviews/v0.3.0-quality-formats-release-review.md)

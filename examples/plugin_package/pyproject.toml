@@ -4,17 +4,20 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyingestkit-demo-jobs"
-version = "0.2.0"
+version = "0.3.0"
 description = "Installable demonstration job pack for PyIngestKit."
 requires-python = ">=3.11"
 dependencies = [
-  "pyingestkit>=0.2.0,<0.3",
+  "pyingestkit>=0.3.0,<0.4",
 ]
 
 [project.entry-points."pyingestkit.jobs"]
 demo-local-file = "pyingestkit_demo_jobs.local_file:job_definition"
 demo-http-csv = "pyingestkit_demo_jobs.http_csv:job_definition"
 demo-http-json = "pyingestkit_demo_jobs.http_json:job_definition"
+demo-ndjson-quality = "pyingestkit_demo_jobs.ndjson_quality:job_definition"
+demo-excel-quality = "pyingestkit_demo_jobs.excel_quality:job_definition"
+demo-parquet-quality = "pyingestkit_demo_jobs.parquet_quality:job_definition"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

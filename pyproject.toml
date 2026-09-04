@@ -42,8 +42,12 @@ dev = [
   "pre-commit>=4",
   "build>=1.2",
   "twine>=6",
+  "openpyxl>=3.1,<4",
+  "pyarrow>=16,<24",
 ]
 postgres = ["psycopg[binary]>=3.2,<4"]
+excel = ["openpyxl>=3.1,<4"]
+parquet = ["pyarrow>=16,<24"]
 
 [project.scripts]
 pyingest = "pyingestkit.cli.main:main"

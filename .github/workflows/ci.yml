@@ -18,6 +18,7 @@ jobs:
       - run: python -m pip install --upgrade pip
       - run: python -m pip install -e ".[dev]"
       - run: python -m pip install -e examples/plugin_package
+      - run: python -c "import openpyxl, pyarrow; print(openpyxl.__version__, pyarrow.__version__)"
       - run: make check
       - run: make quality
 
@@ -38,4 +39,7 @@ jobs:
       - run: pyingest run demo.local_file --config examples/plugin_package/demo.yml
       - run: pyingest run demo.http_csv --config examples/plugin_package/demo-http.yml
       - run: pyingest run demo.http_json --config examples/plugin_package/demo-http.yml
+      - run: pyingest run demo.ndjson_quality --config examples/plugin_package/demo-quality.yml
+      - run: pyingest run demo.excel_quality --config examples/plugin_package/demo-quality.yml
+      - run: pyingest run demo.parquet_quality --config examples/plugin_package/demo-quality.yml
       - run: pyingest runs
