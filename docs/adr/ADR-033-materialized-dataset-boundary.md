@@ -1,22 +1,18 @@
 # ADR-033 — V0.3 keeps Dataset materialized and preserves a future streaming boundary
 
 ## Status
-
 Accepted — V0.3.0-rc1.
 
 ## Context
-
-NDJSON, Excel and especially Parquet make Dataset size limits visible. Retrofitting streaming into the existing V0.3 `Dataset` API during release-candidate hardening would silently change iteration, repeatability, profiling, validation and ownership semantics.
+V0.3 adds NDJSON, Excel and Parquet adapters. Parquet in particular can represent datasets much larger than the dependency-neutral in-memory `Dataset` introduced in V0.2. Replacing `Dataset` with a PyArrow/Pandas/Polars object in V0.3 would leak a backend into the public framework contract and destabilize all parsers and quality components.
 
 ## Decision
+V0.3 remains explicitly materialized. Every structural parser returns `Dataset`. `ParquetParser.max_rows` is a defensive pre-materialization guard, not a streaming implementation. The public contracts introduced in V0.3 do not promise arbitrary-size ingestion.
 
-V0.3 explicitly keeps the existing materialized immutable-ish Dataset contract. Parsers may provide defensive controls such as projection and `max_rows`, but they return a fully materialized Dataset.
-
-Future support for very large datasets should introduce a separate buffered/streaming contract with explicit capabilities rather than changing the meaning of `Dataset`.
+Future buffered or streaming representations may be introduced behind distinct contracts without changing the meaning of the V0.3 `Dataset` type.
 
 ## Consequences
-
-- V0.3 semantics remain deterministic and backwards compatible;
-- the framework does not overclaim scalability;
-- future streaming design remains possible without leaking generator lifetimes into current contracts;
-- consumers can choose job-pack-specific Arrow/Polars/Pandas streaming or database-native paths today when their workload exceeds the V0.3 materialization envelope.
+- CSV, JSON, NDJSON, Excel and Parquet share one neutral interchange contract;
+- Pandas, Polars and PyArrow tables do not become framework-level Dataset semantics;
+- callers can reason about V0.3 memory behavior explicitly;
+- V0.4 diff/replay work can build on a stable materialized contract while later versions retain room for streaming abstractions.

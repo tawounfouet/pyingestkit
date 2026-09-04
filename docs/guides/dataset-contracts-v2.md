@@ -1,9 +1,10 @@
 # Dataset Contracts V2
 
-Quality Contracts V2 extend the V0.2 `FieldContract` / `DatasetContract` surface without changing its core rule: **validation reports; it does not normalize**.
+PyIngestKit V0.3.0-a1 extends structural dataset validation without adding business
+normalization or dataframe dependencies.
 
 ```python
-from pyingestkit.contracts import DatasetContract, FieldContract
+from pyingestkit import DatasetContract, FieldContract
 
 contract = DatasetContract(
     fields=(
@@ -11,39 +12,24 @@ contract = DatasetContract(
             "postal_code",
             nullable=False,
             expected_type=str,
-            pattern=r"[0-9]{5}",
+            pattern=r"^\d{5}$",
             min_length=5,
             max_length=5,
         ),
-        FieldContract(
-            "status",
-            expected_type=str,
-            allowed_values=("ACTIVE", "INACTIVE"),
-        ),
+        FieldContract("country", allowed_values={"FR", "BE", "CH"}),
+        FieldContract("score", expected_type=int, min_value=0, max_value=100),
     ),
-    unique_together=(("postal_code", "status"),),
-    primary_key=("postal_code",),
-    max_issues=100,
+    unique_together=(("country", "postal_code"),),
+    primary_key=("country", "postal_code"),
+    max_issues=1000,
 )
 ```
 
-## Field rules
+## Guardrails
 
-- `field.allowed_values`
-- `field.pattern` (`re.fullmatch` semantics)
-- `field.min_value` / `field.max_value`
-- `field.min_length` / `field.max_length`
-
-Existing V0.2 rules such as `field.required`, `field.null`, `field.type`, and `field.unique` remain stable.
-
-## Dataset rules
-
-`unique_together` validates exact composite uniqueness. `primary_key` is a logical dataset identity constraint: every key field must be present, every key value must be non-null, and composite key values must be unique. It does not create SQL schema.
-
-## Bounded issues
-
-`max_issues` limits detailed issue objects. Once the limit is reached the result exposes `issues_truncated=True`. Counts reflect the returned bounded issue stream; PyIngestKit does not pretend it counted unseen violations after deterministic truncation.
-
-## Safe previews
-
-V2 issues can include a bounded `value_preview`, `constraint`, and compact `context`. Values from fields whose names look secret (`password`, `token`, `api_key`, etc.) are replaced with `<redacted>`. Complete rows are never copied into issue payloads.
+- `validate()` never mutates a `Dataset`.
+- `"42"` is not converted to `42`.
+- regex matching uses `re.fullmatch`.
+- `min_length` / `max_length` are string constraints in Alpha 1.
+- `primary_key` is a logical dataset key, not SQL DDL.
+- issue previews are bounded and secret-looking field names are redacted.

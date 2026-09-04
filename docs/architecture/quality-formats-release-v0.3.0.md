@@ -1,48 +1,53 @@
 # V0.3.0 — Quality & Formats Release Architecture
 
-V0.3.0 freezes the quality and structured-format layer built incrementally on top of V0.2.0 Acquisition.
+V0.3.0 freezes the second major framework capability layer above V0.2 Acquisition.
 
 ```text
-DISCOVER
-   ↓
-FETCH
-   ↓
-RAW + PROVENANCE
-   ↓
-PARSE
-   ├── CSV
-   ├── JSON
-   ├── NDJSON
-   ├── XLSX (optional OpenPyXL)
-   └── Parquet (optional PyArrow)
-   ↓
-Dataset
-   ├── DatasetContract V2 → ValidationResult → validation.json
-   └── DatasetProfiler → DatasetProfile → profile.json
-   ↓
-Manifest / Metadata / Events
+DISCOVER / FETCH
+      ↓
+immutable RAW + provenance
+      ↓
+CSV / JSON / NDJSON / XLSX / Parquet
+      ↓
+dependency-neutral Dataset
+      ↓
+DatasetContract V2
+      ↓
+ValidationResult
+      ↓
+DatasetProfiler
+      ↓
+DatasetProfile
+      ↓
+validation.json / profile.json
+      ↓
+Manifest / Metadata / Runtime Events
 ```
 
-## Stable quality contracts
+## Stable V0.3 surfaces
 
-V0.3 stabilizes:
+- `FieldContract` and `DatasetContract` V2 constraints;
+- `ValidationIssue` enriched diagnostics with bounded/redacted previews;
+- `DatasetProfiler`, `DatasetProfile`, and `FieldProfile`;
+- `QualityReport` portable aggregate;
+- `NdjsonParser`;
+- `ExcelParser` through `pyingestkit[excel]`;
+- `ParquetParser` through `pyingestkit[parquet]`;
+- quality report artifact references in manifests and CLI status output.
 
-- value and structural field constraints;
-- logical/composite uniqueness;
-- bounded issue reporting;
-- deterministic descriptive profiling;
-- run-scoped quality evidence.
+## Frozen boundaries
 
-Validation does not normalize data. Profiling does not infer business semantics.
+V0.3 does not turn `Dataset` into Pandas, Polars or Arrow. Parsers remain structural and do not perform business normalization. Profiling is descriptive rather than semantic inference. Parquet remains materialized in memory and may be bounded with `max_rows`.
 
-## Stable format contracts
+## Reference release jobs
 
-All parsers terminate at the dependency-neutral `Dataset`. CSV/JSON/NDJSON use the standard library. XLSX and Parquet adapters are optional extras and lazy-load their mature backend libraries.
+```text
+demo.local_file
+demo.http_csv
+demo.http_json
+demo.ndjson_quality
+demo.excel_quality
+demo.parquet_quality
+```
 
-## Operational boundary
-
-Quality reports are artifacts referenced by the manifest rather than new normalized metadata tables. Existing validation metadata remains available. This keeps V0.3 schema evolution additive and avoids an unnecessary migration layer.
-
-## Scale boundary
-
-The V0.3 Dataset is materialized. Parquet supports projection plus an explicit row guardrail. Streaming, chunked validation, approximation and dataframe engines remain future opt-in architecture rather than implicit V0.3 behavior.
+The last three reference jobs exercise the complete V0.3 path from RAW acquisition through format parsing, Contract V2 validation, profiling and persisted quality evidence.

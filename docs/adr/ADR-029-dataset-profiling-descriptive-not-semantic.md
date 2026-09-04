@@ -2,23 +2,29 @@
 
 ## Status
 
-Accepted — V0.3.0-a2.
+Accepted — PyIngestKit V0.3.0 Alpha 2.
 
 ## Context
 
-Quality triage benefits from row counts, null counts, distinct counts, duplicate counts, observed runtime types and simple ranges. Those statistics must not silently become a schema inference or business-anomaly engine.
+After V0.3 Alpha 1 can express richer quality expectations, users need a stable way to
+describe the data actually observed. Binding profiling to a dataframe engine or semantic
+type inference would violate the neutral `Dataset` boundary established in V0.2.
 
 ## Decision
 
-`DatasetProfiler` produces immutable `DatasetProfile` / `FieldProfile` values from the existing dependency-neutral `Dataset`.
+`DatasetProfiler` is a separate framework service. It produces immutable
+`DatasetProfile` / `FieldProfile` values with row/field counts, present/null/non-null
+counts, exact distinct counts, stable observed Python type names, string length ranges,
+numeric min/max when safe, and full-row duplicate counts.
 
-Profiling is descriptive only. It reports observed Python runtime types and safe structural statistics. It does not infer emails, phone numbers, identifiers, dates from strings, domains, business rules, or probabilistic anomalies.
-
-The implementation remains exact and materialized in V0.3. A future streaming profiler may introduce bounded/approximate statistics only behind an explicit contract.
+The profiler never parses semantic dates, converts strings to numbers, maps codes, or
+mutates `Dataset`. Nested Python/JSON structures use deterministic structural identities
+for distinct/duplicate counting. No sample values are collected in Alpha 2.
 
 ## Consequences
 
-- profiling is deterministic and easy to test;
-- no Pandas/Polars/Arrow engine becomes mandatory;
-- consumers retain control over semantic interpretation;
-- profile output remains suitable for portable run evidence rather than becoming a hidden catalog schema.
+- profiling remains engine-neutral and safe by default;
+- CSV's string-preservation contract remains intact;
+- mixed Python types are reported rather than coerced;
+- profiles are suitable input for later diff/versioning work without becoming a data
+  catalog or inference engine.

@@ -1,607 +1,755 @@
-# PyIngestKit V0.3.0 — Quality & Formats
+# PyIngestKit V0.3 — Quality & Formats Architecture & Implementation Plan
 
-## Architecture & implementation plan
-
-**Status:** implementation plan  
-**Baseline:** PyIngestKit V0.2.0 — Acquisition Release  
-**Target:** V0.3.0 — Quality & Formats  
+**Document:** `02_PYINGESTKIT_V0.3_QUALITY_FORMATS_ARCHITECTURE_IMPLEMENTATION_PLAN.md`  
+**Target release:** `v0.3.0`  
+**Milestone name:** **QUALITY & FORMATS**  
+**Baseline:** `v0.2.0 — Acquisition Release`  
+**Status:** Architecture & implementation plan — ready for execution  
 **Date:** 2026-09-04
 
 ---
 
-# 1. Executive summary
+# 0. Résumé exécutif
 
-PyIngestKit V0.2.0 established the first complete acquisition vertical slice:
+PyIngestKit V0.2.0 a fermé le cycle **Acquisition** en livrant une chaîne fiable et installable allant de la source HTTP ou locale jusqu'au RAW immuable, au parsing CSV/JSON, au `Dataset`, au `DatasetContract`, à la validation runtime, au manifest, au `MetadataStore` et aux événements.
 
-```text
-HTTP / local source
-        ↓
-RAW immutable bytes
-        ↓
-SHA-256 + provenance
-        ↓
-CSV / JSON Parser
-        ↓
-Dataset
-        ↓
-DatasetContract
-        ↓
-ValidationResult
-        ↓
-Manifest + Metadata + Events
-```
+La V0.3 ne doit pas rouvrir cette plomberie. Elle doit construire **au-dessus** de ce socle stable afin de répondre à une question différente :
 
-V0.3.0 extends this foundation in two dimensions:
+> **Comment caractériser, contrôler, rapporter et lire davantage de formats de données sans perdre les garanties de simplicité, de neutralité moteur et de traçabilité de PyIngestKit ?**
+
+La V0.3 est donc structurée autour de quatre axes :
+
+1. **Quality Contracts V2** — enrichir les contraintes génériques de `FieldContract` / `DatasetContract` sans introduire de règles métier ni de mutation des données ;
+2. **Dataset Profiling** — produire des statistiques descriptives déterministes et engine-neutral sur un `Dataset` ;
+3. **Quality Reports** — matérialiser validation et profiling sous forme d'artefacts de run reproductibles ;
+4. **Formats supplémentaires** — ajouter NDJSON, Excel et Parquet sans faire de Pandas, Polars ou Arrow le modèle canonique du framework.
+
+La signature architecturale V0.3 devient :
 
 ```text
-QUALITY
-   ↓
-Contracts V2
-Profiling
-Quality Reports
-
-FORMATS
-   ↓
-NDJSON
-Excel
-Parquet
-```
-
-The goal is not to build a data-processing engine. The goal is to make structured ingestion substantially safer and more useful while retaining a small, dependency-neutral framework contract.
-
-The target V0.3 architecture is:
-
-```text
+External Source
+      │
+      ▼
+Acquisition V0.2
+      │
+      ▼
 RawArtifact
-     │
-     ▼
-   Parser
- ┌───┼───────────────┐
- ▼   ▼               ▼
-CSV JSON          NDJSON
-                  Excel
-                  Parquet
-     │
-     ▼
-  Dataset
-     │
- ┌───┴───────────────┐
- ▼                   ▼
+      │
+      ▼
+Parser
+ ┌────┼───────────────┐
+ ▼    ▼       ▼       ▼
+CSV  JSON   NDJSON   Excel   Parquet
+ └────┴───────┴───────┴──────┘
+               │
+               ▼
+            Dataset
+               │
+       ┌───────┴────────┐
+       ▼                ▼
 DatasetContract V2   DatasetProfiler
- │                   │
- ▼                   ▼
+       │                │
+       ▼                ▼
 ValidationResult     DatasetProfile
- │                   │
- └──────────┬────────┘
-            ▼
-       Quality Reports
-            │
-            ▼
- Manifest / Metadata / Events
+       └───────┬────────┘
+               ▼
+          QualityReport
+               │
+        ┌──────┼──────────┐
+        ▼      ▼          ▼
+     reports/ Manifest  Metadata/Events
 ```
 
----
-
-# 2. Product boundary
-
-PyIngestKit continues to own:
-
-> **HOW TO INGEST**
-
-External systems continue to own:
-
-> **WHEN TO RUN**
-
-V0.3 therefore remains an ingestion framework, not an orchestration platform.
-
-The following remain explicitly outside the V0.3 boundary:
-
-- DAG scheduling;
-- distributed execution;
-- workers;
-- task queues;
-- cluster management;
-- data catalog;
-- IAM;
-- secrets vault;
-- business workflow engine;
-- data warehouse transformation framework;
-- BI/reporting system;
-- AI/RAG pipeline;
-- ML anomaly-detection platform.
-
----
-
-# 3. Baseline inherited from V0.2.0
-
-V0.3 MUST preserve the public contracts released by V0.2.0 unless a documented compatibility reason requires otherwise.
-
-The inherited stable surfaces include:
+La doctrine centrale reste inchangée :
 
 ```text
-pyingestkit.Dataset
-
-pyingestkit.parsers.Parser
-pyingestkit.parsers.CsvParser
-pyingestkit.parsers.JsonParser
-
-pyingestkit.contracts.FieldContract
-pyingestkit.contracts.DatasetContract
-
-pyingestkit.validation.ValidationIssue
-pyingestkit.validation.ValidationResult
-pyingestkit.validation.ValidationSeverity
-
-pyingestkit.sources.http.*
-pyingestkit.retry.*
-
-RawArtifact
-ArtifactStore
-MetadataStore
-RunManifest
-Runner
+Dataset           ≠ Pandas / Polars / Arrow
+Parser            ≠ Normalizer métier
+Contract          ≠ Transformation
+Profiler          ≠ Inférence métier
+Quality Report    ≠ Data Catalog
+PyIngestKit       ≠ Orchestrateur
 ```
 
-The V0.3 rule is:
+La V0.3 sera livrée progressivement :
 
 ```text
-V0.2 public API
-       │
-       ├── remains valid
-       │
-       └── gains additive capabilities
+V0.3.0-a1  Quality Contracts V2
+V0.3.0-a2  Dataset Profiling + Quality Reports
+V0.3.0-b1  NDJSON + Excel
+V0.3.0-rc1  Parquet
+V0.3.0-rc1 Quality & Formats E2E
+V0.3.0     Quality & Formats Release
 ```
 
----
-
-# 4. V0.3 objectives
-
-V0.3 has six principal objectives.
-
-## 4.1 Contracts V2
-
-Increase the expressiveness of structural dataset validation without creating a general-purpose validation language.
-
-## 4.2 Profiling
-
-Provide deterministic, lightweight descriptive statistics for ingestion triage and observability.
-
-## 4.3 Quality Reports
-
-Create portable machine-readable evidence from validation and profiling.
-
-## 4.4 NDJSON
-
-Support line-delimited JSON as a common ingestion serialization.
-
-## 4.5 Excel
-
-Support real operational spreadsheet ingestion without making spreadsheet tooling a mandatory dependency.
-
-## 4.6 Parquet
-
-Support columnar ingestion through an optional mature Arrow backend while preserving the framework's neutral Dataset boundary.
-
----
-
-# 5. Non-objectives
-
-V0.3 will NOT introduce:
+Le premier livrable d'implémentation sera :
 
 ```text
-pandas as mandatory dependency
-polars as mandatory dependency
-pyarrow as mandatory dependency
-Spark
-DuckDB as framework runtime engine
-Great Expectations-style DSL
-Pandera-style dataframe binding
-SQL transformation engine
-schema registry service
-semantic type inference platform
-ML anomaly detection
-streaming engine
-async Runner
-multiprocessing framework
+pyingestkit-v0.3.0-a1-quality-contracts.zip
 ```
-
-This is important because several of these technologies may be useful **with** PyIngestKit without belonging **inside** PyIngestKit.
 
 ---
 
-# 6. Core quality philosophy
+# 1. Baseline officielle
 
-The V0.3 quality model is based on four separations:
+## 1.1. V0.1.6 — Foundation Freeze
+
+La Foundation reste gelée. Elle fournit notamment :
+
+- `Job`, `Step`, `Pipeline`, `Runner` ;
+- API déclarative `@job` / `@step` ;
+- `ArtifactStore` ;
+- `MetadataStore` SQLite / PostgreSQL ;
+- manifest et provenance ;
+- événements runtime ;
+- CLI Typer + Rich ;
+- plugin discovery ;
+- logging structuré ;
+- quality/security/build gates.
+
+La V0.3 ne doit pas réinventer ces primitives.
+
+## 1.2. V0.2.0 — Acquisition Release
+
+La V0.2.0 est la baseline fonctionnelle immédiate :
 
 ```text
-PARSE
-  ≠
-NORMALIZE
-
-VALIDATE
-  ≠
-TRANSFORM
-
-PROFILE
-  ≠
-INFER BUSINESS MEANING
-
-REPORT
-  ≠
-CATALOG
+Local / HTTP
+     │
+     ▼
+Source
+     │
+     ▼
+RAW immutable + SHA-256 + provenance
+     │
+     ▼
+CSV / JSON Parser
+     │
+     ▼
+Dataset
+     │
+     ▼
+DatasetContract
+     │
+     ▼
+ValidationResult
+     │
+     ├── Manifest
+     ├── MetadataStore
+     └── Events
 ```
 
-A framework primitive should describe what it observes or whether a declared rule passes. It should not silently rewrite the dataset.
+Les jobs de référence scellés en V0.2.0 sont :
+
+```text
+demo.local_file
+demo.http_csv
+demo.http_json
+```
+
+Leur non-régression est obligatoire pendant tout le cycle V0.3.
 
 ---
 
-# 7. Dataset Contracts V2
+# 2. Mission de la V0.3
 
-## 7.1 Existing V0.2 contract
+La V0.3 doit permettre à PyIngestKit de passer d'une ingestion structurée minimale à une ingestion **qualifiée et multi-format**, tout en gardant les couches distinctes.
 
-V0.2 supports roughly:
+La mission peut se résumer ainsi :
+
+> **Lire plus de formats, mieux décrire les datasets et mieux qualifier leur conformité, sans transformer PyIngestKit en moteur dataframe, en plateforme de Data Quality ou en outil métier.**
+
+La V0.3 doit renforcer le segment :
+
+```text
+PARSE → DESCRIBE → VALIDATE → REPORT
+```
+
+et non étendre agressivement :
+
+```text
+FETCH → CONNECTORS → ORCHESTRATION → TRANSFORMATION → BI
+```
+
+---
+
+# 3. Objectifs fonctionnels
+
+La V0.3 doit fournir :
+
+- des contraintes de champ enrichies ;
+- des contraintes multi-colonnes génériques ;
+- une notion explicite de clé logique/clé de dataset ;
+- un profiling déterministe ;
+- des statistiques de qualité exploitables ;
+- des rapports JSON de validation et profiling ;
+- un parser NDJSON ;
+- un parser Excel ;
+- un parser Parquet optionnel ;
+- des jobs de référence démontrant les nouveaux formats ;
+- des tests offline et déterministes ;
+- une compatibilité complète avec les vertical slices V0.2.0.
+
+---
+
+# 4. Objectifs techniques
+
+La V0.3 doit préserver les propriétés suivantes :
+
+- Python >= 3.11 ;
+- typage strict Mypy ;
+- Ruff lint + formatter ;
+- Bandit ;
+- `pip-audit` ;
+- wheel/sdist ;
+- smoke tests depuis wheels ;
+- aucun effet de bord à l'import ;
+- aucune dépendance dataframe obligatoire ;
+- API publique explicite ;
+- tests sans dépendance à Internet ;
+- outputs machine-readable déterministes ;
+- compatibilité avec la sérialisation manifest/metadata existante.
+
+---
+
+# 5. Objectifs d'expérience développeur
+
+L'API doit rester lisible et composable.
+
+Exemple cible :
 
 ```python
-FieldContract(
-    name="id",
-    required=True,
-    nullable=False,
-    expected_type=int,
-    unique=True,
+from pyingestkit import (
+    CsvParser,
+    DatasetContract,
+    DatasetProfiler,
+    FieldContract,
 )
+
+rows = CsvParser().parse(raw_artifact)
+
+contract = DatasetContract(
+    fields=(
+        FieldContract(
+            "postal_code",
+            nullable=False,
+            expected_type=str,
+            pattern=r"^\d{5}$",
+            min_length=5,
+            max_length=5,
+        ),
+        FieldContract(
+            "country",
+            nullable=False,
+            allowed_values={"FR"},
+        ),
+    ),
+    primary_key=("postal_code", "commune_code"),
+)
+
+validation = contract.validate(rows)
+profile = DatasetProfiler().profile(rows)
 ```
 
-and:
-
-```python
-DatasetContract(
-    fields=(...),
-    allow_extra_fields=False,
-    min_rows=1,
-    max_rows=None,
-)
-```
-
-This is a suitable foundation but insufficient for many reference-data ingestion jobs.
-
----
-
-# 8. FieldContract V2
-
-Proposed V0.3 surface:
-
-```python
-FieldContract(
-    name="code",
-
-    required=True,
-    nullable=False,
-
-    expected_type=str,
-    unique=True,
-
-    allowed_values=None,
-    regex=None,
-
-    min_value=None,
-    max_value=None,
-
-    min_length=None,
-    max_length=None,
-)
-```
-
-Conceptually:
+Le développeur doit pouvoir comprendre immédiatement :
 
 ```text
-FieldContract
-├── existence
-├── nullability
-├── runtime type
-├── uniqueness
-├── membership
-├── pattern
-├── numeric/comparable range
-└── length
+parse()     → structure les données
+validate()  → vérifie sans muter
+profile()   → décrit sans muter
+normalize() → reste métier / job pack
 ```
 
 ---
 
-# 9. `allowed_values`
+# 6. Non-objectifs V0.3
 
-Example:
+La V0.3 n'implémente pas :
 
-```python
-FieldContract(
-    name="status",
-    expected_type=str,
-    allowed_values=("ACTIVE", "INACTIVE"),
-)
-```
-
-Issue:
-
-```text
-field.allowed_values
-```
-
-Expected behavior:
-
-```text
-ACTIVE      → valid
-INACTIVE    → valid
-UNKNOWN     → ERROR
-None        → governed by nullable
-```
-
-The contract MUST NOT normalize:
-
-```text
-"active"
-   ↓
-"ACTIVE"
-```
-
-That belongs to a normalizer.
+- Pandas comme type canonique ;
+- Polars comme type canonique ;
+- Arrow comme type canonique ;
+- Spark ;
+- DuckDB comme runtime obligatoire ;
+- SQL transformation engine ;
+- dataframe expression DSL ;
+- JSONPath complet ;
+- XPath complet ;
+- XML ;
+- Avro ;
+- ORC ;
+- streaming distribué ;
+- chunk processing généralisé ;
+- validation métier ;
+- règles comptables/fiscales/référentielles métier ;
+- ML anomaly detection ;
+- schema registry externe ;
+- Great Expectations-like DSL ;
+- Data Catalog ;
+- lineage platform ;
+- scheduler ;
+- async Runner ;
+- multiprocessing framework ;
+- orchestration DAG distribuée.
 
 ---
 
-# 10. Regex constraint
+# 7. Garde-fou d'admission des fonctionnalités
 
-Example:
+Toute fonctionnalité proposée pendant V0.3 doit passer cinq questions :
+
+1. Est-elle utile à plusieurs familles de jobs ?
+2. Est-elle indépendante d'un domaine métier ?
+3. Appartient-elle à `PARSE / QUALITY / REPORT` ?
+4. Peut-elle rester indépendante d'un moteur dataframe ?
+5. Réduit-elle réellement la plomberie répétitive des jobs ?
+
+Si plusieurs réponses sont négatives :
+
+```text
+→ job pack
+→ plugin spécialisé
+→ outil externe
+→ backlog post-V1
+```
+
+---
+
+# 8. Architecture macro V0.3
+
+```text
+                         PYINGESTKIT V0.3
+
+┌─────────────────────────────────────────────────────────────────────┐
+│                         ACQUISITION V0.2                            │
+│ Source → Retry → RAW → provenance                                  │
+└─────────────────────────────────────┬───────────────────────────────┘
+                                      │
+                                      ▼
+                              ┌──────────────┐
+                              │ RawArtifact  │
+                              └──────┬───────┘
+                                     │
+                 ┌───────────────────┼───────────────────────┐
+                 ▼                   ▼                       ▼
+           ┌──────────┐        ┌───────────┐           ┌───────────┐
+           │ Text-like │        │ Workbook  │           │ Columnar  │
+           │ parsers   │        │ parser    │           │ parser    │
+           └────┬─────┘        └─────┬─────┘           └─────┬─────┘
+                │                     │                       │
+      CSV / JSON / NDJSON           Excel                  Parquet
+                │                     │                       │
+                └──────────────┬──────┴───────────────┬──────┘
+                               ▼                      │
+                         ┌──────────┐                 │
+                         │ Dataset  │◄────────────────┘
+                         └────┬─────┘
+                              │
+                ┌─────────────┴───────────────┐
+                ▼                             ▼
+       ┌─────────────────┐            ┌────────────────┐
+       │ DatasetContract │            │ DatasetProfiler│
+       │       V2        │            └────────┬───────┘
+       └────────┬────────┘                     │
+                ▼                              ▼
+       ValidationResult                DatasetProfile
+                │                              │
+                └──────────────┬───────────────┘
+                               ▼
+                        ┌──────────────┐
+                        │QualityReport │
+                        └──────┬───────┘
+                               │
+                 ┌─────────────┼─────────────┐
+                 ▼             ▼             ▼
+              reports/      Manifest       Events
+```
+
+---
+
+# 9. Structure de packages cible
+
+Ajouts proposés :
+
+```text
+src/pyingestkit/
+├── contracts/
+│   ├── dataset.py
+│   ├── constraints.py          # nouveau
+│   └── keys.py                 # possible, si séparation utile
+├── parsers/
+│   ├── base.py
+│   ├── csv.py
+│   ├── json.py
+│   ├── ndjson.py               # nouveau
+│   ├── excel.py                # nouveau
+│   └── parquet.py              # nouveau
+├── profiling/
+│   ├── __init__.py
+│   ├── models.py               # nouveau
+│   └── profiler.py             # nouveau
+├── quality/
+│   ├── __init__.py
+│   ├── report.py               # nouveau
+│   └── writer.py               # nouveau
+└── validation/
+    ├── result.py
+    ├── report.py
+    └── rules.py
+```
+
+Le nom `profiling` est préféré à un package générique `analytics` afin de garder une responsabilité étroite.
+
+Le nom `quality` doit rester réservé aux artefacts/synthèses de qualité, pas devenir un framework de règles parallèle à `contracts`.
+
+---
+
+# 10. Dependency policy V0.3
+
+## 10.1. Principe
+
+PyIngestKit doit continuer à utiliser des dépendances tierces matures lorsqu'elles évitent de réimplémenter des formats complexes, mais sans faire entrer des moteurs analytiques lourds dans le cœur par défaut.
+
+## 10.2. NDJSON
+
+Aucune dépendance supplémentaire :
+
+```text
+json stdlib
+```
+
+## 10.3. Excel
+
+Dépendance recommandée :
+
+```text
+openpyxl
+```
+
+Sous extra optionnel :
+
+```toml
+[project.optional-dependencies]
+excel = ["openpyxl>=3.1,<4"]
+```
+
+Raison : XLSX est un format non trivial ; le réimplémenter est hors scope.
+
+## 10.4. Parquet
+
+Dépendance recommandée :
+
+```text
+pyarrow
+```
+
+Sous extra optionnel :
+
+```text
+pyingestkit[parquet]
+```
+
+La borne exacte de version devra être figée pendant le jalon B2 après validation Python 3.11/3.12/3.13 et wheel availability.
+
+## 10.5. Interdiction de dépendance implicite
+
+Aucune de ces dépendances ne doit être importée au chargement du package principal si l'extra n'est pas installé.
+
+Un utilisateur qui n'utilise ni Excel ni Parquet doit pouvoir installer :
+
+```bash
+pip install pyingestkit
+```
+
+sans `openpyxl` ni `pyarrow`.
+
+---
+
+# 11. Dataset reste le contrat pivot
+
+Le `Dataset` V0.2 est conservé comme frontière framework-owned :
+
+```text
+Sequence[Mapping[str, Any]]
++ ordered fields
++ source_artifact_id
+```
+
+La V0.3 ne doit pas le transformer en dataframe universel.
+
+---
+
+# 12. Dataset ≠ DataFrame
+
+Le contrat reste explicitement :
+
+```text
+Dataset
+≠ pandas.DataFrame
+≠ polars.DataFrame
+≠ pyarrow.Table
+```
+
+Ces technologies pourront être utilisées dans des adapters explicites plus tard, mais elles ne déterminent pas la sémantique centrale de PyIngestKit.
+
+---
+
+# 13. Limite de matérialisation mémoire
+
+Le Dataset V0.2 est matérialisé en mémoire.
+
+Ceci reste acceptable pour V0.3 mais doit être documenté comme une limite :
+
+```text
+RAW 50 MB  → probablement acceptable selon structure
+RAW 3 GB   → potentiellement non acceptable en Dataset matérialisé
+```
+
+La V0.3 ne doit pas masquer cette réalité.
+
+Le design doit cependant éviter de rendre impossible une future abstraction :
+
+```text
+Dataset
+BufferedDataset
+StreamingDataset
+```
+
+Aucun de ces deux derniers types n'est requis en V0.3.
+
+---
+
+# 14. Quality Contracts V2 — responsabilité
+
+Le `DatasetContract` V2 décrit des attentes génériques vérifiables sur la structure et les valeurs observées d'un dataset.
+
+Il ne doit :
+
+- ni modifier les lignes ;
+- ni remplir les valeurs manquantes ;
+- ni caster silencieusement ;
+- ni appeler des services externes ;
+- ni appliquer des nomenclatures métier ;
+- ni enrichir les données.
+
+---
+
+# 15. FieldContract V2
+
+API cible indicative :
 
 ```python
 FieldContract(
     name="postal_code",
+    required=True,
+    nullable=False,
     expected_type=str,
-    regex=r"^[0-9]{5}$",
+    unique=False,
+    allowed_values=None,
+    pattern=r"^\d{5}$",
+    min_value=None,
+    max_value=None,
+    min_length=5,
+    max_length=5,
 )
 ```
 
-Issue:
-
-```text
-field.regex
-```
-
-The regular expression is applied only when the value is compatible with string matching.
-
-A mismatched type should first produce:
-
-```text
-field.type
-```
-
-rather than an opaque regex exception.
-
 ---
 
-# 11. Numeric/comparable range
+# 16. `allowed_values`
 
-Example:
+La contrainte doit vérifier l'appartenance exacte à un ensemble fini :
 
 ```python
 FieldContract(
-    name="population",
-    expected_type=int,
-    min_value=0,
+    "country_code",
+    allowed_values={"FR", "BE", "CH"},
 )
 ```
 
-Possible rules:
+Sémantique :
 
 ```text
-field.min_value
-field.max_value
+null + nullable=True      → pas d'échec allowed_values
+null + nullable=False     → erreur nullability
+value hors ensemble       → erreur field.allowed_values
 ```
-
-Comparison failures caused by incompatible values must become validation issues or be skipped after a type failure; they must not crash the validator.
 
 ---
 
-# 12. Length constraints
+# 17. `pattern`
 
-Example:
+La contrainte regex s'applique uniquement aux valeurs chaînes.
+
+Exemple :
 
 ```python
 FieldContract(
-    name="code",
+    "postal_code",
     expected_type=str,
-    min_length=2,
-    max_length=10,
+    pattern=r"^\d{5}$",
 )
 ```
 
-Rules:
-
-```text
-field.min_length
-field.max_length
-```
-
-For V0.3 these constraints should target string-like values rather than attempting to define universal collection semantics.
+Décision : `re.fullmatch` est préférable à un `search` implicite afin que le contrat soit non ambigu.
 
 ---
 
-# 13. DatasetContract V2
+# 18. `min_value` / `max_value`
 
-Proposed conceptual surface:
+Contraintes génériques sur des valeurs comparables :
 
 ```python
-DatasetContract(
-    fields=(...),
-
-    allow_extra_fields=True,
-
-    min_rows=None,
-    max_rows=None,
-
-    unique_fields=(),
-    composite_unique=(),
-    primary_key=(),
-
-    issue_limit=None,
-)
+FieldContract("age", min_value=0, max_value=130)
 ```
 
-Naming should remain concise and Pythonic. Exact constructor names are frozen during Alpha 1 implementation.
+Le moteur ne doit pas convertir une chaîne CSV `"42"` en entier pour satisfaire la contrainte.
+
+Si le type observé n'est pas compatible avec la comparaison, le résultat doit être un issue explicite et déterministe, pas une exception non contrôlée.
 
 ---
 
-# 14. Composite uniqueness
+# 19. `min_length` / `max_length`
 
-A common ingestion requirement is:
+Applicable aux valeurs pour lesquelles une longueur est définie de façon sûre, principalement chaînes et collections supportées.
+
+V0.3-a1 peut choisir de limiter explicitement le comportement aux chaînes pour éviter une sémantique trop large.
+
+---
+
+# 20. Required vs nullable
+
+Les concepts restent distincts :
 
 ```text
-(country_code, postal_code)
+required=False
+→ le champ peut être absent du schéma / de la ligne selon contrat
+
+nullable=True
+→ le champ présent peut contenir None
 ```
 
-must be unique as a pair.
+Le framework doit éviter de confondre :
 
-Example conceptual contract:
+```text
+missing field
+null value
+empty string
+```
+
+Ces trois états sont distincts.
+
+---
+
+# 21. Unicité simple
+
+Le comportement `unique=True` existant est conservé et renforcé avec des issues cohérents.
+
+L'identité des doublons doit être signalable par `row_index`.
+
+---
+
+# 22. Unicité composite
+
+Nouvelle contrainte dataset-level :
 
 ```python
 DatasetContract(
-    composite_unique=(
-        ("country_code", "postal_code"),
+    ...,
+    unique_together=(
+        ("country", "postal_code"),
+        ("source", "external_id"),
     ),
 )
 ```
 
-Rule:
-
-```text
-dataset.composite_unique
-```
-
-The error should reference:
-
-- row index;
-- involved field names;
-- first duplicate row where practical;
-- never the full row payload.
-
----
-
-# 15. Primary key semantics
-
-`primary_key` in PyIngestKit V0.3 means:
-
-```text
-logical dataset identity constraint
-```
-
-It does NOT mean:
-
-```text
-SQL PRIMARY KEY creation
-```
-
-A primary key requires:
-
-```text
-all fields present
-AND
-all values non-null
-AND
-composite values unique
-```
-
-This is validation semantics only.
-
----
-
-# 16. Issue limit
-
-A malformed public dataset could contain millions of violations.
-
-Returning millions of Python `ValidationIssue` objects is undesirable.
-
-The contract should support:
-
-```text
-issue_limit
-```
-
-Example:
+Ou API simplifiée :
 
 ```python
-DatasetContract(
-    issue_limit=1_000,
-)
+composite_unique=(("country", "postal_code"),)
 ```
 
-The validation result should record that output was truncated.
-
-Example conceptual result:
-
-```text
-is_valid            false
-error_count          >=1000
-issues_returned      1000
-issues_truncated     true
-```
-
-The implementation must define carefully whether counts are exact or bounded.
-
-For V0.3-a1, the recommended implementation is:
-
-```text
-stop collecting detailed issues after limit
-continue only if needed for deterministic aggregate counts
-```
-
-If exact aggregate counting creates excessive complexity, document the bounded semantics explicitly rather than hiding them.
+Le nom final doit être choisi une fois et gelé en Alpha 1.
 
 ---
 
-# 17. ValidationIssue V2
+# 23. Primary key / business key
 
-Existing V0.2 issue:
+La V0.3 introduit une notion de clé déclarative purement technique :
+
+```python
+primary_key=("country", "postal_code")
+```
+
+Sémantique minimale :
+
+- champs présents ;
+- valeurs non nulles ;
+- combinaison unique.
+
+Le terme `primary_key` est acceptable comme clé logique de dataset mais doit être documenté : ce n'est pas une contrainte de base de données ni un mécanisme de persistence SQL.
+
+Alternative plus neutre possible :
 
 ```text
-rule
+key_fields
+```
+
+Décision à prendre dans ADR-028.
+
+---
+
+# 24. ValidationIssue V2
+
+Le modèle doit rester compact mais devenir plus exploitable.
+
+Champs cibles :
+
+```text
+code
 message
 severity
 field
 row_index
+value_preview       # optionnel, redacted/tronqué
+constraint          # optionnel
+context             # mapping JSON-safe optionnel
 ```
 
-V0.3 may enrich this carefully:
-
-```text
-rule
-message
-severity
-field
-row_index
-value_preview
-constraint
-context
-```
-
-The important security boundary is:
-
-```text
-value_preview ≠ raw record dump
-```
-
-A validation issue must not become a secret leakage mechanism.
-
-Recommended preview policy:
-
-```text
-strings       → bounded length
-bytes         → never raw full bytes
-collections   → type + size / bounded representation
-secret fields → redacted when identifiable
-```
+Le framework ne doit jamais mettre une valeur potentiellement secrète ou énorme en clair dans `value_preview`.
 
 ---
 
-# 18. Severity model
+# 25. Codes d'issues stables
 
-Retain:
+Convention cible :
+
+```text
+dataset.required_field
+dataset.extra_field
+dataset.row_count.min
+dataset.row_count.max
+dataset.unique_together
+field.null
+field.type
+field.unique
+field.allowed_values
+field.pattern
+field.min_value
+field.max_value
+field.min_length
+field.max_length
+key.null
+key.duplicate
+```
+
+Ces codes sont plus importants pour les consommateurs machine que les messages humains.
+
+---
+
+# 26. Severity
+
+Les niveaux V0.2 restent :
 
 ```text
 ERROR
@@ -609,356 +757,366 @@ WARNING
 REVIEW
 ```
 
-Semantics:
+Une contrainte contractuelle standard produit `ERROR` par défaut.
 
-```text
-ERROR
-  → contract invalid
-  → Runner may fail producing step/run
-
-WARNING
-  → observable
-  → non-blocking
-
-REVIEW
-  → observable
-  → non-blocking
-```
-
-V0.3 does not need a configurable severity expression language.
+La V0.3 ne doit pas introduire une hiérarchie complexe de severity tant qu'un besoin concret ne l'exige pas.
 
 ---
 
-# 19. Validation remains pure
+# 27. Issue limit
 
-Core rule:
+Pour éviter un rapport de millions de lignes :
 
 ```python
-before = dataset
-result = contract.validate(dataset)
-after = dataset
-
-assert before == after
+DatasetContract(..., max_issues=1000)
 ```
 
-Conceptually:
+ou paramètre de validation :
+
+```python
+contract.validate(dataset, max_issues=1000)
+```
+
+Le design doit signaler explicitement si le résultat a été tronqué :
 
 ```text
-Dataset
-   │
-   ▼
-Contract
-   │
-   ├── ValidationResult
-   │
-   └── Dataset unchanged
+issues_truncated = true
 ```
 
 ---
 
-# 20. Dataset profiling
+# 28. Fail-fast vs collect-all
 
-V0.3 introduces lightweight profiling.
+Par défaut :
 
-Proposed API:
-
-```python
-profile = dataset.profile()
+```text
+collect-all jusqu'à max_issues
 ```
 
-or:
+Le fail-fast ne doit pas être la sémantique par défaut car il réduit la valeur diagnostique des rapports.
 
-```python
-profile = DatasetProfiler().profile(dataset)
-```
-
-The second form provides a cleaner separation of concerns and should be preferred internally even if a convenience method exists later.
+Une option future pourra exister, mais elle n'est pas prioritaire en V0.3-a1.
 
 ---
 
-# 21. DatasetProfile
+# 29. Validation ≠ coercion
 
-Conceptual model:
+Exemple :
 
-```python
-DatasetProfile(
-    row_count=1000,
-    column_count=8,
-    duplicate_count=3,
-    fields={...},
-)
+```text
+CSV value = "42"
+expected_type = int
 ```
 
-Field profile:
+Résultat :
 
-```python
-FieldProfile(
-    name="population",
-    null_count=3,
-    distinct_count=997,
-    observed_types=("int",),
-    min_value=12,
-    max_value=2_300_000,
-)
+```text
+field.type ERROR
+```
+
+et non :
+
+```text
+"42" → 42
+```
+
+La conversion appartient à une étape de normalisation explicite du job pack.
+
+---
+
+# 30. Validation ≠ normalisation métier
+
+Exemples hors scope :
+
+```text
+"FRANCE" → "FR"
+"75001 PARIS" → postal_code=75001
+SIREN checksum
+IBAN validation métier approfondie
+réconciliation avec référentiel INSEE
+mapping statut client
+```
+
+Ces règles sont des règles de job pack, même si elles sont réutilisées par plusieurs jobs du même domaine.
+
+---
+
+# 31. DatasetProfiler — responsabilité
+
+Le profiler doit répondre à :
+
+> **Quelles caractéristiques descriptives observons-nous dans ce Dataset ?**
+
+Il ne répond pas à :
+
+> **Que signifient ces valeurs métier ?**
+
+---
+
+# 32. DatasetProfile
+
+Modèle cible :
+
+```text
+DatasetProfile
+├── row_count
+├── field_count
+├── fields
+│   └── FieldProfile[]
+├── duplicate_row_count
+├── source_artifact_id
+├── generated_at
+└── duration_ms
 ```
 
 ---
 
-# 22. Required profile metrics
+# 33. FieldProfile
 
-Dataset-level:
-
-```text
-row_count
-column_count
-duplicate_count
-```
-
-Field-level:
+Modèle cible :
 
 ```text
-null_count
-non_null_count
-distinct_count
-observed_types
-```
-
-Where safe/applicable:
-
-```text
-min
-max
-min_length
-max_length
+FieldProfile
+├── name
+├── present_count
+├── null_count
+├── non_null_count
+├── distinct_count
+├── observed_types
+├── min_length
+├── max_length
+├── min_value        # si comparable et sûr
+├── max_value        # si comparable et sûr
+└── sample_values    # optionnel, limité/redacted
 ```
 
 ---
 
-# 23. Type profiling
+# 34. Observed types
 
-The profiler must remain modest.
-
-It may report:
+Le profiler doit décrire les types Python observés :
 
 ```text
 str
 int
 float
 bool
-NoneType
 datetime
-date
-list
-dict
+NoneType
+...
 ```
 
-It should NOT attempt semantic guessing such as:
+Il ne doit pas faire une inférence sémantique agressive comme :
 
 ```text
-email
-telephone
-SIRET
-postal code
-ISO country
-IBAN
+"2026-09-04" → date
+"00123"      → integer
 ```
 
-Those are semantic/domain concerns.
+notamment parce que le CSV V0.2 préserve volontairement les chaînes.
 
 ---
 
-# 24. Duplicate counting
+# 35. Distinct count
 
-A duplicate row means exact structural equality across dataset fields.
+Le comptage distinct doit être exact en V0.3 pour les Datasets matérialisés.
 
-Potential issue:
+Les algorithmes probabilistes type HyperLogLog sont hors scope.
+
+---
+
+# 36. Duplicate row count
+
+Le profiler peut compter les doublons de ligne complète lorsque les valeurs sont hashables / normalisables de façon sûre.
+
+Pour les structures imbriquées JSON non hashables, il faut soit :
+
+- utiliser une canonicalisation JSON déterministe ;
+- soit signaler la métrique indisponible.
+
+La simplicité et la déterminisme priment.
+
+---
+
+# 37. Min/max numériques
+
+Le profiler peut calculer min/max si toutes les valeurs non nulles d'un champ sont mutuellement comparables.
+
+Il ne doit pas lever une exception si un champ contient des types hétérogènes.
+
+---
+
+# 38. String length profile
+
+Pour les champs de chaînes :
+
+```text
+min_length
+max_length
+```
+
+Éventuellement `avg_length` peut être ajouté si le coût reste trivial.
+
+---
+
+# 39. Profiling et confidentialité
+
+Par défaut, aucun échantillon de valeurs n'est nécessaire.
+
+Si `sample_values` est retenu :
+
+- limite faible ;
+- troncature ;
+- pas de collecte de champs secrets identifiés ;
+- désactivable ;
+- jamais de contenu RAW volumineux.
+
+La V0.3-a2 peut préférer **ne pas inclure de sample values du tout** afin de garder la surface sûre.
+
+---
+
+# 40. Determinism du profiler
+
+Même input → même résultat métier, hors timestamps/duration.
+
+L'ordre des champs doit suivre `Dataset.fields`.
+
+Les types observés doivent avoir un ordre stable.
+
+---
+
+# 41. DatasetProfiler API
+
+Proposition :
 
 ```python
-{"metadata": {"a": 1}}
+profile = DatasetProfiler().profile(dataset)
 ```
 
-contains an unhashable dict.
-
-The profiler therefore needs a stable structural representation for duplicate detection.
-
-Example internal canonicalization:
-
-```text
-scalar → scalar
-list   → tuple(recursive)
-dict   → sorted tuple(key, canonical(value))
-```
-
-This helper should be private and deterministic.
-
----
-
-# 25. Profiling and memory
-
-Current Dataset materializes all rows.
-
-Therefore V0.3 profiling is allowed to be exact and materialized.
-
-However, API semantics should not make future streaming impossible.
-
-Avoid promises like:
+Alternative fonctionnelle :
 
 ```python
-profile.internal_dataframe
-profile.numpy_array
+profile_dataset(dataset)
 ```
 
-Prefer pure immutable values.
+Préférence V0.3 : objet `DatasetProfiler`, car il permet des options explicites sans gonfler `Dataset` lui-même.
 
 ---
 
-# 26. Profile immutability
+# 42. Pourquoi ne pas ajouter `dataset.profile()`
 
-Profile objects should be:
+Le `Dataset` doit rester un conteneur simple.
 
-```python
-@dataclass(frozen=True, slots=True)
-```
+Placer profiling, validation, conversion et export directement sur `Dataset` créerait progressivement un mini-dataframe.
 
-or equivalent immutable Pydantic/data structure where justified.
-
-They represent evidence, not mutable processing state.
-
----
-
-# 27. Profiling must be deterministic
-
-Given the same Dataset:
+Donc :
 
 ```text
-profile(dataset)
-```
-
-must produce the same logical result.
-
-Do not include unstable values such as:
-
-```text
-memory addresses
-random sample order
-process ID
-hash-randomized output
-```
-
-Timing metadata may be stored separately from logical profile content if required.
-
----
-
-# 28. Quality reports
-
-V0.3 should formalize run reports.
-
-Current workspace already contains:
-
-```text
-runs/<namespace>/<job>/<run-id>/reports/
-```
-
-V0.3 uses that explicitly.
-
----
-
-# 29. Validation report artifact
-
-Target:
-
-```text
-reports/validation.json
-```
-
-Example structure:
-
-```json
-{
-  "schema_version": 1,
-  "kind": "validation",
-  "contract_id": "postal_codes.v1",
-  "dataset": {
-    "rows": 35892,
-    "fields": 12
-  },
-  "status": "PASSED",
-  "summary": {
-    "errors": 0,
-    "warnings": 2,
-    "review": 0
-  },
-  "issues": []
-}
-```
-
-The exact schema must be stable and documented before stable V0.3.
-
----
-
-# 30. Profile report artifact
-
-Target:
-
-```text
-reports/profile.json
-```
-
-Example:
-
-```json
-{
-  "schema_version": 1,
-  "kind": "profile",
-  "dataset": {
-    "row_count": 35892,
-    "column_count": 12,
-    "duplicate_count": 0
-  },
-  "fields": {
-    "postal_code": {
-      "null_count": 0,
-      "distinct_count": 6329,
-      "observed_types": ["str"]
-    }
-  }
-}
+Dataset = données
+DatasetProfiler = comportement de profiling
+DatasetContract = comportement de validation
 ```
 
 ---
 
-# 31. Report ownership
+# 43. QualityReport — objectif
 
-Reports are produced by framework quality primitives.
+La V0.3 doit matérialiser un résultat qualité stable et portable.
 
-They must be linked to:
-
-```text
-run_id
-job_id
-step
-source artifact where available
-```
-
-This allows later correlation:
+Un report agrège :
 
 ```text
-RAW
- ↓
-Dataset
- ↓
-Validation/Profile
- ↓
-Report
+validation
+profiling
+identité du dataset
+provenance du RAW
+résumé exécution
 ```
+
+sans dupliquer inutilement toutes les données.
 
 ---
 
-# 32. Manifest integration
+# 44. QualityReport model
 
-`manifest.json` should not duplicate the complete report unnecessarily.
+Proposition :
 
-Prefer:
+```text
+QualityReport
+├── report_version
+├── run_id
+├── job_id
+├── dataset_ref
+├── source_artifact_id
+├── generated_at
+├── validation
+└── profile
+```
+
+`validation` ou `profile` peuvent être optionnels selon le job.
+
+---
+
+# 45. Artefact `quality.json`
+
+Chemin recommandé :
+
+```text
+.pyingest/
+└── runs/<namespace>/<job>/<run-id>/
+    └── reports/
+        ├── validation.json
+        ├── profile.json
+        └── quality.json       # agrégat facultatif / RC
+```
+
+La V0.3-a2 peut commencer par :
+
+```text
+validation.json
+profile.json
+```
+
+et n'ajouter `quality.json` que si l'agrégation apporte une valeur réelle.
+
+---
+
+# 46. JSON comme format canonique de report
+
+Le report machine-readable canonique est JSON.
+
+Pas de HTML obligatoire en V0.3.
+
+Pas de PDF.
+
+Pas de Markdown généré automatiquement comme format canonique.
+
+---
+
+# 47. Rendu terminal
+
+Rich peut afficher un résumé humain :
+
+```text
+Quality summary
+───────────────
+Rows              39,847
+Fields                 8
+Validation         PASSED
+Errors                  0
+Warnings                2
+Duplicate rows          0
+```
+
+Le rendu terminal est une vue, pas la source de vérité.
+
+---
+
+# 48. Manifest integration
+
+Le manifest doit référencer les artefacts qualité sans embarquer arbitrairement leur contenu complet si celui-ci devient volumineux.
+
+Approche recommandée :
 
 ```json
 {
@@ -975,1685 +1133,1321 @@ Prefer:
 }
 ```
 
-Manifest:
-
-```text
-index / summary
-```
-
-Report:
-
-```text
-detailed evidence
-```
+La structure exacte doit rester additive et backward-compatible.
 
 ---
 
-# 33. Metadata integration
+# 49. MetadataStore impact
 
-V0.2 already persists validation records.
+Objectif V0.3 : **éviter une migration SQL structurante si possible**.
 
-V0.3 should avoid duplicating an entire profile in relational metadata.
+Les validations structurées utilisent déjà `MetadataStore`.
 
-Recommended strategy:
+Le profiling peut rester :
 
 ```text
-MetadataStore
-    │
-    ├── validation summaries
-    │
-    └── report artifact references
+artifact report + manifest + event
 ```
 
-If the current metadata schema cannot store generic report references cleanly, use artifact metadata rather than adding specialized `profiles` tables prematurely.
+sans créer immédiatement des tables relationnelles `profiles` / `field_profiles`.
+
+La relationalisation pourra être reconsidérée si un vrai besoin de requêtage historique apparaît.
 
 ---
 
-# 34. Events
+# 50. Alembic guardrail
 
-Potential runtime events:
+La V0.3 ne doit pas introduire Alembic uniquement pour stocker des profils.
 
-```text
-VALIDATION_COMPLETED     existing
-PROFILE_COMPLETED        new
-QUALITY_REPORT_WRITTEN   new
-```
-
-Payloads should be summaries only.
-
-Example:
-
-```json
-{
-  "row_count": 12000,
-  "error_count": 0,
-  "report": "reports/validation.json"
-}
-```
-
-Do not place entire issue lists into event payloads.
+La règle ADR-021 reste : migration framework seulement lorsqu'un besoin de migration de schéma publié est démontré.
 
 ---
 
-# 35. NDJSON
+# 51. Runtime events V0.3
 
-NDJSON is the first new parser format because it is operationally common and introduces little dependency cost.
-
-Format:
+Événements additifs possibles :
 
 ```text
-{"id":1,"name":"A"}
-{"id":2,"name":"B"}
-{"id":3,"name":"C"}
+PROFILE_STARTED
+PROFILE_COMPLETED
+QUALITY_REPORT_WRITTEN
 ```
+
+Ne pas créer un événement par champ ou par règle : le volume serait inutilement élevé.
 
 ---
 
-# 36. NdjsonParser
+# 52. Metrics V0.3
 
-Proposed:
+Métriques candidates :
+
+```text
+dataset.row_count
+dataset.field_count
+validation.issue_count
+validation.error_count
+validation.warning_count
+profile.duplicate_row_count
+profile.duration_ms
+```
+
+Elles doivent rester petites, numériques, structurées et stables.
+
+---
+
+# 53. NDJSON Parser — responsabilité
+
+NDJSON / JSON Lines contient un document JSON par ligne :
+
+```text
+{"id": 1, "name": "A"}
+{"id": 2, "name": "B"}
+{"id": 3, "name": "C"}
+```
+
+`NdjsonParser` transforme ces objets en `Dataset` sans normalisation métier.
+
+---
+
+# 54. API NDJSON cible
 
 ```python
-NdjsonParser(
+parser = NdjsonParser(
     encoding="utf-8",
     skip_blank_lines=True,
 )
+
+dataset = parser.parse(raw_artifact)
 ```
-
-Behavior:
-
-```text
-RawArtifact
-    ↓
-decode text
-    ↓
-line iteration
-    ↓
-json.loads(line)
-    ↓
-object validation
-    ↓
-Dataset
-```
-
-Each non-empty line must decode to an object/mapping.
 
 ---
 
-# 37. NDJSON error model
+# 55. Sémantique NDJSON
 
-Malformed line:
-
-```text
-line 153 is invalid JSON
-```
-
-Should become:
+Chaque ligne non vide doit être :
 
 ```text
-ParseError
+JSON object
 ```
 
-with safe context:
-
-```text
-line_number=153
-```
-
-Avoid embedding the entire source line if it may contain sensitive data.
+Un tableau, scalar ou null top-level doit produire `ParseError` avec numéro de ligne.
 
 ---
 
-# 38. NDJSON type semantics
+# 56. Erreurs NDJSON
 
-As with JsonParser:
-
-```text
-JSON string  → str
-JSON number  → int/float
-JSON boolean → bool
-JSON null    → None
-JSON object  → dict
-JSON array   → list
-```
-
-No business coercion.
-
----
-
-# 39. NDJSON memory boundary
-
-Initial V0.3 implementation may materialize all rows because Dataset itself is materialized.
-
-However the parser implementation should preferably process lines incrementally before constructing the final Dataset rather than first building a second complete parsed JSON document.
-
-This reduces unnecessary intermediate memory usage and aligns with future streaming work.
-
----
-
-# 40. Excel
-
-Operational reference data frequently arrives as Excel workbooks.
-
-Supporting `.xlsx` provides high value.
-
-Preferred dependency:
+Exemple :
 
 ```text
-openpyxl
+Invalid NDJSON payload at line 42
 ```
 
-Reasons:
-
-- mature;
-- widely deployed;
-- designed for XLSX;
-- usable without Pandas;
-- supports read-only workbook mode.
+Le message ne doit pas reproduire une ligne potentiellement sensible en entier.
 
 ---
 
-# 41. Excel dependency policy
+# 57. NDJSON et mémoire
 
-Excel support should be an optional dependency.
+V0.3-b1 peut parser ligne par ligne mais matérialise finalement un `Dataset`.
 
-Recommended:
-
-```toml
-[project.optional-dependencies]
-excel = ["openpyxl>=3.1,<4"]
-```
-
-Core install:
-
-```bash
-pip install pyingestkit
-```
-
-Excel install:
-
-```bash
-pip install "pyingestkit[excel]"
-```
-
-Do not impose OpenPyXL on consumers who never ingest spreadsheets.
+Cette structure prépare le futur streaming sans le promettre.
 
 ---
 
-# 42. ExcelParser
+# 58. Excel Parser — responsabilité
 
-Conceptual surface:
+`ExcelParser` lit un workbook XLSX et extrait une feuille tabulaire en `Dataset`.
+
+Il ne doit pas essayer de reproduire Excel comme application.
+
+---
+
+# 59. Formats Excel supportés
+
+V0.3 vise :
+
+```text
+.xlsx
+```
+
+Pas :
+
+```text
+.xls legacy
+.xlsb
+.ods
+macro execution
+Power Query
+formulas recalculation engine
+```
+
+---
+
+# 60. API Excel cible
 
 ```python
-ExcelParser(
-    sheet_name=0,
+parser = ExcelParser(
+    sheet="Communes",
     header_row=1,
-    data_only=True,
-    read_only=True,
+    skip_empty_rows=True,
 )
-```
-
-Potential features:
-
-```text
-sheet selection
-header row selection
-empty-row handling
-formula result mode
-read-only workbook loading
-```
-
----
-
-# 43. Excel structural semantics
-
-The parser may:
-
-- choose a worksheet;
-- read a header row;
-- map cells to fields;
-- preserve cell values returned by OpenPyXL;
-- reject duplicate/empty ambiguous headers according to documented rules.
-
-It should not:
-
-- normalize column labels to business names;
-- trim all strings automatically;
-- map codes;
-- evaluate business formulas;
-- enrich rows;
-- reinterpret identifiers.
-
----
-
-# 44. Excel formulas
-
-Default recommendation:
-
-```text
-data_only=True
-```
-
-This reads cached formula results where available.
-
-PyIngestKit should NOT become an Excel formula calculation engine.
-
-Document clearly that stale/missing cached values are an input artifact limitation.
-
----
-
-# 45. Excel date handling
-
-OpenPyXL may return Python date/datetime values.
-
-Preserve them.
-
-Do not automatically convert:
-
-```text
-datetime → ISO string
-```
-
-inside the parser.
-
-Serialization into reports/manifests may use ISO formatting at the serialization boundary.
-
----
-
-# 46. Excel workbook security
-
-Spreadsheet ingestion can expose large or malformed workbook risks.
-
-Use:
-
-```text
-read_only=True
-```
-
-by default where practical.
-
-Do not load macros or execute workbook content.
-
-Only XLSX is targeted initially.
-
-`.xls` legacy binary format is not a V0.3 requirement.
-
----
-
-# 47. Parquet
-
-Parquet is important for data-engineering usage and efficient interchange.
-
-Preferred backend:
-
-```text
-PyArrow
-```
-
-But it must remain optional.
-
----
-
-# 48. Parquet dependency policy
-
-Recommended:
-
-```toml
-parquet = ["pyarrow>=16,<24"]
-```
-
-Installation:
-
-```bash
-pip install "pyingestkit[parquet]"
-```
-
-The upper bound should be reviewed based on supported Python versions and actual API compatibility during implementation.
-
----
-
-# 49. Why PyArrow
-
-Advantages:
-
-- mature Parquet implementation;
-- native Arrow schema;
-- good performance;
-- widespread ecosystem adoption;
-- no Pandas requirement;
-- well-supported Python wheels.
-
-PyArrow is infrastructure, not the framework Dataset API.
-
----
-
-# 50. ParquetParser boundary
-
-Conceptual:
-
-```python
-ParquetParser().parse(raw_artifact)
-```
-
-Internal path:
-
-```text
-RawArtifact
-    ↓
-PyArrow Parquet reader
-    ↓
-Arrow Table
-    ↓
-row mappings
-    ↓
-Dataset
-```
-
-The Arrow Table is an implementation detail.
-
----
-
-# 51. Avoid leaking Arrow types
-
-Core public API should not require:
-
-```python
-pyarrow.Table
-```
-
-for ordinary Dataset operations.
-
-Otherwise users without the Parquet extra would inherit Arrow coupling throughout the framework API.
-
----
-
-# 52. Parquet and large datasets
-
-This is the main architectural warning for V0.3.
-
-Converting a multi-GB Parquet file into:
-
-```python
-list[dict]
-```
-
-is not scalable.
-
-The first implementation therefore needs explicit scope documentation.
-
-Options:
-
-```text
-A. impose/document a materialization boundary for V0.3
-B. prematurely build full streaming Dataset
-```
-
-Recommendation:
-
-```text
-choose A
-```
-
-and prepare architecture for B later.
-
----
-
-# 53. Materialized Dataset boundary
-
-V0.3 documentation should state:
-
-```text
-Dataset is intended for bounded structured ingestion workloads.
-```
-
-Do not claim arbitrarily large dataset support.
-
-Job packs handling very large Parquet assets may:
-
-```text
-RawArtifact
-    ↓
-custom Arrow/Polars/DuckDB path
-```
-
-without forcing that engine into the framework core.
-
----
-
-# 54. Future Dataset evolution
-
-Potential future abstractions:
-
-```text
-Dataset
-BufferedDataset
-StreamingDataset
-```
-
-or capability protocols:
-
-```python
-class DatasetLike(Protocol): ...
-```
-
-Do NOT implement them only because they may be useful later.
-
-V0.3 simply avoids making them impossible.
-
----
-
-# 55. Profiling future streaming compatibility
-
-Avoid profiler code that requires random row access.
-
-Prefer algorithms expressible as:
-
-```text
-for row in dataset:
-    update counters
-```
-
-This allows later reuse against a streamed row source.
-
----
-
-# 56. Validation future streaming compatibility
-
-Many field validations can also operate row by row.
-
-However:
-
-```text
-uniqueness
-distinct count
-duplicate detection
-```
-
-require state.
-
-V0.3 may use exact in-memory sets.
-
-Future large-scale variants may expose approximate/external state explicitly.
-
----
-
-# 57. Public API organization
-
-Recommended package layout:
-
-```text
-src/pyingestkit/
-│
-├── dataset.py
-│
-├── parsers/
-│   ├── base.py
-│   ├── csv.py
-│   ├── json.py
-│   ├── ndjson.py
-│   ├── excel.py
-│   └── parquet.py
-│
-├── contracts/
-│   └── dataset.py
-│
-├── profiling/
-│   ├── __init__.py
-│   ├── models.py
-│   └── profiler.py
-│
-├── validation/
-│   ├── result.py
-│   └── report.py
-│
-└── quality/
-    ├── __init__.py
-    └── report.py
-```
-
----
-
-# 58. `profiling` vs `quality`
-
-Recommended separation:
-
-```text
-profiling/
-    computation + profile models
-
-quality/
-    report aggregation / serialization
-```
-
-Do not create dozens of tiny modules prematurely.
-
----
-
-# 59. Dependency import policy
-
-Optional-format modules should fail clearly when used without their extras.
-
-Example:
-
-```python
-try:
-    import openpyxl
-except ImportError as exc:
-    raise OptionalDependencyError(
-        "Excel support requires pyingestkit[excel]"
-    ) from exc
-```
-
-But avoid importing optional dependencies eagerly from top-level package import paths if that makes:
-
-```python
-import pyingestkit
-```
-
-fail without extras.
-
----
-
-# 60. Optional dependency exception
-
-A dedicated error may be useful:
-
-```text
-OptionalDependencyError
-```
-
-or the existing configuration/dependency error hierarchy may be reused.
-
-Prefer reuse if semantics are already adequate.
-
-Do not add exception classes simply for naming aesthetics.
-
----
-
-# 61. Parser registry question
-
-V0.3 should NOT add a magic parser registry unless there is a concrete requirement.
-
-Explicit code remains preferable:
-
-```python
-CsvParser()
-JsonParser()
-NdjsonParser()
-ExcelParser()
-ParquetParser()
-```
-
-A registry can be added later if configuration-driven parser construction demands it.
-
----
-
-# 62. Declarative configuration question
-
-V0.3 parser additions do not require immediately extending YAML into:
-
-```yaml
-parser:
-  type: parquet
-  options: ...
-```
-
-The framework already permits job-pack Python definitions.
-
-Configuration DSL expansion should happen only when a stable cross-format schema is evident.
-
----
-
-# 63. Contract identity
-
-Quality reports benefit from identifying the contract used.
-
-Possible V0.3 addition:
-
-```python
-DatasetContract(
-    id="postal_codes.v1",
-    ...
-)
-```
-
-However this changes the core constructor surface.
-
-Recommendation for A1:
-
-- consider optional `id: str | None`;
-- add only if report design clearly requires it;
-- otherwise let the job/report layer supply the contract identifier.
-
-Do not make identity mandatory.
-
----
-
-# 64. Report schema version
-
-Every machine-readable quality report should contain:
-
-```text
-schema_version
-```
-
-Starting with:
-
-```text
-1
-```
-
-This is distinct from:
-
-```text
-PyIngestKit package version
-```
-
-because report schemas may evolve on a different compatibility cycle.
-
----
-
-# 65. JSON serialization
-
-Quality report models should expose ordinary JSON-compatible dictionaries.
-
-Date/datetime values should serialize consistently to ISO-8601.
-
-Unknown application objects must not be silently converted to unreliable `repr()` payloads in long-term evidence.
-
-Where unsupported values appear, prefer bounded/type-aware representations.
-
----
-
-# 66. Sensitive data in profiles
-
-Profiles must not expose raw unique values by default.
-
-Allowed:
-
-```text
-null_count
-distinct_count
-min numeric value
-max numeric value
-min/max length
-observed types
-```
-
-Avoid by default:
-
-```text
-sample email addresses
-sample names
-first 100 distinct values
-```
-
-That makes profiling safer for operational datasets.
-
----
-
-# 67. Sensitive data in validation
-
-`allowed_values` error messages should avoid dumping a gigantic allowed list.
-
-Prefer:
-
-```text
-Field 'status' contains a value outside the declared allowed set
-```
-
-rather than:
-
-```text
-value X not in [thousands of values...]
-```
-
-Likewise previews are bounded and redact known secret fields.
-
----
-
-# 68. Regex safety
-
-User-supplied regex can exhibit pathological behavior.
-
-V0.3 will not build a regex sandbox.
-
-Mitigations:
-
-- compile once during contract initialization;
-- document that patterns are trusted job configuration/code;
-- do not accept arbitrary untrusted remote regex configuration by default.
-
----
-
-# 69. Excel resource limits
-
-Potential malformed input risks:
-
-```text
-huge sheets
-huge shared strings
-many empty styled rows
-```
-
-V0.3 may expose conservative parser options such as:
-
-```text
-max_rows
-max_columns
-```
-
-only if implementation/testing shows clear need.
-
-Avoid speculative knobs without enforcement.
-
----
-
-# 70. Parquet resource limits
-
-PyArrow can materialize substantial memory.
-
-Useful future/parser options:
-
-```text
-columns
-row_limit
-```
-
-For V0.3 Beta 2, start with a minimal parser and document bounded-dataset expectations.
-
-Do not pretend a Python list-of-mappings result is appropriate for unlimited files.
-
----
-
-# 71. NDJSON resource limits
-
-Since Dataset materializes rows, full line streaming does not eliminate final memory cost.
-
-Still, incremental parsing avoids a redundant whole-document JSON representation.
-
-This makes NDJSON the best format for validating future streaming-friendly algorithm structure.
-
----
-
-# 72. Testing strategy
-
-Retain three layers:
-
-```text
-unit
-contract
-integration
-```
-
-All ordinary tests remain offline.
-
----
-
-# 73. Contract V2 tests
-
-Required examples:
-
-```text
-allowed_values pass/fail
-regex pass/fail
-min/max numeric
-min/max length
-composite uniqueness
-primary key null
-primary key duplicate
-issue_limit
-no mutation
-backward-compatible V0.2 constructor
-```
-
----
-
-# 74. Profiling tests
-
-Required:
-
-```text
-empty dataset
-single row
-null counts
-mixed runtime types
-distinct counts
-duplicate rows
-nested unhashable values
-numeric min/max
-string min/max length
-deterministic output
-no value samples leaked
-```
-
----
-
-# 75. NDJSON tests
-
-Required:
-
-```text
-valid rows
-blank lines
-invalid JSON
-scalar line rejection
-array line rejection
-native types
-line number in safe error context
-source_artifact_id retained
-```
-
----
-
-# 76. Excel tests
-
-Use locally generated workbooks.
-
-Tests must NOT rely on downloading fixtures.
-
-Required:
-
-```text
-single sheet
-sheet selection
-headers
-empty cells
-boolean
-integer
-float
-date/datetime
-duplicate header rejection
-missing sheet
-formula/cache behavior where practical
-optional dependency boundary
-```
-
----
-
-# 77. Parquet tests
-
-Generate Parquet fixtures at test time using PyArrow when the extra is available.
-
-Required:
-
-```text
-basic table
-nulls
-native primitive types
-column order
-source_artifact_id
-optional dependency boundary
-```
-
-Tests requiring PyArrow belong to the optional-dependency CI path.
-
----
-
-# 78. CI optional dependency strategy
-
-Main test matrix may install:
-
-```text
-.[dev]
-```
-
-with dev including the supported optional format dependencies during repository verification.
-
-Consumer package smoke tests should also verify:
-
-```text
-core install without Excel/Parquet
-excel extra
-parquet extra
-```
-
-This catches accidental eager imports.
-
----
-
-# 79. Wheel smoke expansion
-
-V0.2 wheel smoke executes:
-
-```text
-local file
-HTTP CSV
-HTTP JSON
-```
-
-V0.3 stable should add reference jobs for new format/quality surfaces.
-
-Possible final set:
-
-```text
-demo.local_file
-demo.http_csv
-demo.http_json
-demo.ndjson_quality
-demo.excel_quality
-demo.parquet_quality
-```
-
-Not all need to ship in Alpha 1.
-
----
-
-# 80. Reference quality job
-
-A useful V0.3 reference slice:
-
-```text
-fixture NDJSON
-    ↓
-RawArtifact
-    ↓
-NdjsonParser
-    ↓
-Dataset
-    ↓
-DatasetContract V2
-    ↓
-DatasetProfiler
-    ↓
-validation.json
-profile.json
-    ↓
-manifest
-```
-
-This provides an E2E proof without requiring external network access.
-
----
-
-# 81. Excel reference job
-
-Use a generated deterministic workbook rather than committing a binary fixture if possible.
-
-That proves:
 
-```text
-OpenPyXL optional dependency
-        ↓
-workbook
-        ↓
-RawArtifact
-        ↓
-ExcelParser
-        ↓
-Dataset
-```
-
-Tests should generate bytes in memory or in a temporary path.
-
----
-
-# 82. Parquet reference job
-
-Likewise create a tiny deterministic Parquet payload using PyArrow in the test/demo fixture layer.
-
-The framework itself should remain unaware that the bytes were generated by a fixture.
-
----
-
-# 83. Logging
-
-New quality operations should use existing stdlib logging infrastructure.
-
-Example useful fields:
-
-```text
-run_id
-job_id
-step
-rows
-fields
-errors
-warnings
-report_path
-```
-
-Do not log complete rows or profile samples.
-
----
-
-# 84. Metrics posture
-
-V0.3 may make metrics structurally available through events/report values but should not add Prometheus/OpenTelemetry dependencies.
-
-Examples:
-
-```text
-rows_profiled
-validation_errors
-validation_warnings
-duplicate_rows
-```
-
-External adapters can map these later.
-
----
-
-# 85. Performance targets
-
-V0.3 should have simple regression-oriented targets, not marketing benchmarks.
-
-Examples:
-
-- contract validation should remain linear in row count for ordinary field constraints;
-- profiling should use one primary scan where practical;
-- regex should be compiled once;
-- Excel uses read-only mode;
-- NDJSON does not parse an unnecessary enclosing document;
-- Parquet delegates decoding to PyArrow.
-
----
-
-# 86. Complexity targets
-
-Avoid turning `DatasetContract.validate()` into one giant 500-line function.
-
-Recommended internal decomposition:
-
-```text
-_validate_row_count
-_validate_schema
-_validate_field
-_validate_allowed_values
-_validate_pattern
-_validate_range
-_validate_length
-_validate_uniqueness
-_validate_composite_uniqueness
-_validate_primary_key
-```
-
-But helpers should reflect real concerns rather than each being a two-line abstraction.
-
----
-
-# 87. Error hierarchy
-
-Continue using framework exceptions:
-
-```text
-PyIngestKitError
-ConfigurationError
-ValidationError
-ParseError
-```
-
-Parser input failures → `ParseError`.
-
-Missing optional dependency → configuration/dependency error.
-
-Validation violations → `ValidationResult`, not parser exceptions.
-
----
-
-# 88. Parser failure contract
-
-Examples:
-
-```text
-invalid NDJSON syntax → ParseError
-missing Excel sheet → ParseError or configuration error based on constructor semantics
-malformed XLSX → ParseError
-invalid Parquet → ParseError
-```
-
-Do not leak backend-specific exception classes as the stable framework contract.
-
-The original exception should remain available through exception chaining.
-
----
-
-# 89. Backend exception chaining
-
-Example:
-
-```python
-try:
-    ...
-except SomeOpenpyxlError as exc:
-    raise ParseError("Unable to parse Excel workbook") from exc
-```
-
-Same for PyArrow.
-
-This preserves diagnostic depth without exposing backend internals as API semantics.
-
----
-
-# 90. Dataset field ordering
-
-All new parsers must preserve stable field order.
-
-NDJSON:
-
-```text
-first record keys + subsequently discovered keys
-```
-
-or the existing Dataset inference rule.
-
-Excel:
-
-```text
-header order
-```
-
-Parquet:
-
-```text
-schema column order
-```
-
-Do not sort fields alphabetically unless the existing Dataset contract already requires it.
-
----
-
-# 91. Sparse NDJSON records
-
-Example:
-
-```json
-{"id": 1, "name": "A"}
-{"id": 2, "country": "FR"}
-```
-
-Dataset may contain a union schema while rows remain sparse, matching current JSON parser semantics.
-
-Do not inject explicit `None` merely to rectangularize rows unless Dataset already specifies that behavior.
-
----
-
-# 92. Excel empty rows
-
-Recommended default:
-
-```text
-skip completely empty rows
-```
-
-because spreadsheet used ranges often contain empty trailing rows.
-
-But a row containing:
-
-```text
-"", None, None
-```
-
-needs a documented definition of empty.
-
-Prefer:
-
-```text
-all cells are None
-```
-
-rather than stripping strings.
-
----
-
-# 93. Excel headers
-
-Header cells should be required to produce unambiguous field names.
-
-Recommended initial behavior:
-
-```text
-None header      → ParseError
-empty string     → accepted only if explicitly decided; recommended reject
-duplicate header → ParseError
-```
-
-Do not invent names like:
-
-```text
-Unnamed: 3
-```
-
-That is a dataframe convenience, not structural fidelity.
-
----
-
-# 94. Parquet nested types
-
-PyArrow may return nested Python structures.
-
-V0.3 can preserve:
-
-```text
-list
-struct → dict
-```
-
-where `to_pylist()` naturally provides them.
-
-Do not flatten nested data automatically.
-
-Dataset contracts can validate top-level fields first.
-
----
-
-# 95. Parquet decimal types
-
-PyArrow may return `decimal.Decimal`.
-
-Preserve it.
-
-Do not cast to float automatically.
-
-This avoids precision loss.
-
----
-
-# 96. Parquet timestamps
-
-Preserve Python datetime representations returned by Arrow conversion.
-
-Timezone semantics should not be silently discarded.
-
----
-
-# 97. Quality report writer
-
-Potential API:
-
-```python
-QualityReportWriter.write(
-    validation=result,
-    profile=profile,
-    context=context,
-)
-```
-
-But avoid a class if simple serialization functions plus ArtifactStore are sufficient.
-
-The important abstraction is the **report schema**, not object-oriented ceremony.
-
----
-
-# 98. ArtifactStore integration
-
-Reuse:
-
-```python
-artifact_store.write_json(...)
-```
-
-This already provides the right serialization/publication boundary.
-
-Do not bypass ArtifactStore with direct `Path.write_text()` from Runner.
-
----
-
-# 99. Atomic report writes
-
-Because ArtifactStore JSON writes are atomic, quality reports inherit crash-safe replacement semantics.
-
-That is desirable because a half-written `validation.json` is misleading operational evidence.
-
----
-
-# 100. Report filename policy
-
-Initial filenames:
-
-```text
-reports/validation.json
-reports/profile.json
-```
-
-Question: multiple validation steps may exist.
-
-Possible policy:
-
-```text
-reports/<step>/validation.json
-```
-
-or:
-
-```text
-reports/validation-<step>.json
-```
-
-V0.3-a2 must resolve this before stable release.
-
-Recommended general structure:
-
-```text
-reports/<step>/validation.json
-reports/<step>/profile.json
-```
-
-if multiple quality-producing steps become common.
-
-For initial reference jobs with a single structured Dataset validation step, flat paths are acceptable only if overwrite behavior is explicitly prevented.
-
----
-
-# 101. Multiple ValidationResults
-
-Runner already extracts nested `ValidationResult` objects.
-
-Quality report generation must define:
-
-```text
-one report per result
-```
-
-versus:
-
-```text
-one aggregated run report
-```
-
-Recommended V0.3:
-
-```text
-one report document may contain multiple validation result entries
-```
-
-or use per-step reports.
-
-Do not silently overwrite.
-
----
-
-# 102. Profiling invocation ownership
-
-Should Runner automatically profile every Dataset?
-
-Recommendation:
-
-```text
-NO
-```
-
-Profiling may cost memory/time and should be explicit in jobs or configuration.
-
-Runner should observe/persist `DatasetProfile` when produced, analogous to `ValidationResult`.
-
-This preserves composability.
-
----
-
-# 103. DatasetProfile runtime observation
-
-Parallel to validation:
-
-```text
-Step output
-   ↓
-DatasetProfile discovered
-   ↓
-manifest report reference
-   ↓
-profile.json
-   ↓
-PROFILE_COMPLETED
+dataset = parser.parse(raw_artifact)
 ```
-
-A profile never fails the run by itself.
-
-Profiler exceptions fail the producing step as ordinary execution errors.
-
----
-
-# 104. QualityReport aggregation
 
-A convenient immutable model may combine:
+Sélection possible :
 
 ```text
-validation
-profile
-```
-
-Example:
-
-```python
-QualityReport(
-    validation=validation_result,
-    profile=dataset_profile,
-)
-```
-
-This should remain optional; Runner can observe the individual types if simpler.
-
----
-
-# 105. Contract versioning
-
-Do not invent a remote contract registry in V0.3.
-
-Jobs can version contracts in code:
-
-```python
-POSTAL_CODE_CONTRACT_V1 = DatasetContract(...)
+sheet name
+ou sheet index
 ```
-
-or attach a simple identifier to report metadata.
 
-Central contract discovery can be revisited after real usage.
+mais pas les deux simultanément.
 
 ---
 
-# 106. Reproducibility
+# 61. Excel header semantics
 
-Quality evidence should be reproducible from:
+Le header doit être explicite :
 
 ```text
-same RawArtifact
-+
-same Parser configuration
-+
-same normalization code
-+
-same contract
-+
-same PyIngestKit version
+header_row=1
 ```
 
-This becomes especially important before V0.4 replay/versioning.
+V0.3 n'essaie pas de détecter automatiquement une ligne de header dans un classeur arbitraire.
 
 ---
-
-# 107. Provenance linkage
-
-Profile/validation reports should retain:
-
-```text
-source_artifact_id
-```
 
-when the Dataset has one.
+# 62. Excel duplicate headers
 
-This creates a strong chain:
+Les headers dupliqués doivent produire `ParseError` plutôt qu'un renommage silencieux :
 
 ```text
-source URL
-  ↓
-RawArtifact sha256
-  ↓
-Dataset
-  ↓
-Quality evidence
+name, name
 ```
-
----
-
-# 108. Diff/replay preparation
 
-V0.3 should not implement V0.4 diff/replay, but its reports should not obstruct it.
+ne devient pas :
 
-In particular:
-
 ```text
-report values deterministic
-report schema versioned
-source artifact linked
-parser configuration reconstructable by job code/config
+name, name_2
 ```
-
-These enable later replay comparisons.
 
 ---
 
-# 109. Serialization schema discipline
+# 63. Excel cell types
 
-Avoid storing Python implementation details such as:
-
-```text
-<class 'str'>
-```
+Contrairement au CSV, Excel possède des types de cellule.
 
-Prefer stable labels:
+Le parser doit préserver les valeurs Python fournies de façon sûre par `openpyxl` :
 
 ```text
 str
 int
 float
 bool
+datetime/date
+None
+```
+
+Pas de normalisation métier supplémentaire.
+
+---
+
+# 64. Excel formulas
+
+Décision recommandée V0.3 :
+
+```text
+data_only=True
+```
+
+pour lire les valeurs calculées/cachées lorsque présentes, sans exécuter de moteur de formule.
+
+Le comportement doit être documenté clairement.
+
+---
+
+# 65. Excel merged cells
+
+Les merged cells et mises en page complexes sont hors du cas tabulaire simple.
+
+Le parser ne doit pas inventer une logique de propagation métier.
+
+---
+
+# 66. Excel workbook security
+
+Le framework ne doit exécuter :
+
+- aucune macro ;
+- aucun code embarqué ;
+- aucun lien externe ;
+- aucune formule active.
+
+---
+
+# 67. Excel optional dependency error
+
+Si `openpyxl` n'est pas installé :
+
+```text
+ConfigurationError / ParseError dédié
+```
+
+avec message utile :
+
+```text
+Excel support requires the 'excel' extra: pip install 'pyingestkit[excel]'
+```
+
+Pas d'`ImportError` brut exposé à l'utilisateur.
+
+---
+
+# 68. Parquet Parser — responsabilité
+
+Le parser Parquet lit un fichier colonne et le convertit vers le contrat `Dataset` du framework.
+
+Il ne transforme pas `Dataset` en façade Arrow.
+
+---
+
+# 69. Parquet dependency boundary
+
+`pyarrow` est utilisé comme moteur technique du parser uniquement.
+
+```text
+RawArtifact
+   ↓
+PyArrow adapter (internal)
+   ↓
+Dataset
+```
+
+Pas :
+
+```text
+Dataset == pyarrow.Table
+```
+
+---
+
+# 70. API Parquet cible
+
+```python
+parser = ParquetParser(
+    columns=None,
+)
+
+dataset = parser.parse(raw_artifact)
+```
+
+Projection optionnelle de colonnes peut être acceptée car elle appartient au format et peut réduire fortement la mémoire.
+
+---
+
+# 71. Parquet row groups
+
+La V0.3-b2 peut utiliser les primitives PyArrow de lecture optimisée, mais le résultat final reste matérialisé.
+
+Le streaming row-group généralisé est différé.
+
+---
+
+# 72. Parquet nested structures
+
+Les colonnes imbriquées doivent être traitées prudemment.
+
+V0.3 peut :
+
+- préserver listes/dicts Python lorsqu'ils sont convertibles ;
+- documenter les limites ;
+- refuser certaines structures complexes avec `ParseError` clair.
+
+Pas de flattening automatique.
+
+---
+
+# 73. Parquet timestamps / decimals
+
+Les types riches doivent être convertis vers des objets Python stables quand possible :
+
+```text
 datetime
+Decimal
+bytes
+list
+dict
 ```
 
-Likewise use explicit JSON keys rather than serializing dataclass internals blindly.
+Le profiler doit tolérer ces types même s'il ne sait pas calculer toutes les métriques dessus.
 
 ---
 
-# 110. Schema stability hierarchy
+# 74. Parquet optional dependency error
 
-V0.3 has three layers of compatibility:
+Message explicite :
 
 ```text
-1. Python public API
-2. manifest/report JSON schema
-3. internal implementation
+Parquet support requires the 'parquet' extra: pip install 'pyingestkit[parquet]'
 ```
 
-Internal implementation may evolve freely.
-
-Public API/report schemas require compatibility discipline.
-
 ---
 
-# 111. Report schema fixtures
+# 75. Parser ≠ normalizer — rappel multi-format
 
-Add golden-ish structural tests for report JSON keys.
-
-Do not compare timestamps/durations byte-for-byte.
-
-Compare stable structure and values.
-
----
-
-# 112. No arbitrary pickles
-
-Never persist Dataset/Profile/ValidationResult using pickle.
-
-Reasons:
+Exemples interdits dans les parsers :
 
 ```text
-security
-portability
-version coupling
-language coupling
+trim automatique
+uppercase
+mapping de codes
+renommage métier
+conversion "001" → 1
+remplacement vide → None selon métier
+correction d'encodage heuristique agressive
+jointure avec référentiel
 ```
 
-Use JSON-compatible explicit schemas for evidence.
+---
+
+# 76. Parser configuration
+
+Les options parser doivent être techniques et déterministes :
+
+```text
+encoding
+delimiter
+sheet
+header_row
+records_path
+columns
+skip_blank_lines
+```
+
+Pas :
+
+```text
+map_country_codes
+normalize_company_name
+fix_siren
+```
 
 ---
 
-# 113. Excel and XML confusion
+# 77. Format detection
 
-V0.3 Excel support is XLSX only.
+V0.3 ne doit pas introduire un auto-détecteur universel de format.
 
-Although XLSX internally contains XML, this does not mean PyIngestKit has a general XML parser.
+Le job sait généralement ce qu'il ingère.
 
-General XML remains later work if justified.
+L'extension ou le content-type peuvent être utilisés comme aide, pas comme magie implicite.
 
 ---
 
-# 114. NDJSON naming
+# 78. MIME types
 
-Use:
+MIME utiles :
+
+```text
+application/json
+application/x-ndjson
+text/csv
+application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+application/vnd.apache.parquet
+```
+
+Mais la sélection du parser reste explicite dans le job.
+
+---
+
+# 79. Quality report writer
+
+Responsabilité :
+
+```text
+model Python
+   ↓
+JSON-safe normalization
+   ↓
+ArtifactStore.write_json(... reports/...)
+```
+
+Le writer ne doit pas modifier validation/profile.
+
+---
+
+# 80. JSON-safe serialization
+
+Doit supporter proprement :
+
+```text
+datetime → ISO-8601
+Decimal  → string ou convention documentée
+set      → sorted list si utilisé
+Enum     → value
+```
+
+La représentation doit être stable.
+
+---
+
+# 81. Report schema version
+
+Ajouter :
+
+```json
+"report_version": "1"
+```
+
+afin de permettre l'évolution future sans ambiguïté.
+
+---
+
+# 82. Quality status global
+
+Une synthèse simple :
+
+```text
+PASSED
+FAILED
+REVIEW
+```
+
+peut être dérivée de `ValidationResult`.
+
+Le profiling seul ne doit pas produire artificiellement un statut de conformité.
+
+---
+
+# 83. CLI impact
+
+La V0.3 doit minimiser les nouveaux sous-commandes.
+
+Priorité : enrichir :
+
+```text
+pyingest status <run>
+```
+
+avec :
+
+```text
+validation summary
+quality report paths
+profile summary si présent
+```
+
+---
+
+# 84. CLI JSON impact
+
+`status --json` doit continuer à être stable et non décoré.
+
+Les nouveaux champs doivent être additifs.
+
+---
+
+# 85. Pas de CLI `profile file.xlsx` générique en V0.3
+
+Une telle commande contournerait le lifecycle job/run/provenance et créerait une seconde surface d'exécution.
+
+Le profiling doit d'abord rester une étape de pipeline.
+
+---
+
+# 86. Jobs de référence V0.3
+
+Jobs proposés :
+
+```text
+demo.ndjson_quality
+demo.excel_quality
+demo.parquet_quality
+```
+
+Le RC peut garder les trois jobs V0.2 et ajouter ces trois jobs.
+
+---
+
+# 87. `demo.ndjson_quality`
+
+Vertical slice :
+
+```text
+fixture RAW NDJSON
+      ↓
+NdjsonParser
+      ↓
+Dataset
+      ↓
+DatasetContract V2
+      ↓
+DatasetProfiler
+      ↓
+reports/validation.json
+reports/profile.json
+```
+
+---
+
+# 88. `demo.excel_quality`
+
+Vertical slice :
+
+```text
+fixture XLSX
+      ↓
+ExcelParser
+      ↓
+Dataset
+      ↓
+Contract
+      ↓
+Profile
+      ↓
+Quality reports
+```
+
+Le test doit fonctionner sans réseau.
+
+---
+
+# 89. `demo.parquet_quality`
+
+Vertical slice :
+
+```text
+fixture Parquet
+      ↓
+ParquetParser
+      ↓
+Dataset
+      ↓
+Contract
+      ↓
+Profile
+      ↓
+Quality reports
+```
+
+Le test est conditionné à l'extra `parquet` dans les gates qui l'installent.
+
+---
+
+# 90. Demo plugin versioning
+
+Le demo pack doit évoluer en parallèle :
+
+```text
+pyingestkit-demo-jobs 0.3.0
+```
+
+pour la release stable V0.3.0.
+
+Les versions alpha/beta du pack peuvent suivre le framework si cela simplifie les wheel smoke tests.
+
+---
+
+# 91. Tests 100 % offline
+
+Aucun test V0.3 ne doit dépendre :
+
+- d'un endpoint externe ;
+- d'un CDN ;
+- d'un fichier téléchargé au runtime ;
+- d'un API public ;
+- d'une base distante.
+
+Les fixtures Excel/Parquet doivent être versionnées comme petites fixtures de test ou générées localement de manière déterministe.
+
+---
+
+# 92. Fixtures binaires
+
+Pour Excel/Parquet :
+
+- petites ;
+- reproductibles ;
+- non sensibles ;
+- hashables ;
+- documentées.
+
+On peut aussi générer les fixtures dans les tests via `openpyxl`/`pyarrow` afin d'éviter des blobs opaques trop nombreux.
+
+---
+
+# 93. Contract tests V0.3
+
+Les tests contractuels doivent vérifier :
+
+```text
+public API
+no dataframe core dependencies
+optional dependencies remain optional
+parser boundaries
+quality models JSON-safe
+demo entry points stable
+no import side effects
+```
+
+---
+
+# 94. Dataset contract tests
+
+Cas obligatoires :
+
+- allowed values pass/fail ;
+- regex pass/fail ;
+- min/max pass/fail ;
+- length pass/fail ;
+- null behavior ;
+- wrong type without coercion ;
+- composite uniqueness ;
+- key null ;
+- key duplicate ;
+- max issues ;
+- deterministic issue ordering.
+
+---
+
+# 95. Profiling tests
+
+Cas obligatoires :
+
+- empty dataset ;
+- one row ;
+- null-only field ;
+- mixed types ;
+- strings ;
+- numerics ;
+- nested JSON values ;
+- duplicate rows ;
+- deterministic field order ;
+- source artifact propagation.
+
+---
+
+# 96. NDJSON tests
+
+Cas :
+
+- valid records ;
+- blank lines ;
+- malformed line ;
+- scalar line ;
+- array line ;
+- encoding error ;
+- source artifact linkage.
+
+---
+
+# 97. Excel tests
+
+Cas :
+
+- sheet by name ;
+- sheet by index ;
+- missing sheet ;
+- header row ;
+- duplicate headers ;
+- empty rows ;
+- booleans/numbers/dates ;
+- missing optional dependency ;
+- formulas behavior documented.
+
+---
+
+# 98. Parquet tests
+
+Cas :
+
+- simple table ;
+- column projection ;
+- nulls ;
+- timestamp ;
+- decimal ;
+- nested list/dict if supported ;
+- invalid file ;
+- missing optional dependency.
+
+---
+
+# 99. Quality report tests
+
+Vérifier :
+
+- chemins `reports/` ;
+- JSON valide ;
+- version schema ;
+- timestamps ISO ;
+- validation summary ;
+- profile summary ;
+- absence de données RAW complètes ;
+- absence de secrets connus ;
+- manifest references.
+
+---
+
+# 100. Backward compatibility
+
+La V0.3 doit garantir :
+
+```text
+demo.local_file   ✅
+demo.http_csv     ✅
+demo.http_json    ✅
+```
+
+et les APIs V0.2 existantes :
+
+```text
+Dataset
+CsvParser
+JsonParser
+FieldContract
+DatasetContract
+ValidationIssue
+ValidationResult
+HttpSource
+RetryPolicy
+```
+
+ne doivent pas être cassées sans raison majeure.
+
+---
+
+# 101. Public API V0.3
+
+Exports candidats :
+
+```python
+from pyingestkit import (
+    DatasetProfiler,
+    DatasetProfile,
+    FieldProfile,
+    NdjsonParser,
+    ExcelParser,
+    ParquetParser,
+    QualityReport,
+)
+```
+
+Les classes dépendant d'extras doivent pouvoir être importées sans charger immédiatement la dépendance tierce, ou être exportées via namespace avec import lazy sûr.
+
+---
+
+# 102. Optional import strategy
+
+Exemple :
+
+```python
+class ExcelParser(Parser):
+    def parse(...):
+        try:
+            import openpyxl
+        except ImportError as exc:
+            raise ConfigurationError(...)
+```
+
+Le module principal peut rester importable sans l'extra.
+
+---
+
+# 103. Exception hierarchy
+
+Réutiliser :
+
+```text
+ParseError
+ValidationError
+ConfigurationError
+StorageError
+```
+
+Ne pas créer une exception par format sauf besoin réel.
+
+---
+
+# 104. Error messages
+
+Doivent être :
+
+- actionnables ;
+- sans secrets ;
+- sans dump RAW ;
+- avec line/sheet/column lorsque pertinent ;
+- déterministes pour les tests.
+
+---
+
+# 105. Security — spreadsheets
+
+Risques principaux :
+
+```text
+formulas
+external links
+macros
+zip bombs / huge workbooks
+resource exhaustion
+```
+
+Le parser ne doit exécuter aucun contenu actif.
+
+---
+
+# 106. Security — Parquet
+
+Risques :
+
+```text
+resource exhaustion
+crafted metadata
+oversized nested values
+```
+
+Le parser s'appuie sur une bibliothèque mature et maintenue ; aucune implémentation binaire maison.
+
+---
+
+# 107. Resource limits
+
+V0.3 doit documenter la mémoire matérialisée.
+
+Des garde-fous simples peuvent être envisagés :
+
+```text
+max_rows
+max_columns
+```
+
+mais ne doivent pas devenir des defaults arbitraires qui cassent des datasets réels.
+
+---
+
+# 108. Profiling cost
+
+Certaines métriques sont O(n) mémoire/temps.
+
+Distinct exact et duplicate exact peuvent être coûteux.
+
+Le profiler doit rester clair sur ce coût ; pas de magie de performance.
+
+---
+
+# 109. Mode de profiling
+
+V0.3 peut introduire :
+
+```text
+basic
+```
+
+comme seul mode officiel.
+
+Des modes `deep` / `sampled` sont différés tant qu'un besoin concret n'existe pas.
+
+---
+
+# 110. Serialization stability
+
+Les nouveaux dataclasses doivent fournir :
+
+```text
+as_dict()
+```
+
+ou un utilitaire de sérialisation unique, afin d'éviter des conversions ad hoc multiples.
+
+---
+
+# 111. Dataclasses vs Pydantic
+
+Préférence :
+
+- contrats de config utilisateur → Pydantic si nécessaire ;
+- records runtime/domain → dataclasses/plain models, cohérent avec la Foundation.
+
+Ne pas convertir toute la couche qualité en modèles Pydantic sans besoin.
+
+---
+
+# 112. Configuration YAML
+
+La V0.3 ne doit pas forcer les contracts complexes en YAML.
+
+Les contracts peuvent rester en code Python pour garder typage et composabilité.
+
+---
+
+# 113. Déclaratif contract en YAML — différé
+
+Un DSL YAML de validation riche serait une fonctionnalité produit majeure et risque de devenir un mini Great Expectations.
+
+Donc différé.
+
+---
+
+# 114. Documentation V0.3 à créer
+
+Proposition :
+
+```text
+docs/architecture/quality-formats-v0.3.md
+docs/guides/dataset-contracts-v2.md
+docs/guides/dataset-profiling.md
+docs/guides/parsing-ndjson.md
+docs/guides/parsing-excel.md
+docs/guides/parsing-parquet.md
+docs/guides/quality-reports.md
+```
+
+---
+
+# 115. ADRs V0.3 à créer
+
+## ADR-028 — Dataset Contracts V2 semantics
+
+Décider :
+
+- contraintes supportées ;
+- absence de coercion ;
+- clés composites ;
+- issue codes.
+
+## ADR-029 — Dataset profiling is descriptive, not semantic inference
+
+Décider :
+
+- métriques de base ;
+- observed types ;
+- no semantic coercion.
+
+## ADR-030 — Quality reports are run artifacts
+
+Décider :
+
+- `reports/*.json` ;
+- manifest references ;
+- pas de tables SQL de profiling en V0.3.
+
+## ADR-031 — NDJSON parser contract
+
+Décider :
+
+- one object per line ;
+- no JSONPath ;
+- deterministic line errors.
+
+## ADR-032 — Excel parser uses optional openpyxl adapter
+
+Décider :
+
+- `.xlsx` only ;
+- no macros/formula execution ;
+- optional extra.
+
+## ADR-033 — Parquet parser uses optional PyArrow adapter
+
+Décider :
+
+- optional extra ;
+- Dataset remains canonical ;
+- projection support.
+
+## ADR-034 — Materialized Dataset boundary and future streaming compatibility
+
+Décider :
+
+- V0.3 stays materialized ;
+- future streaming not blocked.
+
+---
+
+# 116. Git workflow V0.3
+
+Branche de cycle :
+
+```text
+feat/v0.3-quality-formats
+```
+
+Chaque milestone peut être une PR ou une série de commits cohérents sur cette branche, mais chaque ZIP intermédiaire doit correspondre à un HEAD CI vert.
+
+---
+
+# 117. Versioning V0.3
+
+PEP 440 package versions :
+
+```text
+0.3.0a1
+0.3.0a2
+0.3.0b1
+0.3.0
+0.3.0
+0.3.0
+```
+
+Noms documentaires ZIP :
+
+```text
+pyingestkit-v0.3.0-a1-quality-contracts.zip
+pyingestkit-v0.3.0-a2-profiling-reports.zip
+pyingestkit-v0.3.0-b1-ndjson-excel.zip
+pyingestkit-v0.3.0-rc1-parquet.zip
+pyingestkit-v0.3.0-rc1-quality-formats-e2e.zip
+pyingestkit-v0.3.0.zip
+```
+
+---
+
+# 118. Milestone A1 — Quality Contracts V2
+
+Livrable :
+
+```text
+pyingestkit-v0.3.0-a1-quality-contracts.zip
+```
+
+Contenu :
+
+```text
+FieldContract V2
+DatasetContract V2
+allowed_values
+pattern
+min/max
+min/max length
+composite uniqueness
+logical key
+richer ValidationIssue
+issue codes
+issue limit
+```
+
+Sans :
+
+```text
+profiling
+Excel
+Parquet
+NDJSON
+new persistence schema
+```
+
+---
+
+# 119. DoD A1
+
+A1 est terminé si :
+
+- toutes les contraintes sont unit-testées ;
+- validation ne mute jamais Dataset ;
+- aucune coercion implicite ;
+- issues déterministes ;
+- API V0.2 compatible ;
+- `make verify` vert ;
+- wheel smoke V0.2 non régressé ;
+- ZIP propre.
+
+---
+
+# 120. Milestone A2 — Dataset Profiling + Quality Reports
+
+Livrable :
+
+```text
+pyingestkit-v0.3.0-a2-profiling-reports.zip
+```
+
+Contenu :
+
+```text
+DatasetProfiler
+DatasetProfile
+FieldProfile
+profile.json
+validation.json
+manifest report references
+PROFILE_COMPLETED event
+status CLI summary
+```
+
+---
+
+# 121. DoD A2
+
+- profiling deterministic ;
+- mixed types handled safely ;
+- no semantic inference ;
+- no secrets/RAW dumps ;
+- reports JSON versioned ;
+- no SQL migration required ;
+- `make verify` vert ;
+- reports visible dans run workspace.
+
+---
+
+# 122. Milestone B1 — NDJSON + Excel
+
+Livrable :
+
+```text
+pyingestkit-v0.3.0-b1-ndjson-excel.zip
+```
+
+Contenu :
 
 ```text
 NdjsonParser
-```
-
-rather than ambiguous variants such as:
-
-```text
-JsonLinesParser
-JSONLParser
-```
-
-unless ecosystem conventions strongly justify aliases.
-
-Avoid multiple aliases in the first release.
-
----
-
-# 115. Excel naming
-
-Use:
-
-```text
 ExcelParser
+optional extra [excel]
+demo.ndjson_quality
+demo.excel_quality
+offline fixtures
 ```
-
-with explicit documented supported format:
-
-```text
-XLSX
-```
-
-Avoid `XlsxParser` unless precision outweighs usability.
 
 ---
 
-# 116. Parquet naming
+# 123. DoD B1
 
-Use:
+- NDJSON line errors propres ;
+- Excel `.xlsx` seulement ;
+- openpyxl optional ;
+- no macro execution ;
+- headers stricts ;
+- source artifact lineage conservée ;
+- quality reports intégrés ;
+- tests 100 % offline ;
+- `make verify` vert.
+
+---
+
+# 124. Milestone B2 — Parquet
+
+Livrable :
+
+```text
+pyingestkit-v0.3.0-rc1-parquet.zip
+```
+
+Contenu :
 
 ```text
 ParquetParser
+optional extra [parquet]
+PyArrow internal adapter
+column projection
+demo.parquet_quality
 ```
-
-Backend remains internal.
-
-Do not name it:
-
-```text
-PyArrowParquetParser
-```
-
-because that leaks implementation choice into the public framework vocabulary.
 
 ---
 
-# 117. Dependency versions
+# 125. DoD B2
 
-During implementation, pin compatibility ranges rather than exact patch versions for runtime extras.
-
-Example:
-
-```text
-openpyxl >=3.1,<4
-pyarrow >=16,<24
-```
-
-Exact resolution belongs to consumer lockfiles/CI environments.
+- base Parquet roundtrip ;
+- optional dependency isolation ;
+- Python 3.11/3.12/3.13 wheels available ;
+- Dataset remains canonical ;
+- projection testée ;
+- nested values behavior documenté ;
+- no streaming promise ;
+- `make verify` vert avec matrice appropriée.
 
 ---
 
-# 118. Python support
+# 126. Milestone RC1 — Quality & Formats E2E
 
-Retain:
+Livrable :
+
+```text
+pyingestkit-v0.3.0-rc1-quality-formats-e2e.zip
+```
+
+Le RC doit démontrer :
+
+```text
+demo.local_file       ✅
+demo.http_csv         ✅
+demo.http_json        ✅
+demo.ndjson_quality   ✅
+demo.excel_quality    ✅
+demo.parquet_quality  ✅
+```
+
+---
+
+# 127. Vertical slice RC1
+
+```text
+HttpSource / LocalSource
+        ↓
+       RAW
+        ↓
+Parser (CSV/JSON/NDJSON/Excel/Parquet)
+        ↓
+Dataset
+        ↓
+DatasetContract V2
+        ↓
+ValidationResult
+        ↓
+DatasetProfiler
+        ↓
+DatasetProfile
+        ↓
+Quality Reports
+        ↓
+Manifest / Metadata / Events
+```
+
+---
+
+# 128. Release V0.3.0
+
+Livrables :
+
+```text
+pyingestkit-v0.3.0.zip
+pyingestkit-0.3.0.tar.gz
+pyingestkit-0.3.0-py3-none-any.whl
+pyingestkit_demo_jobs-0.3.0.tar.gz
+pyingestkit_demo_jobs-0.3.0-py3-none-any.whl
+SHA256SUMS-v0.3.0.txt
+```
+
+Éventuellement :
+
+```text
+pyingestkit-v0.3.0-validation-evidence.zip
+```
+
+selon la pratique établie en V0.2.
+
+---
+
+# 129. Release gates V0.3
+
+Le minimum reste :
+
+```bash
+make quality
+make security
+make verify
+make build
+make wheel-smoke
+make release-check
+```
+
+Le gate doit installer les extras nécessaires pour les tests Excel/Parquet dans les jobs qui les exercent.
+
+---
+
+# 130. Matrix CI
+
+Base :
 
 ```text
 Python 3.11
@@ -2661,1644 +2455,864 @@ Python 3.12
 Python 3.13
 ```
 
-Before adding PyArrow to optional CI, confirm wheels exist for all supported versions in the chosen dependency range.
+Pour Parquet, la CI doit confirmer la disponibilité des wheels PyArrow sur les trois versions cibles.
 
-If a backend cannot support one Python version, do not silently reduce core Python support; isolate optional-extra compatibility explicitly.
-
----
-
-# 119. Platform support
-
-Primary automated release confidence:
-
-```text
-Linux CI
-```
-
-Wheel dependencies should use mature cross-platform projects.
-
-Pure Python PyIngestKit wheel remains:
-
-```text
-py3-none-any
-```
-
-even though PyArrow itself is platform-specific.
+Si une incompatibilité upstream réelle existe, elle doit être documentée explicitement plutôt que masquée.
 
 ---
 
-# 120. Documentation architecture
+# 131. Build extras smoke tests
 
-New docs:
+Ajouter des smoke tests :
 
 ```text
-docs/architecture/quality-formats-v0.3.md
-
-docs/guides/dataset-contracts-v2.md
-docs/guides/dataset-profiling.md
-docs/guides/quality-reports.md
-docs/guides/ndjson.md
-docs/guides/excel.md
-docs/guides/parquet.md
+base wheel only
+wheel + excel extra
+wheel + parquet extra
+wheel + demo pack
 ```
 
-Some guides may be merged if individually too small.
+L'objectif est de prouver que les extras ne contaminent pas l'installation minimale.
 
 ---
 
-# 121. ADR set
+# 132. Source ZIP cleanliness
 
-Recommended V0.3 ADRs:
+Comme V0.2 : exclure :
 
 ```text
-ADR-028 — Dataset Contracts V2 semantics
-ADR-029 — Dataset profiling is descriptive, not semantic inference
-ADR-030 — Quality reports are run artifacts
-ADR-031 — NDJSON structural parser
-ADR-032 — Excel via optional OpenPyXL backend
-ADR-033 — Parquet via optional PyArrow backend
-ADR-034 — Materialized Dataset boundary / future streaming compatibility
+.venv/
+.pyingest/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+__pycache__/
+build/
+dist/
+*.egg-info/
+*.pyc
+*.pyo
 ```
-
-The exact split may be reduced if decisions are tightly related.
 
 ---
 
-# 122. Alpha 1 scope
+# 133. Changelog V0.3
 
-`V0.3.0-a1 — Quality Contracts V2`
+Chaque milestone doit écrire une section distincte dans `CHANGELOG.md`.
 
-Only implement:
-
-```text
-FieldContract V2
-DatasetContract V2
-ValidationIssue V2 where necessary
-unit tests
-contract tests
-ADR
-API docs
-```
-
-Do NOT implement in A1:
+La release stable résume :
 
 ```text
-profiling
-reports
+Quality Contracts V2
+Dataset Profiling
+Quality Reports
 NDJSON
 Excel
 Parquet
-streaming
-```
-
-This keeps the first alpha easy to review.
-
----
-
-# 123. Alpha 1 implementation order
-
-Recommended:
-
-```text
-1. freeze rule names
-2. extend FieldContract
-3. constructor invariants
-4. allowed values
-5. regex
-6. min/max
-7. length
-8. composite uniqueness
-9. primary key semantics
-10. issue limit
-11. richer issue metadata
-12. tests
-13. API exports
-14. docs
 ```
 
 ---
 
-# 124. Rule names
+# 134. README V0.3
 
-Recommended stable rule vocabulary:
+Le README doit présenter les nouvelles capacités sans devenir un manuel exhaustif.
+
+Sections :
 
 ```text
-dataset.min_rows
-dataset.max_rows
-dataset.extra_field
-dataset.composite_unique
-dataset.primary_key
-
-field.required
-field.null
-field.type
-field.unique
-field.unique_unhashable
-field.allowed_values
-field.pattern
-field.min_value
-field.max_value
-field.min_length
-field.max_length
+Quality contracts
+Profiling
+NDJSON / Excel / Parquet
+Optional extras
+Reference jobs
 ```
 
-Avoid renaming existing V0.2 rules.
+Les détails restent dans `docs/guides`.
 
 ---
 
-# 125. Regex naming
+# 135. Performance baseline
 
-Prefer rule:
+La V0.3 ne vise pas un benchmark engine-level, mais doit éviter les régressions manifestes.
 
-```text
-field.pattern
-```
-
-and constructor field:
+Mesures simples possibles :
 
 ```text
-pattern
+profiling 10k rows
+validation 10k rows
+NDJSON parse 10k rows
 ```
 
-rather than mixing:
+Pas de promesse de SLA publique avant V1.
 
-```text
-regex
-regexp
-pattern
-```
+---
 
-The implementation should choose one public vocabulary.
+# 136. Profiling complexity budget
 
-Recommended:
+Les calculs par défaut doivent idéalement rester O(n) temps.
+
+Mémoire additionnelle :
+
+- distinct set : O(k) ;
+- duplicate tracking : O(n) worst case.
+
+Ces coûts doivent être documentés.
+
+---
+
+# 137. Future streaming compatibility
+
+V0.3 doit éviter les APIs qui exigent définitivement :
 
 ```python
-pattern: str | None
+len(dataset.rows)
 ```
+
+partout dans les contrats futurs.
+
+Cependant, optimiser pour un streaming non implémenté ne doit pas complexifier les APIs actuelles.
 
 ---
 
-# 126. Allowed-values representation
+# 138. Future adapters
 
-Use immutable input internally.
+Possibles plus tard :
 
-Public constructor may accept:
-
-```python
-Collection[Any]
+```text
+Dataset ↔ pandas
+Dataset ↔ polars
+Dataset ↔ pyarrow
 ```
 
-but freeze/copy it so later caller mutation cannot change contract semantics.
-
-Avoid requiring hashability because allowed values may technically include values such as lists, though supporting complex membership is not essential.
-
-For predictable behavior, V0.3 can restrict to ordinary scalar values and document it.
+Ils n'appartiennent pas au cœur V0.3 sauf besoin démontré.
 
 ---
 
-# 127. Range constraints initialization
+# 139. Future formats différés
 
-If both provided and comparable:
+Backlog :
 
 ```text
-min_value <= max_value
+XML
+Avro
+ORC
+Fixed-width
+ZIP multi-entry datasets
+compressed NDJSON streams
 ```
 
-validate at contract construction.
-
-If generic `Any` prevents reliable constructor comparison, avoid forcing unsafe comparisons there and validate values independently.
+Admission future au cas par cas.
 
 ---
 
-# 128. Length invariant
-
-Require:
+# 140. Future quality features différées
 
 ```text
-min_length >= 0
-max_length >= 0
-min_length <= max_length
+semantic type inference
+schema drift detection
+anomaly thresholds
+cross-run quality trends
+reference-data lookups
+data contracts registry
+custom rule plugin DSL
 ```
 
-Invalid contract definition should fail fast with `ValueError` or configuration error consistent with existing dataclass constructors.
+Certaines pourront appartenir à V0.4 ou post-V1, mais ne doivent pas parasiter V0.3.
 
 ---
 
-# 129. Composite constraint definition
+# 141. Relation avec V0.4
 
-Require:
-
-```text
-at least 2 fields per composite unique
-all referenced fields declared or deliberately support schema-only fields
-no duplicate field inside one composite constraint
-```
-
-Recommended simplification:
+La V0.3 prépare directement V0.4 :
 
 ```text
-all referenced fields must be declared in contract.fields
-```
-
-This catches typos at definition time.
-
----
-
-# 130. Primary key definition
-
-Allow:
-
-```text
-1..N fields
-```
-
-All fields must be declared.
-
-Do not automatically mutate their individual `nullable` or `unique` properties.
-
-Primary-key validation is a distinct dataset-level rule.
-
----
-
-# 131. Duplicate error cardinality
-
-For duplicate values, report each duplicate row after the first occurrence.
-
-Example:
-
-```text
-rows 4, 9, 12 same key
-```
-
-issues:
-
-```text
-row 9 duplicates row 4
-row 12 duplicates row 4
-```
-
-This matches current field uniqueness semantics.
-
----
-
-# 132. Null primary-key behavior
-
-If key contains null:
-
-```text
-dataset.primary_key
-```
-
-Do not emit the same conceptual violation as both:
-
-```text
-field.null
-AND
-dataset.primary_key
-```
-
-unless individual FieldContract also explicitly says `nullable=False`.
-
-Then both rules are legitimate because two declared constraints were violated.
-
----
-
-# 133. Issue-limit ordering
-
-Issue ordering must remain deterministic.
-
-Recommended validation order:
-
-```text
-row counts
-schema
-field contracts in declaration order
-rows in input order
-dataset composite constraints in declaration order
-primary key
-```
-
-The issue limit truncates this deterministic stream.
-
----
-
-# 134. Alpha 1 backward compatibility
-
-Existing V0.2 tests must remain unchanged where possible.
-
-At minimum:
-
-```python
-FieldContract("id")
-DatasetContract()
-```
-
-must still construct successfully.
-
-Existing rule codes remain stable.
-
----
-
-# 135. Alpha 2 scope
-
-`V0.3.0-a2 — Dataset Profiling + Quality Reports`
-
-Implement:
-
-```text
-DatasetProfiler
-DatasetProfile
-FieldProfile
-Validation report schema
-Profile report schema
-ArtifactStore integration
-manifest references
-runtime events
-status inspection where useful
-docs
-```
-
-No new parser dependency in Alpha 2.
-
----
-
-# 136. Profiling algorithm
-
-Prefer one pass for:
-
-```text
-row_count
-field null counts
-observed types
-min/max
-length ranges
-distinct tracking
-row duplicate tracking
-```
-
-Exact distinct tracking uses memory proportional to cardinality. This is acceptable under the V0.3 materialized Dataset boundary.
-
-Document it.
-
----
-
-# 137. Mixed numeric types
-
-Python:
-
-```python
-bool
-```
-
-is a subclass of:
-
-```python
-int
-```
-
-Profiler type labels must check `bool` before `int` to avoid reporting booleans as integers.
-
-Validation `isinstance(value, int)` retains ordinary Python semantics unless V0.3 explicitly decides otherwise.
-
-Do not casually change V0.2 type behavior.
-
----
-
-# 138. Numeric range profiling
-
-For homogeneous/comparable numeric values:
-
-```text
-min_value
-max_value
-```
-
-For heterogeneous incomparable values:
-
-```text
-omit range
-```
-
-Do not crash profiling.
-
-Do not stringify values solely to compare them.
-
----
-
-# 139. Datetime profiling
-
-Datetime/date min/max may be useful but introduces timezone comparability complexity.
-
-V0.3 can restrict min/max to numeric types initially.
-
-Observed type remains enough for date/datetime fields.
-
-This is safer than partially correct comparisons.
-
----
-
-# 140. Field presence semantics
-
-Dataset rows may be sparse.
-
-Profile should distinguish:
-
-```text
-missing field
-```
-
-from:
-
-```text
-field present with None
-```
-
-Potential metrics:
-
-```text
-missing_count
-null_count
-```
-
-Recommended if easy to support because sparse JSON/NDJSON makes this meaningful.
-
-At minimum document whether null count includes missing.
-
----
-
-# 141. Profile structure recommendation
-
-```python
-@dataclass(frozen=True, slots=True)
-class FieldProfile:
-    name: str
-    present_count: int
-    missing_count: int
-    null_count: int
-    non_null_count: int
-    distinct_count: int | None
-    observed_types: tuple[str, ...]
-    min_value: int | float | None
-    max_value: int | float | None
-    min_length: int | None
-    max_length: int | None
-```
-
----
-
-# 142. DatasetProfile structure recommendation
-
-```python
-@dataclass(frozen=True, slots=True)
-class DatasetProfile:
-    row_count: int
-    field_count: int
-    duplicate_row_count: int
-    fields: tuple[FieldProfile, ...]
-```
-
-Use ordered tuple rather than mutable dict as the core evidence representation.
-
-`as_dict()` may expose JSON-compatible mapping output.
-
----
-
-# 143. Report generator purity
-
-Profile computation:
-
-```text
-Dataset → DatasetProfile
-```
-
-Report serialization:
-
-```text
-DatasetProfile → JSON-compatible mapping
-```
-
-Artifact persistence:
-
-```text
-mapping → ArtifactStore
-```
-
-Keep these separately testable.
-
----
-
-# 144. Beta 1 scope
-
-`V0.3.0-b1 — NDJSON + Excel`
-
-Implement:
-
-```text
-NdjsonParser
-ExcelParser
-excel optional extra
-parser tests
-quality integration tests
-reference jobs if stable enough
-```
-
-Why together?
-
-NDJSON is dependency-free while Excel validates the optional dependency design before Parquet introduces a much heavier dependency.
-
----
-
-# 145. Beta 2 scope
-
-`V0.3.0-b2 — Parquet`
-
-Implement:
-
-```text
-ParquetParser
-parquet optional extra
-PyArrow CI path
-Parquet tests
-large-data boundary documentation
-```
-
-Do not expand into Arrow-native Dataset APIs.
-
----
-
-# 146. RC1 scope
-
-`V0.3.0-rc1 — Quality & Formats E2E`
-
-Connect:
-
-```text
-HTTP/local fixture
-       ↓
-RAW
-       ↓
-parser
-       ↓
 Dataset
-       ↓
-Contract V2
-       ↓
-Profiler
-       ↓
-Quality Reports
-       ↓
-Manifest / Metadata / Events
-```
-
-Run all reference jobs in wheel-installed environment.
-
----
-
-# 147. Stable scope
-
-`V0.3.0`
-
-Stable promotion requires:
-
-```text
-API contract frozen
-report schema documented
-all supported Python versions green
-optional format extras green
-security gate green
-clean wheel install green
-reference jobs green
-docs complete
-checksums produced
-```
-
----
-
-# 148. Version sequence
-
-```text
-0.3.0a1
-  ↓
-0.3.0a2
-  ↓
-0.3.0b1
-  ↓
-0.3.0b2
-  ↓
-0.3.0rc1
-  ↓
-0.3.0
-```
-
-Do not release unnecessary intermediate alphas if implementation does not justify them, but preserve this review structure during development.
-
----
-
-# 149. Git strategy
-
-Recommended branch:
-
-```text
-feat/v0.3-quality-formats
-```
-
-Implementation commits should map to coherent lots:
-
-```text
-feat(contracts): ...
-feat(profiling): ...
-feat(reports): ...
-feat(ndjson): ...
-feat(excel): ...
-feat(parquet): ...
-```
-
-Avoid one 5,000-line opaque commit if practical.
-
----
-
-# 150. Lot 1
-
-```text
-V0.3.0-a1
-Quality Contracts V2
-```
-
-Deliver:
-
-```text
-extended FieldContract
-extended DatasetContract
-bounded issue behavior
-richer ValidationIssue
-unit tests
-contract tests
-ADR-028
-```
-
----
-
-# 151. Lot 2
-
-```text
-A1 hardening
-```
-
-Deliver:
-
-```text
-edge cases
-unhashable values
-mixed types
-issue ordering
-secret preview redaction
-backward compatibility
-```
-
----
-
-# 152. Lot 3
-
-```text
-V0.3.0-a2
-Profile models
-```
-
-Deliver:
-
-```text
-FieldProfile
-DatasetProfile
-canonicalization helper
-serialization
-```
-
----
-
-# 153. Lot 4
-
-```text
-Profiler engine
-```
-
-Deliver:
-
-```text
-DatasetProfiler
-exact counters
-deterministic type ordering
-numeric/string stats
-duplicate detection
-```
-
----
-
-# 154. Lot 5
-
-```text
-Quality reports
-```
-
-Deliver:
-
-```text
-validation report
-profile report
-schema_version
-safe JSON serialization
-```
-
----
-
-# 155. Lot 6
-
-```text
-Runtime report integration
-```
-
-Deliver:
-
-```text
-ArtifactStore writes
-manifest references
-PROFILE_COMPLETED
-QUALITY_REPORT_WRITTEN
-status visibility
-```
-
----
-
-# 156. Lot 7
-
-```text
-V0.3.0-b1
-NdjsonParser
-```
-
-Deliver:
-
-```text
-stdlib NDJSON parser
-safe line errors
-native JSON types
-unit tests
-```
-
----
-
-# 157. Lot 8
-
-```text
-Excel optional dependency
-```
-
-Deliver:
-
-```text
-[excel] extra
-lazy backend import
-missing-extra error tests
-```
-
----
-
-# 158. Lot 9
-
-```text
-ExcelParser
-```
-
-Deliver:
-
-```text
-XLSX
-sheet selection
-header row
-read_only
-data_only
-empty-row handling
-native cell values
-```
-
----
-
-# 159. Lot 10
-
-```text
-Excel integration
-```
-
-Deliver:
-
-```text
-generated workbook fixtures
-DatasetContract V2
-profiling
-reports
-```
-
----
-
-# 160. Lot 11
-
-```text
-V0.3.0-b2
-Parquet optional dependency
-```
-
-Deliver:
-
-```text
-[parquet] extra
-PyArrow lazy loading
-CI compatibility
-```
-
----
-
-# 161. Lot 12
-
-```text
-ParquetParser
-```
-
-Deliver:
-
-```text
-Arrow Table
-→ Python rows
-→ Dataset
-```
-
----
-
-# 162. Lot 13
-
-```text
-Parquet integration
-```
-
-Deliver:
-
-```text
-generated Parquet fixture
-DatasetContract
-profiling
-reports
-```
-
----
-
-# 163. Lot 14
-
-```text
-Reference quality job
-```
-
-Deliver one deterministic end-to-end job demonstrating the full quality lifecycle.
-
----
-
-# 164. Lot 15
-
-```text
-CLI/Status integration
-```
-
-Ensure operators can discover:
-
-```text
-validation status
-profile report path
-quality report path
-```
-
-without opening SQLite manually.
-
----
-
-# 165. Lot 16
-
-```text
-RC hardening
-```
-
-Run:
-
-```text
-all existing V0.1/V0.2 tests
-V0.3 tests
-strict typing
-Ruff
-Bandit
-pip-audit
-package build
-wheel smoke
-```
-
----
-
-# 166. Lot 17
-
-```text
-Cross-version compatibility
-```
-
-Verify:
-
-```text
-V0.2 job code continues to work
-old DatasetContract constructors work
-old CSV/JSON behavior unchanged
-manifest additive fields do not break existing consumers
-```
-
----
-
-# 167. Lot 18
-
-```text
-Release packaging
-```
-
-Produce:
-
-```text
-source ZIP
-sdist
-wheel
-demo-job sdist
-demo-job wheel
-validation evidence
-SHA256SUMS
-```
-
----
-
-# 168. Definition of Done — Contracts V2
-
-Complete when:
-
-```text
-all new rule semantics documented
-existing rules preserved
-new tests green
-validation does not mutate Dataset
-issue ordering deterministic
-issue volume bounded
-no secret row dumps
-```
-
----
-
-# 169. Definition of Done — Profiling
-
-Complete when:
-
-```text
-profile deterministic
-null/distinct/type metrics correct
-nested values do not crash duplicate detection
-no raw distinct samples by default
-immutable result models
-```
-
----
-
-# 170. Definition of Done — Reports
-
-Complete when:
-
-```text
-schema_version present
-validation JSON stable
-profile JSON stable
-manifest references report
-atomic write
-JSON-compatible values
-source/run correlation
-```
-
----
-
-# 171. Definition of Done — NDJSON
-
-Complete when:
-
-```text
-line-oriented parser
-safe malformed-line errors
-native JSON values
-blank line policy documented
-Dataset source linkage
-```
-
----
-
-# 172. Definition of Done — Excel
-
-Complete when:
-
-```text
-XLSX parse works
-OpenPyXL optional
-sheet selection works
-header semantics explicit
-read-only mode
-no business normalization
-tests use generated local fixtures
-```
-
----
-
-# 173. Definition of Done — Parquet
-
-Complete when:
-
-```text
-PyArrow optional
-Parquet decode works
-column order preserved
-nested/native values handled predictably
-bounded Dataset warning documented
-no Arrow dependency leaked into core public API
-```
-
----
-
-# 174. Definition of Done — V0.3 stable
-
-```text
-Python 3.11     green
-Python 3.12     green
-Python 3.13     green
-
-Ruff            green
-Mypy            green
-Bandit          green
-pip-audit       green
-
-core smoke      green
-excel smoke     green
-parquet smoke   green
-
-wheel smoke     green
-reference jobs  green
-
-API docs        complete
-ADRs            accepted
-checksums        verified
-```
-
----
-
-# 175. Security checklist
-
-V0.3 release review must verify:
-
-- validation messages do not leak full sensitive rows;
-- profile reports do not expose raw distinct values;
-- NDJSON parse errors do not dump full lines;
-- Excel does not execute macros;
-- Excel formulas are not evaluated by PyIngestKit;
-- backend exceptions are safely wrapped;
-- report paths cannot escape run directory;
-- optional dependencies do not cause insecure fallback logic;
-- no pickle serialization;
-- no arbitrary code execution from contract definitions.
-
----
-
-# 176. Performance checklist
-
-Review:
-
-```text
-regex compilation once
-single-pass profiling where practical
-no repeated Dataset.to_rows copies
-no quadratic uniqueness loops
-read-only Excel
-incremental NDJSON parsing
-PyArrow-backed Parquet decode
-issue-limit enforcement
-```
-
----
-
-# 177. Compatibility checklist
-
-Review against V0.2:
-
-```text
-Dataset constructor
-Dataset iteration
-CsvParser
-JsonParser
-FieldContract existing args
-DatasetContract existing args
-ValidationIssue existing constructor
-ValidationResult
-Runner validation observation
-status command
-manifest existing keys
-```
-
----
-
-# 178. API naming freeze
-
-Before RC1 verify there are no accidental synonyms like:
-
-```text
-regex + pattern
-issue_limit + max_issues
-composite_unique + unique_together
-column_count + field_count
-```
-
-Choose one public term for each concept.
-
-Aliases may be more harmful than useful before V1.
-
----
-
-# 179. Recommended final naming
-
-Recommended:
-
-```text
-FieldContract.pattern
-FieldContract.allowed_values
-FieldContract.min_value
-FieldContract.max_value
-FieldContract.min_length
-FieldContract.max_length
-
-DatasetContract.unique_together
-DatasetContract.primary_key
-DatasetContract.max_issues
-
-DatasetProfile.field_count
-DatasetProfile.duplicate_row_count
-```
-
-This vocabulary is Pythonic and reasonably concise.
-
----
-
-# 180. Why not Pandera
-
-Pandera is valuable for dataframe-oriented validation.
-
-PyIngestKit deliberately keeps a lower-level engine-neutral Dataset contract.
-
-Users may use:
-
-```text
-PyIngestKit
-  ↓
-Dataset
-  ↓
-Pandas
-  ↓
-Pandera
-```
-
-when their application needs that ecosystem.
-
-It should not be mandatory for every ingestion job.
-
----
-
-# 181. Why not Great Expectations
-
-Great Expectations solves broader data-quality and expectation-suite workflows.
-
-PyIngestKit needs a compact ingestion contract, not a second quality platform.
-
-Interop later is preferable to embedding a large DSL now.
-
----
-
-# 182. Why not Polars as Dataset
-
-Polars would provide high performance but would make one engine part of the public interchange contract.
-
-Job packs can convert explicitly when appropriate.
-
-This decision may be revisited only with substantial workload evidence.
-
----
-
-# 183. Why not Arrow as Dataset now
-
-Arrow is attractive especially for Parquet, but making it the universal Dataset would impose:
-
-```text
-large dependency
-platform wheels
-Arrow type semantics
-memory model decisions
-```
-
-on CSV/JSON-only users.
-
-V0.3 uses Arrow at the Parquet adapter boundary instead.
-
----
-
-# 184. Why profiling belongs in framework
-
-Unlike business normalization, descriptive metrics are generic across ingestion domains.
-
-Examples:
-
-```text
-row count
-null count
-distinct count
-duplicates
-observed types
-```
-
-These are useful for:
-
-```text
-postal codes
-NAF
-ROME
-company registries
-financial references
-application exports
-```
-
-without becoming domain-specific.
-
----
-
-# 185. Why reports belong in framework
-
-Validation without durable evidence is operationally weak.
-
-A job should leave behind:
-
-```text
-what was fetched
-what was parsed
-what quality was observed
-what was published
-```
-
-This is central to PyIngestKit's product promise.
-
----
-
-# 186. V0.3 lifecycle after completion
-
-```text
-DISCOVER
-    ↓
-FETCH
-    ↓
-RAW
-    ↓
-HASH / PROVENANCE
-    ↓
-PARSE
-    ↓
-NORMALIZE
-    ↓
-VALIDATE
-    ↓
-PROFILE
-    ↓
-QUALITY REPORTS
-    ↓
-PUBLISH
-    ↓
-LOAD
-    ↓
-MANIFEST / METRICS / RUN STATUS
-```
-
-Not every job is required to execute every optional stage.
-
----
-
-# 187. Roadmap relationship
-
-```text
-V0.1
-Foundation
-
-V0.2
-Acquisition
-
-V0.3
-Quality & Formats
-
-V0.4
+   ↓
+Profile
+   ↓
+Validated Dataset
+   ↓
+────────────── V0.4 ──────────────
+   ↓
 Diff / Replay / Versioning
-
-V0.5
-Persistence targets
-
-V0.6
-Object storage if justified
-
-V1
-Stable framework contract
 ```
+
+Un `DatasetProfile` stable permettra plus tard de comparer rapidement deux versions avant de calculer des diffs détaillés.
 
 ---
 
-# 188. Preparation for V0.4
+# 142. Ce qui appartient à V0.4
 
-V0.3 provides several prerequisites for V0.4:
+Ne pas implémenter en V0.3 :
 
 ```text
-immutable RAW artifacts
-stable SHA-256
-Dataset contract
-quality evidence
-report schema
-source artifact linkage
+previous dataset lookup
+version catalog
+dataset snapshot identity
+row-level diff
+schema diff
+replay command
+publication based on diff
 ```
 
-V0.4 can then compare:
+---
+
+# 143. Risque — scope creep Data Quality
+
+Risque : transformer `DatasetContract` en framework complet de règles.
+
+Mitigation : seules les contraintes génériques et simples entrent en V0.3.
+
+Règle :
+
+> Si une règle nécessite un vocabulaire métier ou une ressource métier externe, elle n'appartient pas au core.
+
+---
+
+# 144. Risque — Dataset devient un mini dataframe
+
+Mitigation :
 
 ```text
-previous Dataset
-       ↕
-current Dataset
+pas de filter/select/groupby/join/sort API dans Dataset
 ```
 
-and replay from stored RAW artifacts.
+Ces opérations restent dans les jobs ou adapters.
 
 ---
 
-# 189. V0.4 must not leak into V0.3
+# 145. Risque — profiling trop coûteux
 
-Do NOT add in this release:
+Mitigation :
+
+- métriques de base seulement ;
+- coûts documentés ;
+- pas de calculs statistiques sophistiqués ;
+- architecture extensible.
+
+---
+
+# 146. Risque — Excel complexité infinie
+
+Mitigation : cible stricte :
 
 ```text
-dataset diff engine
-replay CLI
-version graph
-snapshot registry
-historical publication switch
+.xlsx tabulaire simple
 ```
 
-Only ensure V0.3 evidence is suitable for those future capabilities.
+Pas de moteur Excel généraliste.
 
 ---
 
-# 190. Implementation guardrails
+# 147. Risque — PyArrow devient le Dataset
 
-Every V0.3 PR should ask:
+Mitigation : `ParquetParser` est un adapter interne, et les tests de contrat vérifient que l'API core ne dépend pas d'Arrow.
+
+---
+
+# 148. Risque — optional dependencies cassent l'import
+
+Mitigation : tests d'installation :
 
 ```text
-Does this belong to HOW TO INGEST?
-
-Does it preserve Dataset neutrality?
-
-Does it mutate user data implicitly?
-
-Does it create a dependency all users must pay for?
-
-Does it prevent a future streaming implementation?
-
-Is this framework infrastructure or business logic?
+pip install pyingestkit
+python -c "import pyingestkit"
 ```
 
----
-
-# 191. Code-review checklist
-
-Reviewers should verify:
-
-- public API additions are deliberate;
-- dataclasses are immutable where they represent evidence/contracts;
-- no accidental DataFrame dependency;
-- new extras are lazy;
-- errors are framework exceptions;
-- no source data appears in logs unexpectedly;
-- issue/report schemas are deterministic;
-- tests are offline;
-- backend libraries are hidden behind framework adapters.
+sans extras.
 
 ---
 
-# 192. Documentation checklist
+# 149. Risque — report fuite de données
 
-Before stable release:
+Mitigation :
+
+- pas de dump de lignes ;
+- samples désactivés ou limités ;
+- value previews tronqués/redacted ;
+- tests secrets.
+
+---
+
+# 150. Risque — duplication Manifest / Metadata / Report
+
+Mitigation : chaque support a une responsabilité :
 
 ```text
-README
-CHANGELOG
-ADR index
-architecture index
-Contracts V2 guide
-profiling guide
-quality report guide
-NDJSON guide
-Excel guide
-Parquet guide
-release validation guide
+Manifest       = snapshot portable du run
+MetadataStore  = index historique requêtable
+Report         = diagnostic qualité détaillé
 ```
 
 ---
 
-# 193. Example final user experience
+# 151. Definition of Done — Contracts V2
 
-```python
-from pyingestkit import (
-    DatasetContract,
-    FieldContract,
-    NdjsonParser,
-)
-
-from pyingestkit.profiling import DatasetProfiler
-
-parser = NdjsonParser()
-dataset = parser.parse(raw)
-
-contract = DatasetContract(
-    fields=(
-        FieldContract(
-            "postal_code",
-            nullable=False,
-            expected_type=str,
-            pattern=r"[0-9]{5}",
-        ),
-        FieldContract(
-            "commune",
-            nullable=False,
-            expected_type=str,
-        ),
-    ),
-    primary_key=("postal_code", "commune"),
-)
-
-validation = contract.validate(dataset)
-profile = DatasetProfiler().profile(dataset)
+```text
+[ ] allowed_values
+[ ] pattern
+[ ] min/max
+[ ] min/max length
+[ ] composite unique
+[ ] logical key
+[ ] stable issue codes
+[ ] issue cap
+[ ] no mutation
+[ ] no coercion
+[ ] deterministic ordering
+[ ] unit tests
+[ ] contract tests
 ```
-
-This remains ordinary Python.
 
 ---
 
-# 194. Example Excel use
+# 152. Definition of Done — Profiling
 
-```python
-from pyingestkit.parsers import ExcelParser
-
-parser = ExcelParser(sheet_name="Codes postaux")
-dataset = parser.parse(raw)
+```text
+[ ] DatasetProfile
+[ ] FieldProfile
+[ ] row/field counts
+[ ] null counts
+[ ] distinct counts
+[ ] observed types
+[ ] length stats
+[ ] safe min/max
+[ ] duplicate rows
+[ ] deterministic output
+[ ] mixed types safe
 ```
 
-Installation:
+---
+
+# 153. Definition of Done — Reports
+
+```text
+[ ] validation.json
+[ ] profile.json
+[ ] schema version
+[ ] JSON-safe values
+[ ] manifest references
+[ ] event emitted
+[ ] no secret leakage
+[ ] no RAW dumps
+```
+
+---
+
+# 154. Definition of Done — NDJSON
+
+```text
+[ ] parser
+[ ] line numbers
+[ ] blank-line policy
+[ ] object-only records
+[ ] encoding errors
+[ ] offline tests
+[ ] Dataset linkage
+```
+
+---
+
+# 155. Definition of Done — Excel
+
+```text
+[ ] optional openpyxl
+[ ] xlsx
+[ ] sheet selection
+[ ] header row
+[ ] duplicate header rejection
+[ ] cell types
+[ ] formula behavior
+[ ] no macro execution
+[ ] missing-extra message
+[ ] offline tests
+```
+
+---
+
+# 156. Definition of Done — Parquet
+
+```text
+[ ] optional pyarrow
+[ ] parse simple parquet
+[ ] column projection
+[ ] null/timestamp/decimal
+[ ] nested behavior documented
+[ ] missing-extra message
+[ ] core import without pyarrow
+[ ] offline tests
+```
+
+---
+
+# 157. Definition of Done — Non-régression V0.2
+
+```text
+[ ] demo.local_file
+[ ] demo.http_csv
+[ ] demo.http_json
+[ ] HTTP retry tests offline
+[ ] HTTP provenance tests
+[ ] CSV parser tests
+[ ] JSON parser tests
+[ ] Dataset API
+[ ] MetadataStore compatibility
+```
+
+---
+
+# 158. Definition of Done — Quality gate
+
+```text
+[ ] unittest green
+[ ] pytest green
+[ ] Ruff lint green
+[ ] Ruff format green
+[ ] Mypy strict green
+[ ] Bandit green
+[ ] pip-audit green
+[ ] compileall green
+[ ] public API contract green
+```
+
+---
+
+# 159. Definition of Done — Distribution gate
+
+```text
+[ ] framework wheel
+[ ] framework sdist
+[ ] demo wheel
+[ ] demo sdist
+[ ] fresh venv base wheel smoke
+[ ] Excel extra smoke
+[ ] Parquet extra smoke
+[ ] all reference jobs run
+```
+
+---
+
+# 160. Definition of Done — Release V0.3.0
+
+```text
+[ ] all milestones merged
+[ ] RC1 vertical slices green
+[ ] source ZIP clean
+[ ] SHA256SUMS generated
+[ ] validation evidence generated
+[ ] tag v0.3.0
+[ ] GitHub Release
+[ ] artifacts attached
+[ ] V0.3 administratively closed
+```
+
+---
+
+# 161. Séquence d'implémentation détaillée
+
+```text
+LOT 0   Branch + baseline V0.2.0
+LOT 1   Contract models V2
+LOT 2   Constraint evaluation
+LOT 3   Composite keys / uniqueness
+LOT 4   ValidationIssue V2
+LOT 5   DatasetProfiler models
+LOT 6   DatasetProfiler engine
+LOT 7   Quality report writer
+LOT 8   Manifest/events integration
+LOT 9   NDJSON parser
+LOT 10  Excel optional adapter
+LOT 11  Parquet optional adapter
+LOT 12  Demo jobs
+LOT 13  CLI/status integration
+LOT 14  Docs/ADRs
+LOT 15  Hardening
+LOT 16  Wheel/extras smoke tests
+LOT 17  RC1
+LOT 18  Stable release
+```
+
+---
+
+# 162. Lot 0 — Baseline
+
+Actions :
 
 ```bash
-pip install "pyingestkit[excel]"
-```
-
----
-
-# 195. Example Parquet use
-
-```python
-from pyingestkit.parsers import ParquetParser
-
-parser = ParquetParser()
-dataset = parser.parse(raw)
-```
-
-Installation:
-
-```bash
-pip install "pyingestkit[parquet]"
-```
-
----
-
-# 196. Example issue result
-
-```json
-{
-  "rule": "field.pattern",
-  "severity": "ERROR",
-  "field": "postal_code",
-  "row_index": 19,
-  "message": "Field 'postal_code' does not match the declared pattern"
-}
-```
-
-No full row dump.
-
----
-
-# 197. Example profile result
-
-```json
-{
-  "row_count": 3,
-  "field_count": 2,
-  "duplicate_row_count": 0,
-  "fields": [
-    {
-      "name": "postal_code",
-      "null_count": 0,
-      "distinct_count": 3,
-      "observed_types": ["str"],
-      "min_length": 5,
-      "max_length": 5
-    }
-  ]
-}
-```
-
----
-
-# 198. Stable release quality bar
-
-V0.3.0 should not be declared stable merely because parsers work.
-
-Stable means:
-
-```text
-API deliberate
-semantics documented
-errors controlled
-reports reproducible
-extras isolated
-security reviewed
-CI green
-wheel validated
-reference jobs executable
-```
-
----
-
-# 199. Immediate implementation task
-
-After this architecture document is accepted:
-
-```text
+git checkout main
+git pull
 git checkout -b feat/v0.3-quality-formats
 ```
 
-Then implement only:
+Vérifier avant toute modification :
+
+```bash
+make release-check
+```
+
+La baseline doit être `v0.2.0` clean.
+
+---
+
+# 163. Lot 1 — Contract models V2
+
+Modifier avec compatibilité :
+
+```text
+src/pyingestkit/contracts/dataset.py
+```
+
+Éventuellement extraire :
+
+```text
+constraints.py
+```
+
+mais seulement si la lisibilité le justifie.
+
+---
+
+# 164. Lot 2 — Constraint evaluation
+
+Ordre de validation recommandé par champ :
+
+```text
+presence
+nullability
+type
+allowed_values
+pattern
+range
+length
+uniqueness
+```
+
+Cela permet d'éviter des erreurs dérivées absurdes lorsque le type est déjà invalide.
+
+---
+
+# 165. Lot 3 — Composite keys
+
+Implémenter une canonicalisation sûre des tuples de clé.
+
+Les valeurs non hashables doivent être gérées explicitement ou rejetées avec issue contractuel.
+
+---
+
+# 166. Lot 4 — Issue model
+
+Garantir backward compatibility du constructeur V0.2 si possible.
+
+Éviter de casser les utilisateurs pour ajouter des métadonnées facultatives.
+
+---
+
+# 167. Lot 5 — Profiling models
+
+Créer :
+
+```text
+profiling/models.py
+```
+
+avec dataclasses `slots=True`, frozen si possible.
+
+---
+
+# 168. Lot 6 — Profiling engine
+
+Implémenter les métriques de base avec une seule passe autant que raisonnable.
+
+La lisibilité prime sur une micro-optimisation prématurée.
+
+---
+
+# 169. Lot 7 — Report writer
+
+Écrire sous :
+
+```text
+reports/validation.json
+reports/profile.json
+```
+
+via `ArtifactStore`.
+
+---
+
+# 170. Lot 8 — Runtime integration
+
+Le Runner ne doit pas devenir conscient de tous les types métier possibles.
+
+Deux stratégies possibles :
+
+1. steps explicitement écrivent les reports ;
+2. runtime reconnaît des outputs framework-owned comme `DatasetProfile` et `QualityReport` comme il reconnaît déjà `ValidationResult`.
+
+Préférence : intégration limitée aux outputs framework-owned, avec tests et sans sérialiser tout output arbitraire.
+
+---
+
+# 171. Lot 9 — NDJSON
+
+Implémentation stdlib, pas de dépendance.
+
+---
+
+# 172. Lot 10 — Excel
+
+Ajouter extra, parser, fixtures et tests.
+
+Ne pas modifier les deps runtime de base.
+
+---
+
+# 173. Lot 11 — Parquet
+
+Ajouter extra, parser, fixtures et tests.
+
+Valider disponibilité PyArrow avant de figer les bornes.
+
+---
+
+# 174. Lot 12 — Demo jobs
+
+Ajouter progressivement les entry points et mettre à jour les tests d'isolation/plugin discovery.
+
+---
+
+# 175. Lot 13 — CLI
+
+Enrichir `status`, pas de prolifération de commandes.
+
+---
+
+# 176. Lot 14 — Documentation
+
+ADRs + guides + architecture note.
+
+Chaque milestone doit être documenté avant ZIP.
+
+---
+
+# 177. Lot 15 — Hardening
+
+Vérifier :
+
+```text
+secret leakage
+resource errors
+mixed data types
+empty datasets
+invalid files
+missing optional dependencies
+format edge cases
+```
+
+---
+
+# 178. Lot 16 — Distribution
+
+Le wheel smoke doit prouver :
+
+```text
+base install
+excel install
+parquet install
+demo install
+```
+
+---
+
+# 179. Lot 17 — RC1
+
+Construire les vertical slices complets et tous les reports.
+
+Pas de nouvelle fonctionnalité après RC1 sauf correction de bug bloquante.
+
+---
+
+# 180. Lot 18 — Stable
+
+Bump `0.3.0`, build, checksums, tag, release.
+
+---
+
+# 181. Critères de réussite produit
+
+La V0.3 est réussie si un job pack peut faire ceci sans plomberie maison :
+
+```text
+acquire RAW
+parse NDJSON/Excel/Parquet
+obtain Dataset
+validate generic structure/value constraints
+profile dataset
+write quality evidence
+persist run metadata
+inspect status
+```
+
+---
+
+# 182. Critère ultime
+
+Un développeur doit pouvoir écrire un job multi-format et répondre immédiatement :
+
+```text
+Qu'ai-je reçu ?
+Sous quelle forme ?
+Combien de lignes/champs ?
+Quels types ai-je réellement observés ?
+Le dataset respecte-t-il mon contrat ?
+Où sont les anomalies ?
+Où est la preuve de qualité du run ?
+```
+
+sans dépendre d'un notebook Pandas ad hoc.
+
+---
+
+# 183. Architecture signature V0.3
+
+```text
+                         EXTERNAL DATA
+                              │
+                              ▼
+                  ┌───────────────────────┐
+                  │ Acquisition V0.2      │
+                  │ Local / HTTP / Retry  │
+                  └───────────┬───────────┘
+                              ▼
+                         RawArtifact
+                              │
+             ┌────────────────┼────────────────┐
+             ▼                ▼                ▼
+        Text formats       Workbook        Columnar
+       CSV/JSON/NDJSON       XLSX            Parquet
+             └────────────────┼────────────────┘
+                              ▼
+                           Dataset
+                              │
+               ┌──────────────┴──────────────┐
+               ▼                             ▼
+       DatasetContract V2             DatasetProfiler
+               │                             │
+               ▼                             ▼
+       ValidationResult               DatasetProfile
+               └──────────────┬──────────────┘
+                              ▼
+                       Quality Evidence
+                              │
+                 ┌────────────┼────────────┐
+                 ▼            ▼            ▼
+              reports      Manifest     Events/Metadata
+```
+
+---
+
+# 184. Roadmap après V0.3
+
+```text
+V0.1  FOUNDATION
+      ✅ frozen
+
+V0.2  ACQUISITION
+      ✅ released
+
+V0.3  QUALITY & FORMATS
+      ← current planned milestone
+
+V0.4  DIFF / REPLAY / VERSIONING
+
+V0.5  PERSISTENCE TARGETS
+
+V0.6  OBJECT STORAGE
+
+V1.0  STABLE FRAMEWORK CONTRACT
+```
+
+---
+
+# 185. Décision de lancement
+
+La V0.3 peut démarrer lorsque :
+
+```text
+V0.2.0 release-check ✅
+V0.2.0 tag ✅
+V0.2.0 GitHub Release ✅
+V0.2.0 artifacts/checksums ✅
+V0.2.0 administratively closed ✅
+```
+
+Ces conditions sont désormais satisfaites.
+
+Le premier jalon d'exécution est donc :
 
 ```text
 V0.3.0-a1 — Quality Contracts V2
 ```
 
-Initial files:
+et le premier ZIP :
 
 ```text
-src/pyingestkit/contracts/dataset.py
-src/pyingestkit/validation/result.py
-tests/unit/contracts/test_dataset_contract_v2.py
-tests/contract/test_dataset_parser_public_api.py
-docs/adr/ADR-028-dataset-contracts-v2-semantics.md
-docs/guides/dataset-contracts-v2.md
+pyingestkit-v0.3.0-a1-quality-contracts.zip
 ```
-
-No parser dependencies should enter the first alpha.
 
 ---
 
-# 200. Release sequence summary
+# 186. Conclusion
+
+V0.2.0 a donné à PyIngestKit une acquisition industrialisable et un premier contrat de données structuré.
+
+V0.3.0 doit maintenant rendre ce dataset **mesurable, qualifiable, auditable et multi-format**, tout en résistant à trois tentations :
 
 ```text
-V0.2.0
-ACQUISITION RELEASE
-        │
-        ▼
-V0.3.0-a1
-QUALITY CONTRACTS V2
-        │
-        ▼
-V0.3.0-a2
-DATASET PROFILING + QUALITY REPORTS
-        │
-        ▼
-V0.3.0-b1
-NDJSON + EXCEL
-        │
-        ▼
-V0.3.0-b2
-PARQUET
-        │
-        ▼
-V0.3.0-rc1
-QUALITY & FORMATS E2E
-        │
-        ▼
-V0.3.0
-QUALITY & FORMATS RELEASE
+1. devenir un dataframe framework ;
+2. devenir une plateforme Data Quality ;
+3. absorber les normalisations métier.
 ```
 
-This sequence intentionally separates validation semantics, profiling/evidence, new text/spreadsheet formats, and the heavier columnar backend so that each boundary can be reviewed before becoming stable.
+La trajectoire retenue est volontairement progressive :
+
+```text
+Contracts V2
+   ↓
+Profiling + Reports
+   ↓
+NDJSON + Excel
+   ↓
+Parquet
+   ↓
+Full E2E RC
+   ↓
+V0.3.0 Quality & Formats Release
+```
+
+La V0.3 constitue ainsi le pont naturel entre :
+
+```text
+V0.2 — obtenir un Dataset fiable
+```
+
+et :
+
+```text
+V0.4 — comprendre ce qui a changé entre deux versions de Dataset
+```
+
+sans compromettre la doctrine d'origine de PyIngestKit : fournir la plomberie générique de l'ingestion, pas remplacer l'écosystème data.
+
+---
+
+## Document status
+
+```text
+Baseline             : PyIngestKit v0.2.0
+Milestone            : V0.3.0 Quality & Formats
+Architecture         : PROPOSED / READY FOR IMPLEMENTATION
+First implementation : V0.3.0-a1 Quality Contracts V2
+First ZIP            : pyingestkit-v0.3.0-a1-quality-contracts.zip
+Next major milestone : V0.4 Diff / Replay / Versioning
+```

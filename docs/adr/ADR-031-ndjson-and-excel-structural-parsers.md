@@ -1,15 +1,13 @@
 # ADR-031 — NDJSON and Excel are structural parser adapters
 
 ## Status
-
 Accepted — V0.3.0-b1.
 
 ## Decision
+`NdjsonParser` and `ExcelParser` produce the existing dependency-neutral `Dataset`. They preserve source-native primitive values and do not perform business normalization. XLSX support is an optional extra backed by openpyxl and imported lazily.
 
-`NdjsonParser` and `ExcelParser` extend the existing `RawArtifact -> Dataset` parser boundary.
-
-NDJSON is implemented with the Python standard library and accepts one JSON object per non-empty line. Excel uses OpenPyXL through the optional `excel` extra and reads worksheet values in `read_only` / `data_only` mode by default.
-
-Neither parser performs business normalization, trimming, enrichment or schema coercion. Excel native scalar/date values are preserved as returned by OpenPyXL; NDJSON preserves JSON-native values.
-
-OpenPyXL is imported lazily. Constructing/importing PyIngestKit without the `excel` extra must remain valid.
+## Consequences
+- NDJSON remains a lightweight stdlib parser.
+- Excel does not become a mandatory framework dependency.
+- worksheet/header selection is structural configuration, not business mapping.
+- formula calculation, cell renaming, trimming and semantic coercion remain outside the parser boundary.

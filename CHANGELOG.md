@@ -26,7 +26,7 @@
 - removed a duplicate runtime timer initialization discovered during RC hardening;
 - documented the materialized Dataset boundary and RC1 end-to-end architecture.
 
-## [0.3.0b2] - 2026-09-04
+## [0.3.0] - 2026-09-04
 
 ### Beta 2 — Parquet
 
@@ -126,126 +126,110 @@
 
 - made `HttpSource` a framework `Source` and added `fetch(context) -> RawArtifact`;
 - preserved `fetch_response()` as the lower-level transport surface;
-- wrote successful response bytes immutably through the run `ArtifactStore`;
-- computed SHA-256 and persisted source URI, resolved URL, status, content type, ETag,
-  Last-Modified, retrieval timestamp and size;
-- added one-to-one `artifact_http_provenance` metadata persistence while keeping the
-  generic artifact table stable;
-- kept legacy SQLite databases usable through additive `create_all()` schema evolution;
-- redacted secret-looking query values and prevented request/response headers from entering
-  persisted provenance;
-- added offline integration tests covering `HttpSource -> RAW -> manifest -> SQLite metadata`;
-- added missing public artifact imports and compatibility aliases surfaced by contract tests;
-- fixed step metadata consistency when a critical event hook fails after step execution;
-- aligned `pyingest run` return-code/help behavior with the CLI contract;
-- added ADR-024 and the Alpha 2 architecture note.
+- connected successful HTTP response bytes to immutable RAW storage and SHA-256 hashing;
+- added persisted HTTP acquisition provenance: `source_uri`, `resolved_url`, `status_code`, `content_type`, `etag`, `last_modified`, `retrieved_at`, `size_bytes`, `sha256`;
+- added `artifact_http_provenance` as a one-to-one MetadataStore table while keeping the generic `artifacts` table backward-compatible;
+- sanitized effective request/final URLs before persistence and prevented arbitrary request/response headers from entering artifacts, manifests or metadata;
+- added explicit redaction for secret-looking query parameters supplied through `HttpRequest.params`;
+- made `HttpxClient` send the same merged effective URI represented by `HttpRequest`, preserving query parameters already present in the base URL;
+- added offline end-to-end HTTP → RAW → manifest → SQLite tests using `httpx.MockTransport`;
+- added persistence tests proving credentials/tokens are absent from manifest/metadata surfaces;
+- fixed the Alpha 1 Ruff import-order packaging quirk that caused `make quality` / `make verify` to fail on the delivered ZIP;
+- added ADR-024.
 
 ## [0.2.0a1] - 2026-09-03
 
-### Acquisition Alpha 1
+### Acquisition Alpha 1 — HTTP + Retry
 
-- added framework-owned synchronous HTTP transport contracts;
-- added `HttpxClient` on `httpx`;
-- added `HttpSource.fetch_response()` as the acquisition surface;
-- added explicit connect/read/write/pool timeout configuration;
-- added conservative retry policy using Tenacity;
-- added `Retry-After` handling for delta-seconds and HTTP-date values;
-- added idempotence-aware retry behavior;
-- added URL and header sanitization helpers;
-- added deterministic `httpx.MockTransport` tests;
-- added HTTP acquisition architecture documentation and ADRs 022/023;
-- kept pagination, cache, conditional GET, async, XML/Excel/Parquet and database loading out of scope.
+- added framework-owned `HttpRequest`, `HttpResponse` and `HttpClient` contracts;
+- added `HttpxClient` as the default synchronous HTTP adapter behind the framework protocol;
+- added bounded request timeouts and redirect control;
+- added `HttpSource.fetch_response()` as the Alpha 1 transport acquisition surface;
+- added `RetryPolicy` backed internally by Tenacity;
+- default retries are conservative: GET/HEAD and transient HTTP status allowlist only;
+- added bounded exponential backoff, optional jitter and `Retry-After` support;
+- mapped HTTPX timeouts/transport failures to PyIngestKit exceptions;
+- added URL/header redaction at representation/error/logging boundaries;
+- added offline HTTP tests based on `httpx.MockTransport`;
+- added ADR-022 and ADR-023;
+- preserved the V0.1.6 Foundation public API and deferred HTTP → RAW integration to Alpha 2.
 
 ## [0.1.6] - 2026-09-03
 
-### Foundation Freeze
+### Foundation Persistence & Quality Hardening
 
-- froze the V0.1.x Foundation at `0.1.6` after the SQLite→SQLAlchemy migration and
-  Foundation stabilization review;
-- replaced the separate Peewee persistence stack with one SQLAlchemy Core engine shared by
-  SQLite and PostgreSQL adapters;
-- added the PostgreSQL metadata adapter and `postgres` optional dependency group;
-- retained `SQLiteMetadataStore`, `PostgresMetadataStore`, and `MemoryMetadataStore` behind
-  the stable `MetadataStore` boundary;
-- added a canonical metadata schema module and compatibility table exports;
-- fixed nested manifest datetime serialization;
-- split verification into `check`, `quality`, `security`, and `build` gates and made
-  `make verify` their aggregate release command;
-- expanded CI to Python 3.11, 3.12, and 3.13 plus a dedicated Python 3.12 Foundation
-  verification job;
-- added `pip-audit` and retained Bandit as release gates;
-- documented the persistence architecture, schema-evolution posture, and Foundation freeze.
+- adopted SQLAlchemy 2.x Core as the single internal metadata persistence engine;
+- retained `MetadataStore` as the stable framework contract and plain dataclass records as the domain-facing metadata model;
+- refactored SQLite and PostgreSQL metadata adapters onto shared SQLAlchemy tables/statements;
+- kept SQLite as the default backend with foreign keys, WAL mode and bounded busy timeout;
+- normalized standard PostgreSQL DSNs to the psycopg SQLAlchemy dialect while keeping `psycopg` optional via `[postgres]`;
+- explicitly rejected Peewee as a second ORM and deferred Alembic until schema migration requirements are demonstrated;
+- removed hand-built dynamic SQL from the PostgreSQL adapter, eliminating the V0.1.5 Bandit B608 root cause;
+- modernized Python 3.11+ code patterns (`datetime.UTC`, `StrEnum`, `collections.abc`, `Self`) and documented justified broad-exception isolation boundaries;
+- modernized project licensing metadata to PEP 639 / SPDX form;
+- added explicit Ruff lint policy, Ruff formatting gate, Mypy strict gate, Bandit and pip-audit gates;
+- added aggregate `make verify` as the release/foundation-freeze criterion;
+- added ADR-021 to defer Alembic until a released schema change requires compatible in-place migration;
+- added SQLAlchemy persistence tests and SQLite WAL/foreign-key checks;
+- preserved the public top-level API and the existing SQLite table names (`runs`, `steps`, `artifacts`, `validations`, `publications`, `events`).
+
+All notable changes to PyIngestKit are documented here.
 
 ## [0.1.5] - 2026-09-03
 
-### Foundation hardening
+### Foundation consolidation
 
-- added `MetadataStore` abstraction and removed direct runner coupling to SQLite;
-- added `MemoryMetadataStore` and kept SQLite as the default persistent adapter;
-- moved SQLite to the unified `.pyingest/state/pyingest.sqlite3` workspace;
-- added global `--metadata-dsn` and `PYINGEST_METADATA_DSN` support;
-- added `pyingest status` with SQLite and JSON outputs;
-- added standard-library operational logging with Rich terminal rendering;
-- added rotating JSON file logs under `.pyingest/logs/pyingest.log`;
-- added run/job/step correlation and secret redaction filters;
-- added declarative `@job` / `@step` API compiled back to the imperative `Job`/`Step` model;
-- added `pyingest job scaffold --api declarative|imperative`;
-- added CLI verbosity controls (`-v`, `-q`) and logging tests;
-- added declarative API, logging, and workspace ADRs/guides.
+- Unified the default workspace on `.pyingest/`; the demo no longer creates `.pyingest-demo/`.
+- Added `MetadataStore` as a runtime persistence contract distinct from `ArtifactStore`.
+- Added SQLite as the default CLI metadata backend at `.pyingest/state/pyingest.sqlite3`.
+- Added an optional PostgreSQL adapter contract and `postgres` installation extra using lazy Psycopg loading.
+- Persisted runs, steps, artifacts, validations, publications and structural runtime events.
+- Added `pyingest runs` and `pyingest status` with JSON modes and run-ID prefix resolution.
+- Added the declarative `@step` / `@job` API with `StepDefinition`, `StepInvocation`, `JobDefinition` and deterministic `PipelineBuilder`.
+- Kept the imperative `Job` / `Step` / `Pipeline` API as the low-level contract; decorators compile to it.
+- Migrated the bundled demo job pack to decorators and entry-point `JobDefinition` discovery.
+- Added `.fn(...)` as the explicit direct unit-test surface for decorated steps.
+- Added plugin failure isolation so a broken plugin does not hide healthy plugins.
+- Added `-v/--verbose` and `-q/--quiet` logging controls.
+- Stabilized terminal logs as local `YYYY-MM-DD HH:mm:ss`, colored level, short run ID, job and optional step context.
+- Changed step lifecycle boundaries to INFO; implementation details remain DEBUG.
+- Kept full UUIDs and timezone-aware ISO-8601 timestamps in JSON logs and metadata.
+- Added recursive secret-key redaction for persisted runtime parameters.
+- Enforced RAW immutability within a run by refusing silent overwrite.
+- Automatically registers RAW artifacts in both `manifest.json` and MetadataStore.
+- Critical lifecycle-hook failures now converge to a failed `RunResult` and persisted failure state when possible.
+- Added validation/publication metadata tables/contracts without forcing a universal business workflow.
+- Added new ADRs 012–017 and foundation architecture/guides.
+- Added CI/security workflow definitions and wheel-oriented smoke-test guidance.
+- Moved package version to a single `_version.py` source consumed dynamically by setuptools.
 
 ## [0.1.4] - 2026-09-03
 
-### Foundation hardening
+### Added
 
-- added SQLite-backed metadata history under `.pyingest/state/pyingest.sqlite3`;
-- added `pyingest status <run-id>` with human and JSON rendering;
-- removed in-memory global run history from the CLI;
-- wired runtime events and artifacts into persistent metadata;
-- added SQLite schema contract tests and multi-process CLI persistence tests;
+- Production-grade logging configuration based on the Python standard `logging` API.
+- Rich, plain-text, and structured JSON console log formats.
+- Optional rotating file logging with independent level and format.
+- Context propagation for `run_id`, `job_id`, and `step` using `contextvars`.
+- Basic credential redaction for common password/token/API-key patterns.
+- Runtime lifecycle logging in the runner, artifact store, and plugin discovery.
+- `--log-level` and `--log-format` CLI overrides.
+- ADR-011 documenting the logging policy and the decision not to impose Loguru on framework plugins.
 
 ## [0.1.3] - 2026-09-03
 
-### Foundation hardening
-
-- added no-op event bus by default;
-- isolated subscriber failures as warnings;
-- made manifest writing and final lifecycle hooks fail the run;
-- added YAML/DSN password redaction and query sanitization;
-- introduced atomic JSON writes in ArtifactStore;
-- hardened metadata and pipeline contract validation;
+- Added a real installable demo job package and `pyingestkit.jobs` entry point.
+- Added repeatable typed `--param/-p KEY=VALUE` runtime parameters.
 
 ## [0.1.2] - 2026-09-03
 
-### Security hardening
-
-- added recursive configuration secret redaction;
-- sanitized DSN passwords in errors;
-- added atomic publication staging and rollback cleanup;
-- prevented plugin discovery failures from breaking unrelated plugins;
-- added path traversal protection for run/workspace paths;
-- added CI security workflow with Bandit.
+- Replaced the artificial zero-third-party-dependency rule with governed production-grade dependencies.
+- Added Pydantic/PyYAML configuration and machine-safe CLI JSON output.
 
 ## [0.1.1] - 2026-09-03
 
-### Foundation hardening
-
-- fixed multi-process run history by persisting run summaries in `.pyingest/state/runs.json`;
-- aligned `manifest.json` lifecycle fields with the final `RunResult`;
-- resolved YAML job-relative local file sources;
-- fixed stale package metadata in the demo pack;
-- added package markers for bundled demo tests;
+- Replaced argparse with Typer and Rich.
 
 ## [0.1.0] - 2026-09-03
 
-### Foundation
-
-- created src-layout Python package and CLI;
-- added imperative ingestion runtime;
-- added job registry and plugin entry-point discovery;
-- added YAML configuration loader;
-- added local file source and filesystem artifacts;
-- added immutable RAW artifacts and SHA-256 provenance;
-- added validation and atomic publication primitives;
-- added run manifest and structured events;
-- added installable demo job package;
-- added unit, integration, contract tests and CI.
+- Initial MVP foundation: core/runtime, LocalSource, RAW, SHA-256, manifest, validation, atomic publication, plugins and CLI.

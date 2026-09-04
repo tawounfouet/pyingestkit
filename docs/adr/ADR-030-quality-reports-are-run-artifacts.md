@@ -2,28 +2,32 @@
 
 ## Status
 
-Accepted — V0.3.0-a2.
+Accepted — PyIngestKit V0.3.0 Alpha 2.
 
 ## Context
 
-V0.2 stores validation summaries in metadata and the manifest. V0.3 needs stable machine-readable quality evidence without widening the SQL schema for every evolving profiling field.
+Validation and profiling evidence must survive the Python objects that produced it, but
+V0.3 does not yet need relational profile tables or a schema migration framework.
 
 ## Decision
 
-Framework-observed validation and profiling outputs are materialized under:
+Quality evidence is written as JSON run artifacts:
 
 ```text
-runs/<namespace>/<job>/<run-id>/reports/validation.json
-runs/<namespace>/<job>/<run-id>/reports/profile.json
+reports/validation.json
+reports/profile.json
 ```
 
-`RunManifest.reports` contains lightweight references. Report generation emits `QUALITY_REPORT_WRITTEN`; profiling emits `PROFILE_COMPLETED`.
+The run manifest records small additive references to those files. Validation keeps its
+existing MetadataStore records. Profiling is announced through `PROFILE_COMPLETED` and
+`QUALITY_REPORT_WRITTEN` lifecycle events but is not relationalized in V0.3 Alpha 2.
 
-The MetadataStore schema remains unchanged in Alpha 2. Existing validation metadata continues to be persisted as before.
+`QualityReport` is an optional in-memory aggregate; `quality.json` is deferred until an
+end-to-end use case demonstrates value.
 
 ## Consequences
 
-- profile schema can evolve independently of SQL migrations;
-- quality evidence is portable with the run workspace;
-- the manifest remains an index rather than duplicating complete profiles;
-- external catalogs/observability platforms can consume reports later without becoming framework requirements.
+- no SQL migration is required;
+- reports are portable and inspectable beside RAW/manifest artifacts;
+- the manifest remains a compact index rather than embedding full profile payloads;
+- historical profile SQL queries remain a future decision based on demonstrated need.

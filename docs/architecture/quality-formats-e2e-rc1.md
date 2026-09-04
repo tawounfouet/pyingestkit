@@ -1,44 +1,44 @@
 # V0.3.0-rc1 — Quality & Formats E2E
 
-The release candidate integrates all V0.3 quality and format capabilities into executable vertical slices.
+The release candidate closes the V0.3 vertical slice across all supported structured formats.
 
 ```text
-fixture / RAW
-      ↓
-NDJSON / Excel / Parquet Parser
-      ↓
-Dataset
-      ↓
-DatasetContract V2
-      ↓
-ValidationResult
-      ↓
-DatasetProfiler
-      ↓
-DatasetProfile
-      ↓
-validation.json + profile.json
-      ↓
-Manifest + Metadata + Events
+Local / HTTP / deterministic fixture
+                ↓
+          immutable RAW
+                ↓
+ CSV / JSON / NDJSON / XLSX / Parquet
+                ↓
+              Dataset
+                ↓
+       DatasetContract V2
+                ↓
+        ValidationResult
+                ↓
+        DatasetProfiler
+                ↓
+         DatasetProfile
+                ↓
+ validation.json + profile.json
+                ↓
+ Manifest / Metadata / Runtime Events
 ```
 
-## Reference jobs
+## Six reference jobs
 
-The installable demo pack now exposes six jobs:
+```text
+demo.local_file
+demo.http_csv
+demo.http_json
+demo.ndjson_quality
+demo.excel_quality
+demo.parquet_quality
+```
 
-- `demo.local_file`;
-- `demo.http_csv`;
-- `demo.http_json`;
-- `demo.ndjson_quality`;
-- `demo.excel_quality`;
-- `demo.parquet_quality`.
+The three V0.3 quality jobs each execute four steps: fetch deterministic RAW fixture, parse structurally, validate with Contract V2, then profile. `Runner` observes the validation and profile objects and persists portable quality evidence.
 
-The first three are V0.2 non-regression slices. The latter three exercise the complete V0.3 quality-format lifecycle.
+## Optional-format distribution gate
 
-## Distribution gate
+The RC wheel-smoke installs the built framework wheel using its declared `excel` and `parquet` extras, installs the built demo wheel, then executes all six jobs in a fresh virtual environment with no editable install or `PYTHONPATH` dependency.
 
-`make wheel-smoke` creates a clean venv, removes `PYTHONPATH`, installs the built framework wheel with `excel` and `parquet` extras plus the demo-job wheel, then executes all six jobs. This makes optional-format packaging part of the release contract rather than relying only on editable installs.
-
-## Dataset size boundary
-
-V0.3 keeps the Dataset materialized in memory. Parquet may use projection and `max_rows` metadata guardrails, but it does not return a streaming Arrow object. NDJSON similarly parses complete content. This keeps the current parser/validation/profiling contracts deterministic while leaving room for a distinct streaming/buffered Dataset abstraction later.
+The CI matrix validates OpenPyXL and PyArrow wheels on Python 3.11, 3.12 and 3.13. If an upstream wheel stops being available, the release gate must fail explicitly rather than silently skipping the adapter.

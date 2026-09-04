@@ -1,13 +1,15 @@
 # ADR-032 — Parquet is an optional materializing parser adapter
 
 ## Status
-
-Accepted — V0.3.0-b2.
+Accepted — V0.3.0-rc1.
 
 ## Decision
+Parquet support is implemented by `ParquetParser` using PyArrow from the optional `parquet` extra. PyArrow is loaded lazily and is not a mandatory framework dependency. The parser materializes rows into the existing dependency-neutral `Dataset`.
 
-`ParquetParser` is backed by PyArrow through the optional `parquet` extra and converts the selected Parquet table to ordinary Python row mappings before constructing the framework `Dataset`.
+`columns` is a structural projection option. `max_rows` is an explicit safety guard checked from Parquet metadata before row materialization.
 
-PyArrow remains lazy and optional. The parser supports structural column projection and an explicit `max_rows` pre-materialization guard using Parquet metadata.
-
-V0.3 does not expose `pyarrow.Table` as a core contract and does not claim streaming semantics.
+## Consequences
+- the V0.3 Dataset contract remains stable across CSV, JSON, NDJSON, Excel and Parquet;
+- large-file streaming is not pretended: V0.3 Parquet parsing is explicitly in-memory;
+- future buffered/streaming dataset work can evolve behind a separate contract without turning Dataset into a PyArrow table;
+- Pandas and Polars remain absent from the framework core.

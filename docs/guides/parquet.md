@@ -1,22 +1,17 @@
-# Parquet parsing
+# Parquet parsing — V0.3.0-rc1
 
-Install the optional adapter:
+Install the optional backend:
 
 ```bash
 pip install "pyingestkit[parquet]"
 ```
 
-Use the parser like the other structural adapters:
+Then parse a RAW artifact:
 
 ```python
-from pyingestkit.parsers import ParquetParser
+from pyingestkit import ParquetParser
 
-parser = ParquetParser(columns=("id", "name"), max_rows=1_000_000)
-dataset = parser.parse(raw)
+dataset = ParquetParser(columns=("id", "name"), max_rows=1_000_000).parse(raw_artifact)
 ```
 
-PyArrow is imported only when parsing. The Arrow table is an internal decoding representation and is converted to the framework's dependency-neutral `Dataset`.
-
-`columns` performs structural projection. `max_rows` reads Parquet metadata first and raises `ParseError` before table materialization when the artifact exceeds the configured V0.3 in-memory boundary.
-
-V0.3 deliberately does not promise streaming Parquet ingestion into the core Dataset. Large-data job packs may use an explicit Arrow/Polars/DuckDB path after RAW capture when materialization would be inappropriate.
+V0.3 materializes Parquet rows into the neutral in-memory `Dataset`. `max_rows` is therefore recommended for untrusted or potentially very large inputs. No business coercion or dataframe semantics are introduced.
