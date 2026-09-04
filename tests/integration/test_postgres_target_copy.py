@@ -56,43 +56,47 @@ class PostgresCopyIntegrationTests(unittest.TestCase):
 
     def test_copy_preserves_supported_values_and_column_order(self) -> None:
         aware = datetime(2026, 9, 4, 18, 15, tzinfo=timezone(timedelta(hours=2)))
-        dataset = Dataset([
-            {
-                "id": 1,
-                "text_value": "Unicode café — tab\t newline\n quote ' double \"",
-                "int_value": 9_223_372_036,
-                "float_value": 3.1415926535,
-                "decimal_value": Decimal("12345678901234567890.123456789012345678"),
-                "bool_value": True,
-                "date_value": date(2026, 9, 4),
-                "naive_ts": datetime(2026, 9, 4, 16, 15),
-                "aware_ts": aware,
-                "bytes_value": b"\x00\x01binary\xff",
-                "nullable_value": None,
-            },
-            {
-                "id": 2,
-                "text_value": "second row",
-                "int_value": -5,
-                "float_value": -0.25,
-                "decimal_value": Decimal("0.000000000000000001"),
-                "bool_value": False,
-                "date_value": date(2026, 1, 1),
-                "naive_ts": datetime(2026, 1, 1, 0, 0),
-                "aware_ts": datetime(2026, 1, 1, 0, 0, tzinfo=UTC),
-                "bytes_value": b"payload",
-                "nullable_value": "present",
-            },
-        ])
+        dataset = Dataset(
+            [
+                {
+                    "id": 1,
+                    "text_value": "Unicode café — tab\t newline\n quote ' double \"",
+                    "int_value": 9_223_372_036,
+                    "float_value": 3.1415926535,
+                    "decimal_value": Decimal("12345678901234567890.123456789012345678"),
+                    "bool_value": True,
+                    "date_value": date(2026, 9, 4),
+                    "naive_ts": datetime(2026, 9, 4, 16, 15),
+                    "aware_ts": aware,
+                    "bytes_value": b"\x00\x01binary\xff",
+                    "nullable_value": None,
+                },
+                {
+                    "id": 2,
+                    "text_value": "second row",
+                    "int_value": -5,
+                    "float_value": -0.25,
+                    "decimal_value": Decimal("0.000000000000000001"),
+                    "bool_value": False,
+                    "date_value": date(2026, 1, 1),
+                    "naive_ts": datetime(2026, 1, 1, 0, 0),
+                    "aware_ts": datetime(2026, 1, 1, 0, 0, tzinfo=UTC),
+                    "bytes_value": b"payload",
+                    "nullable_value": "present",
+                },
+            ]
+        )
         target = self._target()
         try:
-            result = target.load(TargetLoadRequest(
-                target_id=target.target_id,
-                dataset_id="demo.a2.copy",
-                run_id="run-copy",
-                dataset=dataset,
-                table="pyingest_a2_copy",
-            ))
+            result = target.load(
+                TargetLoadRequest(
+                    target_id=target.target_id,
+                    dataset_id="demo.a2.copy",
+                    run_id="run-copy",
+                    dataset=dataset,
+                    table="pyingest_a2_copy",
+                )
+            )
         finally:
             target.close()
 
@@ -114,13 +118,15 @@ class PostgresCopyIntegrationTests(unittest.TestCase):
         target = self._target()
         try:
             with self.assertRaises(TargetLoadError):
-                target.load(TargetLoadRequest(
-                    target_id=target.target_id,
-                    dataset_id="demo.a2.rollback",
-                    run_id="run-copy-rollback",
-                    dataset=dataset,
-                    table="pyingest_a2_copy",
-                ))
+                target.load(
+                    TargetLoadRequest(
+                        target_id=target.target_id,
+                        dataset_id="demo.a2.rollback",
+                        run_id="run-copy-rollback",
+                        dataset=dataset,
+                        table="pyingest_a2_copy",
+                    )
+                )
         finally:
             target.close()
         with self.engine.connect() as connection:
@@ -131,24 +137,32 @@ class PostgresCopyIntegrationTests(unittest.TestCase):
         target = self._target()
         try:
             with self.assertRaisesRegex(TargetConfigurationError, "schema mismatch"):
-                target.load(TargetLoadRequest(
-                    target_id=target.target_id,
-                    dataset_id="demo.a2.schema",
-                    run_id="run-schema",
-                    dataset=Dataset([{"id": "wrong-type"}], fields=("id",)),
-                    table="pyingest_a2_copy",
-                ))
+                target.load(
+                    TargetLoadRequest(
+                        target_id=target.target_id,
+                        dataset_id="demo.a2.schema",
+                        run_id="run-schema",
+                        dataset=Dataset([{"id": "wrong-type"}], fields=("id",)),
+                        table="pyingest_a2_copy",
+                    )
+                )
         finally:
             target.close()
 
     @staticmethod
     def _minimal_row(identifier: int, text: str) -> dict[str, object]:
         return {
-            "id": identifier, "text_value": text, "int_value": 1, "float_value": 1.0,
-            "decimal_value": Decimal("1.0"), "bool_value": True,
-            "date_value": date(2026, 9, 4), "naive_ts": datetime(2026, 9, 4, 12, 0),
+            "id": identifier,
+            "text_value": text,
+            "int_value": 1,
+            "float_value": 1.0,
+            "decimal_value": Decimal("1.0"),
+            "bool_value": True,
+            "date_value": date(2026, 9, 4),
+            "naive_ts": datetime(2026, 9, 4, 12, 0),
             "aware_ts": datetime(2026, 9, 4, 12, 0, tzinfo=UTC),
-            "bytes_value": b"x", "nullable_value": None,
+            "bytes_value": b"x",
+            "nullable_value": None,
         }
 
 
