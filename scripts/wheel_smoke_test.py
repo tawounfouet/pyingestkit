@@ -8,8 +8,8 @@ import tempfile
 import venv
 from pathlib import Path
 
-FRAMEWORK_VERSION = "0.5.0b1"
-DEMO_VERSION = "0.5.0b1"
+FRAMEWORK_VERSION = "0.5.0b2"
+DEMO_VERSION = "0.5.0b2"
 QUALITY_JOBS = ("demo.ndjson_quality", "demo.excel_quality", "demo.parquet_quality")
 VERSIONED_JOB = "demo.versioned_ndjson"
 
@@ -81,8 +81,14 @@ def main() -> int:
                 "-c",
                 (
                     "import openpyxl, pyarrow, psycopg, pyingestkit; "
-                    "from pyingestkit import PostgresTarget; "
+                    "from pyingestkit import ("
+                    "IdempotencyAction, IdempotencyPolicy, PostgresTarget, TargetLoadExecutor); "
                     f"assert pyingestkit.__version__ == '{FRAMEWORK_VERSION}'; "
+                    "assert PostgresTarget.B2_CAPABILITIES.truncate_load; "
+                    "assert PostgresTarget.B2_CAPABILITIES.replace; "
+                    "assert IdempotencyAction.SKIP.value == 'skip'; "
+                    "assert IdempotencyPolicy.AUTO.value == 'auto'; "
+                    "assert TargetLoadExecutor.__name__ == 'TargetLoadExecutor'; "
                     "print('installed_from=' + pyingestkit.__file__); "
                     "print('openpyxl=' + openpyxl.__version__); "
                     "print('pyarrow=' + pyarrow.__version__)"
@@ -209,14 +215,14 @@ def main() -> int:
                 f"found {len(reports)}"
             )
         for report_path in reports:
-            payload = json.loads(report_path.read_text(encoding="utf-8"))
+            payload = json.loads(diff_path.read_text(encoding="utf-8"))
             row_count = payload["profile"]["row_count"]
             if row_count not in (2, 3):
                 raise SystemExit(f"Unexpected profile report: {report_path}")
 
     shutil.rmtree(workspace, ignore_errors=True)
     print(
-        "OK: V0.5.0-b1 wheels preserve seven V0.4 reference jobs and target-load metadata while proving "
+        "OK: V0.5.0-b2 wheels preserve seven V0.4 reference jobs and target-load idempotency contracts while proving "
         "V1 -> V2 -> diff -> publish -> strict RAW replay"
     )
     return 0

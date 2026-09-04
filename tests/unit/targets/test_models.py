@@ -3,7 +3,7 @@ from __future__ import annotations
 import unittest
 
 from pyingestkit import Dataset
-from pyingestkit.targets import LoadMode, TargetLoadRequest
+from pyingestkit.targets import IdempotencyPolicy, LoadMode, TargetLoadRequest
 
 
 class TargetModelTests(unittest.TestCase):
@@ -48,6 +48,18 @@ class TargetModelTests(unittest.TestCase):
                 dataset=dataset,
                 table="demo_dataset",
                 key_fields=("missing",),
+            )
+
+    def test_require_version_idempotency_policy_rejects_unversioned_request(self) -> None:
+        dataset = Dataset([{"id": 1}], fields=("id",))
+        with self.assertRaisesRegex(ValueError, "dataset_version_id is required"):
+            TargetLoadRequest(
+                target_id="postgres.demo",
+                dataset_id="demo.dataset",
+                run_id="run-1",
+                dataset=dataset,
+                table="demo_dataset",
+                idempotency_policy=IdempotencyPolicy.REQUIRE_VERSION,
             )
 
 

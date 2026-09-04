@@ -29,6 +29,11 @@ class Target(ABC):
     def open(self) -> Self:
         """Validate that the target can be reached and is ready for loads."""
 
+    def resolve_destination(self, request: TargetLoadRequest) -> str:
+        """Return the credential-free destination identity used for audit/idempotency."""
+
+        return f"{request.schema + '.' if request.schema else ''}{request.table}"
+
     @abstractmethod
     def load(self, request: TargetLoadRequest) -> TargetLoadResult:
         """Materialize one Dataset according to an explicit load request."""

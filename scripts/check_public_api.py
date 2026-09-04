@@ -28,6 +28,8 @@ expected = {
     "DiffPolicy",
     "DiffKind",
     "DiffEntry",
+    "IdempotencyAction",
+    "IdempotencyPolicy",
     "Job",
     "JobDefinition",
     "JsonParser",
@@ -52,6 +54,8 @@ expected = {
     "StepResult",
     "Target",
     "TargetCapabilities",
+    "TargetLoadDecision",
+    "TargetLoadExecutor",
     "TargetLoadRequest",
     "TargetLoadResult",
     "TargetLoadStatus",
@@ -63,6 +67,6 @@ expected = {
 actual = set(pyingestkit.__all__)
 if actual != expected:
     raise SystemExit(f"Unexpected public API. expected={sorted(expected)} actual={sorted(actual)}")
-if pyingestkit.__version__ != "0.5.0b1":
+if pyingestkit.__version__ != "0.5.0b2":
     raise SystemExit(f"Unexpected version: {pyingestkit.__version__}")
-print("OK: public API matches V0.5.0-b1 PostgreSQL target-load metadata contract")
+print("OK: public API matches V0.5.0-b2 PostgreSQL load-mode/idempotency contract")

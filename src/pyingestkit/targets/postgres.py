@@ -6,7 +6,7 @@ from datetime import UTC, datetime
 from typing import Any, Self
 from uuid import uuid4
 
-from sqlalchemy import MetaData, Table, create_engine, insert
+from sqlalchemy import MetaData, Table, create_engine, delete, insert
 from sqlalchemy.engine import Connection, Engine, make_url
 from sqlalchemy.exc import ArgumentError, NoSuchModuleError, SQLAlchemyError
 
@@ -60,9 +60,9 @@ def _validate_identifier(value: str, *, label: str) -> str:
 class PostgresTarget(Target):
     """PostgreSQL Dataset target using SQLAlchemy Core + psycopg COPY.
 
-    V0.5.0-a2 keeps the A1 atomic Target contract while adding deterministic
-    Dataset schema mapping and PostgreSQL COPY as the production bulk-load path.
-    Richer load modes and idempotency remain later V0.5 milestones.
+    V0.5.0-b2 supports APPEND, TRUNCATE_LOAD and REPLACE with one transaction
+    per materialization. Idempotency decisions remain outside the Target and are
+    implemented by TargetLoadExecutor over B1 target-load history.
     """
 
     A2_CAPABILITIES = TargetCapabilities(
@@ -71,6 +71,17 @@ class PostgresTarget(Target):
         append=True,
         truncate_load=False,
         replace=False,
+        upsert=False,
+        staging=False,
+        row_count_verification=False,
+        schema_creation=False,
+    )
+    B2_CAPABILITIES = TargetCapabilities(
+        transactional=True,
+        bulk_load=True,
+        append=True,
+        truncate_load=True,
+        replace=True,
         upsert=False,
         staging=False,
         row_count_verification=False,
@@ -117,7 +128,7 @@ class PostgresTarget(Target):
 
     @property
     def capabilities(self) -> TargetCapabilities:
-        return self.A2_CAPABILITIES
+        return self.B2_CAPABILITIES
 
     @property
     def safe_dsn(self) -> str:
@@ -139,6 +150,13 @@ class PostgresTarget(Target):
             raise TargetConnectionError(message) from exc
         return self
 
+    def resolve_destination(self, request: TargetLoadRequest) -> str:
+        schema = self.default_schema if request.schema is None else request.schema
+        if schema is not None:
+            _validate_identifier(schema, label="schema")
+        _validate_identifier(request.table, label="table")
+        return f"{schema + '.' if schema else ''}{request.table}"
+
     def load(self, request: TargetLoadRequest) -> TargetLoadResult:
         self._ensure_open()
         if request.target_id != self.target_id:
@@ -146,10 +164,21 @@ class PostgresTarget(Target):
                 "TargetLoadRequest targets "
                 f"{request.target_id!r}, but this target is {self.target_id!r}"
             )
-        if request.mode is not LoadMode.APPEND:
+        if request.mode not in {
+            LoadMode.APPEND,
+            LoadMode.TRUNCATE_LOAD,
+            LoadMode.REPLACE,
+        }:
             raise UnsupportedLoadModeError(
-                f"PostgresTarget V0.5.0-a2 supports only {LoadMode.APPEND.value!r}; "
-                f"requested {request.mode.value!r}"
+                f"PostgresTarget V0.5.0-b2 does not support {request.mode.value!r}"
+            )
+        if (
+            request.expected_row_count is not None
+            and request.dataset.row_count != request.expected_row_count
+        ):
+            raise TargetConfigurationError(
+                "TargetLoadRequest expected_row_count mismatch: "
+                f"expected {request.expected_row_count}, got {request.dataset.row_count}"
             )
 
         schema = self.default_schema if request.schema is None else request.schema
@@ -164,10 +193,13 @@ class PostgresTarget(Target):
         started_at = datetime.now(UTC)
         started = time.perf_counter()
         rows_loaded = 0
+        rows_cleared = 0
         try:
             with self._engine.begin() as connection:
                 table = Table(table_name, MetaData(), schema=schema, autoload_with=connection)
+                # Validate before destructive mutation so schema mismatches never clear data.
                 self._schema_mapper.validate_table(plan, table)
+                rows_cleared = self._prepare_table_for_mode(connection, table, request.mode)
                 rows_loaded = self._load_rows(connection, table, request)
         except TargetConfigurationError:
             raise
@@ -178,6 +210,13 @@ class PostgresTarget(Target):
         completed_at = datetime.now(UTC)
         duration = max(time.perf_counter() - started, 0.0)
         destination = f"{schema + '.' if schema else ''}{table_name}"
+        metrics: dict[str, int | float] = {
+            "copy_rows": rows_loaded if self._engine.dialect.name == "postgresql" else 0,
+            "rows_per_second": rows_loaded / duration if duration else 0.0,
+            "content_reset": int(request.mode is not LoadMode.APPEND),
+        }
+        if request.mode is LoadMode.REPLACE:
+            metrics["rows_deleted"] = rows_cleared
         return TargetLoadResult(
             load_id=str(uuid4()),
             target_id=self.target_id,
@@ -193,11 +232,38 @@ class PostgresTarget(Target):
             completed_at=completed_at,
             duration_seconds=duration,
             destination=destination,
-            metrics={
-                "copy_rows": rows_loaded if self._engine.dialect.name == "postgresql" else 0,
-                "rows_per_second": rows_loaded / duration if duration else 0.0,
-            },
+            metrics=metrics,
         )
+
+    def _prepare_table_for_mode(
+        self,
+        connection: Connection,
+        table: Table,
+        mode: LoadMode,
+    ) -> int:
+        if mode is LoadMode.APPEND:
+            return 0
+        if mode is LoadMode.TRUNCATE_LOAD:
+            self._truncate_table(connection, table)
+            return 0
+        if mode is LoadMode.REPLACE:
+            result = connection.execute(delete(table))
+            return max(int(result.rowcount or 0), 0)
+        raise UnsupportedLoadModeError(f"Unsupported load mode: {mode.value}")
+
+    def _truncate_table(self, connection: Connection, table: Table) -> None:
+        if connection.dialect.name != "postgresql":
+            # Unit-test fallback. Production PostgreSQL uses transactional TRUNCATE.
+            connection.execute(delete(table))
+            return
+        preparer = connection.dialect.identifier_preparer
+        table_part = preparer.quote(table.name)
+        qualified = (
+            f"{preparer.quote(table.schema)}.{table_part}"
+            if table.schema is not None
+            else table_part
+        )
+        connection.exec_driver_sql(f"TRUNCATE TABLE {qualified}")
 
     def _load_rows(
         self,
@@ -225,7 +291,8 @@ class PostgresTarget(Target):
             from psycopg import sql
         except ModuleNotFoundError as exc:
             raise TargetConfigurationError(
-                "PostgresTarget COPY requires psycopg. Install PyIngestKit with the 'postgres' extra."
+                "PostgresTarget COPY requires psycopg. "
+                "Install PyIngestKit with the 'postgres' extra."
             ) from exc
 
         driver_connection: Any = connection.connection.driver_connection

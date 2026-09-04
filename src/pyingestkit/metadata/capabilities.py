@@ -81,7 +81,7 @@ class TargetLoadMetadataCapability(ABC):
     """Optional capability for auditable target materialization records.
 
     Kept separate from MetadataStore so existing third-party stores remain valid.
-    B1 persists facts only; load-mode idempotency remains a B2 concern.
+    B1 introduced persistence; B2 adds history filters used by deterministic idempotency.
     """
 
     @abstractmethod
@@ -99,6 +99,9 @@ class TargetLoadMetadataCapability(ABC):
         run_id: str | None = None,
         dataset_id: str | None = None,
         target_id: str | None = None,
+        dataset_version_id: str | None = None,
+        destination: str | None = None,
+        mode: str | None = None,
         status: str | None = None,
         limit: int = 100,
     ) -> tuple[TargetLoadRecord, ...]:

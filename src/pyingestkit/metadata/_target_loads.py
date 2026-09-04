@@ -75,6 +75,9 @@ class SQLAlchemyTargetLoadMetadataMixin(TargetLoadMetadataCapability):
         run_id: str | None = None,
         dataset_id: str | None = None,
         target_id: str | None = None,
+        dataset_version_id: str | None = None,
+        destination: str | None = None,
+        mode: str | None = None,
         status: str | None = None,
         limit: int = 100,
     ) -> tuple[TargetLoadRecord, ...]:
@@ -85,6 +88,12 @@ class SQLAlchemyTargetLoadMetadataMixin(TargetLoadMetadataCapability):
             statement = statement.where(target_loads.c.dataset_id == dataset_id)
         if target_id is not None:
             statement = statement.where(target_loads.c.target_id == target_id)
+        if dataset_version_id is not None:
+            statement = statement.where(target_loads.c.dataset_version_id == dataset_version_id)
+        if destination is not None:
+            statement = statement.where(target_loads.c.destination == destination)
+        if mode is not None:
+            statement = statement.where(target_loads.c.mode == mode.lower())
         if status is not None:
             statement = statement.where(target_loads.c.status == status.upper())
         statement = statement.order_by(
@@ -144,6 +153,9 @@ class MemoryTargetLoadMetadataMixin(TargetLoadMetadataCapability):
         run_id: str | None = None,
         dataset_id: str | None = None,
         target_id: str | None = None,
+        dataset_version_id: str | None = None,
+        destination: str | None = None,
+        mode: str | None = None,
         status: str | None = None,
         limit: int = 100,
     ) -> tuple[TargetLoadRecord, ...]:
@@ -154,6 +166,12 @@ class MemoryTargetLoadMetadataMixin(TargetLoadMetadataCapability):
             rows = [row for row in rows if row.dataset_id == dataset_id]
         if target_id is not None:
             rows = [row for row in rows if row.target_id == target_id]
+        if dataset_version_id is not None:
+            rows = [row for row in rows if row.dataset_version_id == dataset_version_id]
+        if destination is not None:
+            rows = [row for row in rows if row.destination == destination]
+        if mode is not None:
+            rows = [row for row in rows if row.mode == mode.lower()]
         if status is not None:
             rows = [row for row in rows if row.status == status.upper()]
         rows.sort(key=lambda row: (row.started_at, row.load_id), reverse=True)

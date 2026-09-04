@@ -24,8 +24,12 @@ class TargetClosedError(TargetError):
 
 
 class UnsupportedLoadModeError(TargetError):
-    """Raised when a backend does not yet implement the requested load mode."""
+    """Raised when a backend does not implement the requested load mode."""
 
 
 class InvalidTargetIdentifierError(TargetConfigurationError):
     """Raised when a backend identifier violates the target safety policy."""
+
+
+class TargetLoadConflictError(TargetError):
+    """Raised when idempotency history shows the same logical load is still active."""

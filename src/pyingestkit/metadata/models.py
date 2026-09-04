@@ -136,7 +136,9 @@ class TargetLoadRecord:
             started_at=result.started_at,
             completed_at=result.completed_at,
             duration_seconds=result.duration_seconds,
-            idempotency_action=result.idempotency_action,
+            idempotency_action=(
+                None if result.idempotency_action is None else result.idempotency_action.value
+            ),
             metrics=dict(result.metrics),
             error=result.error,
             created_at=created_at or result.completed_at,

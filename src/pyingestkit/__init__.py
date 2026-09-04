@@ -18,10 +18,14 @@ from .quality import QualityReport
 from .replay import ReplayContext, ReplayRawArtifact, ReplayResult, ReplayService
 from .runtime.runner import Runner
 from .targets import (
+    IdempotencyAction,
+    IdempotencyPolicy,
     LoadMode,
     PostgresTarget,
     Target,
     TargetCapabilities,
+    TargetLoadDecision,
+    TargetLoadExecutor,
     TargetLoadRequest,
     TargetLoadResult,
     TargetLoadStatus,
@@ -61,6 +65,8 @@ __all__ = [
     "Job",
     "JobDefinition",
     "JsonParser",
+    "IdempotencyAction",
+    "IdempotencyPolicy",
     "NdjsonParser",
     "ParquetParser",
     "Pipeline",
@@ -84,6 +90,8 @@ __all__ = [
     "PostgresTarget",
     "Target",
     "TargetCapabilities",
+    "TargetLoadDecision",
+    "TargetLoadExecutor",
     "TargetLoadRequest",
     "TargetLoadResult",
     "TargetLoadStatus",

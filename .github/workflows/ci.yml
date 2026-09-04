@@ -51,6 +51,7 @@ jobs:
           python -m pytest -q
           tests/integration/test_postgres_target_copy.py
           tests/integration/test_postgres_metadata_target_loads.py
+          tests/integration/test_postgres_load_modes_idempotency.py
 
   foundation-verify:
     runs-on: ubuntu-latest
@@ -72,10 +73,10 @@ jobs:
       - run: pyingest run demo.excel_quality --config examples/plugin_package/demo-quality.yml
       - run: pyingest run demo.parquet_quality --config examples/plugin_package/demo-quality.yml
       - run: pyingest runs
-      - name: Upload V0.5.0-b1 PostgreSQL metadata-hardening artifact
+      - name: Upload V0.5.0-b2 PostgreSQL load-modes/idempotency artifact
         uses: actions/upload-artifact@v4
         with:
-          name: pyingestkit-v0.5.0-b1-postgres-metadata
+          name: pyingestkit-v0.5.0-b2-postgres-load-modes-idempotency
           path: |
             .
             !.git/**

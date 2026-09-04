@@ -6,13 +6,25 @@ from .errors import (
     TargetConfigurationError,
     TargetConnectionError,
     TargetError,
+    TargetLoadConflictError,
     TargetLoadError,
     UnsupportedLoadModeError,
 )
-from .models import LoadMode, TargetLoadRequest, TargetLoadResult, TargetLoadStatus
+from .idempotency import TargetLoadExecutor
+from .models import (
+    IdempotencyAction,
+    IdempotencyPolicy,
+    LoadMode,
+    TargetLoadDecision,
+    TargetLoadRequest,
+    TargetLoadResult,
+    TargetLoadStatus,
+)
 from .postgres import PostgresTarget
 
 __all__ = [
+    "IdempotencyAction",
+    "IdempotencyPolicy",
     "InvalidTargetIdentifierError",
     "LoadMode",
     "PostgresTarget",
@@ -22,7 +34,10 @@ __all__ = [
     "TargetConfigurationError",
     "TargetConnectionError",
     "TargetError",
+    "TargetLoadConflictError",
+    "TargetLoadDecision",
     "TargetLoadError",
+    "TargetLoadExecutor",
     "TargetLoadRequest",
     "TargetLoadResult",
     "TargetLoadStatus",

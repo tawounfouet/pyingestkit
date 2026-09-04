@@ -62,3 +62,5 @@ Dataset snapshot format at `snapshot_version = "1"`. Portable diff reports are f
 - [ADR-043 — PostgreSQL Dataset type mapping is deterministic and conservative](ADR-043-postgres-dataset-type-mapping-policy.md)
 - [ADR-044 — psycopg 3 COPY is the PostgreSQL production bulk-load path](ADR-044-postgres-copy-primary-bulk-load-path.md)
 - [ADR-045 — Target-load metadata is an additive run-linked capability](ADR-045-target-load-metadata-additive-capability.md)
+- [ADR-046 — PostgreSQL content load modes share one atomic transaction boundary](ADR-046-postgres-load-mode-transaction-semantics.md)
+- [ADR-047 — Target-load idempotency is history-driven and remains outside Target](ADR-047-target-load-idempotency-history-driven.md)

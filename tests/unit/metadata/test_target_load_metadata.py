@@ -92,7 +92,7 @@ class TargetLoadMetadataTests(unittest.TestCase):
             store = SQLiteMetadataStore.for_workspace(root)
             context = RunContext(
                 job_id="demo.metadata",
-                job_version="0.5.0b1",
+                job_version="0.5.0b2",
                 artifact_store=LocalArtifactStore(root / "artifacts"),
             )
             store.start_run(context)
@@ -110,7 +110,13 @@ class TargetLoadMetadataTests(unittest.TestCase):
             stored = store.get_target_load(record.load_id)
             self.assertEqual(stored, record)
             self.assertEqual(
-                store.list_target_loads(dataset_id="demo.dataset", target_id="postgres.demo"),
+                store.list_target_loads(
+                    dataset_id="demo.dataset",
+                    target_id="postgres.demo",
+                    dataset_version_id="sha256-abc",
+                    destination="public.demo_dataset",
+                    mode="append",
+                ),
                 (record,),
             )
 
