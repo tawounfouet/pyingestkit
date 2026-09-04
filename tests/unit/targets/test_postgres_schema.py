@@ -9,13 +9,13 @@ from sqlalchemy import (
     BOOLEAN,
     DATE,
     DOUBLE_PRECISION,
-    LargeBinary,
-    MetaData,
     NUMERIC,
-    Table,
-    Text,
     TIMESTAMP,
     Column,
+    LargeBinary,
+    MetaData,
+    Table,
+    Text,
 )
 
 from pyingestkit import Dataset
@@ -28,18 +28,22 @@ class PostgresSchemaMapperTests(unittest.TestCase):
         self.mapper = PostgresSchemaMapper()
 
     def test_mapping_is_deterministic_for_supported_python_values(self) -> None:
-        dataset = Dataset([{
-            "text_value": "café\nquoted \"text\"",
-            "int_value": 42,
-            "float_value": 1.5,
-            "decimal_value": Decimal("1234567890.123456789"),
-            "bool_value": True,
-            "date_value": date(2026, 9, 4),
-            "naive_ts": datetime(2026, 9, 4, 12, 30),
-            "aware_ts": datetime(2026, 9, 4, 12, 30, tzinfo=UTC),
-            "bytes_value": b"\x00\x01payload",
-            "nullable": None,
-        }])
+        dataset = Dataset(
+            [
+                {
+                    "text_value": "café\nquoted \"text\"",
+                    "int_value": 42,
+                    "float_value": 1.5,
+                    "decimal_value": Decimal("1234567890.123456789"),
+                    "bool_value": True,
+                    "date_value": date(2026, 9, 4),
+                    "naive_ts": datetime(2026, 9, 4, 12, 30),
+                    "aware_ts": datetime(2026, 9, 4, 12, 30, tzinfo=UTC),
+                    "bytes_value": b"\x00\x01payload",
+                    "nullable": None,
+                }
+            ]
+        )
         plan = self.mapper.plan(dataset)
         actual = {column.name: column.value_type for column in plan.columns}
         self.assertEqual(actual["text_value"], PostgresValueType.TEXT)
@@ -61,10 +65,12 @@ class PostgresSchemaMapperTests(unittest.TestCase):
         )
 
     def test_naive_and_aware_datetimes_are_not_mixed_silently(self) -> None:
-        dataset = Dataset([
-            {"ts": datetime(2026, 9, 4, 12, 0)},
-            {"ts": datetime(2026, 9, 4, 12, 0, tzinfo=UTC)},
-        ])
+        dataset = Dataset(
+            [
+                {"ts": datetime(2026, 9, 4, 12, 0)},
+                {"ts": datetime(2026, 9, 4, 12, 0, tzinfo=UTC)},
+            ]
+        )
         with self.assertRaisesRegex(TargetConfigurationError, "incompatible"):
             self.mapper.plan(dataset)
 
@@ -87,14 +93,22 @@ class PostgresSchemaMapperTests(unittest.TestCase):
             Column("bytes_value", LargeBinary),
             Column("nullable", Text),
         )
-        dataset = Dataset([{
-            "text_value": "x", "int_value": 1, "float_value": 1.25,
-            "decimal_value": Decimal("1.25"), "bool_value": False,
-            "date_value": date(2026, 9, 4),
-            "naive_ts": datetime(2026, 9, 4, 10, 0),
-            "aware_ts": datetime(2026, 9, 4, 10, 0, tzinfo=UTC),
-            "bytes_value": b"x", "nullable": None,
-        }])
+        dataset = Dataset(
+            [
+                {
+                    "text_value": "x",
+                    "int_value": 1,
+                    "float_value": 1.25,
+                    "decimal_value": Decimal("1.25"),
+                    "bool_value": False,
+                    "date_value": date(2026, 9, 4),
+                    "naive_ts": datetime(2026, 9, 4, 10, 0),
+                    "aware_ts": datetime(2026, 9, 4, 10, 0, tzinfo=UTC),
+                    "bytes_value": b"x",
+                    "nullable": None,
+                }
+            ]
+        )
         self.mapper.validate_table(self.mapper.plan(dataset), table)
 
     def test_existing_table_validation_reports_type_mismatch_before_load(self) -> None:
