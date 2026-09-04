@@ -84,9 +84,7 @@ class QualityReportsRuntimeTests(unittest.TestCase):
             )
             self.assertEqual(status_result.exit_code, 0, status_result.output)
             status_payload = json.loads(status_result.stdout)
-            status_reports = {
-                (entry["kind"], entry["path"]) for entry in status_payload["reports"]
-            }
+            status_reports = {(entry["kind"], entry["path"]) for entry in status_payload["reports"]}
             self.assertEqual(status_reports, report_pairs)
 
 
