@@ -23,7 +23,16 @@ class CliSmokeTests(unittest.TestCase):
     def test_root_help(self) -> None:
         result = self.runner.invoke(app, ["--help"])
         self.assertEqual(result.exit_code, 0, result.output)
-        for command in ("jobs", "inspect", "run", "runs", "status", "versions", "published", "replay"):
+        for command in (
+            "jobs",
+            "inspect",
+            "run",
+            "runs",
+            "status",
+            "versions",
+            "published",
+            "replay",
+        ):
             self.assertIn(command, result.output)
 
     def test_help_command(self) -> None:
