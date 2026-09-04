@@ -48,7 +48,7 @@ def validate_csv_dataset(data: Dataset) -> ValidationResult:
 
 @job(
     id="demo.http_csv",
-    version="0.4.0b2",
+    version="0.4.0rc1",
     description="Reference HTTP -> RAW -> CSV -> Dataset -> validation vertical slice.",
 )
 def http_csv_job() -> None:

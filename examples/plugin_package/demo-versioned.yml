@@ -1,0 +1,14 @@
+runtime:
+  workspace: .pyingest
+  fixture_mode: true
+  parameters: {}
+
+metadata:
+  backend: sqlite
+
+logging:
+  level: INFO
+  format: rich
+  console: false
+  file:
+    enabled: false

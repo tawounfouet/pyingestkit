@@ -12,7 +12,7 @@ DEMO_PACKAGE = ROOT / "examples" / "plugin_package"
 
 
 class ReferenceJobContractTests(unittest.TestCase):
-    def test_demo_package_declares_six_reference_entry_points(self) -> None:
+    def test_demo_package_declares_seven_reference_entry_points(self) -> None:
         payload = tomllib.loads((DEMO_PACKAGE / "pyproject.toml").read_text(encoding="utf-8"))
         entry_points = payload["project"]["entry-points"]["pyingestkit.jobs"]
         self.assertEqual(
@@ -24,6 +24,7 @@ class ReferenceJobContractTests(unittest.TestCase):
                 "demo-ndjson-quality": "pyingestkit_demo_jobs.ndjson_quality:job_definition",
                 "demo-excel-quality": "pyingestkit_demo_jobs.excel_quality:job_definition",
                 "demo-parquet-quality": "pyingestkit_demo_jobs.parquet_quality:job_definition",
+                "demo-versioned-ndjson": "pyingestkit_demo_jobs.versioned_ndjson:job_definition",
             },
         )
 
@@ -37,8 +38,19 @@ class ReferenceJobContractTests(unittest.TestCase):
             from pyingestkit_demo_jobs.local_file import job_definition as local_job
             from pyingestkit_demo_jobs.ndjson_quality import job_definition as ndjson_job
             from pyingestkit_demo_jobs.parquet_quality import job_definition as parquet_job
+            from pyingestkit_demo_jobs.versioned_ndjson import (
+                job_definition as versioned_ndjson_job,
+            )
 
-            jobs = (local_job, csv_job, json_job, ndjson_job, excel_job, parquet_job)
+            jobs = (
+                local_job,
+                csv_job,
+                json_job,
+                ndjson_job,
+                excel_job,
+                parquet_job,
+                versioned_ndjson_job,
+            )
             self.assertTrue(all(isinstance(job, JobDefinition) for job in jobs))
             self.assertEqual(
                 [job.id for job in jobs],
@@ -49,17 +61,21 @@ class ReferenceJobContractTests(unittest.TestCase):
                     "demo.ndjson_quality",
                     "demo.excel_quality",
                     "demo.parquet_quality",
+                    "demo.versioned_ndjson",
                 ],
             )
-            self.assertEqual([len(job.build().pipeline()) for job in jobs], [1, 3, 3, 4, 4, 4])
-            self.assertTrue(all(job.version == "0.4.0b2" for job in jobs))
+            self.assertEqual([len(job.build().pipeline()) for job in jobs], [1, 3, 3, 4, 4, 4, 5])
+            self.assertTrue(all(job.version == "0.4.0rc1" for job in jobs))
         finally:
             sys.path.remove(src)
 
     def test_demo_configs_are_fixture_first(self) -> None:
-        http_config = (DEMO_PACKAGE / "demo-http.yml").read_text(encoding="utf-8")
-        quality_config = (DEMO_PACKAGE / "demo-quality.yml").read_text(encoding="utf-8")
-        for config in (http_config, quality_config):
+        configs = (
+            (DEMO_PACKAGE / "demo-http.yml").read_text(encoding="utf-8"),
+            (DEMO_PACKAGE / "demo-quality.yml").read_text(encoding="utf-8"),
+            (DEMO_PACKAGE / "demo-versioned.yml").read_text(encoding="utf-8"),
+        )
+        for config in configs:
             self.assertIn("fixture_mode: true", config)
             self.assertIn("workspace: .pyingest", config)
 

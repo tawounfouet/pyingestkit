@@ -17,13 +17,13 @@ class CliSmokeTests(unittest.TestCase):
     def test_version(self) -> None:
         result = self.runner.invoke(app, ["--version"])
         self.assertEqual(result.exit_code, 0, result.output)
-        self.assertIn("0.4.0b2", result.output)
+        self.assertIn("0.4.0rc1", result.output)
         self.assertNotIn("\x1b", result.output)
 
     def test_root_help(self) -> None:
         result = self.runner.invoke(app, ["--help"])
         self.assertEqual(result.exit_code, 0, result.output)
-        for command in ("jobs", "inspect", "run", "runs", "status"):
+        for command in ("jobs", "inspect", "run", "runs", "status", "versions", "published", "replay"):
             self.assertIn(command, result.output)
 
     def test_help_command(self) -> None:
