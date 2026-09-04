@@ -188,6 +188,43 @@ published_datasets = Table(
 )
 
 
+target_loads = Table(
+    "target_loads",
+    metadata,
+    Column("load_id", String, primary_key=True),
+    Column("run_id", String, ForeignKey("runs.run_id", ondelete="CASCADE"), nullable=False),
+    Column("target_id", String, nullable=False),
+    Column("dataset_id", String, nullable=False),
+    Column("dataset_version_id", String),
+    Column("mode", String, nullable=False),
+    Column("status", String, nullable=False),
+    Column("destination", Text, nullable=False),
+    Column("rows_input", Integer, nullable=False),
+    Column("rows_loaded", Integer, nullable=False),
+    Column("rows_verified", Integer),
+    Column("started_at", UTCDateTime(), nullable=False),
+    Column("completed_at", UTCDateTime()),
+    Column("duration_seconds", Float),
+    Column("idempotency_action", String),
+    Column("metrics_json", JSON, nullable=False),
+    Column("error", Text),
+    Column("created_at", UTCDateTime(), nullable=False),
+)
+Index("idx_target_loads_run_started", target_loads.c.run_id, target_loads.c.started_at.desc())
+Index(
+    "idx_target_loads_dataset_started",
+    target_loads.c.dataset_id,
+    target_loads.c.started_at.desc(),
+)
+Index(
+    "idx_target_loads_target_destination_started",
+    target_loads.c.target_id,
+    target_loads.c.destination,
+    target_loads.c.started_at.desc(),
+)
+Index("idx_target_loads_status_started", target_loads.c.status, target_loads.c.started_at.desc())
+
+
 replay_runs = Table(
     "replay_runs",
     metadata,

@@ -2,7 +2,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import date, datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any, Self
+
+if TYPE_CHECKING:
+    from pyingestkit.targets import TargetLoadResult
 
 
 @dataclass(frozen=True, slots=True)
@@ -89,6 +92,55 @@ class PublicationRecord:
     candidate_path: str | None
     published_path: str | None
     published_at: datetime | None
+
+
+@dataclass(frozen=True, slots=True)
+class TargetLoadRecord:
+    """Queryable audit record for one target materialization attempt."""
+
+    load_id: str
+    run_id: str
+    target_id: str
+    dataset_id: str
+    dataset_version_id: str | None
+    mode: str
+    status: str
+    destination: str
+    rows_input: int
+    rows_loaded: int
+    rows_verified: int | None
+    started_at: datetime
+    completed_at: datetime | None
+    duration_seconds: float | None
+    idempotency_action: str | None
+    metrics: dict[str, int | float]
+    error: str | None
+    created_at: datetime
+
+    @classmethod
+    def from_result(cls, result: TargetLoadResult, *, created_at: datetime | None = None) -> Self:
+        """Build a metadata record without coupling Target implementations to MetadataStore."""
+
+        return cls(
+            load_id=result.load_id,
+            run_id=result.run_id,
+            target_id=result.target_id,
+            dataset_id=result.dataset_id,
+            dataset_version_id=result.dataset_version_id,
+            mode=result.mode.value,
+            status=result.status.value,
+            destination=result.destination,
+            rows_input=result.rows_input,
+            rows_loaded=result.rows_loaded,
+            rows_verified=result.rows_verified,
+            started_at=result.started_at,
+            completed_at=result.completed_at,
+            duration_seconds=result.duration_seconds,
+            idempotency_action=result.idempotency_action,
+            metrics=dict(result.metrics),
+            error=result.error,
+            created_at=created_at or result.completed_at,
+        )
 
 
 @dataclass(frozen=True, slots=True)

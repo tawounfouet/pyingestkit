@@ -47,7 +47,10 @@ jobs:
           python-version: "3.12"
       - run: python -m pip install --upgrade pip
       - run: python -m pip install -e ".[dev,postgres]"
-      - run: python -m pytest -q tests/integration/test_postgres_target_copy.py
+      - run: >-
+          python -m pytest -q
+          tests/integration/test_postgres_target_copy.py
+          tests/integration/test_postgres_metadata_target_loads.py
 
   foundation-verify:
     runs-on: ubuntu-latest
@@ -69,10 +72,10 @@ jobs:
       - run: pyingest run demo.excel_quality --config examples/plugin_package/demo-quality.yml
       - run: pyingest run demo.parquet_quality --config examples/plugin_package/demo-quality.yml
       - run: pyingest runs
-      - name: Upload V0.5.0-a2 PostgreSQL bulk-load artifact
+      - name: Upload V0.5.0-b1 PostgreSQL metadata-hardening artifact
         uses: actions/upload-artifact@v4
         with:
-          name: pyingestkit-v0.5.0-a2-postgres-bulk-load
+          name: pyingestkit-v0.5.0-b1-postgres-metadata
           path: |
             .
             !.git/**

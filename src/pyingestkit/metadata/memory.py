@@ -9,6 +9,7 @@ from pyingestkit.core.events import Event
 from pyingestkit.core.result import RunResult, StepResult
 from pyingestkit.logging.filters import redact_mapping
 
+from ._target_loads import MemoryTargetLoadMetadataMixin
 from .base import MetadataStore
 from .capabilities import (
     DiffMetadataCapability,
@@ -36,7 +37,11 @@ def _event_level(event: Event) -> str:
 
 
 class MemoryMetadataStore(
-    MetadataStore, DiffMetadataCapability, VersionMetadataCapability, ReplayMetadataCapability
+    MemoryTargetLoadMetadataMixin,
+    MetadataStore,
+    DiffMetadataCapability,
+    VersionMetadataCapability,
+    ReplayMetadataCapability,
 ):
     """Ephemeral MetadataStore useful for custom runtimes and unit tests."""
 

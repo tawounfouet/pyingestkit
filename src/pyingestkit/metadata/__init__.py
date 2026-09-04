@@ -2,6 +2,7 @@ from .base import MetadataStore
 from .capabilities import (
     DiffMetadataCapability,
     ReplayMetadataCapability,
+    TargetLoadMetadataCapability,
     VersionMetadataCapability,
 )
 from .factory import create_metadata_store
@@ -18,6 +19,7 @@ from .models import (
     ReproducibilityRecord,
     RunRecord,
     StepRecord,
+    TargetLoadRecord,
     ValidationRecord,
 )
 from .postgres import PostgresMetadataStore
@@ -37,6 +39,8 @@ __all__ = [
     "PublishedDatasetRecord",
     "ReplayMetadataCapability",
     "ReplayRecord",
+    "TargetLoadMetadataCapability",
+    "TargetLoadRecord",
     "ReproducibilityRecord",
     "RunRecord",
     "SQLiteMetadataStore",

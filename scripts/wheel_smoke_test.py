@@ -8,8 +8,8 @@ import tempfile
 import venv
 from pathlib import Path
 
-FRAMEWORK_VERSION = "0.5.0a2"
-DEMO_VERSION = "0.5.0a2"
+FRAMEWORK_VERSION = "0.5.0b1"
+DEMO_VERSION = "0.5.0b1"
 QUALITY_JOBS = ("demo.ndjson_quality", "demo.excel_quality", "demo.parquet_quality")
 VERSIONED_JOB = "demo.versioned_ndjson"
 
@@ -216,7 +216,7 @@ def main() -> int:
 
     shutil.rmtree(workspace, ignore_errors=True)
     print(
-        "OK: V0.5.0-a2 wheels preserve seven V0.4 reference jobs and prove "
+        "OK: V0.5.0-b1 wheels preserve seven V0.4 reference jobs and target-load metadata while proving "
         "V1 -> V2 -> diff -> publish -> strict RAW replay"
     )
     return 0
