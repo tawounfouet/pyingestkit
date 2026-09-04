@@ -65,9 +65,9 @@ class DatasetContractV2Tests(unittest.TestCase):
 
     def test_pattern_is_full_match_and_requires_string(self) -> None:
         dataset = Dataset([{"code": "x123x"}, {"code": 123}])
-        result = DatasetContract(
-            fields=(FieldContract("code", pattern=r"\d{3}"),)
-        ).validate(dataset)
+        result = DatasetContract(fields=(FieldContract("code", pattern=r"\d{3}"),)).validate(
+            dataset
+        )
 
         self.assertEqual(
             [issue.code for issue in result.issues], ["field.pattern", "field.pattern"]
