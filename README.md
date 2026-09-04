@@ -4,13 +4,13 @@
 [![Security](https://github.com/tawounfouet/pyingestkit/actions/workflows/security.yml/badge.svg)](https://github.com/tawounfouet/pyingestkit/actions/workflows/security.yml)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Foundation](https://img.shields.io/badge/foundation-v0.1.6%20frozen-success.svg)](CHANGELOG.md)
+[![Release: v0.3.0](https://img.shields.io/badge/release-v0.3.0--stable-success.svg)](CHANGELOG.md)
 
 **PyIngestKit** is a focused Python framework for reliable, traceable batch ingestion.
 
 > Transform an external source into a reliable, validated, reproducible and publishable dataset without rewriting ingestion plumbing for every job.
 
-This source snapshot contains **V0.3.0 — Quality & Formats Release**, built on the officially sealed V0.2.0 Acquisition Release and the validated V0.3 alpha/beta/RC milestones.
+This source repository contains **V0.3.0 — Quality & Formats Release**, built on the officially sealed V0.2.0 Acquisition Release and the validated V0.1.x Foundation baseline.
 
 
 ## Product boundary
@@ -19,47 +19,38 @@ PyIngestKit owns **HOW TO INGEST**. External orchestrators own **WHEN TO RUN**.
 
 It is not Airflow, Dagster, Prefect, Celery, a distributed DAG scheduler, a Data Platform, a Data Catalog, an IAM platform, or an AI/agent framework.
 
-## Foundation and V0.2 Acquisition baseline
 
-- recommended declarative `@job` / `@step` API;
-- advanced imperative `Job` / `Step` / `Pipeline` API;
-- one runtime (`Runner`) for both APIs;
-- Typer + Rich CLI;
-- Python entry-point job plugins;
-- unified `.pyingest/` workspace;
-- immutable RAW artifacts with SHA-256;
-- manifest generation with automatic RAW artifact registration;
-- `MetadataStore` abstraction;
-- SQLite metadata backend by default;
-- SQLAlchemy 2.x Core as the internal metadata persistence engine;
-- optional PostgreSQL metadata adapter (`pyingestkit[postgres]` + psycopg);
-- persisted runs, steps, artifacts, validations, publications, and structural runtime events;
-- Rich/plain/JSON logging, rotating files, contextual logging, secret redaction;
-- `-v/--verbose`, `-q/--quiet`;
-- `pyingest runs` and `pyingest status`;
-- plugin failure isolation;
-- basic validation and atomic publication primitives.
-- framework-owned synchronous HTTP acquisition through `HttpSource` / `HttpxClient`;
-- conservative bounded retries through `RetryPolicy`, including `Retry-After`;
-- sanitized HTTP provenance associated with immutable RAW artifacts;
-- dependency-neutral `Dataset`;
-- structural `CsvParser` and `JsonParser`;
-- `FieldContract` / `DatasetContract` validation without business normalization;
-- runtime-observed `ValidationResult` persisted to manifest/metadata/events.
+## V0.3.0 Quality & Formats baseline
+
+- **Declarative & Imperative APIs**: `@job` / `@step` decorators and `Job` / `Step` / `Pipeline` models compiled to a single execution runtime (`Runner`);
+- **Formats & Parsers**:
+  - `CsvParser` & `JsonParser` (Core);
+  - `NdjsonParser` (Core structural parser);
+  - `ExcelParser` (via optional `openpyxl` extra);
+  - `ParquetParser` (via optional `pyarrow` extra);
+- **Dataset Contracts V2**: `FieldContract` and `DatasetContract` with `pattern`, `allowed_values`, `min/max_value`, `min/max_length`, `unique_together`, logical `primary_key`, and bounded `ValidationIssue` collection;
+- **Dataset Profiling**: Structural and descriptive `DatasetProfiler` generating deterministic `DatasetProfile` metadata;
+- **Portable Quality Reports**: `reports/validation.json` and `reports/profile.json` artifacts linked to manifests and emitted via runtime events;
+- **HTTP Acquisition & Provenance**: Framework-owned `HttpSource` / `HttpxClient` with conservative `RetryPolicy` and secret-redacted HTTP provenance;
+- **CLI Tooling**: `pyingest` CLI (`jobs`, `inspect`, `run`, `runs`, `status`) with `-v/--verbose`, `-q/--quiet`, and `--json` machine-readable output;
+- **Unified Workspace**: `.pyingest/` layout (`state/`, `logs/`, `runs/`, `published/`) with SQLite default and PostgreSQL optional adapter (`pyingestkit[postgres]`);
+- **Immutability & Traceability**: Immutable RAW payloads with SHA-256 hashes, manifest generation, and structured logging.
+
 
 ## Installation
 
 ```bash
 python3.12 -m venv .venv
 source .venv/bin/activate
-python -m pip install -e ".[dev]"
+python -m pip install -e ".[dev,excel,parquet]"
 ```
 
-Install the bundled demo job pack:
+Install the bundled reference demo job pack:
 
 ```bash
 python -m pip install -e examples/plugin_package
 ```
+
 
 ## Recommended API — decorators
 
@@ -98,6 +89,7 @@ Calling `normalize(...)` outside a `@job` build is rejected to avoid hidden exec
 
 The decorator API is a deterministic **sequential pipeline builder**, not a distributed DAG engine. Generic scheduler semantics, parallel workers, sensors, branching and orchestration remain out of scope.
 
+
 ## Advanced API — imperative
 
 ```python
@@ -114,11 +106,14 @@ class MyJob(Job):
         return Pipeline([Fetch()])
 ```
 
-## CLI
+
+## CLI Execution
 
 ```bash
 pyingest --version
 pyingest --help
+
+# List and inspect registered jobs
 pyingest jobs
 pyingest inspect demo.local_file
 pyingest inspect demo.http_csv
@@ -126,12 +121,16 @@ pyingest inspect demo.http_json
 pyingest inspect demo.excel_quality
 pyingest inspect demo.ndjson_quality
 pyingest inspect demo.parquet_quality
+
+# Run standard reference jobs
 pyingest run demo.local_file --config examples/plugin_package/demo.yml
 pyingest run demo.http_csv --config examples/plugin_package/demo-http.yml
 pyingest run demo.http_json --config examples/plugin_package/demo-http.yml
-pyingest run demo.excel_quality --config examples/plugin_package/demo-quality.yml
 pyingest run demo.ndjson_quality --config examples/plugin_package/demo-quality.yml
+pyingest run demo.excel_quality --config examples/plugin_package/demo-quality.yml
 pyingest run demo.parquet_quality --config examples/plugin_package/demo-quality.yml
+
+# History and status inspection
 pyingest runs
 pyingest status <run-id-or-prefix>
 ```
@@ -143,7 +142,7 @@ pyingest run demo.local_file -v --param path=examples/plugin_package/data/sample
 pyingest run demo.local_file -q --param path=examples/plugin_package/data/sample.txt
 ```
 
-Machine-readable output remains clean on stdout:
+Machine-readable output on stdout:
 
 ```bash
 pyingest jobs --json
@@ -154,6 +153,7 @@ pyingest status <run-id> --json
 ```
 
 Operational logs are written to stderr.
+
 
 ## Unified workspace
 
@@ -169,11 +169,14 @@ Operational logs are written to stderr.
 │       ├── staging/
 │       ├── candidate/
 │       ├── reports/
+│       │   ├── validation.json
+│       │   └── profile.json
 │       └── manifest.json
 └── published/
 ```
 
 A plugin does not silently select its own global workspace. Alternative workspaces are explicit runtime configuration.
+
 
 ## ArtifactStore vs MetadataStore
 
@@ -182,13 +185,48 @@ ArtifactStore                         MetadataStore
 ─────────────                         ─────────────
 RAW payloads                          runs
 staging/candidate files               steps
-reports                               artifact metadata
+reports (validation/profile)          artifact metadata
 manifests                             validations
 published datasets                    publications
                                       runtime events
 ```
 
 The manifest remains the portable run snapshot. MetadataStore is the queryable historical index. Neither replaces the other.
+
+
+## Quality Contracts V2 & Dataset Profiling
+
+```text
+Dataset ──► DatasetProfiler ──► DatasetProfile
+   │                              │
+   └────► DatasetContract V2      └────► reports/profile.json
+              │
+              └────────────────────────► reports/validation.json
+                                         │
+                                         ├── manifest report references
+                                         └── runtime events
+```
+
+```python
+from pyingestkit import CsvParser, DatasetContract, FieldContract, DatasetProfiler
+
+dataset = CsvParser().parse(raw_artifact)
+result = DatasetContract(
+    fields=(
+        FieldContract("id", nullable=False, expected_type=str, unique=True),
+        FieldContract("name", nullable=False, expected_type=str),
+    ),
+    allow_extra_fields=False,
+    min_rows=1,
+).validate(dataset)
+
+profile = DatasetProfiler().profile(dataset)
+```
+
+The boundary is explicit: `Parser != business normalizer`, and `DatasetContract` validates without mutating the dataset.
+
+
+## Database Backends
 
 ### SQLite default
 
@@ -197,11 +235,7 @@ metadata:
   backend: sqlite
 ```
 
-By default the database is resolved relative to the effective workspace:
-
-```text
-.pyingest/state/pyingest.sqlite3
-```
+By default the database is resolved relative to the effective workspace: `.pyingest/state/pyingest.sqlite3`.
 
 ### PostgreSQL adapter
 
@@ -219,171 +253,26 @@ metadata:
 
 Secrets are referenced by environment variable name, not embedded in versioned YAML.
 
+
 ## Logging convention
 
 Terminal output follows the stable human convention:
 
 ```text
-2026-09-03 17:42:03  INFO    [run=785c1cdc job=demo.local_file] Run started
-2026-09-03 17:42:03  INFO    [run=785c1cdc job=demo.local_file step=FetchLocal] Step started
-2026-09-03 17:42:03  DEBUG   [run=785c1cdc job=demo.local_file step=FetchLocal] RAW artifact written
-2026-09-03 17:42:03  INFO    [run=785c1cdc job=demo.local_file step=FetchLocal] Step succeeded 0.002s
-2026-09-03 17:42:03  INFO    [run=785c1cdc job=demo.local_file] Run succeeded 0.003s
+2026-09-04 09:19:38  INFO     [run=086b2f62 job=demo.excel_quality] Run started
+2026-09-04 09:19:38  INFO     [run=086b2f62 job=demo.excel_quality step=FetchExcelFixture] Step started
+2026-09-04 09:19:38  INFO     [run=086b2f62 job=demo.excel_quality step=FetchExcelFixture] Step succeeded 0.054s
+2026-09-04 09:19:38  INFO     [run=086b2f62 job=demo.excel_quality step=ParseExcel] Step started
+2026-09-04 09:19:38  INFO     [run=086b2f62 job=demo.excel_quality step=ParseExcel] Step succeeded 0.004s
+2026-09-04 09:19:38  INFO     [run=086b2f62 job=demo.excel_quality step=ValidateExcelDataset] Step started
+2026-09-04 09:19:38  INFO     [run=086b2f62 job=demo.excel_quality step=ValidateExcelDataset] Step succeeded 0.006s
+2026-09-04 09:19:38  INFO     [run=086b2f62 job=demo.excel_quality step=ProfileExcelDataset] Step started
+2026-09-04 09:19:38  INFO     [run=086b2f62 job=demo.excel_quality step=ProfileExcelDataset] Step succeeded 0.009s
+2026-09-04 09:19:38  INFO     [run=086b2f62 job=demo.excel_quality] Run succeeded 0.105s
 ```
 
 Terminal timestamps use local time; JSON logs and metadata keep timezone-aware ISO-8601 timestamps and full run UUIDs. Common secret patterns and secret-looking runtime parameter keys are redacted.
 
-Operational DEBUG/INFO logs are not copied wholesale into SQLite. Only structural runtime events are persisted.
-
-## Configuration
-
-```yaml
-runtime:
-  workspace: .pyingest
-  fixture_mode: false
-  parameters: {}
-
-metadata:
-  backend: sqlite
-
-logging:
-  level: INFO
-  format: rich
-  console: true
-  file:
-    enabled: true
-    path: .pyingest/logs/pyingest.log
-    level: DEBUG
-    format: json
-    max_bytes: 10000000
-    backup_count: 5
-```
-
-Runtime parameter precedence:
-
-```text
-framework defaults
-      ↓
-YAML
-      ↓
---params-json
-      ↓
---param/-p
-      ↓
-explicit CLI runtime options
-```
-
-## V0.2.0-a2 — HTTP → RAW acquisition
-
-Alpha 2 closes the first complete acquisition loop without introducing parsers:
-
-```text
-HttpSource
-    │
-    ▼
-HttpClient / HttpxClient
-    │
-    ├── RetryPolicy
-    │
-    ▼
-HTTP response bytes
-    │
-    ▼
-immutable RawArtifact + SHA-256
-    │
-    ├── manifest.json
-    └── MetadataStore
-```
-
-Example framework usage inside a job step:
-
-```python
-from pyingestkit.sources.http import HttpSource
-
-artifact = HttpSource(
-    "https://data.example.org/export.bin",
-    headers={"Authorization": "Bearer ..."},
-).fetch(context)
-```
-
-The returned `RawArtifact` records `source_uri`, `resolved_url`, HTTP status, content type, ETag, Last-Modified, retrieval time, byte size and SHA-256. Only a narrow provenance allow-list is persisted: authorization/cookie/API-key/token headers are never copied into RAW metadata or the manifest, and secret-looking URL/query values are redacted before persistence.
-
-HTTP-specific relational metadata lives in `artifact_http_provenance`, leaving the generic `artifacts` table backward-compatible with the Foundation / Alpha 1 schema.
-
-## V0.2.0-b1 — Dataset + CSV/JSON + Contracts
-
-Beta 1 adds the first structured-data layer above RAW artifacts:
-
-```text
-RawArtifact
-     │
-     ▼
-   Parser
- ┌───┴────┐
- ▼        ▼
-CSV      JSON
- └───┬────┘
-     ▼
-  Dataset
-     │
-     ▼
-DatasetContract
-```
-
-`Dataset` is a PyIngestKit-owned, dependency-neutral container. It is deliberately **not** a Pandas, Polars, or Arrow abstraction. `CsvParser` preserves CSV cells as strings; `JsonParser` preserves JSON-native values. Neither parser trims, renames, enriches, flattens, or performs business type conversion.
-
-```python
-from pyingestkit import CsvParser, DatasetContract, FieldContract
-
-dataset = CsvParser().parse(raw_artifact)
-result = DatasetContract(
-    fields=(
-        FieldContract("id", nullable=False, expected_type=str, unique=True),
-        FieldContract("name", nullable=False, expected_type=str),
-    ),
-    allow_extra_fields=False,
-    min_rows=1,
-).validate(dataset)
-
-if not result.is_valid:
-    ...
-```
-
-The boundary is explicit: `Parser != business normalizer`, and `DatasetContract` validates without mutating the dataset.
-
-## Demo
-
-```bash
-python -m pip install -e examples/plugin_package
-pyingest jobs
-pyingest inspect demo.local_file
-pyingest inspect demo.http_csv
-pyingest inspect demo.http_json
-pyingest run demo.local_file --config examples/plugin_package/demo.yml
-pyingest run demo.http_csv --config examples/plugin_package/demo-http.yml
-pyingest run demo.http_json --config examples/plugin_package/demo-http.yml
-pyingest runs
-```
-
-The demo plugin itself is authored with `@step` / `@job` and exposes a `JobDefinition` through the `pyingestkit.jobs` entry-point group.
-
-## Persistence implementation guardrail
-
-`MetadataStore` is the framework contract. SQLAlchemy is an **internal persistence detail**:
-
-```text
-Runner / CLI
-    ↓
-MetadataStore
-    ↓
-SQLAlchemy Core
-   ├── SQLite
-   └── PostgreSQL + psycopg
-```
-
-Domain records (`RunRecord`, `StepRecord`, etc.) remain plain Python dataclasses. PyIngestKit does not expose SQLAlchemy sessions, declarative models, columns, or engines through its top-level job API. Peewee is deliberately not introduced: one persistence engine is enough. Alembic remains deferred until schema migration requirements are demonstrated by real releases.
-
-SQLite enables foreign keys, WAL journal mode and a bounded busy timeout. PostgreSQL remains selected only through the `MetadataStore` adapter and a DSN sourced from an environment variable.
 
 ## Quality gates
 
@@ -393,146 +282,44 @@ make quality
 make security
 make build
 make verify
-make wheel-smoke
 make release-check
 ```
 
-`make verify` remains the complete source gate inherited from the Foundation: functional tests, public API/compile checks, Ruff lint + formatting, Mypy strict typing, Bandit, pip-audit and package builds. For V0.2.0, the release process adds a fresh-environment wheel smoke test over the built framework and demo-job wheels before artifacts are accepted.
+- `make quality`: Enforces Ruff linting, Ruff formatting, and Mypy strict type checking.
+- `make security`: Enforces Bandit static security scanning and `pip-audit` dependency vulnerability checks.
+- `make verify`: Complete source gate running functional tests, public API checks, quality, security, and package builds.
+- `make release-check`: Executes `make verify` plus an isolated fresh virtualenv wheel smoke test over all six reference jobs with optional extras installed.
 
-## V0.2.0 acquisition release
 
-V0.2.0 completes the acquisition milestone that was built incrementally on the frozen Foundation:
+## V0.3.0 Release Reference Suite
 
-- HTTP source/client — **released**;
-- retry policy — **released**;
-- HTTP → immutable RAW + provenance — **released**;
-- CSV parser — **released**;
-- JSON parser — **released**;
-- dependency-neutral Dataset — **released**;
-- Dataset Contracts — **released**.
-
-The complete stabilization rationale and guardrails are documented under `docs/architecture/foundation-stabilization-v0.1xx.md`.
-
-## V0.2.0 — complete acquisition reference slice
-
-The stable release connects the V0.2 layers into installable, executable reference jobs:
+The V0.3.0 release is validated through six executable reference jobs:
 
 ```text
-demo.http_csv
-HttpSource -> Retry -> RAW -> CsvParser -> Dataset -> DatasetContract -> Validation
-
-demo.http_json
-HttpSource -> Retry -> RAW -> JsonParser -> Dataset -> DatasetContract -> Validation
+demo.local_file       : Local file -> RAW storage
+demo.http_csv         : HTTP -> RAW -> CsvParser -> Dataset -> Contract V2 -> Validation
+demo.http_json        : HTTP -> RAW -> JsonParser -> Dataset -> Contract V2 -> Validation
+demo.ndjson_quality   : NDJSON -> Dataset -> Contract V2 -> Profile -> Quality reports
+demo.excel_quality    : XLSX (openpyxl) -> Dataset -> Contract V2 -> Profile -> Quality reports
+demo.parquet_quality  : Parquet (pyarrow) -> Dataset -> Contract V2 -> Profile -> Quality reports
 ```
 
-Together with the Foundation demo, the expected installed job set is:
+
+## Release Artifacts
 
 ```text
-demo.local_file
-demo.http_csv
-demo.http_json
-```
-
-Run the HTTP slices deterministically without network access:
-
-```bash
-pyingest run demo.http_csv --config examples/plugin_package/demo-http.yml
-pyingest run demo.http_json --config examples/plugin_package/demo-http.yml
-```
-
-The fixture transport is confined to the demo package. Production job code can pass a real `url` without fixture mode and uses `HttpxClient` through `HttpSource`.
-
-A `ValidationResult` returned by a step is now written to the manifest, indexed in MetadataStore, and announced through `VALIDATION_COMPLETED`. ERROR issues fail the run after evidence is persisted; warnings/review issues remain non-fatal.
-
-For a fresh development environment, upgrade packaging tooling before the security gate so `pip-audit` does not report vulnerabilities in an outdated `pip` executable itself:
-
-```bash
-python -m pip install --upgrade pip
-python -m pip install -e ".[dev]"
+dist/pyingestkit-0.3.0.tar.gz
+dist/pyingestkit-0.3.0-py3-none-any.whl
+examples/plugin_package/dist/pyingestkit_demo_jobs-0.3.0.tar.gz
+examples/plugin_package/dist/pyingestkit_demo_jobs-0.3.0-py3-none-any.whl
 ```
 
 
-## V0.3.0-a1 — Quality Contracts V2
+## Status & Roadmap
 
-Alpha 1 builds on the frozen V0.2 acquisition pipeline with richer generic quality
-constraints while preserving `Contract != Transformation` and `Dataset != DataFrame`.
+V0.3.0 is the stable **Quality & Formats** milestone. The release freezes Contracts V2, profiling, portable quality reports, NDJSON, Excel and Parquet adapters, and the six reference jobs.
 
-```text
-Dataset
-  ↓
-DatasetContract V2
-  ├── allowed_values / pattern
-  ├── min/max value and string length
-  ├── unique_together
-  ├── logical primary_key
-  └── bounded ValidationIssue collection
-```
-
-See `docs/guides/dataset-contracts-v2.md` and ADR-028.
-
-## V0.3.0-a2 — Dataset Profiling + Quality Reports
-
-Alpha 2 adds descriptive profiling and portable run-level quality evidence above the
-Quality Contracts V2 layer.
-
-```text
-Dataset ──► DatasetProfiler ──► DatasetProfile
-   │                              │
-   └────► DatasetContract V2      └────► reports/profile.json
-              │
-              └────────────────────────► reports/validation.json
-                                         │
-                                         ├── manifest report references
-                                         └── runtime events
-```
-
-No new profiling table or SQL migration is introduced. See ADR-029, ADR-030,
-`docs/guides/dataset-profiling.md`, and `docs/guides/quality-reports.md`.
-
-## V0.2.0 release artifacts
-
-The official release is validated as three complementary artifact families:
-
-```text
-pyingestkit-v0.2.0.zip
-dist/pyingestkit-0.2.0.tar.gz
-dist/pyingestkit-0.2.0-py3-none-any.whl
-examples/plugin_package/dist/pyingestkit_demo_jobs-0.2.0.tar.gz
-examples/plugin_package/dist/pyingestkit_demo_jobs-0.2.0-py3-none-any.whl
-pyingestkit-v0.2.0-validation-evidence.zip
-```
-
-The source ZIP excludes virtual environments, runtime workspaces, caches, build outputs, generated distributions, bytecode and egg-info directories. The validation-evidence ZIP contains command outputs and SHA-256 checksums, not source code.
-
-## V0.3.0 — Quality & Formats Release
-
-The V0.3 release candidate adds complete executable quality slices for the three new formats while retaining all V0.2 reference jobs:
-
-```text
-demo.local_file
-demo.http_csv
-demo.http_json
-demo.ndjson_quality
-demo.excel_quality
-demo.parquet_quality
-```
-
-Install optional format adapters when using XLSX or Parquet:
-
-```bash
-python -m pip install -e ".[excel,parquet]"
-```
-
-Run deterministic quality slices:
-
-```bash
-pyingest run demo.ndjson_quality --config examples/plugin_package/demo-quality.yml
-pyingest run demo.excel_quality --config examples/plugin_package/demo-quality.yml
-pyingest run demo.parquet_quality --config examples/plugin_package/demo-quality.yml
-```
-
-Each quality-format slice exercises `RAW -> Parser -> Dataset -> DatasetContract V2 -> ValidationResult -> DatasetProfiler -> DatasetProfile -> quality reports`. Validation and profile reports are persisted below the run `reports/` directory and referenced from the manifest.
-
-## V0.3.0 release status
-
-V0.3.0 is the stable **Quality & Formats** milestone. The release freezes Contracts V2, profiling, portable quality reports, NDJSON, Excel and Parquet adapters, and the six reference jobs. Future V0.3 changes should be bug-fix releases; new diff/replay/versioning capabilities belong to V0.4.
+- **V0.1.x Baseline**: Foundation & Core Pipeline (Frozen)
+- **V0.2.0 Acquisition**: HTTP Source, Retry Policy, RAW Provenance (Frozen)
+- **V0.3.0 Quality & Formats**: Contracts V2, Profiling, Quality Reports, NDJSON, XLSX, Parquet (Stable Release)
+- **V0.4.0 (Upcoming)**: Dataset Diff, Replay & Versioning
