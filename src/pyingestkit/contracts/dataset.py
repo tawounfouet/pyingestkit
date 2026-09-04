@@ -332,8 +332,7 @@ class DatasetContract:
 
             if contract.pattern is not None:
                 pattern_matches = (
-                    isinstance(value, str)
-                    and re.fullmatch(contract.pattern, value) is not None
+                    isinstance(value, str) and re.fullmatch(contract.pattern, value) is not None
                 )
                 if not pattern_matches and not collector.add(
                     ValidationIssue(
@@ -454,7 +453,8 @@ class DatasetContract:
         collector: _IssueCollector,
     ) -> bool:
         minimum = contract.min_length
-        assert minimum is not None
+        if minimum is None:
+            return True
         if not isinstance(value, str):
             violated = True
             actual_length: int | None = None
@@ -490,7 +490,8 @@ class DatasetContract:
         collector: _IssueCollector,
     ) -> bool:
         maximum = contract.max_length
-        assert maximum is not None
+        if maximum is None:
+            return True
         if not isinstance(value, str):
             violated = True
             actual_length: int | None = None
@@ -518,9 +519,7 @@ class DatasetContract:
             )
         )
 
-    def _validate_unique_together(
-        self, dataset: Dataset, collector: _IssueCollector
-    ) -> None:
+    def _validate_unique_together(self, dataset: Dataset, collector: _IssueCollector) -> None:
         for fields in self.unique_together:
             seen: dict[tuple[object, ...], int] = {}
             for row_index, row in enumerate(dataset):
