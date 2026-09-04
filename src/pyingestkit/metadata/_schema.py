@@ -121,3 +121,28 @@ events = Table(
     Column("metadata_json", JSON, nullable=False),
 )
 Index("idx_events_run_timestamp", events.c.run_id, events.c.timestamp)
+
+
+dataset_diffs = Table(
+    "dataset_diffs",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("run_id", String, ForeignKey("runs.run_id", ondelete="CASCADE"), nullable=False),
+    Column("step_name", String, nullable=False),
+    Column("dataset_id", String, nullable=False),
+    Column("previous_version_id", String, nullable=False),
+    Column("candidate_fingerprint", String, nullable=False),
+    Column("added_count", Integer, nullable=False),
+    Column("removed_count", Integer, nullable=False),
+    Column("changed_count", Integer, nullable=False),
+    Column("unchanged_count", Integer, nullable=False),
+    Column("entries_truncated", Boolean, nullable=False),
+    Column("report_path", Text, nullable=False),
+    Column("created_at", UTCDateTime(), nullable=False),
+)
+Index("idx_dataset_diffs_run", dataset_diffs.c.run_id)
+Index(
+    "idx_dataset_diffs_dataset_created",
+    dataset_diffs.c.dataset_id,
+    dataset_diffs.c.created_at.desc(),
+)

@@ -89,3 +89,20 @@ class PublicationRecord:
     candidate_path: str | None
     published_path: str | None
     published_at: datetime | None
+
+
+@dataclass(frozen=True, slots=True)
+class DiffRecord:
+    id: int | None
+    run_id: str
+    step_name: str
+    dataset_id: str
+    previous_version_id: str
+    candidate_fingerprint: str
+    added_count: int
+    removed_count: int
+    changed_count: int
+    unchanged_count: int
+    entries_truncated: bool
+    report_path: str
+    created_at: datetime

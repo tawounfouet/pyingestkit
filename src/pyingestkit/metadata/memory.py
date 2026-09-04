@@ -10,8 +10,10 @@ from pyingestkit.core.result import RunResult, StepResult
 from pyingestkit.logging.filters import redact_mapping
 
 from .base import MetadataStore
+from .capabilities import DiffMetadataCapability
 from .models import (
     ArtifactRecord,
+    DiffRecord,
     EventRecord,
     PublicationRecord,
     RunRecord,
@@ -24,7 +26,7 @@ def _event_level(event: Event) -> str:
     return "ERROR" if event.type.value.endswith("FAILED") else "INFO"
 
 
-class MemoryMetadataStore(MetadataStore):
+class MemoryMetadataStore(MetadataStore, DiffMetadataCapability):
     """Ephemeral MetadataStore useful for custom runtimes and unit tests."""
 
     def __init__(self) -> None:
@@ -34,6 +36,7 @@ class MemoryMetadataStore(MetadataStore):
         self.events: list[EventRecord] = []
         self.validations: list[ValidationRecord] = []
         self.publications: list[PublicationRecord] = []
+        self.dataset_diffs: list[DiffRecord] = []
 
     def initialize(self) -> None:
         return None
@@ -206,3 +209,11 @@ class MemoryMetadataStore(MetadataStore):
 
     def list_publications(self, run_id: str) -> tuple[PublicationRecord, ...]:
         return tuple(row for row in self.publications if row.run_id == run_id)
+
+    def record_dataset_diff(self, record: DiffRecord) -> None:
+        next_id = len(self.dataset_diffs) + 1
+        stored = replace(record, id=next_id) if record.id is None else record
+        self.dataset_diffs.append(stored)
+
+    def list_dataset_diffs(self, run_id: str) -> tuple[DiffRecord, ...]:
+        return tuple(row for row in self.dataset_diffs if row.run_id == run_id)

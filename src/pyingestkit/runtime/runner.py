@@ -14,8 +14,15 @@ from pyingestkit.core.events import Event, EventBus, EventType
 from pyingestkit.core.exceptions import ValidationError
 from pyingestkit.core.job import Job
 from pyingestkit.core.result import RunResult, RunStatus, StepResult
+from pyingestkit.diff import DatasetDiff
+from pyingestkit.diff.report import diff_report_payload
 from pyingestkit.logging import log_context
-from pyingestkit.metadata import MemoryMetadataStore, MetadataStore
+from pyingestkit.metadata import (
+    DiffMetadataCapability,
+    DiffRecord,
+    MemoryMetadataStore,
+    MetadataStore,
+)
 from pyingestkit.profiling import DatasetProfile
 from pyingestkit.provenance.manifest import RunManifest
 from pyingestkit.validation import ValidationResult, ValidationSeverity
@@ -89,6 +96,28 @@ def _dataset_profiles(value: Any, *, _seen: set[int] | None = None) -> tuple[Dat
     for item in values:
         profiles.extend(_dataset_profiles(item, _seen=seen))
     return tuple(profiles)
+
+
+def _dataset_diffs(value: Any, *, _seen: set[int] | None = None) -> tuple[DatasetDiff, ...]:
+    """Extract dataset diffs from common nested step outputs."""
+    if isinstance(value, DatasetDiff):
+        return (value,)
+    seen = _seen if _seen is not None else set()
+    identity = id(value)
+    if identity in seen:
+        return ()
+    seen.add(identity)
+    values: Iterable[Any]
+    if isinstance(value, dict):
+        values = value.values()
+    elif isinstance(value, (list, tuple, set, frozenset)):
+        values = value
+    else:
+        return ()
+    diffs: list[DatasetDiff] = []
+    for item in values:
+        diffs.extend(_dataset_diffs(item, _seen=seen))
+    return tuple(diffs)
 
 
 class Runner:
@@ -257,6 +286,94 @@ class Runner:
         )
         return tuple(warnings)
 
+    def _record_dataset_diff(
+        self,
+        *,
+        run_id: str,
+        run_uuid: UUID,
+        job_id: str,
+        step_name: str,
+        diff: DatasetDiff,
+        manifest: RunManifest,
+    ) -> tuple[str, ...]:
+        diff_count = sum(report.get("kind") == "diff" for report in manifest.reports)
+        report_path = (
+            "reports/diff.json" if diff_count == 0 else f"reports/diff-{diff_count + 1}.json"
+        )
+        dataset_id = job_id
+        base_metadata = {
+            "step": step_name,
+            "dataset_id": dataset_id,
+            "previous_version_id": diff.previous_fingerprint.id,
+            "candidate_fingerprint": diff.candidate_fingerprint.id,
+        }
+        warnings = list(
+            self._emit(
+                Event(
+                    EventType.DIFF_STARTED,
+                    run_id,
+                    job_id,
+                    payload=base_metadata,
+                )
+            )
+        )
+        payload = diff_report_payload(
+            diff,
+            run_id=run_id,
+            job_id=job_id,
+            step_name=step_name,
+            dataset_id=dataset_id,
+        )
+        self.artifact_store.write_json(job_id, run_uuid, report_path, payload)
+        manifest.reports.append({"kind": "diff", "path": report_path, "step": step_name})
+
+        if isinstance(self.metadata_store, DiffMetadataCapability):
+            self.metadata_store.record_dataset_diff(
+                DiffRecord(
+                    id=None,
+                    run_id=run_id,
+                    step_name=step_name,
+                    dataset_id=dataset_id,
+                    previous_version_id=diff.previous_fingerprint.id,
+                    candidate_fingerprint=diff.candidate_fingerprint.id,
+                    added_count=diff.added_count,
+                    removed_count=diff.removed_count,
+                    changed_count=diff.changed_count,
+                    unchanged_count=diff.unchanged_count,
+                    entries_truncated=diff.entries_truncated,
+                    report_path=report_path,
+                    created_at=datetime.now(UTC),
+                )
+            )
+
+        summary = {
+            **base_metadata,
+            "added_count": diff.added_count,
+            "removed_count": diff.removed_count,
+            "changed_count": diff.changed_count,
+            "unchanged_count": diff.unchanged_count,
+            "entries_truncated": diff.entries_truncated,
+            "path": report_path,
+        }
+        warnings.extend(
+            self._emit(Event(EventType.DIFF_COMPLETED, run_id, job_id, payload=summary))
+        )
+        warnings.extend(
+            self._emit(
+                Event(
+                    EventType.DIFF_REPORT_WRITTEN,
+                    run_id,
+                    job_id,
+                    payload={
+                        "step": step_name,
+                        "dataset_id": dataset_id,
+                        "path": report_path,
+                    },
+                )
+            )
+        )
+        return tuple(warnings)
+
     def run(
         self,
         job: Job,
@@ -341,6 +458,19 @@ class Runner:
                                         job_id=job.id,
                                         step_name=step.step_name,
                                         profile=profile,
+                                        manifest=manifest,
+                                    )
+                                )
+
+                            diffs = _dataset_diffs(data)
+                            for diff in diffs:
+                                warnings.extend(
+                                    self._record_dataset_diff(
+                                        run_id=run_id,
+                                        run_uuid=context.run_id,
+                                        job_id=job.id,
+                                        step_name=step.step_name,
+                                        diff=diff,
                                         manifest=manifest,
                                     )
                                 )

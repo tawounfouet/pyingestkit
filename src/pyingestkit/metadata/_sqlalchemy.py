@@ -16,6 +16,7 @@ from pyingestkit.logging.filters import redact_mapping
 from ._schema import (
     artifact_http_provenance,
     artifacts,
+    dataset_diffs,
     events,
     metadata,
     publications,
@@ -24,8 +25,10 @@ from ._schema import (
     validations,
 )
 from .base import MetadataStore
+from .capabilities import DiffMetadataCapability
 from .models import (
     ArtifactRecord,
+    DiffRecord,
     EventRecord,
     PublicationRecord,
     RunRecord,
@@ -63,7 +66,7 @@ def _optional_datetime(value: object) -> datetime | None:
     return _required_datetime(value)
 
 
-class _SQLAlchemyMetadataStore(MetadataStore):
+class _SQLAlchemyMetadataStore(MetadataStore, DiffMetadataCapability):
     """Shared SQLAlchemy Core implementation behind concrete metadata adapters."""
 
     def __init__(self, engine: Engine) -> None:
@@ -396,6 +399,55 @@ class _SQLAlchemyMetadataStore(MetadataStore):
                 candidate_path=cast(str | None, row["candidate_path"]),
                 published_path=cast(str | None, row["published_path"]),
                 published_at=_optional_datetime(row["published_at"]),
+            )
+            for row in rows
+        )
+
+    def record_dataset_diff(self, record: DiffRecord) -> None:
+        with self.engine.begin() as connection:
+            connection.execute(
+                insert(dataset_diffs).values(
+                    run_id=record.run_id,
+                    step_name=record.step_name,
+                    dataset_id=record.dataset_id,
+                    previous_version_id=record.previous_version_id,
+                    candidate_fingerprint=record.candidate_fingerprint,
+                    added_count=record.added_count,
+                    removed_count=record.removed_count,
+                    changed_count=record.changed_count,
+                    unchanged_count=record.unchanged_count,
+                    entries_truncated=record.entries_truncated,
+                    report_path=record.report_path,
+                    created_at=record.created_at,
+                )
+            )
+
+    def list_dataset_diffs(self, run_id: str) -> tuple[DiffRecord, ...]:
+        with self.engine.connect() as connection:
+            rows = (
+                connection.execute(
+                    select(dataset_diffs)
+                    .where(dataset_diffs.c.run_id == run_id)
+                    .order_by(dataset_diffs.c.id)
+                )
+                .mappings()
+                .all()
+            )
+        return tuple(
+            DiffRecord(
+                id=cast(int | None, row["id"]),
+                run_id=cast(str, row["run_id"]),
+                step_name=cast(str, row["step_name"]),
+                dataset_id=cast(str, row["dataset_id"]),
+                previous_version_id=cast(str, row["previous_version_id"]),
+                candidate_fingerprint=cast(str, row["candidate_fingerprint"]),
+                added_count=cast(int, row["added_count"]),
+                removed_count=cast(int, row["removed_count"]),
+                changed_count=cast(int, row["changed_count"]),
+                unchanged_count=cast(int, row["unchanged_count"]),
+                entries_truncated=bool(row["entries_truncated"]),
+                report_path=cast(str, row["report_path"]),
+                created_at=_required_datetime(row["created_at"]),
             )
             for row in rows
         )
