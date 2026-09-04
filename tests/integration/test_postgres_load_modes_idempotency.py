@@ -95,9 +95,7 @@ class PostgresLoadModesIdempotencyIntegrationTests(unittest.TestCase):
             replaced = target.load(
                 self._request(
                     run_id="run-replace",
-                    dataset=Dataset(
-                        [{"id": 2, "name": "replacement"}], fields=("id", "name")
-                    ),
+                    dataset=Dataset([{"id": 2, "name": "replacement"}], fields=("id", "name")),
                     version="v2",
                     mode=LoadMode.REPLACE,
                 )
@@ -226,6 +224,8 @@ class PostgresLoadModesIdempotencyIntegrationTests(unittest.TestCase):
             self.assertEqual(len(failed_records), 1)
             self.assertEqual(failed_records[0].status, "ROLLED_BACK")
 
+            # Simulate the transient destination conflict being resolved without changing
+            # the Dataset/version identity; the next decision must be RETRY, not EXECUTE.
             with self.engine.begin() as connection:
                 connection.exec_driver_sql(f"TRUNCATE TABLE {self.table}")
             retried = executor.execute(

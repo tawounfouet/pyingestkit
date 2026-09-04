@@ -159,9 +159,7 @@ class PostgresTargetTests(unittest.TestCase):
         self.assertIs(result.status, TargetLoadStatus.SUCCESS)
         self.assertEqual(result.metrics["content_reset"], 1)
         with engine.connect() as connection:
-            rows = connection.exec_driver_sql(
-                "SELECT id, name FROM demo_dataset ORDER BY id"
-            ).all()
+            rows = connection.exec_driver_sql("SELECT id, name FROM demo_dataset ORDER BY id").all()
         self.assertEqual(rows, [(1, "new")])
 
     def test_replace_uses_delete_semantics_and_reports_deleted_rows(self) -> None:
@@ -184,9 +182,7 @@ class PostgresTargetTests(unittest.TestCase):
         )
         self.assertEqual(result.metrics["rows_deleted"], 1)
         with engine.connect() as connection:
-            rows = connection.exec_driver_sql(
-                "SELECT id, name FROM demo_dataset ORDER BY id"
-            ).all()
+            rows = connection.exec_driver_sql("SELECT id, name FROM demo_dataset ORDER BY id").all()
         self.assertEqual(rows, [(2, "replacement")])
 
     def test_destructive_modes_roll_back_to_prior_contents_on_failure(self) -> None:
@@ -243,11 +239,8 @@ class PostgresTargetTests(unittest.TestCase):
                 )
             )
         with engine.connect() as connection:
-            rows = connection.exec_driver_sql(
-                "SELECT id, name FROM demo_dataset ORDER BY id"
-            ).all()
+            rows = connection.exec_driver_sql("SELECT id, name FROM demo_dataset ORDER BY id").all()
         self.assertEqual(rows, [(99, "old")])
-
 
 
 if __name__ == "__main__":
