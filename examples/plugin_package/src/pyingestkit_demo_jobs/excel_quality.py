@@ -50,7 +50,7 @@ def profile_excel(data: dict[str, object]) -> dict[str, object]:
 
 @job(
     id="demo.excel_quality",
-    version="0.3.0",
+    version="0.4.0b2",
     description="Reference XLSX -> Dataset -> Contract V2 -> profile -> quality reports slice.",
 )
 def excel_quality_job() -> None:

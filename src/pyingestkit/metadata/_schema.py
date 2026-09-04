@@ -162,7 +162,11 @@ dataset_versions = Table(
     Column("source_raw_sha256", String),
     Column("created_at", UTCDateTime(), nullable=False),
 )
-Index("idx_dataset_versions_dataset_created", dataset_versions.c.dataset_id, dataset_versions.c.created_at.desc())
+Index(
+    "idx_dataset_versions_dataset_created",
+    dataset_versions.c.dataset_id,
+    dataset_versions.c.created_at.desc(),
+)
 
 dataset_version_runs = Table(
     "dataset_version_runs",
@@ -181,4 +185,31 @@ published_datasets = Table(
     Column("version_id", String, nullable=False),
     Column("published_from_run_id", String, nullable=False),
     Column("published_at", UTCDateTime(), nullable=False),
+)
+
+
+replay_runs = Table(
+    "replay_runs",
+    metadata,
+    Column("run_id", String, primary_key=True),
+    Column("source_run_id", String, nullable=False),
+    Column("source_job_id", String, nullable=False),
+    Column("source_job_version", String, nullable=False),
+    Column("executed_job_version", String, nullable=False),
+    Column("verification_mode", String, nullable=False),
+    Column("expected_fingerprint", String),
+    Column("actual_fingerprint", String),
+    Column("status", String, nullable=False),
+    Column("created_at", UTCDateTime(), nullable=False),
+)
+Index("idx_replay_runs_source", replay_runs.c.source_run_id)
+
+run_reproducibility = Table(
+    "run_reproducibility",
+    metadata,
+    Column("run_id", String, primary_key=True),
+    Column("framework_version", String, nullable=False),
+    Column("as_of", String),
+    Column("parameters_fingerprint", String, nullable=False),
+    Column("created_at", UTCDateTime(), nullable=False),
 )

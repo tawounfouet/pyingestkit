@@ -106,10 +106,7 @@ class DatasetDiff:
     @property
     def has_changes(self) -> bool:
         return bool(
-            self.added_count
-            or self.removed_count
-            or self.changed_count
-            or self.schema.changed
+            self.added_count or self.removed_count or self.changed_count or self.schema.changed
         )
 
     def as_dict(self, *, include_values: bool = False) -> dict[str, object]:

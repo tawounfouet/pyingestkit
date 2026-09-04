@@ -197,9 +197,7 @@ class DatasetDiffer:
                     )
                 value = row[field]
                 if value is None:
-                    raise DiffError(
-                        f"{label} dataset row {row_index} has null key field {field!r}"
-                    )
+                    raise DiffError(f"{label} dataset row {row_index} has null key field {field!r}")
                 values.append(value)
             key = tuple(values)
             token = canonical_json(canonical_value(key))

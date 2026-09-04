@@ -18,16 +18,25 @@ def versions_command(
 ) -> None:
     rows = FilesystemDatasetVersionStore(workspace).list_versions(dataset_id)
     if as_json:
-        typer.echo(json.dumps([{
-            "dataset_id": row.dataset_id,
-            "version_id": row.version_id,
-            "fingerprint": row.fingerprint.id,
-            "snapshot_uri": row.snapshot_uri,
-            "created_at": row.created_at.isoformat(),
-            "created_from_run_id": row.created_from_run_id,
-            "job_id": row.job_id,
-            "job_version": row.job_version,
-        } for row in rows], indent=2, sort_keys=True))
+        typer.echo(
+            json.dumps(
+                [
+                    {
+                        "dataset_id": row.dataset_id,
+                        "version_id": row.version_id,
+                        "fingerprint": row.fingerprint.id,
+                        "snapshot_uri": row.snapshot_uri,
+                        "created_at": row.created_at.isoformat(),
+                        "created_from_run_id": row.created_from_run_id,
+                        "job_id": row.job_id,
+                        "job_version": row.job_version,
+                    }
+                    for row in rows
+                ],
+                indent=2,
+                sort_keys=True,
+            )
+        )
         return
     table = Table(title=f"Dataset versions — {dataset_id}")
     table.add_column("Version")
@@ -35,5 +44,7 @@ def versions_command(
     table.add_column("Run")
     table.add_column("Job version")
     for row in rows:
-        table.add_row(row.version_id, row.created_at.isoformat(), row.created_from_run_id, row.job_version)
+        table.add_row(
+            row.version_id, row.created_at.isoformat(), row.created_from_run_id, row.job_version
+        )
     console.print(table)

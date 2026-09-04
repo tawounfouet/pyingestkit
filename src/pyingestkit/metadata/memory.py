@@ -10,7 +10,11 @@ from pyingestkit.core.result import RunResult, StepResult
 from pyingestkit.logging.filters import redact_mapping
 
 from .base import MetadataStore
-from .capabilities import DiffMetadataCapability, VersionMetadataCapability
+from .capabilities import (
+    DiffMetadataCapability,
+    ReplayMetadataCapability,
+    VersionMetadataCapability,
+)
 from .models import (
     ArtifactRecord,
     DatasetVersionRecord,
@@ -19,6 +23,8 @@ from .models import (
     EventRecord,
     PublicationRecord,
     PublishedDatasetRecord,
+    ReplayRecord,
+    ReproducibilityRecord,
     RunRecord,
     StepRecord,
     ValidationRecord,
@@ -29,7 +35,9 @@ def _event_level(event: Event) -> str:
     return "ERROR" if event.type.value.endswith("FAILED") else "INFO"
 
 
-class MemoryMetadataStore(MetadataStore, DiffMetadataCapability, VersionMetadataCapability):
+class MemoryMetadataStore(
+    MetadataStore, DiffMetadataCapability, VersionMetadataCapability, ReplayMetadataCapability
+):
     """Ephemeral MetadataStore useful for custom runtimes and unit tests."""
 
     def __init__(self) -> None:
@@ -43,6 +51,8 @@ class MemoryMetadataStore(MetadataStore, DiffMetadataCapability, VersionMetadata
         self.dataset_versions: list[DatasetVersionRecord] = []
         self.dataset_version_runs: list[DatasetVersionRunRecord] = []
         self.published_datasets: dict[str, PublishedDatasetRecord] = {}
+        self.replay_runs: dict[str, ReplayRecord] = {}
+        self.run_reproducibility: dict[str, ReproducibilityRecord] = {}
 
     def initialize(self) -> None:
         return None
@@ -224,7 +234,6 @@ class MemoryMetadataStore(MetadataStore, DiffMetadataCapability, VersionMetadata
     def list_dataset_diffs(self, run_id: str) -> tuple[DiffRecord, ...]:
         return tuple(row for row in self.dataset_diffs if row.run_id == run_id)
 
-
     def record_dataset_version(self, record: DatasetVersionRecord) -> None:
         if any(
             row.dataset_id == record.dataset_id and row.version_id == record.version_id
@@ -252,3 +261,26 @@ class MemoryMetadataStore(MetadataStore, DiffMetadataCapability, VersionMetadata
 
     def get_published_dataset(self, dataset_id: str) -> PublishedDatasetRecord | None:
         return self.published_datasets.get(dataset_id)
+
+    def record_replay_run(self, record: ReplayRecord) -> None:
+        self.replay_runs[record.run_id] = record
+
+    def get_replay_run(self, run_id: str) -> ReplayRecord | None:
+        return self.replay_runs.get(run_id)
+
+    def record_run_reproducibility(self, record: ReproducibilityRecord) -> None:
+        self.run_reproducibility.setdefault(record.run_id, record)
+
+    def get_run_reproducibility(self, run_id: str) -> ReproducibilityRecord | None:
+        return self.run_reproducibility.get(run_id)
+
+    def find_expected_fingerprint_for_run(self, run_id: str, dataset_id: str) -> str | None:
+        links = {
+            (row.dataset_id, row.version_id)
+            for row in self.dataset_version_runs
+            if row.run_id == run_id and row.dataset_id == dataset_id
+        }
+        for version in self.dataset_versions:
+            if (version.dataset_id, version.version_id) in links:
+                return version.fingerprint
+        return None

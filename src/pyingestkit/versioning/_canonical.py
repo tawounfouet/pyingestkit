@@ -51,10 +51,7 @@ def canonical_value(value: Any) -> object:
     if isinstance(value, tuple):
         return {"$type": "tuple", "items": [canonical_value(item) for item in value]}
     if isinstance(value, Mapping):
-        items = [
-            [canonical_value(key), canonical_value(item)]
-            for key, item in value.items()
-        ]
+        items = [[canonical_value(key), canonical_value(item)] for key, item in value.items()]
         items.sort(key=lambda pair: canonical_json(pair[0]))
         return {"$type": "mapping", "items": items}
     raise TypeError(f"Unsupported canonical value type: {type(value).__name__}")

@@ -1,12 +1,15 @@
 from __future__ import annotations
 
+import hashlib
+import json
 import logging
 from collections.abc import Iterable
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from time import perf_counter
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from uuid import UUID
 
+from pyingestkit._version import __version__
 from pyingestkit.artifacts.base import ArtifactStore
 from pyingestkit.artifacts.raw import RawArtifact
 from pyingestkit.core.context import RunContext
@@ -17,17 +20,23 @@ from pyingestkit.core.result import RunResult, RunStatus, StepResult
 from pyingestkit.diff import DatasetDiff
 from pyingestkit.diff.report import diff_report_payload
 from pyingestkit.logging import log_context
+from pyingestkit.logging.filters import redact_mapping
 from pyingestkit.metadata import (
     DiffMetadataCapability,
     DiffRecord,
     MemoryMetadataStore,
     MetadataStore,
+    ReplayMetadataCapability,
+    ReproducibilityRecord,
 )
 from pyingestkit.profiling import DatasetProfile
 from pyingestkit.provenance.manifest import RunManifest
 from pyingestkit.validation import ValidationResult, ValidationSeverity
 
 logger = logging.getLogger(__name__)
+
+if TYPE_CHECKING:
+    from pyingestkit.replay.models import ReplayContext
 
 
 def _raw_artifacts(value: Any, *, _seen: set[int] | None = None) -> tuple[RawArtifact, ...]:
@@ -381,6 +390,8 @@ class Runner:
         initial_data: Any = None,
         parameters: dict[str, Any] | None = None,
         fixture_mode: bool = False,
+        replay: ReplayContext | None = None,
+        as_of: date | None = None,
     ) -> RunResult:
         job.validate_definition()
         context = RunContext(
@@ -389,6 +400,8 @@ class Runner:
             artifact_store=self.artifact_store,
             fixture_mode=fixture_mode,
             parameters=parameters or {},
+            replay=replay,
+            as_of=as_of,
         )
         run_id = str(context.run_id)
         manifest = RunManifest(
@@ -396,6 +409,9 @@ class Runner:
             job_id=job.id,
             job_version=job.version,
             started_at=context.started_at,
+            replay=None
+            if replay is None
+            else replay.as_manifest_dict(executed_job_version=job.version),
         )
         warnings: list[str] = []
         step_results: list[StepResult] = []
@@ -407,11 +423,46 @@ class Runner:
         self.artifact_store.prepare_run(job.id, context.run_id)
         self.metadata_store.initialize()
         self.metadata_store.start_run(context)
+        if isinstance(self.metadata_store, ReplayMetadataCapability):
+            safe_parameters = redact_mapping(dict(context.parameters))
+            encoded_parameters = json.dumps(
+                safe_parameters,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+                default=str,
+            ).encode("utf-8")
+            self.metadata_store.record_run_reproducibility(
+                ReproducibilityRecord(
+                    run_id=run_id,
+                    framework_version=__version__,
+                    as_of=context.as_of,
+                    parameters_fingerprint="sha256-"
+                    + hashlib.sha256(encoded_parameters).hexdigest(),
+                    created_at=datetime.now(UTC),
+                )
+            )
 
         with log_context(run_id=run_id, job_id=job.id):
             logger.info("Run started")
             try:
                 warnings.extend(self._emit(Event(EventType.RUN_STARTED, run_id, job.id)))
+                if replay is not None:
+                    warnings.extend(
+                        self._emit(
+                            Event(
+                                EventType.REPLAY_STARTED,
+                                run_id,
+                                job.id,
+                                payload={
+                                    "source_run_id": replay.source_run_id,
+                                    "source_job_version": replay.source_job_version,
+                                    "executed_job_version": job.version,
+                                    "verification_mode": replay.verification_mode,
+                                },
+                            )
+                        )
+                    )
                 for position, step in enumerate(job.pipeline(), start=1):
                     with log_context(step=step.step_name):
                         logger.info("Step started")
@@ -489,6 +540,23 @@ class Runner:
                             for artifact in _raw_artifacts(data):
                                 manifest.add_artifact(artifact)
                                 self.metadata_store.record_artifact(run_id, artifact, kind="raw")
+                                if artifact.acquisition_mode == "REPLAY":
+                                    warnings.extend(
+                                        self._emit(
+                                            Event(
+                                                EventType.RAW_REPLAYED,
+                                                run_id,
+                                                job.id,
+                                                payload={
+                                                    "step": step.step_name,
+                                                    "artifact_id": artifact.artifact_id,
+                                                    "origin_run_id": artifact.origin_run_id,
+                                                    "origin_artifact_id": artifact.origin_artifact_id,
+                                                    "sha256": artifact.sha256,
+                                                },
+                                            )
+                                        )
+                                    )
                             logger.info(
                                 "Step succeeded %.3fs",
                                 step_result.duration_seconds,

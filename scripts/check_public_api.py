@@ -9,19 +9,37 @@ import pyingestkit
 expected = {
     "CsvParser",
     "Dataset",
+    "DatasetFingerprintPolicy",
+    "DatasetFingerprinter",
+    "DatasetFingerprint",
+    "DatasetDiffer",
+    "DatasetDiff",
     "DatasetContract",
     "DatasetProfile",
     "DatasetProfiler",
+    "DatasetVersion",
+    "DatasetVersionStore",
     "FieldContract",
     "FieldProfile",
+    "FilesystemDatasetVersionStore",
     "ExcelParser",
+    "SchemaDiff",
+    "SnapshotCodec",
+    "DiffPolicy",
+    "DiffKind",
+    "DiffEntry",
     "Job",
     "JobDefinition",
     "JsonParser",
     "NdjsonParser",
     "ParquetParser",
     "Pipeline",
+    "PublishedDataset",
     "QualityReport",
+    "ReplayContext",
+    "ReplayRawArtifact",
+    "ReplayResult",
+    "ReplayService",
     "RunContext",
     "RunResult",
     "RunStatus",
@@ -38,6 +56,6 @@ expected = {
 actual = set(pyingestkit.__all__)
 if actual != expected:
     raise SystemExit(f"Unexpected public API. expected={sorted(expected)} actual={sorted(actual)}")
-if pyingestkit.__version__ != "0.3.0":
+if pyingestkit.__version__ != "0.4.0b2":
     raise SystemExit(f"Unexpected version: {pyingestkit.__version__}")
-print("OK: public API matches V0.3.0 Quality & Formats release contract")
+print("OK: public API matches V0.4.0-b2 Replay contract")

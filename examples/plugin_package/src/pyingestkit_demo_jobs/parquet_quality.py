@@ -58,7 +58,7 @@ def profile_parquet(data: dict[str, object]) -> dict[str, object]:
 
 @job(
     id="demo.parquet_quality",
-    version="0.3.0",
+    version="0.4.0b2",
     description="Reference Parquet -> Dataset -> Contract V2 -> profile -> quality reports slice.",
 )
 def parquet_quality_job() -> None:

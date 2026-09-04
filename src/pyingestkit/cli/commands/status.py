@@ -51,9 +51,7 @@ def status_command(
     validations = store.list_validations(run.run_id)
     events = store.list_events(run.run_id)
     diffs = (
-        store.list_dataset_diffs(run.run_id)
-        if isinstance(store, DiffMetadataCapability)
-        else ()
+        store.list_dataset_diffs(run.run_id) if isinstance(store, DiffMetadataCapability) else ()
     )
 
     reports: list[dict[str, object]] = []

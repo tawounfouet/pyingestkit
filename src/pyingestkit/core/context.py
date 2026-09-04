@@ -8,6 +8,7 @@ from uuid import UUID, uuid4
 
 if TYPE_CHECKING:
     from pyingestkit.artifacts.base import ArtifactStore
+    from pyingestkit.replay import ReplayContext
 
 
 @dataclass(slots=True)
@@ -20,6 +21,7 @@ class RunContext:
     as_of: date | None = None
     fixture_mode: bool = False
     parameters: Mapping[str, Any] = field(default_factory=dict)
+    replay: ReplayContext | None = None
 
     def parameter(self, name: str, default: Any = None) -> Any:
         return self.parameters.get(name, default)

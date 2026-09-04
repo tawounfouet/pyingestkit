@@ -15,6 +15,7 @@ from .diff import DatasetDiff, DatasetDiffer, DiffEntry, DiffKind, DiffPolicy, S
 from .parsers import CsvParser, ExcelParser, JsonParser, NdjsonParser, ParquetParser
 from .profiling import DatasetProfile, DatasetProfiler, FieldProfile
 from .quality import QualityReport
+from .replay import ReplayContext, ReplayRawArtifact, ReplayResult, ReplayService
 from .runtime.runner import Runner
 from .validation import ValidationIssue, ValidationResult
 from .versioning import (
@@ -56,6 +57,10 @@ __all__ = [
     "Pipeline",
     "PublishedDataset",
     "QualityReport",
+    "ReplayContext",
+    "ReplayRawArtifact",
+    "ReplayResult",
+    "ReplayService",
     "RunContext",
     "RunResult",
     "RunStatus",

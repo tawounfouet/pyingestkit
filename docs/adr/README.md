@@ -38,3 +38,13 @@
 
 - [ADR-032 — Parquet is an optional materializing parser adapter](ADR-032-parquet-optional-materializing-adapter.md)
 - [ADR-033 — V0.3 materialized Dataset boundary](ADR-033-materialized-dataset-boundary.md)
+
+- [ADR-034 — Dataset fingerprint canonical identity](ADR-034-dataset-fingerprint-canonical-identity.md)
+- [ADR-035 — Keyed and keyless diff semantics](ADR-035-keyed-and-keyless-diff-semantics.md)
+
+- [ADR-036 — Dataset snapshots use versioned typed JSON](ADR-036-dataset-snapshots-versioned-json.md)
+- [ADR-037 — Dataset version IDs are content-addressed](ADR-037-dataset-version-id-is-content-addressed.md)
+- [ADR-038 — PublishedDataset atomic pointer](ADR-038-published-dataset-atomic-pointer.md)
+
+- [ADR-039 — Strict replay from historical RAW](ADR-039-replay-strict-historical-raw.md)
+- [ADR-040 — Replay lineage and verification](ADR-040-replay-lineage-and-verification.md)

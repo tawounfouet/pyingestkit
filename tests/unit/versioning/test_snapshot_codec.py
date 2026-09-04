@@ -31,7 +31,21 @@ class SnapshotCodecTests(unittest.TestCase):
                 },
                 {"none": None, "int": 2},
             ],
-            fields=("none", "bool", "int", "float", "nan", "str", "bytes", "decimal", "date", "datetime", "list", "tuple", "mapping"),
+            fields=(
+                "none",
+                "bool",
+                "int",
+                "float",
+                "nan",
+                "str",
+                "bytes",
+                "decimal",
+                "date",
+                "datetime",
+                "list",
+                "tuple",
+                "mapping",
+            ),
         )
         codec = SnapshotCodec()
         restored = codec.decode(codec.encode(dataset))

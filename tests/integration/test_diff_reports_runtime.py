@@ -49,7 +49,7 @@ class ProduceDiff(Step):
 
 class DiffJob(Job):
     id = "demo.diff_reports"
-    version = "0.4.0a2"
+    version = "0.4.0b2"
 
     def pipeline(self) -> Pipeline:
         return Pipeline([ProduceDiff()])

@@ -204,10 +204,14 @@ class FilesystemDatasetVersionStore(DatasetVersionStore):
                     versions.append(self.get_version(dataset_id, path.name))
                 except (KeyError, VersionStoreError):
                     continue
-        return tuple(sorted(versions, key=lambda item: (item.created_at, item.version_id), reverse=True))
+        return tuple(
+            sorted(versions, key=lambda item: (item.created_at, item.version_id), reverse=True)
+        )
 
     def load_dataset(self, version: DatasetVersion) -> Dataset:
-        expected = self._version_dir(version.dataset_id, version.version_id) / "dataset.snapshot.json"
+        expected = (
+            self._version_dir(version.dataset_id, version.version_id) / "dataset.snapshot.json"
+        )
         uri_path = (self.root / version.snapshot_uri).resolve()
         if uri_path != expected.resolve() or self.root not in uri_path.parents:
             raise VersionStoreError("Snapshot URI escapes or disagrees with the version store")

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any
 
 
@@ -136,3 +136,26 @@ class PublishedDatasetRecord:
     version_id: str
     published_from_run_id: str
     published_at: datetime
+
+
+@dataclass(frozen=True, slots=True)
+class ReplayRecord:
+    run_id: str
+    source_run_id: str
+    source_job_id: str
+    source_job_version: str
+    executed_job_version: str
+    verification_mode: str
+    expected_fingerprint: str | None
+    actual_fingerprint: str | None
+    status: str
+    created_at: datetime
+
+
+@dataclass(frozen=True, slots=True)
+class ReproducibilityRecord:
+    run_id: str
+    framework_version: str
+    as_of: date | None
+    parameters_fingerprint: str
+    created_at: datetime

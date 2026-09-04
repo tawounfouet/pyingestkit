@@ -7,6 +7,8 @@ from .models import (
     DatasetVersionRunRecord,
     DiffRecord,
     PublishedDatasetRecord,
+    ReplayRecord,
+    ReproducibilityRecord,
 )
 
 
@@ -47,4 +49,28 @@ class VersionMetadataCapability(ABC):
 
     @abstractmethod
     def get_published_dataset(self, dataset_id: str) -> PublishedDatasetRecord | None:
+        raise NotImplementedError
+
+
+class ReplayMetadataCapability(ABC):
+    """Optional capability for replay lineage and reproducibility metadata."""
+
+    @abstractmethod
+    def record_replay_run(self, record: ReplayRecord) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_replay_run(self, run_id: str) -> ReplayRecord | None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def record_run_reproducibility(self, record: ReproducibilityRecord) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_run_reproducibility(self, run_id: str) -> ReproducibilityRecord | None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def find_expected_fingerprint_for_run(self, run_id: str, dataset_id: str) -> str | None:
         raise NotImplementedError

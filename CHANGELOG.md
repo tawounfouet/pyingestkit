@@ -1,5 +1,53 @@
 # Changelog
 
+## [0.4.0b2] - 2026-09-04
+
+### Beta 2 — Replay From RAW + Lineage
+
+- added strict replay contexts/services over historical immutable RAW artifacts;
+- added zero-network HTTP replay and local-file replay independent of current source state;
+- verified origin and newly materialized RAW SHA-256 values;
+- added replay lineage/reproducibility metadata, manifest evidence and REPLAY events;
+- added same-version Dataset fingerprint verification with best-effort pre-V0.4 fallback;
+- added `pyingest replay`, `--allow-version-change` and `--no-verify`;
+- preserved redacted historical secrets instead of attempting secret restoration.
+
+## [0.4.0b2] - 2026-09-04
+
+### Beta 1 — Dataset Snapshots + Version Registry + PublishedDataset
+
+- added versioned typed-JSON Dataset snapshots with deterministic round-trip semantics and no pickle;
+- added content-addressed `DatasetVersion` identity from Dataset fingerprints;
+- added `FilesystemDatasetVersionStore` with immutable history under `versions/`;
+- added atomic `PublishedDataset` current pointers under `published/`;
+- added additive version/run/publication metadata capabilities and SQL tables;
+- added `pyingest versions` and `pyingest published`;
+- retained V0.3 Dataset neutrality and V0.4 A1/A2 diff contracts.
+
+## [0.4.0b2] - 2026-09-04
+
+### Diff Reports + Runtime / Metadata Observation
+
+- added portable schema-v1 `reports/diff.json` artifacts written atomically by ArtifactStore;
+- made Runner observe explicit `DatasetDiff` step outputs without auto-computing comparisons;
+- added additive manifest diff report references and compact `DIFF_STARTED`, `DIFF_COMPLETED`, and `DIFF_REPORT_WRITTEN` events;
+- added optional `DiffMetadataCapability` so legacy third-party MetadataStore implementations remain valid;
+- added `DiffRecord` and the additive `dataset_diffs` table to Memory/SQLite/PostgreSQL built-in stores;
+- exposed persisted diff summaries through `pyingest status` and `--json`;
+- kept raw before/after rows out of reports by default and redacted secret-looking fields when value capture is explicitly enabled.
+
+## [0.4.0a1] - 2026-09-04
+
+### Dataset Fingerprints + Diff Engine
+
+- added deterministic type-aware Dataset fingerprints distinct from RAW artifact hashes;
+- added explicit order-sensitive and order-insensitive fingerprint policies;
+- added canonical encoding for nested Python/JSON values plus bytes, Decimal, date/datetime and special floats;
+- added keyed Dataset diff with exact ADDED/REMOVED/CHANGED/UNCHANGED counts;
+- added keyless multiset diff preserving duplicate multiplicity;
+- added schema diff, bounded deterministic entries, missing-vs-null semantics and opt-in value capture;
+- added no dataframe or external diff dependency and retained the V0.3 materialized Dataset contract.
+
 ## [0.3.0] - 2026-09-04
 
 ### Quality & Formats Release
