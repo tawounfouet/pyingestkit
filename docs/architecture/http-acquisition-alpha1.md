@@ -43,9 +43,9 @@ follow redirects     true
 max attempts         3
 retry methods        GET, HEAD
 retry status         408, 425, 429, 500, 502, 503, 504
-backoff              exponential
-jitter               enabled
-Retry-After          honored and bounded
+backoff               exponential
+jitter                enabled
+Retry-After           honored and bounded
 ```
 
 ## Secret handling

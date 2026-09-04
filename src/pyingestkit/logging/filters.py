@@ -55,8 +55,8 @@ class ContextFilter(logging.Filter):
         run_id = context["run_id"] or ""
         job_id = context["job_id"] or ""
         step = context["step"] or ""
-        run_short_id = run_id[:8] if run_id else ""
         record.run_id = run_id
+        run_short_id = run_id[:8] if run_id else ""
         record.run_short_id = run_short_id
         record.job_id = job_id
         record.step = step

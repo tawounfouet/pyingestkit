@@ -32,5 +32,7 @@ def local_file_job() -> None:
     fetch_local()
 
 
+# Entry-point friendly alias. Exposes a JobDefinition, not a runtime instance.
 job_definition = local_file_job
+# Backward-compatible example alias retained for V0.1.x callers.
 job = local_file_job

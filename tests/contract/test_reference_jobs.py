@@ -35,8 +35,7 @@ class ReferenceJobContractTests(unittest.TestCase):
             jobs = (local_job, csv_job, json_job)
             self.assertTrue(all(isinstance(job, JobDefinition) for job in jobs))
             self.assertEqual(
-                [job.id for job in jobs],
-                ["demo.local_file", "demo.http_csv", "demo.http_json"],
+                [job.id for job in jobs], ["demo.local_file", "demo.http_csv", "demo.http_json"]
             )
             self.assertEqual([len(job.build().pipeline()) for job in jobs], [1, 3, 3])
         finally:

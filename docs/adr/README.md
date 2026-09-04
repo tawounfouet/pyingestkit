@@ -25,3 +25,7 @@
 
 - ADR-022 HTTPX as default HTTP transport
 - ADR-023 Retry policy, idempotency and Retry-After
+- ADR-024 HTTP → immutable RAW provenance boundary
+- ADR-025 Dataset as a dependency-neutral Python container
+- ADR-026 Parser, normalizer and dataset contract boundaries
+- [ADR-027 — ValidationResult runtime observation](ADR-027-validation-result-runtime-observation.md)

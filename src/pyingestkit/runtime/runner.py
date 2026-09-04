@@ -232,7 +232,10 @@ class Runner:
                             for artifact in _raw_artifacts(data):
                                 manifest.add_artifact(artifact)
                                 self.metadata_store.record_artifact(run_id, artifact, kind="raw")
-                            logger.info("Step succeeded %.3fs", step_result.duration_seconds)
+                            logger.info(
+                                "Step succeeded %.3fs",
+                                step_result.duration_seconds,
+                            )
                             warnings.extend(
                                 self._emit(
                                     Event(
@@ -262,6 +265,9 @@ class Runner:
                                 and step_results[-1].step_name == step.step_name
                                 and step_results[-1].status is RunStatus.SUCCESS
                             ):
+                                # A critical post-step hook may fail after the successful
+                                # execution result was recorded. Replace that result rather
+                                # than emitting two records for one pipeline position.
                                 step_results[-1] = step_result
                             else:
                                 step_results.append(step_result)
@@ -306,6 +312,8 @@ class Runner:
                     warnings=tuple(warnings),
                 )
 
+            # Manifest writing is part of the run lifecycle. A failure here must
+            # not leave queryable metadata claiming SUCCESS.
             provisional = build_result()
             manifest.finalize(provisional)
             try:
@@ -347,6 +355,7 @@ class Runner:
             result = build_result()
             self.metadata_store.finish_run(result)
 
+            # Rewrite the manifest so final hook warnings/failures are reflected.
             manifest.finalize(result)
             try:
                 manifest_path = self.artifact_store.write_json(
@@ -354,6 +363,8 @@ class Runner:
                 )
                 logger.debug("Run manifest finalized path=%s", manifest_path)
             except Exception:  # noqa: BLE001 - best-effort manifest finalization boundary
+                # If the first write already failed this may fail again. Metadata
+                # remains authoritative for the failure and the exception is logged.
                 logger.exception("Unable to finalize run manifest")
 
             if result.succeeded:

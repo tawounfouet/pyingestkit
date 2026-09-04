@@ -1,0 +1,6 @@
+5b122ef9c02af3fcd6ec2306b0e1cc169340aad90bb901b50b50957a5ae96cd5  pyingestkit-v0.2.0.zip
+8d62c9e2d98f12421029852bb0b44d3babec696bf794f12bc7ca531b17d48bde  pyingestkit-0.2.0.tar.gz
+2bf06c3c045258b30c4f13d8df370f225f3089306a0a38677da074d4028c4ff3  pyingestkit-0.2.0-py3-none-any.whl
+97e249728277510b96094501d8135d8e6cd28459c530b261dcdc4f79d7114311  pyingestkit_demo_jobs-0.2.0.tar.gz
+68960931bb5dcb8f889116fe1c6d1317ec11646edbb54b8a4ac23393c93dc10e  pyingestkit_demo_jobs-0.2.0-py3-none-any.whl
+cd8654d07190cb47d123aa6be5c4589010c920e1e6dcdc6b9dd4027268cedd0c  pyingestkit-v0.2.0-validation-evidence.zip

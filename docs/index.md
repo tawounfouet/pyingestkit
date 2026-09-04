@@ -14,16 +14,11 @@
 - [Declarative API](architecture/declarative-api.md)
 - [Plugin model](architecture/plugin-model.md)
 - [ADR index](adr/README.md)
-
-## V0.2 acquisition
-
-- [HTTP acquisition — Alpha 1](architecture/http-acquisition-alpha1.md)
 - [HTTP → RAW provenance decision](adr/ADR-024-http-raw-provenance-boundary.md)
 - [Dataset, parsers and contracts — Beta 1](architecture/dataset-parsers-contracts-beta1.md)
 - [Acquisition vertical slice — RC1](architecture/acquisition-e2e-rc1.md)
 - [Dataset representation decision](adr/ADR-025-dataset-neutral-python-container.md)
 - [Parser/normalizer/contract boundary decision](adr/ADR-026-parser-normalizer-contract-boundaries.md)
-- [Runtime validation observation decision](adr/ADR-027-validation-result-runtime-observation.md)
 
 ## Guides
 
@@ -38,4 +33,5 @@
 
 ## Reviews
 
+- [Stabilisation Qualité et Qualification Finale (v0.2.0)](reviews/v0.2.0-quality-and-release-stabilization.md)
 - [Stabilisation Qualité, Typage et Sécurité (v0.1.6)](reviews/quality-and-security-stabilization.md)

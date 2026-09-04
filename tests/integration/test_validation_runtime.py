@@ -50,12 +50,14 @@ class ValidationRuntimeIntegrationTests(unittest.TestCase):
             result = Runner(LocalArtifactStore(workspace), metadata_store=store).run(
                 ValidationJob(ValidValidation())
             )
+
             self.assertTrue(result.succeeded, result.error)
             validations = store.list_validations(result.run_id)
             self.assertEqual(len(validations), 1)
             self.assertEqual(validations[0].status, "PASSED")
             events = store.list_events(result.run_id)
             self.assertIn("VALIDATION_COMPLETED", {event.event_type for event in events})
+
             manifest_path = (
                 workspace / "runs" / "demo" / "validation_runtime" / result.run_id / "manifest.json"
             )
@@ -69,6 +71,7 @@ class ValidationRuntimeIntegrationTests(unittest.TestCase):
             result = Runner(LocalArtifactStore(workspace), metadata_store=store).run(
                 ValidationJob(InvalidValidation())
             )
+
             self.assertFalse(result.succeeded)
             self.assertIn("ValidationError", result.error or "")
             validations = store.list_validations(result.run_id)

@@ -90,6 +90,7 @@ class RetryPolicy:
                 if requested is not None:
                     return min(self.max_delay_seconds, max(0.0, requested))
 
+            # attempt_number is the failed attempt; first retry waits `initial`.
             exponent = max(0, state.attempt_number - 1)
             delay: float = float(
                 min(

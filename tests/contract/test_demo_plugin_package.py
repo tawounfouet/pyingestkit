@@ -23,6 +23,8 @@ class DemoPluginPackageContractTests(unittest.TestCase):
             entry_points["demo-local-file"],
             "pyingestkit_demo_jobs.local_file:job_definition",
         )
+        self.assertIn("demo-http-csv", entry_points)
+        self.assertIn("demo-http-json", entry_points)
 
     def test_demo_job_is_declarative_and_runnable(self) -> None:
         src = str(DEMO_PACKAGE / "src")

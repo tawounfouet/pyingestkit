@@ -46,6 +46,7 @@ def reference_http_source(
     artifact_name: str,
 ) -> HttpSource:
     """Build the reference source without allowing tests to touch the network."""
+
     runtime_url = context.parameter("url")
     if context.fixture_mode:
         url = str(runtime_url or f"https://fixtures.pyingestkit.invalid/{artifact_name}")
@@ -56,7 +57,13 @@ def reference_http_source(
             max_delay_seconds=0.0,
             jitter=False,
         )
-        return HttpSource(url, client=client, retry=retry, artifact_name=artifact_name)
+        return HttpSource(
+            url,
+            client=client,
+            retry=retry,
+            artifact_name=artifact_name,
+        )
+
     if runtime_url in (None, ""):
         raise ConfigurationError(
             "HTTP demo jobs require runtime parameter 'url' outside fixture mode. "

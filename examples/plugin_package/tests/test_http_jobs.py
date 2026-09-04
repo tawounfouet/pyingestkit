@@ -29,17 +29,22 @@ class HttpDemoJobTests(unittest.TestCase):
                     LocalArtifactStore(workspace),
                     metadata_store=store,
                 ).run(job_definition.build(), fixture_mode=True)
+
             self.assertTrue(result.succeeded, result.error)
             self.assertEqual(len(result.steps), 3)
+
             artifacts = store.list_artifacts(result.run_id)
             self.assertEqual(len(artifacts), 1)
             self.assertEqual(artifacts[0].status_code, 200)
             self.assertIn("fixtures.pyingestkit.invalid", artifacts[0].source_uri)
+
             validations = store.list_validations(result.run_id)
             self.assertEqual(validations[0].rule, "dataset_contract")
             self.assertEqual(validations[0].status, "PASSED")
+
             event_types = {event.event_type for event in store.list_events(result.run_id)}
             self.assertIn("VALIDATION_COMPLETED", event_types)
+
             manifest_path = workspace / "runs" / "demo" / job_definition.id.split(".")[-1]
             manifests = list(manifest_path.glob("*/manifest.json"))
             self.assertEqual(len(manifests), 1)

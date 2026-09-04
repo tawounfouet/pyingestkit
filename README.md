@@ -12,6 +12,7 @@
 
 This repository contains **V0.2.0 — Acquisition Release**, the first stable V0.2 release built on the frozen V0.1.6 Foundation. It connects HTTP acquisition, bounded retry, immutable RAW/provenance, CSV/JSON parsing, dependency-neutral datasets, dataset contracts, runtime validation evidence, manifests, metadata and events into complete reference slices.
 
+
 ## Product boundary
 
 PyIngestKit owns **HOW TO INGEST**. External orchestrators own **WHEN TO RUN**.
@@ -37,7 +38,7 @@ It is not Airflow, Dagster, Prefect, Celery, a distributed DAG scheduler, a Data
 - `-v/--verbose`, `-q/--quiet`;
 - `pyingest runs` and `pyingest status`;
 - plugin failure isolation;
-- basic validation and atomic publication primitives;
+- basic validation and atomic publication primitives.
 - framework-owned synchronous HTTP acquisition through `HttpSource` / `HttpxClient`;
 - conservative bounded retries through `RetryPolicy`, including `Retry-After`;
 - sanitized HTTP provenance associated with immutable RAW artifacts;
@@ -443,6 +444,7 @@ For a fresh development environment, upgrade packaging tooling before the securi
 python -m pip install --upgrade pip
 python -m pip install -e ".[dev]"
 ```
+
 
 ## V0.2.0 release artifacts
 
