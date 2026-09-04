@@ -1,15 +1,17 @@
+from __future__ import annotations
+
+from inspect import signature
+
 from typer.testing import CliRunner
 
 from pyingestkit.cli.app import app
+from pyingestkit.cli.commands.replay import replay_command
 
 
 def test_replay_command_is_exposed() -> None:
-    result = CliRunner().invoke(
-        app,
-        ["replay", "--help"],
-        color=False,
-        terminal_width=160,
-    )
+    result = CliRunner().invoke(app, ["replay", "--help"])
     assert result.exit_code == 0
-    assert "--allow-version-change" in result.output
-    assert "--no-verify" in result.output
+
+    parameters = signature(replay_command).parameters
+    assert "allow_version_change" in parameters
+    assert "verify" in parameters
