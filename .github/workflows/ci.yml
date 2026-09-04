@@ -63,7 +63,16 @@ jobs:
       - run: python -m pip install --upgrade pip
       - run: python -m pip install -e ".[dev]"
       - run: python -m pip install -e examples/plugin_package
-      - run: make release-check
+      - name: Release gate — tests and public API
+        run: make check
+      - name: Release gate — quality
+        run: make quality
+      - name: Release gate — security
+        run: make security
+      - name: Release gate — build distributions
+        run: make build
+      - name: Release gate — wheel smoke
+        run: make wheel-smoke
       - run: pyingest --version
       - run: pyingest jobs
       - run: pyingest run demo.local_file --config examples/plugin_package/demo.yml
