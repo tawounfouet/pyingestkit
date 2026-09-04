@@ -69,9 +69,7 @@ def _validation_results(
     return tuple(results)
 
 
-def _dataset_profiles(
-    value: Any, *, _seen: set[int] | None = None
-) -> tuple[DatasetProfile, ...]:
+def _dataset_profiles(value: Any, *, _seen: set[int] | None = None) -> tuple[DatasetProfile, ...]:
     """Extract dataset profiles from common nested step outputs."""
     if isinstance(value, DatasetProfile):
         return (value,)
