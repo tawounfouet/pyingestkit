@@ -6,13 +6,14 @@ import unittest
 from pathlib import Path
 from uuid import UUID
 
+from pyingestkit_demo_jobs.versioned_ndjson import DATASET_ID, job_definition
+
 from pyingestkit.artifacts import LocalArtifactStore
 from pyingestkit.core.registry import JobRegistry
 from pyingestkit.metadata import SQLiteMetadataStore
 from pyingestkit.replay import ReplayService
 from pyingestkit.runtime import Runner
 from pyingestkit.versioning import FilesystemDatasetVersionStore
-from pyingestkit_demo_jobs.versioned_ndjson import DATASET_ID, job_definition
 
 
 class VersionedNdjsonE2ETests(unittest.TestCase):
