@@ -8,8 +8,8 @@ import tempfile
 import venv
 from pathlib import Path
 
-FRAMEWORK_VERSION = "0.4.0"
-DEMO_VERSION = "0.4.0"
+FRAMEWORK_VERSION = "0.5.0a1"
+DEMO_VERSION = "0.5.0a1"
 QUALITY_JOBS = ("demo.ndjson_quality", "demo.excel_quality", "demo.parquet_quality")
 VERSIONED_JOB = "demo.versioned_ndjson"
 
@@ -67,7 +67,9 @@ def main() -> int:
         env["PYTHONNOUSERSITE"] = "1"
 
         run([str(python), "-m", "pip", "install", "--upgrade", "pip"], cwd=root, env=env)
-        framework_requirement = f"pyingestkit[excel,parquet] @ {framework_wheel.resolve().as_uri()}"
+        framework_requirement = (
+            "pyingestkit[excel,parquet,postgres] @ " + framework_wheel.resolve().as_uri()
+        )
         run(
             [
                 str(python),
@@ -85,7 +87,8 @@ def main() -> int:
                 str(python),
                 "-c",
                 (
-                    "import openpyxl, pyarrow, pyingestkit; "
+                    "import openpyxl, pyarrow, psycopg, pyingestkit; "
+                    "from pyingestkit import PostgresTarget; "
                     f"assert pyingestkit.__version__ == '{FRAMEWORK_VERSION}'; "
                     "print('installed_from=' + pyingestkit.__file__); "
                     "print('openpyxl=' + openpyxl.__version__); "
@@ -266,7 +269,7 @@ def main() -> int:
 
     shutil.rmtree(workspace, ignore_errors=True)
     print(
-        "OK: V0.4.0 stable wheels execute seven reference jobs and prove "
+        "OK: V0.5.0-a1 wheels preserve seven V0.4 reference jobs and prove "
         "V1 -> V2 -> diff -> publish -> strict RAW replay"
     )
     return 0

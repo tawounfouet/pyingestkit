@@ -2,6 +2,18 @@
 
 All notable changes to PyIngestKit are documented here.
 
+## [0.5.0a1] - 2026-09-04
+
+### Alpha 1 — Target Contract + PostgreSQL Target Foundation
+
+- added the framework-owned `Target`, `TargetLoadRequest`, `TargetLoadResult`, `TargetCapabilities`, `LoadMode`, and `TargetLoadStatus` contracts;
+- added `PostgresTarget` on the existing SQLAlchemy Core + optional psycopg dependency line, without introducing ORM semantics;
+- added explicit target open/close behavior, atomic transaction boundaries, rollback-on-failure, credential-redacted diagnostics, and strict PostgreSQL identifier validation;
+- added a conservative parameterized `APPEND` foundation while deliberately leaving PostgreSQL `COPY`, staging, `TRUNCATE_LOAD`, and `REPLACE` for later V0.5 milestones;
+- added PostgreSQL target configuration through environment-variable indirection so DSNs are not serialized into project YAML;
+- kept MetadataStore independent from Target and preserved all V0.4 Diff / Versioning / Replay contracts and seven reference jobs;
+- extended public-API and wheel-smoke gates to the V0.5.0-a1 prerelease and the optional `postgres` extra.
+
 ## [0.4.0] - 2026-09-04
 
 ### Diff / Replay / Versioning Release

@@ -17,6 +17,15 @@ from .profiling import DatasetProfile, DatasetProfiler, FieldProfile
 from .quality import QualityReport
 from .replay import ReplayContext, ReplayRawArtifact, ReplayResult, ReplayService
 from .runtime.runner import Runner
+from .targets import (
+    LoadMode,
+    PostgresTarget,
+    Target,
+    TargetCapabilities,
+    TargetLoadRequest,
+    TargetLoadResult,
+    TargetLoadStatus,
+)
 from .validation import ValidationIssue, ValidationResult
 from .versioning import (
     DatasetFingerprint,
@@ -71,6 +80,13 @@ __all__ = [
     "StepDefinition",
     "StepInvocation",
     "StepResult",
+    "LoadMode",
+    "PostgresTarget",
+    "Target",
+    "TargetCapabilities",
+    "TargetLoadRequest",
+    "TargetLoadResult",
+    "TargetLoadStatus",
     "ValidationIssue",
     "ValidationResult",
     "job",

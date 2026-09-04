@@ -42,10 +42,10 @@ jobs:
       - run: pyingest run demo.excel_quality --config examples/plugin_package/demo-quality.yml
       - run: pyingest run demo.parquet_quality --config examples/plugin_package/demo-quality.yml
       - run: pyingest runs
-      - name: Upload V0.4.0 stable source artifact
+      - name: Upload V0.5.0-a1 PostgreSQL target foundation artifact
         uses: actions/upload-artifact@v4
         with:
-          name: pyingestkit-v0.4.0
+          name: pyingestkit-v0.5.0-a1-postgres-target-foundation
           path: |
             .
             !.git/**

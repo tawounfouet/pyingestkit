@@ -54,3 +54,8 @@
 V0.4.0 freezes the ADR-034 canonical Dataset fingerprint codec at version `1` and the ADR-036
 Dataset snapshot format at `snapshot_version = "1"`. Portable diff reports are frozen at
 `report_version = "1"` as documented by the V0.4 release validation guide.
+
+## V0.5 PostgreSQL persistence targets
+
+- [ADR-041 — Target abstraction exposes one atomic load operation](ADR-041-target-abstraction-atomic-load-lifecycle.md)
+- [ADR-042 — PostgresTarget uses SQLAlchemy Core with psycopg and no ORM](ADR-042-postgres-target-sqlalchemy-core-psycopg-boundary.md)

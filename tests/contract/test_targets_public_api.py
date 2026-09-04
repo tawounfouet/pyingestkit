@@ -1,0 +1,48 @@
+from __future__ import annotations
+
+import unittest
+
+import pyingestkit
+from pyingestkit.targets import (
+    LoadMode,
+    PostgresTarget,
+    Target,
+    TargetCapabilities,
+    TargetLoadRequest,
+    TargetLoadResult,
+    TargetLoadStatus,
+)
+
+
+class TargetsPublicApiTests(unittest.TestCase):
+    def test_a1_target_types_are_public(self) -> None:
+        expected = {
+            "LoadMode",
+            "PostgresTarget",
+            "Target",
+            "TargetCapabilities",
+            "TargetLoadRequest",
+            "TargetLoadResult",
+            "TargetLoadStatus",
+        }
+        self.assertTrue(expected.issubset(set(pyingestkit.__all__)))
+        self.assertIs(pyingestkit.Target, Target)
+        self.assertIs(pyingestkit.PostgresTarget, PostgresTarget)
+        self.assertIs(pyingestkit.TargetCapabilities, TargetCapabilities)
+        self.assertIs(pyingestkit.TargetLoadRequest, TargetLoadRequest)
+        self.assertIs(pyingestkit.TargetLoadResult, TargetLoadResult)
+        self.assertIs(pyingestkit.TargetLoadStatus, TargetLoadStatus)
+        self.assertIs(pyingestkit.LoadMode, LoadMode)
+
+    def test_postgres_a1_capabilities_do_not_claim_future_milestones(self) -> None:
+        capabilities = PostgresTarget.A1_CAPABILITIES
+        self.assertTrue(capabilities.transactional)
+        self.assertTrue(capabilities.append)
+        self.assertFalse(capabilities.bulk_load)
+        self.assertFalse(capabilities.truncate_load)
+        self.assertFalse(capabilities.replace)
+        self.assertFalse(capabilities.staging)
+
+
+if __name__ == "__main__":
+    unittest.main()
