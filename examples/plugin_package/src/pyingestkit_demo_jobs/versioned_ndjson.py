@@ -70,9 +70,7 @@ def _fixture_payload(context: RunContext) -> bytes:
 def _version_store(context: RunContext) -> FilesystemDatasetVersionStore:
     root = getattr(context.artifact_store, "root", None)
     if root is None:
-        raise ConfigurationError(
-            "demo.versioned_ndjson requires the LocalArtifactStore workspace"
-        )
+        raise ConfigurationError("demo.versioned_ndjson requires the LocalArtifactStore workspace")
     workspace = Path(root)
     metadata = SQLiteMetadataStore(workspace / "state" / "pyingest.sqlite3")
     metadata.initialize()
