@@ -56,6 +56,6 @@ expected = {
 actual = set(pyingestkit.__all__)
 if actual != expected:
     raise SystemExit(f"Unexpected public API. expected={sorted(expected)} actual={sorted(actual)}")
-if pyingestkit.__version__ != "0.4.0b2":
+if pyingestkit.__version__ != "0.4.0rc1":
     raise SystemExit(f"Unexpected version: {pyingestkit.__version__}")
-print("OK: public API matches V0.4.0-b2 Replay contract")
+print("OK: public API matches V0.4.0-rc1 Diff / Replay / Versioning E2E contract")
