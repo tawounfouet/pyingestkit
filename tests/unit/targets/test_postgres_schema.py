@@ -31,7 +31,7 @@ class PostgresSchemaMapperTests(unittest.TestCase):
         dataset = Dataset(
             [
                 {
-                    "text_value": "café\nquoted \"text\"",
+                    "text_value": 'café\nquoted "text"',
                     "int_value": 42,
                     "float_value": 1.5,
                     "decimal_value": Decimal("1234567890.123456789"),
