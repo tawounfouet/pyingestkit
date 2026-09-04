@@ -293,25 +293,26 @@ class DatasetContract:
                     return
                 continue
 
-            type_matches = contract.expected_type is None or isinstance(
-                value, contract.expected_type
-            )
-            if not type_matches:
-                if not collector.add(
-                    ValidationIssue(
-                        "field.type",
-                        (
-                            f"Field {contract.name!r} has type {type(value).__name__}; "
-                            f"expected {self._type_label(contract.expected_type)}"
-                        ),
-                        ValidationSeverity.ERROR,
-                        field=contract.name,
-                        row_index=row_index,
-                        value_preview=_safe_preview(contract.name, value),
-                        constraint="expected_type",
-                    )
-                ):
-                    return
+            type_matches = True
+            expected = contract.expected_type
+            if expected is not None:
+                type_matches = isinstance(value, expected)
+                if not type_matches:
+                    if not collector.add(
+                        ValidationIssue(
+                            "field.type",
+                            (
+                                f"Field {contract.name!r} has type {type(value).__name__}; "
+                                f"expected {self._type_label(expected)}"
+                            ),
+                            ValidationSeverity.ERROR,
+                            field=contract.name,
+                            row_index=row_index,
+                            value_preview=_safe_preview(contract.name, value),
+                            constraint="expected_type",
+                        )
+                    ):
+                        return
 
             if contract.allowed_values is not None and not any(
                 value == allowed for allowed in contract.allowed_values
