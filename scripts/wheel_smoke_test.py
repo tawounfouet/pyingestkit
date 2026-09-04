@@ -8,9 +8,10 @@ import tempfile
 import venv
 from pathlib import Path
 
-FRAMEWORK_VERSION = "0.3.0"
-DEMO_VERSION = "0.3.0"
+FRAMEWORK_VERSION = "0.4.0"
+DEMO_VERSION = "0.4.0"
 QUALITY_JOBS = ("demo.ndjson_quality", "demo.excel_quality", "demo.parquet_quality")
+VERSIONED_JOB = "demo.versioned_ndjson"
 
 
 def run(command: list[str], *, cwd: Path, env: dict[str, str], capture: bool = False) -> str:
@@ -25,7 +26,13 @@ def run(command: list[str], *, cwd: Path, env: dict[str, str], capture: bool = F
     )
     if capture:
         print(completed.stdout, end="")
+        if completed.stderr:
+            print(completed.stderr, end="", file=os.sys.stderr)
     return completed.stdout if capture else ""
+
+
+def json_command(command: list[str], *, cwd: Path, env: dict[str, str]) -> object:
+    return json.loads(run(command, cwd=cwd, env=env, capture=True))
 
 
 def main() -> int:
@@ -98,6 +105,7 @@ def main() -> int:
             "demo.ndjson_quality",
             "demo.excel_quality",
             "demo.parquet_quality",
+            VERSIONED_JOB,
         }
         if installed_ids != expected_ids:
             raise SystemExit(f"Unexpected installed jobs: {sorted(installed_ids)}")
@@ -137,18 +145,130 @@ def main() -> int:
                 cwd=root,
                 env=env,
             )
+
+        first = json_command(
+            [
+                str(pyingest),
+                "run",
+                VERSIONED_JOB,
+                "--config",
+                "examples/plugin_package/demo-versioned.yml",
+                "--param",
+                "revision=1",
+                "--json",
+            ],
+            cwd=root,
+            env=env,
+        )
+        second = json_command(
+            [
+                str(pyingest),
+                "run",
+                VERSIONED_JOB,
+                "--config",
+                "examples/plugin_package/demo-versioned.yml",
+                "--param",
+                "revision=2",
+                "--json",
+            ],
+            cwd=root,
+            env=env,
+        )
+        assert isinstance(first, dict)
+        assert isinstance(second, dict)
+        if first.get("status") != "SUCCESS" or second.get("status") != "SUCCESS":
+            raise SystemExit("Versioned stable reference runs did not succeed")
+
+        second_run_id = str(second["run_id"])
+        diff_path = (
+            workspace
+            / "runs"
+            / "demo"
+            / "versioned_ndjson"
+            / second_run_id
+            / "reports"
+            / "diff.json"
+        )
+        diff = json.loads(diff_path.read_text(encoding="utf-8"))
+        expected_summary = {"added": 1, "removed": 1, "changed": 1, "unchanged": 1}
+        if diff.get("summary") != expected_summary:
+            raise SystemExit(f"Unexpected stable diff summary: {diff.get('summary')}")
+
+        versions = json_command(
+            [str(pyingest), "versions", VERSIONED_JOB, "--workspace", str(workspace), "--json"],
+            cwd=root,
+            env=env,
+        )
+        if not isinstance(versions, list) or len(versions) != 2:
+            raise SystemExit(f"Expected exactly 2 content-addressed versions, got: {versions}")
+
+        published = json_command(
+            [str(pyingest), "published", VERSIONED_JOB, "--workspace", str(workspace), "--json"],
+            cwd=root,
+            env=env,
+        )
+        assert isinstance(published, dict)
+        if published.get("published_from_run_id") != second_run_id:
+            raise SystemExit("PublishedDataset does not point to revision 2")
+
+        replay = json_command(
+            [
+                str(pyingest),
+                "replay",
+                second_run_id,
+                "--config",
+                "examples/plugin_package/demo-versioned.yml",
+                "--json",
+            ],
+            cwd=root,
+            env=env,
+        )
+        assert isinstance(replay, dict)
+        if replay.get("status") != "SUCCESS":
+            raise SystemExit(f"Replay failed: {replay}")
+        if replay.get("verification_mode") != "STRICT" or replay.get("matched") is not True:
+            raise SystemExit(f"Replay was not strictly reproducible: {replay}")
+        if replay.get("expected_fingerprint") != published.get("fingerprint"):
+            raise SystemExit("Replay expected fingerprint differs from published revision 2")
+        if replay.get("actual_fingerprint") != published.get("fingerprint"):
+            raise SystemExit("Replay actual fingerprint differs from published revision 2")
+
+        replay_manifest = (
+            workspace
+            / "runs"
+            / "demo"
+            / "versioned_ndjson"
+            / str(replay["run_id"])
+            / "manifest.json"
+        )
+        replay_payload = json.loads(replay_manifest.read_text(encoding="utf-8"))
+        replay_lineage = replay_payload.get("replay") or {}
+        if replay_lineage.get("source_run_id") != second_run_id:
+            raise SystemExit("Replay manifest lineage is missing the source run")
+        if replay_lineage.get("matched") is not True:
+            raise SystemExit(
+                "Replay manifest does not record a successful fingerprint verification"
+            )
+
         run([str(pyingest), "runs"], cwd=root, env=env)
 
         reports = list(workspace.glob("runs/demo/*/*/reports/profile.json"))
-        if len(reports) != 3:
-            raise SystemExit(f"Expected 3 profile reports, found {len(reports)}")
+        if len(reports) != 6:
+            raise SystemExit(
+                "Expected 6 profile reports including live V1/V2 and replay, "
+                f"found {len(reports)}"
+            )
         for report_path in reports:
             payload = json.loads(report_path.read_text(encoding="utf-8"))
-            if payload["profile"]["row_count"] != 2:
+            row_count = payload["profile"]["row_count"]
+            if row_count not in (2, 3):
                 raise SystemExit(f"Unexpected profile report: {report_path}")
 
     shutil.rmtree(workspace, ignore_errors=True)
-    print("OK: V0.3.0 wheels install extras and execute all six reference jobs")
+    print(
+        "OK: V0.4.0 stable wheels execute seven reference jobs and prove "
+        "V1 -> V2 -> diff -> publish -> strict RAW replay"
+    )
     return 0
 
 

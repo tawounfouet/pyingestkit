@@ -16,18 +16,35 @@ from pyingestkit.logging.filters import redact_mapping
 from ._schema import (
     artifact_http_provenance,
     artifacts,
+    dataset_diffs,
+    dataset_version_runs,
+    dataset_versions,
     events,
     metadata,
     publications,
+    published_datasets,
+    replay_runs,
+    run_reproducibility,
     runs,
     steps,
     validations,
 )
 from .base import MetadataStore
+from .capabilities import (
+    DiffMetadataCapability,
+    ReplayMetadataCapability,
+    VersionMetadataCapability,
+)
 from .models import (
     ArtifactRecord,
+    DatasetVersionRecord,
+    DatasetVersionRunRecord,
+    DiffRecord,
     EventRecord,
     PublicationRecord,
+    PublishedDatasetRecord,
+    ReplayRecord,
+    ReproducibilityRecord,
     RunRecord,
     StepRecord,
     ValidationRecord,
@@ -63,7 +80,9 @@ def _optional_datetime(value: object) -> datetime | None:
     return _required_datetime(value)
 
 
-class _SQLAlchemyMetadataStore(MetadataStore):
+class _SQLAlchemyMetadataStore(
+    MetadataStore, DiffMetadataCapability, VersionMetadataCapability, ReplayMetadataCapability
+):
     """Shared SQLAlchemy Core implementation behind concrete metadata adapters."""
 
     def __init__(self, engine: Engine) -> None:
@@ -400,6 +419,55 @@ class _SQLAlchemyMetadataStore(MetadataStore):
             for row in rows
         )
 
+    def record_dataset_diff(self, record: DiffRecord) -> None:
+        with self.engine.begin() as connection:
+            connection.execute(
+                insert(dataset_diffs).values(
+                    run_id=record.run_id,
+                    step_name=record.step_name,
+                    dataset_id=record.dataset_id,
+                    previous_version_id=record.previous_version_id,
+                    candidate_fingerprint=record.candidate_fingerprint,
+                    added_count=record.added_count,
+                    removed_count=record.removed_count,
+                    changed_count=record.changed_count,
+                    unchanged_count=record.unchanged_count,
+                    entries_truncated=record.entries_truncated,
+                    report_path=record.report_path,
+                    created_at=record.created_at,
+                )
+            )
+
+    def list_dataset_diffs(self, run_id: str) -> tuple[DiffRecord, ...]:
+        with self.engine.connect() as connection:
+            rows = (
+                connection.execute(
+                    select(dataset_diffs)
+                    .where(dataset_diffs.c.run_id == run_id)
+                    .order_by(dataset_diffs.c.id)
+                )
+                .mappings()
+                .all()
+            )
+        return tuple(
+            DiffRecord(
+                id=cast(int | None, row["id"]),
+                run_id=cast(str, row["run_id"]),
+                step_name=cast(str, row["step_name"]),
+                dataset_id=cast(str, row["dataset_id"]),
+                previous_version_id=cast(str, row["previous_version_id"]),
+                candidate_fingerprint=cast(str, row["candidate_fingerprint"]),
+                added_count=cast(int, row["added_count"]),
+                removed_count=cast(int, row["removed_count"]),
+                changed_count=cast(int, row["changed_count"]),
+                unchanged_count=cast(int, row["unchanged_count"]),
+                entries_truncated=bool(row["entries_truncated"]),
+                report_path=cast(str, row["report_path"]),
+                created_at=_required_datetime(row["created_at"]),
+            )
+            for row in rows
+        )
+
     @staticmethod
     def _run_record(row: RowMapping) -> RunRecord:
         return RunRecord(
@@ -415,3 +483,221 @@ class _SQLAlchemyMetadataStore(MetadataStore):
             error=cast(str | None, row["error"]),
             created_at=_required_datetime(row["created_at"]),
         )
+
+    def record_dataset_version(self, record: DatasetVersionRecord) -> None:
+        with self.engine.begin() as connection:
+            exists = connection.execute(
+                select(dataset_versions.c.version_id).where(
+                    dataset_versions.c.dataset_id == record.dataset_id,
+                    dataset_versions.c.version_id == record.version_id,
+                )
+            ).first()
+            if exists is None:
+                connection.execute(
+                    insert(dataset_versions).values(
+                        dataset_id=record.dataset_id,
+                        version_id=record.version_id,
+                        fingerprint=record.fingerprint,
+                        snapshot_uri=record.snapshot_uri,
+                        created_from_run_id=record.created_from_run_id,
+                        job_id=record.job_id,
+                        job_version=record.job_version,
+                        source_artifact_id=record.source_artifact_id,
+                        source_raw_sha256=record.source_raw_sha256,
+                        created_at=record.created_at,
+                    )
+                )
+
+    def record_dataset_version_run(self, record: DatasetVersionRunRecord) -> None:
+        with self.engine.begin() as connection:
+            exists = connection.execute(
+                select(dataset_version_runs.c.run_id).where(
+                    dataset_version_runs.c.dataset_id == record.dataset_id,
+                    dataset_version_runs.c.version_id == record.version_id,
+                    dataset_version_runs.c.run_id == record.run_id,
+                )
+            ).first()
+            if exists is None:
+                connection.execute(
+                    insert(dataset_version_runs).values(
+                        dataset_id=record.dataset_id,
+                        version_id=record.version_id,
+                        run_id=record.run_id,
+                        created_at=record.created_at,
+                    )
+                )
+
+    def list_dataset_versions(self, dataset_id: str) -> tuple[DatasetVersionRecord, ...]:
+        with self.engine.connect() as connection:
+            rows = (
+                connection.execute(
+                    select(dataset_versions)
+                    .where(dataset_versions.c.dataset_id == dataset_id)
+                    .order_by(
+                        dataset_versions.c.created_at.desc(), dataset_versions.c.version_id.desc()
+                    )
+                )
+                .mappings()
+                .all()
+            )
+        return tuple(
+            DatasetVersionRecord(
+                dataset_id=cast(str, row["dataset_id"]),
+                version_id=cast(str, row["version_id"]),
+                fingerprint=cast(str, row["fingerprint"]),
+                snapshot_uri=cast(str, row["snapshot_uri"]),
+                created_from_run_id=cast(str, row["created_from_run_id"]),
+                job_id=cast(str, row["job_id"]),
+                job_version=cast(str, row["job_version"]),
+                source_artifact_id=cast(str | None, row["source_artifact_id"]),
+                source_raw_sha256=cast(str | None, row["source_raw_sha256"]),
+                created_at=_required_datetime(row["created_at"]),
+            )
+            for row in rows
+        )
+
+    def record_published_dataset(self, record: PublishedDatasetRecord) -> None:
+        with self.engine.begin() as connection:
+            exists = connection.execute(
+                select(published_datasets.c.dataset_id).where(
+                    published_datasets.c.dataset_id == record.dataset_id
+                )
+            ).first()
+            values = dict(
+                version_id=record.version_id,
+                published_from_run_id=record.published_from_run_id,
+                published_at=record.published_at,
+            )
+            if exists is None:
+                connection.execute(
+                    insert(published_datasets).values(dataset_id=record.dataset_id, **values)
+                )
+            else:
+                connection.execute(
+                    published_datasets.update()
+                    .where(published_datasets.c.dataset_id == record.dataset_id)
+                    .values(**values)
+                )
+
+    def get_published_dataset(self, dataset_id: str) -> PublishedDatasetRecord | None:
+        with self.engine.connect() as connection:
+            row = (
+                connection.execute(
+                    select(published_datasets).where(published_datasets.c.dataset_id == dataset_id)
+                )
+                .mappings()
+                .one_or_none()
+            )
+        if row is None:
+            return None
+        return PublishedDatasetRecord(
+            dataset_id=cast(str, row["dataset_id"]),
+            version_id=cast(str, row["version_id"]),
+            published_from_run_id=cast(str, row["published_from_run_id"]),
+            published_at=_required_datetime(row["published_at"]),
+        )
+
+    def record_replay_run(self, record: ReplayRecord) -> None:
+        with self.engine.begin() as connection:
+            exists = connection.execute(
+                select(replay_runs.c.run_id).where(replay_runs.c.run_id == record.run_id)
+            ).first()
+            values = dict(
+                source_run_id=record.source_run_id,
+                source_job_id=record.source_job_id,
+                source_job_version=record.source_job_version,
+                executed_job_version=record.executed_job_version,
+                verification_mode=record.verification_mode,
+                expected_fingerprint=record.expected_fingerprint,
+                actual_fingerprint=record.actual_fingerprint,
+                status=record.status,
+                created_at=record.created_at,
+            )
+            if exists is None:
+                connection.execute(insert(replay_runs).values(run_id=record.run_id, **values))
+            else:
+                connection.execute(
+                    replay_runs.update()
+                    .where(replay_runs.c.run_id == record.run_id)
+                    .values(**values)
+                )
+
+    def get_replay_run(self, run_id: str) -> ReplayRecord | None:
+        with self.engine.connect() as connection:
+            row = (
+                connection.execute(select(replay_runs).where(replay_runs.c.run_id == run_id))
+                .mappings()
+                .one_or_none()
+            )
+        if row is None:
+            return None
+        return ReplayRecord(
+            run_id=cast(str, row["run_id"]),
+            source_run_id=cast(str, row["source_run_id"]),
+            source_job_id=cast(str, row["source_job_id"]),
+            source_job_version=cast(str, row["source_job_version"]),
+            executed_job_version=cast(str, row["executed_job_version"]),
+            verification_mode=cast(str, row["verification_mode"]),
+            expected_fingerprint=cast(str | None, row["expected_fingerprint"]),
+            actual_fingerprint=cast(str | None, row["actual_fingerprint"]),
+            status=cast(str, row["status"]),
+            created_at=_required_datetime(row["created_at"]),
+        )
+
+    def record_run_reproducibility(self, record: ReproducibilityRecord) -> None:
+        with self.engine.begin() as connection:
+            exists = connection.execute(
+                select(run_reproducibility.c.run_id).where(
+                    run_reproducibility.c.run_id == record.run_id
+                )
+            ).first()
+            if exists is None:
+                connection.execute(
+                    insert(run_reproducibility).values(
+                        run_id=record.run_id,
+                        framework_version=record.framework_version,
+                        as_of=None if record.as_of is None else record.as_of.isoformat(),
+                        parameters_fingerprint=record.parameters_fingerprint,
+                        created_at=record.created_at,
+                    )
+                )
+
+    def get_run_reproducibility(self, run_id: str) -> ReproducibilityRecord | None:
+        from datetime import date
+
+        with self.engine.connect() as connection:
+            row = (
+                connection.execute(
+                    select(run_reproducibility).where(run_reproducibility.c.run_id == run_id)
+                )
+                .mappings()
+                .one_or_none()
+            )
+        if row is None:
+            return None
+        as_of_raw = cast(str | None, row["as_of"])
+        return ReproducibilityRecord(
+            run_id=cast(str, row["run_id"]),
+            framework_version=cast(str, row["framework_version"]),
+            as_of=None if as_of_raw is None else date.fromisoformat(as_of_raw),
+            parameters_fingerprint=cast(str, row["parameters_fingerprint"]),
+            created_at=_required_datetime(row["created_at"]),
+        )
+
+    def find_expected_fingerprint_for_run(self, run_id: str, dataset_id: str) -> str | None:
+        statement = (
+            select(dataset_versions.c.fingerprint)
+            .join(
+                dataset_version_runs,
+                (dataset_version_runs.c.dataset_id == dataset_versions.c.dataset_id)
+                & (dataset_version_runs.c.version_id == dataset_versions.c.version_id),
+            )
+            .where(
+                dataset_version_runs.c.run_id == run_id, dataset_versions.c.dataset_id == dataset_id
+            )
+            .order_by(dataset_versions.c.created_at.desc())
+            .limit(1)
+        )
+        with self.engine.connect() as connection:
+            value = connection.execute(statement).scalar_one_or_none()
+        return None if value is None else str(value)

@@ -8,6 +8,7 @@ from urllib.parse import unquote, urlsplit
 
 from pyingestkit.artifacts.raw import RawArtifact
 from pyingestkit.core.context import RunContext
+from pyingestkit.replay.resolver import materialize_replayed_raw
 from pyingestkit.retry import RetryAttempt, RetryPolicy, parse_retry_after
 from pyingestkit.sources.base import Source
 
@@ -21,6 +22,12 @@ logger = logging.getLogger(__name__)
 
 def _default_artifact_name(response: HttpResponse) -> str:
     path = urlsplit(response.url).path
+    name = unquote(PurePosixPath(path).name)
+    return name or "response.bin"
+
+
+def _artifact_name_from_url(url: str) -> str:
+    path = urlsplit(url).path
     name = unquote(PurePosixPath(path).name)
     return name or "response.bin"
 
@@ -150,6 +157,10 @@ class HttpSource(Source):
         return response
 
     def fetch(self, context: RunContext) -> RawArtifact:
+        if context.replay is not None:
+            name = self.artifact_name or _artifact_name_from_url(self.request.safe_url)
+            origin = context.replay.resolve_raw(name, self.request.safe_url)
+            return materialize_replayed_raw(context, origin, name=name)
         response = self.fetch_response()
         name = self.artifact_name or _default_artifact_name(response)
         artifact = context.artifact_store.write_raw(

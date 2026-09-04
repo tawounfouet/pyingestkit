@@ -11,32 +11,62 @@ from .core.result import RunResult, RunStatus, StepResult
 from .core.step import Step
 from .dataset import Dataset
 from .declarative import JobDefinition, StepDefinition, StepInvocation, job, step
+from .diff import DatasetDiff, DatasetDiffer, DiffEntry, DiffKind, DiffPolicy, SchemaDiff
 from .parsers import CsvParser, ExcelParser, JsonParser, NdjsonParser, ParquetParser
 from .profiling import DatasetProfile, DatasetProfiler, FieldProfile
 from .quality import QualityReport
+from .replay import ReplayContext, ReplayRawArtifact, ReplayResult, ReplayService
 from .runtime.runner import Runner
 from .validation import ValidationIssue, ValidationResult
+from .versioning import (
+    DatasetFingerprint,
+    DatasetFingerprinter,
+    DatasetFingerprintPolicy,
+    DatasetVersion,
+    DatasetVersionStore,
+    FilesystemDatasetVersionStore,
+    PublishedDataset,
+    SnapshotCodec,
+)
 
 __all__ = [
     "CsvParser",
     "Dataset",
     "DatasetContract",
+    "DatasetDiff",
+    "DatasetDiffer",
+    "DatasetFingerprint",
+    "DatasetFingerprinter",
+    "DatasetFingerprintPolicy",
     "DatasetProfile",
     "DatasetProfiler",
+    "DatasetVersion",
+    "DatasetVersionStore",
+    "DiffEntry",
+    "DiffKind",
+    "DiffPolicy",
     "ExcelParser",
     "FieldContract",
     "FieldProfile",
+    "FilesystemDatasetVersionStore",
     "Job",
     "JobDefinition",
     "JsonParser",
     "NdjsonParser",
     "ParquetParser",
     "Pipeline",
+    "PublishedDataset",
     "QualityReport",
+    "ReplayContext",
+    "ReplayRawArtifact",
+    "ReplayResult",
+    "ReplayService",
     "RunContext",
     "RunResult",
     "RunStatus",
     "Runner",
+    "SchemaDiff",
+    "SnapshotCodec",
     "Step",
     "StepDefinition",
     "StepInvocation",

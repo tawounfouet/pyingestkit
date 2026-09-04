@@ -10,10 +10,21 @@ from pyingestkit.core.result import RunResult, StepResult
 from pyingestkit.logging.filters import redact_mapping
 
 from .base import MetadataStore
+from .capabilities import (
+    DiffMetadataCapability,
+    ReplayMetadataCapability,
+    VersionMetadataCapability,
+)
 from .models import (
     ArtifactRecord,
+    DatasetVersionRecord,
+    DatasetVersionRunRecord,
+    DiffRecord,
     EventRecord,
     PublicationRecord,
+    PublishedDatasetRecord,
+    ReplayRecord,
+    ReproducibilityRecord,
     RunRecord,
     StepRecord,
     ValidationRecord,
@@ -24,7 +35,9 @@ def _event_level(event: Event) -> str:
     return "ERROR" if event.type.value.endswith("FAILED") else "INFO"
 
 
-class MemoryMetadataStore(MetadataStore):
+class MemoryMetadataStore(
+    MetadataStore, DiffMetadataCapability, VersionMetadataCapability, ReplayMetadataCapability
+):
     """Ephemeral MetadataStore useful for custom runtimes and unit tests."""
 
     def __init__(self) -> None:
@@ -34,6 +47,12 @@ class MemoryMetadataStore(MetadataStore):
         self.events: list[EventRecord] = []
         self.validations: list[ValidationRecord] = []
         self.publications: list[PublicationRecord] = []
+        self.dataset_diffs: list[DiffRecord] = []
+        self.dataset_versions: list[DatasetVersionRecord] = []
+        self.dataset_version_runs: list[DatasetVersionRunRecord] = []
+        self.published_datasets: dict[str, PublishedDatasetRecord] = {}
+        self.replay_runs: dict[str, ReplayRecord] = {}
+        self.run_reproducibility: dict[str, ReproducibilityRecord] = {}
 
     def initialize(self) -> None:
         return None
@@ -206,3 +225,62 @@ class MemoryMetadataStore(MetadataStore):
 
     def list_publications(self, run_id: str) -> tuple[PublicationRecord, ...]:
         return tuple(row for row in self.publications if row.run_id == run_id)
+
+    def record_dataset_diff(self, record: DiffRecord) -> None:
+        next_id = len(self.dataset_diffs) + 1
+        stored = replace(record, id=next_id) if record.id is None else record
+        self.dataset_diffs.append(stored)
+
+    def list_dataset_diffs(self, run_id: str) -> tuple[DiffRecord, ...]:
+        return tuple(row for row in self.dataset_diffs if row.run_id == run_id)
+
+    def record_dataset_version(self, record: DatasetVersionRecord) -> None:
+        if any(
+            row.dataset_id == record.dataset_id and row.version_id == record.version_id
+            for row in self.dataset_versions
+        ):
+            return
+        self.dataset_versions.append(record)
+
+    def record_dataset_version_run(self, record: DatasetVersionRunRecord) -> None:
+        if any(
+            row.dataset_id == record.dataset_id
+            and row.version_id == record.version_id
+            and row.run_id == record.run_id
+            for row in self.dataset_version_runs
+        ):
+            return
+        self.dataset_version_runs.append(record)
+
+    def list_dataset_versions(self, dataset_id: str) -> tuple[DatasetVersionRecord, ...]:
+        rows = [row for row in self.dataset_versions if row.dataset_id == dataset_id]
+        return tuple(sorted(rows, key=lambda row: (row.created_at, row.version_id), reverse=True))
+
+    def record_published_dataset(self, record: PublishedDatasetRecord) -> None:
+        self.published_datasets[record.dataset_id] = record
+
+    def get_published_dataset(self, dataset_id: str) -> PublishedDatasetRecord | None:
+        return self.published_datasets.get(dataset_id)
+
+    def record_replay_run(self, record: ReplayRecord) -> None:
+        self.replay_runs[record.run_id] = record
+
+    def get_replay_run(self, run_id: str) -> ReplayRecord | None:
+        return self.replay_runs.get(run_id)
+
+    def record_run_reproducibility(self, record: ReproducibilityRecord) -> None:
+        self.run_reproducibility.setdefault(record.run_id, record)
+
+    def get_run_reproducibility(self, run_id: str) -> ReproducibilityRecord | None:
+        return self.run_reproducibility.get(run_id)
+
+    def find_expected_fingerprint_for_run(self, run_id: str, dataset_id: str) -> str | None:
+        links = {
+            (row.dataset_id, row.version_id)
+            for row in self.dataset_version_runs
+            if row.run_id == run_id and row.dataset_id == dataset_id
+        }
+        for version in self.dataset_versions:
+            if (version.dataset_id, version.version_id) in links:
+                return version.fingerprint
+        return None

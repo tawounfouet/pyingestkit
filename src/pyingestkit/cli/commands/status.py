@@ -11,6 +11,7 @@ from rich.table import Table
 from pyingestkit.artifacts import LocalArtifactStore
 from pyingestkit.cli.common import fail, metadata_store_or_exit, project_config_or_exit
 from pyingestkit.cli.console import console
+from pyingestkit.metadata import DiffMetadataCapability
 
 
 def status_command(
@@ -49,6 +50,9 @@ def status_command(
     artifacts = store.list_artifacts(run.run_id)
     validations = store.list_validations(run.run_id)
     events = store.list_events(run.run_id)
+    diffs = (
+        store.list_dataset_diffs(run.run_id) if isinstance(store, DiffMetadataCapability) else ()
+    )
 
     reports: list[dict[str, object]] = []
     try:
@@ -116,6 +120,22 @@ def status_command(
                 for row in validations
             ],
             "reports": reports,
+            "diffs": [
+                {
+                    "step": row.step_name,
+                    "dataset_id": row.dataset_id,
+                    "previous_version_id": row.previous_version_id,
+                    "candidate_fingerprint": row.candidate_fingerprint,
+                    "added_count": row.added_count,
+                    "removed_count": row.removed_count,
+                    "changed_count": row.changed_count,
+                    "unchanged_count": row.unchanged_count,
+                    "entries_truncated": row.entries_truncated,
+                    "report_path": row.report_path,
+                    "created_at": row.created_at.isoformat(),
+                }
+                for row in diffs
+            ],
             "events": [
                 {
                     "type": row.event_type,
@@ -183,7 +203,7 @@ def status_command(
         console.print(validation_table)
 
     if reports:
-        report_table = Table(title="Quality reports", show_header=True, header_style="bold")
+        report_table = Table(title="Run reports", show_header=True, header_style="bold")
         report_table.add_column("Kind")
         report_table.add_column("Path")
         report_table.add_column("Step")
@@ -194,5 +214,24 @@ def status_command(
                 str(report.get("step", "—")),
             )
         console.print(report_table)
+
+    if diffs:
+        diff_table = Table(title="Dataset diffs", show_header=True, header_style="bold")
+        diff_table.add_column("Step")
+        diff_table.add_column("Added", justify="right")
+        diff_table.add_column("Removed", justify="right")
+        diff_table.add_column("Changed", justify="right")
+        diff_table.add_column("Unchanged", justify="right")
+        diff_table.add_column("Report")
+        for diff in diffs:
+            diff_table.add_row(
+                diff.step_name,
+                str(diff.added_count),
+                str(diff.removed_count),
+                str(diff.changed_count),
+                str(diff.unchanged_count),
+                diff.report_path,
+            )
+        console.print(diff_table)
 
     console.print(f"[dim]{len(events)} runtime event(s) persisted[/dim]")

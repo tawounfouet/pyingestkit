@@ -45,6 +45,7 @@ class RunManifest:
     steps: list[StepResult] = field(default_factory=list)
     validations: list[dict[str, Any]] = field(default_factory=list)
     reports: list[dict[str, Any]] = field(default_factory=list)
+    replay: dict[str, Any] | None = None
     metrics: dict[str, int | float] = field(default_factory=dict)
     warnings: list[str] = field(default_factory=list)
     error: str | None = None
@@ -71,6 +72,7 @@ class RunManifest:
             "steps": [_step_value(step) for step in self.steps],
             "validations": _machine_value(self.validations),
             "reports": _machine_value(self.reports),
+            "replay": _machine_value(self.replay),
             "metrics": dict(self.metrics),
             "warnings": list(self.warnings),
             "error": self.error,

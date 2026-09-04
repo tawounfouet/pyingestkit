@@ -51,3 +51,38 @@
 - [Quality & Formats release architecture](architecture/quality-formats-release-v0.3.0.md)
 - [Release validation guide](guides/release-validation-v0.3.0.md)
 - [Stable release technical review](reviews/v0.3.0-quality-formats-release-review.md)
+
+## V0.4 — Diff / Replay / Versioning
+
+- [Architecture & implementation plan](architecture/diff-replay-versioning-v0.4.md)
+- [Dataset fingerprints and diff](guides/dataset-diff.md)
+- [V0.4.0-a1 technical review](reviews/v0.4.0-a1-diff-engine-review.md)
+- [V0.4.0-a2 diff runtime observation](architecture/diff-runtime-observation-a2.md)
+- [Diff reports runtime guide](guides/diff-reports-runtime.md)
+- [V0.4.0-a2 technical review](reviews/v0.4.0-a2-diff-reports-runtime-review.md)
+
+## V0.4.0 Beta 1 — Dataset Versioning
+
+- [Dataset versioning guide](guides/dataset-versioning.md)
+- [ADR-036 — Typed JSON snapshots](adr/ADR-036-dataset-snapshots-versioned-json.md)
+- [ADR-037 — Content-addressed version IDs](adr/ADR-037-dataset-version-id-is-content-addressed.md)
+- [ADR-038 — Atomic PublishedDataset pointer](adr/ADR-038-published-dataset-atomic-pointer.md)
+- [Beta 1 technical review](reviews/v0.4.0-b1-versioning-review.md)
+
+## V0.4.0 Beta 2 — Replay
+
+- [Replay guide](guides/replay.md)
+- [ADR-039 — Strict historical RAW replay](adr/ADR-039-replay-strict-historical-raw.md)
+- [ADR-040 — Replay lineage and verification](adr/ADR-040-replay-lineage-and-verification.md)
+- [Beta 2 technical review](reviews/v0.4.0-b2-replay-lineage-review.md)
+
+## V0.4.0 RC1
+
+- [Diff / Replay / Versioning E2E architecture](architecture/diff-replay-versioning-e2e-rc1.md)
+- [RC1 technical review](reviews/v0.4.0-rc1-diff-replay-versioning-e2e-review.md)
+
+## V0.4.0 stable release
+
+- [Stable release architecture](architecture/diff-replay-versioning-release-v0.4.0.md)
+- [Release validation guide](guides/release-validation-v0.4.0.md)
+- [Stable release technical review](reviews/v0.4.0-diff-replay-versioning-release-review.md)

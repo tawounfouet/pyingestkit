@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any
 
 
@@ -89,3 +89,73 @@ class PublicationRecord:
     candidate_path: str | None
     published_path: str | None
     published_at: datetime | None
+
+
+@dataclass(frozen=True, slots=True)
+class DiffRecord:
+    id: int | None
+    run_id: str
+    step_name: str
+    dataset_id: str
+    previous_version_id: str
+    candidate_fingerprint: str
+    added_count: int
+    removed_count: int
+    changed_count: int
+    unchanged_count: int
+    entries_truncated: bool
+    report_path: str
+    created_at: datetime
+
+
+@dataclass(frozen=True, slots=True)
+class DatasetVersionRecord:
+    dataset_id: str
+    version_id: str
+    fingerprint: str
+    snapshot_uri: str
+    created_from_run_id: str
+    job_id: str
+    job_version: str
+    source_artifact_id: str | None
+    source_raw_sha256: str | None
+    created_at: datetime
+
+
+@dataclass(frozen=True, slots=True)
+class DatasetVersionRunRecord:
+    dataset_id: str
+    version_id: str
+    run_id: str
+    created_at: datetime
+
+
+@dataclass(frozen=True, slots=True)
+class PublishedDatasetRecord:
+    dataset_id: str
+    version_id: str
+    published_from_run_id: str
+    published_at: datetime
+
+
+@dataclass(frozen=True, slots=True)
+class ReplayRecord:
+    run_id: str
+    source_run_id: str
+    source_job_id: str
+    source_job_version: str
+    executed_job_version: str
+    verification_mode: str
+    expected_fingerprint: str | None
+    actual_fingerprint: str | None
+    status: str
+    created_at: datetime
+
+
+@dataclass(frozen=True, slots=True)
+class ReproducibilityRecord:
+    run_id: str
+    framework_version: str
+    as_of: date | None
+    parameters_fingerprint: str
+    created_at: datetime

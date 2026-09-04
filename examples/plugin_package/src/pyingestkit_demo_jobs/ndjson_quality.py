@@ -51,7 +51,7 @@ def profile_ndjson(data: dict[str, object]) -> dict[str, object]:
 
 @job(
     id="demo.ndjson_quality",
-    version="0.3.0",
+    version="0.4.0",
     description="Reference NDJSON -> Dataset -> Contract V2 -> profile -> quality reports slice.",
 )
 def ndjson_quality_job() -> None:

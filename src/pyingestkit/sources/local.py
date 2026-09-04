@@ -7,6 +7,7 @@ from pathlib import Path
 from pyingestkit.artifacts.raw import RawArtifact
 from pyingestkit.core.context import RunContext
 from pyingestkit.core.exceptions import FetchError
+from pyingestkit.replay.resolver import materialize_replayed_raw
 
 from .base import Source
 
@@ -19,6 +20,10 @@ class LocalSource(Source):
         self.artifact_name = artifact_name or self.path.name
 
     def fetch(self, context: RunContext) -> RawArtifact:
+        if context.replay is not None:
+            source_uri = self.path.resolve().as_uri()
+            origin = context.replay.resolve_raw(self.artifact_name, source_uri)
+            return materialize_replayed_raw(context, origin, name=self.artifact_name)
         if not self.path.exists() or not self.path.is_file():
             raise FetchError(f"Local source not found: {self.path}")
         logger.debug("Reading local source path=%s", self.path)
