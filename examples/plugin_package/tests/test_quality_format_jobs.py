@@ -33,11 +33,7 @@ class QualityFormatReferenceJobTests(unittest.TestCase):
             self.assertEqual(validations[0].status, "PASSED")
 
             run_root = (
-                workspace
-                / "runs"
-                / "demo"
-                / job_definition.id.split(".")[-1]
-                / result.run_id
+                workspace / "runs" / "demo" / job_definition.id.split(".")[-1] / result.run_id
             )
             manifest = json.loads((run_root / "manifest.json").read_text(encoding="utf-8"))
             report_pairs = {(entry["kind"], entry["path"]) for entry in manifest["reports"]}
