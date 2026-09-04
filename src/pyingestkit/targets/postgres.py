@@ -3,11 +3,11 @@ from __future__ import annotations
 import re
 import time
 from datetime import UTC, datetime
-from typing import Self
+from typing import Any, Self
 from uuid import uuid4
 
 from sqlalchemy import MetaData, Table, create_engine, insert
-from sqlalchemy.engine import Engine, make_url
+from sqlalchemy.engine import Connection, Engine, make_url
 from sqlalchemy.exc import ArgumentError, NoSuchModuleError, SQLAlchemyError
 
 from pyingestkit.logging.filters import redact_text
@@ -23,6 +23,7 @@ from .errors import (
     UnsupportedLoadModeError,
 )
 from .models import LoadMode, TargetLoadRequest, TargetLoadResult, TargetLoadStatus
+from .schema import PostgresSchemaMapper
 
 _IDENTIFIER = re.compile(r"^[A-Za-z_][A-Za-z0-9_$]*$")
 _MAX_IDENTIFIER_BYTES = 63
@@ -57,16 +58,16 @@ def _validate_identifier(value: str, *, label: str) -> str:
 
 
 class PostgresTarget(Target):
-    """PostgreSQL target foundation using SQLAlchemy Core and psycopg.
+    """PostgreSQL Dataset target using SQLAlchemy Core + psycopg COPY.
 
-    V0.5.0-a1 provides safe connectivity, transaction lifecycle and a conservative
-    parameterized APPEND path. PostgreSQL COPY and richer load semantics are added
-    by later V0.5 milestones without changing the high-level Target contract.
+    V0.5.0-a2 keeps the A1 atomic Target contract while adding deterministic
+    Dataset schema mapping and PostgreSQL COPY as the production bulk-load path.
+    Richer load modes and idempotency remain later V0.5 milestones.
     """
 
-    A1_CAPABILITIES = TargetCapabilities(
+    A2_CAPABILITIES = TargetCapabilities(
         transactional=True,
-        bulk_load=False,
+        bulk_load=True,
         append=True,
         truncate_load=False,
         replace=False,
@@ -98,6 +99,7 @@ class PostgresTarget(Target):
         self._safe_dsn = _safe_dsn(dsn)
         self.default_schema = default_schema
         self._closed = False
+        self._schema_mapper = PostgresSchemaMapper()
         try:
             self._engine = self._create_engine(self._normalized_dsn)
         except (ModuleNotFoundError, NoSuchModuleError) as exc:
@@ -115,7 +117,7 @@ class PostgresTarget(Target):
 
     @property
     def capabilities(self) -> TargetCapabilities:
-        return self.A1_CAPABILITIES
+        return self.A2_CAPABILITIES
 
     @property
     def safe_dsn(self) -> str:
@@ -146,7 +148,7 @@ class PostgresTarget(Target):
             )
         if request.mode is not LoadMode.APPEND:
             raise UnsupportedLoadModeError(
-                f"PostgresTarget V0.5.0-a1 supports only {LoadMode.APPEND.value!r}; "
+                f"PostgresTarget V0.5.0-a2 supports only {LoadMode.APPEND.value!r}; "
                 f"requested {request.mode.value!r}"
             )
 
@@ -158,24 +160,18 @@ class PostgresTarget(Target):
         for field in request.dataset.fields:
             _validate_identifier(field, label="column")
 
+        plan = self._schema_mapper.plan(request.dataset)
         started_at = datetime.now(UTC)
         started = time.perf_counter()
-        rows = request.dataset.to_rows()
+        rows_loaded = 0
         try:
             with self._engine.begin() as connection:
                 table = Table(table_name, MetaData(), schema=schema, autoload_with=connection)
-                table_columns = {column.name for column in table.columns}
-                unknown = set(request.dataset.fields).difference(table_columns)
-                if unknown:
-                    names = ", ".join(sorted(unknown))
-                    raise TargetConfigurationError(
-                        f"Dataset fields are absent from PostgreSQL destination: {names}"
-                    )
-                if rows:
-                    connection.execute(insert(table), rows)
+                self._schema_mapper.validate_table(plan, table)
+                rows_loaded = self._load_rows(connection, table, request)
         except TargetConfigurationError:
             raise
-        except SQLAlchemyError as exc:
+        except (SQLAlchemyError, ValueError, TypeError) as exc:
             message = self._safe_error("PostgreSQL target load rolled back", exc)
             raise TargetLoadError(message) from exc
 
@@ -191,14 +187,66 @@ class PostgresTarget(Target):
             mode=request.mode,
             status=TargetLoadStatus.SUCCESS,
             rows_input=request.dataset.row_count,
-            rows_loaded=request.dataset.row_count,
+            rows_loaded=rows_loaded,
             rows_verified=None,
             started_at=started_at,
             completed_at=completed_at,
             duration_seconds=duration,
             destination=destination,
-            metrics={"rows_per_second": request.dataset.row_count / duration if duration else 0.0},
+            metrics={
+                "copy_rows": rows_loaded if self._engine.dialect.name == "postgresql" else 0,
+                "rows_per_second": rows_loaded / duration if duration else 0.0,
+            },
         )
+
+    def _load_rows(
+        self,
+        connection: Connection,
+        table: Table,
+        request: TargetLoadRequest,
+    ) -> int:
+        if request.dataset.row_count == 0:
+            return 0
+        if connection.dialect.name != "postgresql":
+            connection.execute(insert(table), request.dataset.to_rows())
+            return request.dataset.row_count
+        return self._copy_rows(connection, request, schema=table.schema, table_name=table.name)
+
+    def _copy_rows(
+        self,
+        connection: Connection,
+        request: TargetLoadRequest,
+        *,
+        schema: str | None,
+        table_name: str,
+    ) -> int:
+        try:
+            from psycopg import Error as PsycopgError
+            from psycopg import sql
+        except ModuleNotFoundError as exc:
+            raise TargetConfigurationError(
+                "PostgresTarget COPY requires psycopg. Install PyIngestKit with the 'postgres' extra."
+            ) from exc
+
+        driver_connection: Any = connection.connection.driver_connection
+        qualified = (
+            sql.Identifier(schema, table_name) if schema is not None else sql.Identifier(table_name)
+        )
+        columns = sql.SQL(", ").join(sql.Identifier(field) for field in request.dataset.fields)
+        statement = sql.SQL("COPY {} ({}) FROM STDIN").format(qualified, columns)
+
+        rows_loaded = 0
+        try:
+            with driver_connection.cursor() as cursor:
+                with cursor.copy(statement) as copy:
+                    for row in request.dataset:
+                        values = tuple(row.get(field) for field in request.dataset.fields)
+                        copy.write_row(values)
+                        rows_loaded += 1
+        except (PsycopgError, TypeError, ValueError, OverflowError) as exc:
+            message = self._safe_error("PostgreSQL COPY failed; transaction will roll back", exc)
+            raise TargetLoadError(message) from exc
+        return rows_loaded
 
     def close(self) -> None:
         if self._closed:
