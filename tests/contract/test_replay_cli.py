@@ -14,4 +14,4 @@ def test_replay_command_is_exposed() -> None:
 
     parameters = signature(replay_command).parameters
     assert "allow_version_change" in parameters
-    assert "verify" in parameters
+    assert "no_verify" in parameters
