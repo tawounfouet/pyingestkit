@@ -1,0 +1,71 @@
+from __future__ import annotations
+
+from pyingestkit import (
+    Dataset,
+    DatasetContract,
+    FieldContract,
+    ParquetParser,
+    RunContext,
+    job,
+    step,
+)
+from pyingestkit.artifacts import RawArtifact
+
+from .quality_common import fixture_raw, parquet_fixture_bytes, profiled_payload, validated_payload
+
+CONTRACT = DatasetContract(
+    fields=(
+        FieldContract("id", nullable=False, expected_type=int, unique=True, min_value=1),
+        FieldContract("name", nullable=False, expected_type=str, min_length=1),
+        FieldContract(
+            "score",
+            nullable=False,
+            expected_type=(int, float),
+            min_value=0,
+            max_value=100,
+        ),
+    ),
+    allow_extra_fields=False,
+    min_rows=1,
+    primary_key=("id",),
+)
+
+
+@step(name="FetchParquetFixture")
+def fetch_parquet(context: RunContext) -> RawArtifact:
+    return fixture_raw(
+        context,
+        name="people.parquet",
+        data=parquet_fixture_bytes(),
+        content_type="application/vnd.apache.parquet",
+    )
+
+
+@step(name="ParseParquet")
+def parse_parquet(data: RawArtifact) -> Dataset:
+    return ParquetParser(max_rows=1000).parse(data)
+
+
+@step(name="ValidateParquetDataset")
+def validate_parquet(data: Dataset) -> dict[str, object]:
+    return validated_payload(data, CONTRACT)
+
+
+@step(name="ProfileParquetDataset")
+def profile_parquet(data: dict[str, object]) -> dict[str, object]:
+    return profiled_payload(data)
+
+
+@job(
+    id="demo.parquet_quality",
+    version="0.3.0",
+    description="Reference Parquet -> Dataset -> Contract V2 -> profile -> quality reports slice.",
+)
+def parquet_quality_job() -> None:
+    fetch_parquet()
+    parse_parquet()
+    validate_parquet()
+    profile_parquet()
+
+
+job_definition = parquet_quality_job

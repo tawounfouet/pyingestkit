@@ -25,6 +25,9 @@ class DemoPluginPackageContractTests(unittest.TestCase):
         )
         self.assertIn("demo-http-csv", entry_points)
         self.assertIn("demo-http-json", entry_points)
+        self.assertIn("demo-ndjson-quality", entry_points)
+        self.assertIn("demo-excel-quality", entry_points)
+        self.assertIn("demo-parquet-quality", entry_points)
 
     def test_demo_job_is_declarative_and_runnable(self) -> None:
         src = str(DEMO_PACKAGE / "src")

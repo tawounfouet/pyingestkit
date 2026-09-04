@@ -3,10 +3,12 @@ from __future__ import annotations
 import json
 from pathlib import Path
 from typing import Annotated
+from uuid import UUID
 
 import typer
 from rich.table import Table
 
+from pyingestkit.artifacts import LocalArtifactStore
 from pyingestkit.cli.common import fail, metadata_store_or_exit, project_config_or_exit
 from pyingestkit.cli.console import console
 
@@ -47,6 +49,20 @@ def status_command(
     artifacts = store.list_artifacts(run.run_id)
     validations = store.list_validations(run.run_id)
     events = store.list_events(run.run_id)
+
+    reports: list[dict[str, object]] = []
+    try:
+        manifest_path = (
+            LocalArtifactStore(effective_workspace).run_root(run.job_id, UUID(run.run_id))
+            / "manifest.json"
+        )
+        if manifest_path.is_file():
+            manifest_payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+            raw_reports = manifest_payload.get("reports", [])
+            if isinstance(raw_reports, list):
+                reports = [report for report in raw_reports if isinstance(report, dict)]
+    except (OSError, ValueError, TypeError, json.JSONDecodeError):
+        reports = []
 
     if json_output:
         payload = {
@@ -99,6 +115,7 @@ def status_command(
                 }
                 for row in validations
             ],
+            "reports": reports,
             "events": [
                 {
                     "type": row.event_type,
@@ -164,5 +181,18 @@ def status_command(
                 validation.message,
             )
         console.print(validation_table)
+
+    if reports:
+        report_table = Table(title="Quality reports", show_header=True, header_style="bold")
+        report_table.add_column("Kind")
+        report_table.add_column("Path")
+        report_table.add_column("Step")
+        for report in reports:
+            report_table.add_row(
+                str(report.get("kind", "—")),
+                str(report.get("path", "—")),
+                str(report.get("step", "—")),
+            )
+        console.print(report_table)
 
     console.print(f"[dim]{len(events)} runtime event(s) persisted[/dim]")

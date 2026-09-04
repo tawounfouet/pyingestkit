@@ -5,6 +5,7 @@ from collections.abc import Iterable
 from datetime import UTC, datetime
 from time import perf_counter
 from typing import Any
+from uuid import UUID
 
 from pyingestkit.artifacts.base import ArtifactStore
 from pyingestkit.artifacts.raw import RawArtifact
@@ -15,6 +16,7 @@ from pyingestkit.core.job import Job
 from pyingestkit.core.result import RunResult, RunStatus, StepResult
 from pyingestkit.logging import log_context
 from pyingestkit.metadata import MemoryMetadataStore, MetadataStore
+from pyingestkit.profiling import DatasetProfile
 from pyingestkit.provenance.manifest import RunManifest
 from pyingestkit.validation import ValidationResult, ValidationSeverity
 
@@ -67,6 +69,30 @@ def _validation_results(
     return tuple(results)
 
 
+def _dataset_profiles(
+    value: Any, *, _seen: set[int] | None = None
+) -> tuple[DatasetProfile, ...]:
+    """Extract dataset profiles from common nested step outputs."""
+    if isinstance(value, DatasetProfile):
+        return (value,)
+    seen = _seen if _seen is not None else set()
+    identity = id(value)
+    if identity in seen:
+        return ()
+    seen.add(identity)
+    values: Iterable[Any]
+    if isinstance(value, dict):
+        values = value.values()
+    elif isinstance(value, (list, tuple, set, frozenset)):
+        values = value
+    else:
+        return ()
+    profiles: list[DatasetProfile] = []
+    for item in values:
+        profiles.extend(_dataset_profiles(item, _seen=seen))
+    return tuple(profiles)
+
+
 class Runner:
     """Execute a Job against ArtifactStore and MetadataStore contracts.
 
@@ -94,6 +120,7 @@ class Runner:
         self,
         *,
         run_id: str,
+        run_uuid: UUID,
         job_id: str,
         step_name: str,
         result: ValidationResult,
@@ -110,7 +137,9 @@ class Runner:
             "valid": result.is_valid,
             "error_count": result.error_count,
             "warning_count": result.warning_count,
-            "issue_count": len(result.issues),
+            "issue_count": result.issue_count,
+            "review_count": result.review_count,
+            "issues_truncated": result.issues_truncated,
         }
         self.metadata_store.record_validation(
             run_id,
@@ -132,17 +161,103 @@ class Runner:
                     "step": step_name,
                     "field": issue.field,
                     "row_index": issue.row_index,
+                    "constraint": issue.constraint,
+                    "context": dict(issue.context) if issue.context is not None else None,
                 },
             )
         manifest.validations.append({"step": step_name, **result.as_dict()})
-        return self._emit(
-            Event(
-                EventType.VALIDATION_COMPLETED,
-                run_id,
-                job_id,
-                payload=metadata,
+        report_path = "reports/validation.json"
+        self.artifact_store.write_json(
+            job_id,
+            run_uuid,
+            report_path,
+            {
+                "report_version": "1",
+                "kind": "validation",
+                "run_id": run_id,
+                "job_id": job_id,
+                "validations": manifest.validations,
+            },
+        )
+        if not any(report.get("path") == report_path for report in manifest.reports):
+            manifest.reports.append({"kind": "validation", "path": report_path})
+        warnings = list(
+            self._emit(
+                Event(
+                    EventType.VALIDATION_COMPLETED,
+                    run_id,
+                    job_id,
+                    payload=metadata,
+                )
             )
         )
+        warnings.extend(
+            self._emit(
+                Event(
+                    EventType.QUALITY_REPORT_WRITTEN,
+                    run_id,
+                    job_id,
+                    payload={"step": step_name, "kind": "validation", "path": report_path},
+                )
+            )
+        )
+        return tuple(warnings)
+
+    def _record_dataset_profile(
+        self,
+        *,
+        run_id: str,
+        run_uuid: UUID,
+        job_id: str,
+        step_name: str,
+        profile: DatasetProfile,
+        manifest: RunManifest,
+    ) -> tuple[str, ...]:
+        profile_count = sum(report.get("kind") == "profile" for report in manifest.reports)
+        report_path = (
+            "reports/profile.json"
+            if profile_count == 0
+            else f"reports/profile-{profile_count + 1}.json"
+        )
+        payload = {
+            "report_version": "1",
+            "kind": "profile",
+            "run_id": run_id,
+            "job_id": job_id,
+            "step": step_name,
+            "profile": profile.as_dict(),
+        }
+        self.artifact_store.write_json(job_id, run_uuid, report_path, payload)
+        manifest.reports.append({"kind": "profile", "path": report_path, "step": step_name})
+        metadata = {
+            "step": step_name,
+            "row_count": profile.row_count,
+            "field_count": profile.field_count,
+            "duplicate_row_count": profile.duplicate_row_count,
+            "duration_ms": profile.duration_ms,
+            "path": report_path,
+        }
+        warnings = list(
+            self._emit(
+                Event(
+                    EventType.PROFILE_COMPLETED,
+                    run_id,
+                    job_id,
+                    payload=metadata,
+                )
+            )
+        )
+        warnings.extend(
+            self._emit(
+                Event(
+                    EventType.QUALITY_REPORT_WRITTEN,
+                    run_id,
+                    job_id,
+                    payload={"step": step_name, "kind": "profile", "path": report_path},
+                )
+            )
+        )
+        return tuple(warnings)
 
     def run(
         self,
@@ -204,6 +319,7 @@ class Runner:
                                 warnings.extend(
                                     self._record_validation_result(
                                         run_id=run_id,
+                                        run_uuid=context.run_id,
                                         job_id=job.id,
                                         step_name=step.step_name,
                                         result=validation,
@@ -216,6 +332,19 @@ class Runner:
                             if validation_errors:
                                 raise ValidationError(
                                     f"Dataset validation failed with {validation_errors} error(s)"
+                                )
+
+                            profiles = _dataset_profiles(data)
+                            for profile in profiles:
+                                warnings.extend(
+                                    self._record_dataset_profile(
+                                        run_id=run_id,
+                                        run_uuid=context.run_id,
+                                        job_id=job.id,
+                                        step_name=step.step_name,
+                                        profile=profile,
+                                        manifest=manifest,
+                                    )
                                 )
 
                             completed_at = datetime.now(UTC)
