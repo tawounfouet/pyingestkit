@@ -76,6 +76,7 @@ class ReplayMetadataCapability(ABC):
     def find_expected_fingerprint_for_run(self, run_id: str, dataset_id: str) -> str | None:
         raise NotImplementedError
 
+
 class TargetLoadMetadataCapability(ABC):
     """Optional capability for auditable target materialization records.
 
