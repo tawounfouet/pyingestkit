@@ -235,8 +235,9 @@ introduce replacement
   -> remove only in the next allowed breaking release
 ```
 
-Exact warning classes and user-facing deprecation UX are finalized with error/CLI/config stability
-in V1.0.0-b1.
+B1 finalizes the user-facing mechanism as
+`pyingestkit.deprecations.PyIngestKitDeprecationWarning(FutureWarning)`. Stable 1.x public paths are
+retained until a later breaking major release.
 
 ## 13. CI and release qualification
 
@@ -261,18 +262,18 @@ The second gate verifies:
 Because `make release-check` depends on `make check`, compatibility drift is a release-blocking
 failure rather than a documentation-only warning.
 
-## 14. Deferred to V1.0.0-b1
+## 14. B1 operational-stability follow-up
 
-A2 does not prematurely freeze the surfaces that the roadmap assigns to b1:
+The surfaces deliberately deferred by A2 are finalized by V1.0.0-b1 and governed by
+`tests/contract/fixtures/stability_v1.json` plus `scripts/check_v1_stability.py`:
 
-- exact plugin discovery/helper semantics;
-- complete configuration/deprecation behavior;
-- canonical error import ergonomics;
-- exact CLI option/exit-code/human-output stability;
-- observability/logging public contract.
+- deterministic plugin discovery and duplicate isolation;
+- fail-closed configuration/profile selection and dotenv/workspace precedence;
+- canonical `pyingestkit.errors` and visible deprecation warnings;
+- CLI option/argument/exit-code semantics;
+- logging context, JSON/human formats and redaction behavior.
 
-A2 protects their already-governed A1 inventory where applicable but does not convert unfinished
-product semantics into accidental 1.x promises.
+See `docs/reference/stability-v1.md`.
 
 ## 15. A2 completion criterion
 
