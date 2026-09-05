@@ -82,8 +82,9 @@ class ReferenceJobContractTests(unittest.TestCase):
             )
             self.assertTrue(all(job.version == "0.4.0" for job in jobs[:-2]))
             self.assertEqual(jobs[-2].version, "0.5.1")
-            self.assertEqual(jobs[-1].version, "0.6.0rc1")
+            self.assertEqual(jobs[-1].version, "0.6.0")
         finally:
+
             sys.path.remove(src)
 
     def test_demo_configs_are_fixture_first(self) -> None:
