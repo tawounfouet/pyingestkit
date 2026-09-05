@@ -217,8 +217,7 @@ def version_load_publish_s3(
     dsn = os.getenv(dsn_env)
     if not dsn:
         raise ConfigurationError(
-            "demo.versioned_s3 expects PostgreSQL target DSN in environment variable "
-            f"{dsn_env!r}"
+            f"demo.versioned_s3 expects PostgreSQL target DSN in environment variable {dsn_env!r}"
         )
     if context.fixture_mode:
         _ensure_demo_target_table(dsn, table, schema)
