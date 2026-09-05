@@ -9,7 +9,11 @@ from typing import Any
 from pyingestkit.artifacts import S3ArtifactStore
 from pyingestkit.core.exceptions import VersionStoreError
 from pyingestkit.dataset import Dataset
-from pyingestkit.versioning import S3DatasetVersionStore
+from pyingestkit.versioning import (
+    DatasetVersionStore,
+    FilesystemDatasetVersionStore,
+    S3DatasetVersionStore,
+)
 
 
 class FakeS3Error(RuntimeError):
@@ -59,7 +63,80 @@ class FakeS3Client:
         }
 
 
+def assert_version_store_contract(
+    test_case: unittest.TestCase,
+    store: DatasetVersionStore,
+) -> None:
+    first = store.create_version(
+        Dataset([{"id": 1, "name": "Alice"}]),
+        dataset_id="demo.contract",
+        created_from_run_id="run-1",
+        job_id="demo.contract",
+        job_version="1.0.0",
+    )
+    same = store.create_version(
+        Dataset([{"id": 1, "name": "Alice"}]),
+        dataset_id="demo.contract",
+        created_from_run_id="run-2",
+        job_id="demo.contract",
+        job_version="1.0.0",
+    )
+    second = store.create_version(
+        Dataset([{"id": 1, "name": "Alicia"}]),
+        dataset_id="demo.contract",
+        created_from_run_id="run-3",
+        job_id="demo.contract",
+        job_version="1.0.1",
+    )
+
+    test_case.assertEqual(first.version_id, same.version_id)
+    test_case.assertNotEqual(first.version_id, second.version_id)
+    test_case.assertEqual(len(store.list_versions("demo.contract")), 2)
+    test_case.assertEqual(
+        store.load_dataset(first).to_rows(),
+        [{"id": 1, "name": "Alice"}],
+    )
+
+    published_first = store.publish(first, run_id="run-1")
+    published_same = store.publish(first, run_id="run-2")
+    test_case.assertEqual(published_first.published_at, published_same.published_at)
+
+    published_second = store.publish(second, run_id="run-3")
+    current = store.get_published("demo.contract")
+    test_case.assertIsNotNone(current)
+    assert current is not None
+    test_case.assertEqual(current.version_id, published_second.version_id)
+    test_case.assertEqual(
+        store.load_dataset(second).to_rows(),
+        [{"id": 1, "name": "Alicia"}],
+    )
+
+
 class S3DatasetVersionStoreTests(unittest.TestCase):
+    def test_filesystem_and_s3_pass_the_same_version_store_contract(self) -> None:
+        client = FakeS3Client()
+        with (
+            tempfile.TemporaryDirectory() as filesystem_root,
+            tempfile.TemporaryDirectory() as s3_cache,
+        ):
+            stores: tuple[tuple[str, DatasetVersionStore], ...] = (
+                ("filesystem", FilesystemDatasetVersionStore(filesystem_root)),
+                (
+                    "s3",
+                    S3DatasetVersionStore(
+                        S3ArtifactStore(
+                            bucket="demo-bucket",
+                            prefix="tenant",
+                            cache_root=s3_cache,
+                            client=client,
+                        )
+                    ),
+                ),
+            )
+            for name, store in stores:
+                with self.subTest(store=name):
+                    assert_version_store_contract(self, store)
+
     def test_versions_and_publication_survive_an_empty_local_workspace(self) -> None:
         client = FakeS3Client()
         with (
@@ -124,6 +201,28 @@ class S3DatasetVersionStoreTests(unittest.TestCase):
             self.assertEqual(current.version_id, version_two.version_id)
             self.assertEqual(len(second_store.list_versions("demo.reference")), 2)
 
+    def test_missing_snapshot_is_rejected_explicitly(self) -> None:
+        client = FakeS3Client()
+        with tempfile.TemporaryDirectory() as cache:
+            artifacts = S3ArtifactStore(
+                bucket="demo-bucket",
+                prefix="tenant",
+                cache_root=cache,
+                client=client,
+            )
+            store = S3DatasetVersionStore(artifacts)
+            version = store.create_version(
+                Dataset([{"id": 1}]),
+                dataset_id="demo.reference",
+                created_from_run_id="run-1",
+                job_id="demo.reference",
+                job_version="1.0.0",
+            )
+            snapshot_key = version.snapshot_uri.split("s3://demo-bucket/", 1)[1]
+            del client.objects[("demo-bucket", snapshot_key)]
+            with self.assertRaisesRegex(VersionStoreError, "Snapshot object is missing"):
+                store.load_dataset(version)
+
     def test_snapshot_hash_mismatch_is_rejected(self) -> None:
         client = FakeS3Client()
         with tempfile.TemporaryDirectory() as cache:
@@ -145,6 +244,14 @@ class S3DatasetVersionStoreTests(unittest.TestCase):
             client.objects[("demo-bucket", snapshot_key)]["Body"] = b"{}"
             with self.assertRaisesRegex(VersionStoreError, "SHA-256 mismatch"):
                 store.load_dataset(version)
+            with self.assertRaisesRegex(VersionStoreError, "SHA-256 mismatch"):
+                store.create_version(
+                    Dataset([{"id": 1}]),
+                    dataset_id="demo.reference",
+                    created_from_run_id="run-2",
+                    job_id="demo.reference",
+                    job_version="1.0.0",
+                )
 
     def test_invalid_dataset_id_is_rejected(self) -> None:
         client = FakeS3Client()

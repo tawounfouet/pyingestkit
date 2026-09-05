@@ -132,7 +132,7 @@ jobs:
       - name: Upload V0.6.0-b2 artifact
         uses: actions/upload-artifact@v4
         with:
-          name: pyingestkit-v0.6.0-b2-remote-dataset-version-publication
+          name: pyingestkit-v0.6.0-b2-remote-versioning-publish
           path: |
             .
             !.git/**
@@ -152,7 +152,7 @@ jobs:
       - name: Upload V0.6.0-b2 distribution artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: pyingestkit-v0.6.0-b2-dist
+          name: pyingestkit-v0.6.0-b2-remote-versioning-publish-dist
           path: |
             dist/*
             examples/plugin_package/dist/*

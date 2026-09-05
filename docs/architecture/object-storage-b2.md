@@ -55,7 +55,7 @@ they inspect the remote version store and therefore do not require a pre-existin
 
 ## B2 qualification target
 
-The MinIO-backed E2E proves:
+The MinIO-backed qualification proves:
 
 1. Runner A creates and publishes V1.
 2. Workspace A disappears.
@@ -63,6 +63,20 @@ The MinIO-backed E2E proves:
 4. Runner B creates/publishes V2 and lists V1 + V2.
 5. CLI `versions` and `published` read the same remote state.
 6. Runner C, again with an empty workspace, resolves and loads V2.
+7. Strict replay from remote RAW remains acquisition-free and verifies
+   `actual_fingerprint == expected_fingerprint`.
+8. Filesystem and S3 implementations execute the same `DatasetVersionStore` behavioral contract,
+   including immutable content-addressed versions and idempotent republication.
+9. Missing or corrupt remote snapshots fail explicitly instead of being silently recreated.
 
 This is the first V0.6 milestone where Dataset version state is portable across runner-local
-filesystems. Full cross-host run/replay qualification remains the purpose of V0.6.0-rc1.
+filesystems. The complete Runner A → destroyed workspace → Runner B replay flow combined with
+PostgreSQL loading remains the purpose of V0.6.0-rc1.
+
+## Official B2 artifact
+
+GitHub Actions publishes the source artifact under the canonical milestone name:
+
+```text
+pyingestkit-v0.6.0-b2-remote-versioning-publish.zip
+```

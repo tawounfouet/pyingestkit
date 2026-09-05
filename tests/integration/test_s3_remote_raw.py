@@ -40,7 +40,7 @@ class S3RemoteRawIntegrationTests(unittest.TestCase):
         assert BUCKET is not None
         with tempfile.TemporaryDirectory() as tmp:
             workspace = Path(tmp) / ".pyingest"
-            prefix = f"b1/{uuid4().hex}"
+            prefix = f"b2/{uuid4().hex}"
             artifact_store = S3ArtifactStore(
                 bucket=BUCKET,
                 prefix=prefix,
@@ -142,6 +142,8 @@ class S3RemoteRawIntegrationTests(unittest.TestCase):
             self.assertTrue(replay.succeeded)
             self.assertTrue(replay.matched)
             self.assertEqual(replay.verification_mode, "STRICT")
+            self.assertIsNotNone(replay.expected_fingerprint)
+            self.assertEqual(replay.actual_fingerprint, replay.expected_fingerprint)
 
             replay_records = metadata.list_artifacts(replay.run.run_id)
             self.assertEqual(len(replay_records), 1)
@@ -156,6 +158,10 @@ class S3RemoteRawIntegrationTests(unittest.TestCase):
             replay_manifest = json.loads(replay_manifest_bytes)
             self.assertEqual(replay_manifest["replay"]["source_run_id"], first.run_id)
             self.assertTrue(replay_manifest["replay"]["matched"])
+            self.assertEqual(
+                replay_manifest["replay"]["actual_fingerprint"],
+                replay_manifest["replay"]["expected_fingerprint"],
+            )
 
 
 if __name__ == "__main__":
