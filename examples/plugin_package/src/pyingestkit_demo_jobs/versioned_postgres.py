@@ -137,7 +137,7 @@ def fetch_versioned_postgres_ndjson(context: RunContext) -> RawArtifact:
 
     if not context.fixture_mode:
         raise ConfigurationError(
-            "demo.versioned_postgres is an offline RC1 reference job and requires fixture_mode=true"
+            "demo.versioned_postgres is an offline stable reference job and requires fixture_mode=true"
         )
     return HttpSource(
         SOURCE_URL,
@@ -249,9 +249,9 @@ def version_load_publish_postgres(
 
 @job(
     id=DATASET_ID,
-    version="0.5.0rc1",
+    version="0.5.0",
     description=(
-        "V0.5 RC1 V1 -> V2 -> diff -> DatasetVersion -> PostgreSQL -> publish -> "
+        "V0.5 stable V1 -> V2 -> diff -> DatasetVersion -> PostgreSQL -> publish -> "
         "strict RAW replay -> idempotent SKIP reference slice."
     ),
 )
