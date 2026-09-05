@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 from enum import StrEnum
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -79,6 +79,33 @@ class MetadataConfig(BaseModel):
     postgres: PostgresMetadataConfig = Field(default_factory=PostgresMetadataConfig)
 
 
+class PostgresTargetConfig(BaseModel):
+    """Validated PostgreSQL target configuration without inline credentials."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, populate_by_name=True)
+
+    type: Literal["postgres"] = "postgres"
+    target_id: str
+    dsn_env: str = "PYINGEST_TARGET_DATABASE_URL"
+    schema_name: str | None = Field(default="public", alias="schema")
+    table: str
+    load_mode: Literal["append", "truncate_load", "replace"] = "append"
+
+    @field_validator("target_id", "dsn_env", "table")
+    @classmethod
+    def validate_non_empty(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("value must not be empty")
+        return value
+
+    @field_validator("target_id")
+    @classmethod
+    def validate_target_id(cls, value: str) -> str:
+        if "://" in value:
+            raise ValueError("target_id must be a stable logical id, not a DSN")
+        return value
+
+
 class RuntimeConfig(BaseModel):
     """Validated runtime defaults loaded from project configuration."""
 
@@ -96,4 +123,5 @@ class PyIngestKitConfig(BaseModel):
 
     runtime: RuntimeConfig = Field(default_factory=RuntimeConfig)
     metadata: MetadataConfig = Field(default_factory=MetadataConfig)
+    targets: dict[str, PostgresTargetConfig] = Field(default_factory=dict)
     logging: LoggingConfig = Field(default_factory=LoggingConfig)

@@ -86,3 +86,10 @@
 - [Stable release architecture](architecture/diff-replay-versioning-release-v0.4.0.md)
 - [Release validation guide](guides/release-validation-v0.4.0.md)
 - [Stable release technical review](reviews/v0.4.0-diff-replay-versioning-release-review.md)
+
+## V0.5 — PostgreSQL Persistence Targets
+
+- [B1 PostgreSQL metadata hardening + target-load records](architecture/postgres-metadata-target-loads-b1.md)
+- [B2 load modes + transaction semantics + idempotency](architecture/postgres-load-modes-idempotency-b2.md)
+- [ADR-046 — PostgreSQL load-mode transaction semantics](adr/ADR-046-postgres-load-mode-transaction-semantics.md)
+- [ADR-047 — History-driven target-load idempotency](adr/ADR-047-target-load-idempotency-history-driven.md)

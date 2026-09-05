@@ -9,6 +9,7 @@ from .models import (
     PublishedDatasetRecord,
     ReplayRecord,
     ReproducibilityRecord,
+    TargetLoadRecord,
 )
 
 
@@ -73,4 +74,35 @@ class ReplayMetadataCapability(ABC):
 
     @abstractmethod
     def find_expected_fingerprint_for_run(self, run_id: str, dataset_id: str) -> str | None:
+        raise NotImplementedError
+
+
+class TargetLoadMetadataCapability(ABC):
+    """Optional capability for auditable target materialization records.
+
+    Kept separate from MetadataStore so existing third-party stores remain valid.
+    B1 introduced persistence; B2 adds history filters used by deterministic idempotency.
+    """
+
+    @abstractmethod
+    def record_target_load(self, record: TargetLoadRecord) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_target_load(self, load_id: str) -> TargetLoadRecord | None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def list_target_loads(
+        self,
+        *,
+        run_id: str | None = None,
+        dataset_id: str | None = None,
+        target_id: str | None = None,
+        dataset_version_id: str | None = None,
+        destination: str | None = None,
+        mode: str | None = None,
+        status: str | None = None,
+        limit: int = 100,
+    ) -> tuple[TargetLoadRecord, ...]:
         raise NotImplementedError

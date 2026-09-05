@@ -8,9 +8,10 @@ from sqlalchemy.engine import URL, Engine
 from sqlalchemy.pool import NullPool
 
 from ._sqlalchemy import _SQLAlchemyMetadataStore
+from ._target_loads import SQLAlchemyTargetLoadMetadataMixin
 
 
-class SQLiteMetadataStore(_SQLAlchemyMetadataStore):
+class SQLiteMetadataStore(SQLAlchemyTargetLoadMetadataMixin, _SQLAlchemyMetadataStore):
     """SQLite-backed metadata adapter using SQLAlchemy Core.
 
     SQLite remains the default for local/single-node execution. The adapter

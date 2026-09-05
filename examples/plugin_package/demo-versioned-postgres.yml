@@ -1,0 +1,19 @@
+runtime:
+  workspace: .pyingest
+  fixture_mode: true
+  parameters:
+    target_id: postgres.demo.versioned
+    target_schema: public
+    target_table: pyingestkit_demo_versioned
+    target_dsn_env: PYINGEST_TARGET_DATABASE_URL
+    metadata_backend: sqlite
+
+metadata:
+  backend: sqlite
+
+logging:
+  level: INFO
+  format: rich
+  console: false
+  file:
+    enabled: false

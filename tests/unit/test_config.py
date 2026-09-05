@@ -51,6 +51,44 @@ logging:
             self.assertIs(config.metadata.backend, MetadataBackend.POSTGRES)
             self.assertEqual(config.metadata.postgres.dsn_env, "CUSTOM_DATABASE_URL")
 
+    def test_postgres_target_config_keeps_credentials_out_of_yaml(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "pyingest.yml"
+            path.write_text(
+                """
+targets:
+  warehouse:
+    type: postgres
+    target_id: postgres.demo.reference
+    dsn_env: PYINGEST_TARGET_DATABASE_URL
+    schema: reference
+    table: demo_dataset
+    load_mode: append
+""".strip(),
+                encoding="utf-8",
+            )
+            config = load_config(path)
+            target = config.targets["warehouse"]
+            self.assertEqual(target.target_id, "postgres.demo.reference")
+            self.assertEqual(target.dsn_env, "PYINGEST_TARGET_DATABASE_URL")
+            self.assertEqual(target.schema_name, "reference")
+            self.assertEqual(target.table, "demo_dataset")
+            self.assertFalse(hasattr(target, "dsn"))
+
+    def test_postgres_target_config_rejects_dsn_as_target_id(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "pyingest.yml"
+            path.write_text(
+                (
+                    "targets:\n  warehouse:\n"
+                    "    target_id: postgresql://user:secret@host/db\n"
+                    "    table: demo\n"
+                ),
+                encoding="utf-8",
+            )
+            with self.assertRaises(ConfigurationError):
+                load_config(path)
+
     def test_invalid_logging_level_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "pyingest.yml"

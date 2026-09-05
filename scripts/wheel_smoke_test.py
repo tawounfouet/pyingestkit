@@ -8,8 +8,8 @@ import tempfile
 import venv
 from pathlib import Path
 
-FRAMEWORK_VERSION = "0.4.0"
-DEMO_VERSION = "0.4.0"
+FRAMEWORK_VERSION = "0.5.0"
+DEMO_VERSION = "0.5.0"
 QUALITY_JOBS = ("demo.ndjson_quality", "demo.excel_quality", "demo.parquet_quality")
 VERSIONED_JOB = "demo.versioned_ndjson"
 
@@ -67,16 +67,11 @@ def main() -> int:
         env["PYTHONNOUSERSITE"] = "1"
 
         run([str(python), "-m", "pip", "install", "--upgrade", "pip"], cwd=root, env=env)
-        framework_requirement = f"pyingestkit[excel,parquet] @ {framework_wheel.resolve().as_uri()}"
+        framework_requirement = (
+            "pyingestkit[excel,parquet,postgres] @ " + framework_wheel.resolve().as_uri()
+        )
         run(
-            [
-                str(python),
-                "-m",
-                "pip",
-                "install",
-                framework_requirement,
-                str(demo_wheel),
-            ],
+            [str(python), "-m", "pip", "install", framework_requirement, str(demo_wheel)],
             cwd=root,
             env=env,
         )
@@ -85,8 +80,15 @@ def main() -> int:
                 str(python),
                 "-c",
                 (
-                    "import openpyxl, pyarrow, pyingestkit; "
+                    "import openpyxl, pyarrow, psycopg, pyingestkit; "
+                    "from pyingestkit import ("
+                    "IdempotencyAction, IdempotencyPolicy, PostgresTarget, TargetLoadExecutor); "
                     f"assert pyingestkit.__version__ == '{FRAMEWORK_VERSION}'; "
+                    "assert PostgresTarget.B2_CAPABILITIES.truncate_load; "
+                    "assert PostgresTarget.B2_CAPABILITIES.replace; "
+                    "assert IdempotencyAction.SKIP.value == 'skip'; "
+                    "assert IdempotencyPolicy.AUTO.value == 'auto'; "
+                    "assert TargetLoadExecutor.__name__ == 'TargetLoadExecutor'; "
                     "print('installed_from=' + pyingestkit.__file__); "
                     "print('openpyxl=' + openpyxl.__version__); "
                     "print('pyarrow=' + pyarrow.__version__)"
@@ -106,70 +108,43 @@ def main() -> int:
             "demo.excel_quality",
             "demo.parquet_quality",
             VERSIONED_JOB,
+            "demo.versioned_postgres",
         }
         if installed_ids != expected_ids:
             raise SystemExit(f"Unexpected installed jobs: {sorted(installed_ids)}")
 
         run(
-            [
-                str(pyingest),
-                "run",
-                "demo.local_file",
-                "--config",
-                "examples/plugin_package/demo.yml",
-            ],
+            [str(pyingest), "run", "demo.local_file", "--config", "examples/plugin_package/demo.yml"],
             cwd=root,
             env=env,
         )
         for job_id in ("demo.http_csv", "demo.http_json"):
             run(
-                [
-                    str(pyingest),
-                    "run",
-                    job_id,
-                    "--config",
-                    "examples/plugin_package/demo-http.yml",
-                ],
+                [str(pyingest), "run", job_id, "--config", "examples/plugin_package/demo-http.yml"],
                 cwd=root,
                 env=env,
             )
         for job_id in QUALITY_JOBS:
             run(
-                [
-                    str(pyingest),
-                    "run",
-                    job_id,
-                    "--config",
-                    "examples/plugin_package/demo-quality.yml",
-                ],
+                [str(pyingest), "run", job_id, "--config", "examples/plugin_package/demo-quality.yml"],
                 cwd=root,
                 env=env,
             )
 
         first = json_command(
             [
-                str(pyingest),
-                "run",
-                VERSIONED_JOB,
-                "--config",
-                "examples/plugin_package/demo-versioned.yml",
-                "--param",
-                "revision=1",
-                "--json",
+                str(pyingest), "run", VERSIONED_JOB,
+                "--config", "examples/plugin_package/demo-versioned.yml",
+                "--param", "revision=1", "--json",
             ],
             cwd=root,
             env=env,
         )
         second = json_command(
             [
-                str(pyingest),
-                "run",
-                VERSIONED_JOB,
-                "--config",
-                "examples/plugin_package/demo-versioned.yml",
-                "--param",
-                "revision=2",
-                "--json",
+                str(pyingest), "run", VERSIONED_JOB,
+                "--config", "examples/plugin_package/demo-versioned.yml",
+                "--param", "revision=2", "--json",
             ],
             cwd=root,
             env=env,
@@ -180,15 +155,7 @@ def main() -> int:
             raise SystemExit("Versioned stable reference runs did not succeed")
 
         second_run_id = str(second["run_id"])
-        diff_path = (
-            workspace
-            / "runs"
-            / "demo"
-            / "versioned_ndjson"
-            / second_run_id
-            / "reports"
-            / "diff.json"
-        )
+        diff_path = workspace / "runs" / "demo" / "versioned_ndjson" / second_run_id / "reports" / "diff.json"
         diff = json.loads(diff_path.read_text(encoding="utf-8"))
         expected_summary = {"added": 1, "removed": 1, "changed": 1, "unchanged": 1}
         if diff.get("summary") != expected_summary:
@@ -213,12 +180,8 @@ def main() -> int:
 
         replay = json_command(
             [
-                str(pyingest),
-                "replay",
-                second_run_id,
-                "--config",
-                "examples/plugin_package/demo-versioned.yml",
-                "--json",
+                str(pyingest), "replay", second_run_id,
+                "--config", "examples/plugin_package/demo-versioned.yml", "--json",
             ],
             cwd=root,
             env=env,
@@ -234,21 +197,15 @@ def main() -> int:
             raise SystemExit("Replay actual fingerprint differs from published revision 2")
 
         replay_manifest = (
-            workspace
-            / "runs"
-            / "demo"
-            / "versioned_ndjson"
-            / str(replay["run_id"])
-            / "manifest.json"
+            workspace / "runs" / "demo" / "versioned_ndjson" /
+            str(replay["run_id"]) / "manifest.json"
         )
         replay_payload = json.loads(replay_manifest.read_text(encoding="utf-8"))
         replay_lineage = replay_payload.get("replay") or {}
         if replay_lineage.get("source_run_id") != second_run_id:
             raise SystemExit("Replay manifest lineage is missing the source run")
         if replay_lineage.get("matched") is not True:
-            raise SystemExit(
-                "Replay manifest does not record a successful fingerprint verification"
-            )
+            raise SystemExit("Replay manifest does not record a successful fingerprint verification")
 
         run([str(pyingest), "runs"], cwd=root, env=env)
 
@@ -266,7 +223,7 @@ def main() -> int:
 
     shutil.rmtree(workspace, ignore_errors=True)
     print(
-        "OK: V0.4.0 stable wheels execute seven reference jobs and prove "
+        "OK: V0.5.0 stable wheels expose eight reference jobs and preserve PostgreSQL persistence contracts while proving "
         "V1 -> V2 -> diff -> publish -> strict RAW replay"
     )
     return 0

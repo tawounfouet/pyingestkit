@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyingestkit-demo-jobs"
-version = "0.4.0"
+version = "0.5.0"
 description = "Installable demonstration job pack for PyIngestKit."
 requires-python = ">=3.11"
 dependencies = [
-  "pyingestkit>=0.4.0,<0.5",
+  "pyingestkit>=0.5.0,<0.6",
 ]
 
 [project.entry-points."pyingestkit.jobs"]
@@ -19,6 +19,7 @@ demo-ndjson-quality = "pyingestkit_demo_jobs.ndjson_quality:job_definition"
 demo-excel-quality = "pyingestkit_demo_jobs.excel_quality:job_definition"
 demo-parquet-quality = "pyingestkit_demo_jobs.parquet_quality:job_definition"
 demo-versioned-ndjson = "pyingestkit_demo_jobs.versioned_ndjson:job_definition"
+demo-versioned-postgres = "pyingestkit_demo_jobs.versioned_postgres:job_definition"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

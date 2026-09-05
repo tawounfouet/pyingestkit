@@ -28,12 +28,16 @@ expected = {
     "DiffPolicy",
     "DiffKind",
     "DiffEntry",
+    "IdempotencyAction",
+    "IdempotencyPolicy",
     "Job",
     "JobDefinition",
     "JsonParser",
+    "LoadMode",
     "NdjsonParser",
     "ParquetParser",
     "Pipeline",
+    "PostgresTarget",
     "PublishedDataset",
     "QualityReport",
     "ReplayContext",
@@ -48,6 +52,13 @@ expected = {
     "StepDefinition",
     "StepInvocation",
     "StepResult",
+    "Target",
+    "TargetCapabilities",
+    "TargetLoadDecision",
+    "TargetLoadExecutor",
+    "TargetLoadRequest",
+    "TargetLoadResult",
+    "TargetLoadStatus",
     "ValidationIssue",
     "ValidationResult",
     "job",
@@ -56,6 +67,6 @@ expected = {
 actual = set(pyingestkit.__all__)
 if actual != expected:
     raise SystemExit(f"Unexpected public API. expected={sorted(expected)} actual={sorted(actual)}")
-if pyingestkit.__version__ != "0.4.0":
+if pyingestkit.__version__ != "0.5.0":
     raise SystemExit(f"Unexpected version: {pyingestkit.__version__}")
-print("OK: public API matches V0.4.0 stable Diff / Replay / Versioning contract")
+print("OK: public API matches V0.5.0 stable PostgreSQL persistence contract")
