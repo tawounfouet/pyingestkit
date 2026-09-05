@@ -19,9 +19,7 @@ def test_v1_a2_compatibility_contract_is_versioned_and_anchored_to_a1() -> None:
     contract = _contract()
     assert contract["schema_version"] == 1
     assert contract["milestone"] == "V1.0.0-a2"
-    assert contract["baseline"]["a1_merge_sha"] == (
-        "6a4f93e3b4beec4b67a846d22f909abebc95524c"
-    )
+    assert contract["baseline"]["a1_merge_sha"] == ("6a4f93e3b4beec4b67a846d22f909abebc95524c")
 
 
 def test_v1_a2_policy_keeps_physical_metadata_schema_internal() -> None:
