@@ -81,3 +81,4 @@ Dataset snapshot format at `snapshot_version = "1"`. Portable diff reports are f
 - [ADR-056 — V1 compatibility is enforced at logical contracts and versioned persistence boundaries](ADR-056-v1-compatibility-contract-and-persistent-schema-policy.md)
 - [ADR-057 — V1 operational surfaces are frozen by explicit behavioral contracts](ADR-057-v1-operational-surfaces-stability.md)
 - [ADR-058 — V1 readiness is demonstrated by representative pilots and executable documentation contracts](ADR-058-v1-pilot-qualification-and-documentation.md)
+- [ADR-059 — V1 RC1 is a real package candidate and must upgrade the immutable V0.6 baseline](ADR-059-v1-release-candidate-packaging-and-upgrade-qualification.md)
