@@ -17,9 +17,7 @@ def test_rc1_contract_is_versioned_and_anchored_to_b2() -> None:
     contract = _contract()
     assert contract["schema_version"] == 1
     assert contract["milestone"] == "V1.0.0-rc1"
-    assert contract["baseline"]["b2_merge_sha"] == (
-        "a29be350498aae1c2002c280aead7e4d1f02cff9"
-    )
+    assert contract["baseline"]["b2_merge_sha"] == ("a29be350498aae1c2002c280aead7e4d1f02cff9")
 
 
 def test_rc1_versions_are_candidate_versions_not_stable() -> None:
@@ -51,5 +49,3 @@ def test_rc1_machine_gate_passes() -> None:
     )
     assert result.returncode == 0, result.stderr or result.stdout
     assert "V1.0.0-rc1" in result.stdout
-
-
