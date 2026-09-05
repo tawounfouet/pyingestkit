@@ -44,9 +44,9 @@ class VersionedPostgresE2ETests(unittest.TestCase):
             connection.exec_driver_sql(f'DROP TABLE IF EXISTS "{table}"')
             connection.exec_driver_sql(
                 f'CREATE TABLE "{table}" ('
-                'id BIGINT PRIMARY KEY, '
-                'name TEXT NOT NULL, '
-                'score DOUBLE PRECISION NOT NULL)'
+                "id BIGINT PRIMARY KEY, "
+                "name TEXT NOT NULL, "
+                "score DOUBLE PRECISION NOT NULL)"
             )
 
     def _rows(self, table: str) -> list[tuple[int, str, float]]:
