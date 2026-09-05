@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import os
+from os import environ, getenv
 from pathlib import Path
 from typing import Any
 
@@ -24,7 +24,7 @@ def resolve_config_path_with_source(path: Path | None = None) -> tuple[Path | No
     if path is not None:
         return path, "explicit (--config)"
 
-    env_path = os.getenv("PYINGEST_CONFIG")
+    env_path = getenv("PYINGEST_CONFIG")
     if env_path and env_path.strip():
         candidate = Path(env_path.strip())
         if candidate.exists():
@@ -33,13 +33,13 @@ def resolve_config_path_with_source(path: Path | None = None) -> tuple[Path | No
             f"Configuration file specified in PYINGEST_CONFIG={env_path!r} does not exist"
         )
 
-    env_name = os.getenv("PYINGEST_ENV")
+    env_name = getenv("PYINGEST_ENV")
     if env_name and env_name.strip():
         candidate = Path(f"pyingest.yml.{env_name.strip()}")
         if candidate.exists():
             return candidate, f"profile (PYINGEST_ENV={env_name.strip()} -> {candidate})"
 
-    if "PYTEST_CURRENT_TEST" in os.environ:
+    if "PYTEST_CURRENT_TEST" in environ:
         return None, "fallback (default in-memory)"
 
     for filename in DEFAULT_CONFIG_FILES:
