@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "milestone": "V1.0.0-rc1",
+  "baseline": {
+    "b2_merge_sha": "a29be350498aae1c2002c280aead7e4d1f02cff9",
+    "upgrade_from": "0.6.0"
+  },
+  "versions": {
+    "framework": "1.0.0rc1",
+    "demo_package": "1.0.0rc1",
+    "stable_target": "1.0.0"
+  },
+  "scope": {
+    "introduces_new_ingestion_provider": false,
+    "introduces_orchestration_platform": false,
+    "creates_stable_tag": false,
+    "purpose": "Qualify release packaging, clean installation, V0.6 upgrade compatibility and cumulative V1 stability before the stable 1.0.0 release."
+  },
+  "distribution_artifacts": [
+    "pyingestkit-1.0.0rc1-py3-none-any.whl",
+    "pyingestkit-1.0.0rc1.tar.gz",
+    "pyingestkit_demo_jobs-1.0.0rc1-py3-none-any.whl",
+    "pyingestkit_demo_jobs-1.0.0rc1.tar.gz",
+    "SHA256SUMS"
+  ],
+  "ci_artifact_names": [
+    "pyingestkit-v1.0.0rc1-source",
+    "pyingestkit-v1.0.0rc1-dist"
+  ],
+  "required_docs": [
+    "docs/guides/release-validation-v1.0.0rc1.md",
+    "docs/guides/migrate-v0.6-to-v1.md",
+    "docs/reference/public-api.md",
+    "docs/reference/compatibility-v1.md",
+    "docs/reference/stability-v1.md",
+    "docs/reference/pilots-v1.md"
+  ],
+  "required_scripts": [
+    "scripts/check_public_api.py",
+    "scripts/check_v1_compatibility.py",
+    "scripts/check_v1_stability.py",
+    "scripts/check_v1_pilots.py",
+    "scripts/check_v1_rc.py",
+    "scripts/wheel_smoke_test.py",
+    "scripts/upgrade_smoke_test.py"
+  ],
+  "required_ci_jobs": [
+    "test",
+    "postgres-e2e",
+    "s3-e2e",
+    "object-storage-e2e",
+    "foundation-verify",
+    "v1-pilot-gate",
+    "v1-rc-gate",
+    "stable-release-gate"
+  ],
+  "python_versions": ["3.11", "3.12", "3.13"]
+}
