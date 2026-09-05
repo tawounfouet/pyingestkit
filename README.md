@@ -4,13 +4,16 @@
 [![Security](https://github.com/tawounfouet/pyingestkit/actions/workflows/security.yml/badge.svg)](https://github.com/tawounfouet/pyingestkit/actions/workflows/security.yml)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Release: v0.6.0](https://img.shields.io/badge/release-v0.6.0--stable-success.svg)](CHANGELOG.md)
+[![Candidate: v1.0.0rc1](https://img.shields.io/badge/candidate-v1.0.0rc1-orange.svg)](CHANGELOG.md)
 
 **PyIngestKit** is a focused Python framework for reliable, traceable batch ingestion.
 
 > Transform an external source into a reliable, validated, reproducible and publishable dataset without rewriting ingestion plumbing for every job.
 
-V0.6.0 extends the V0.5 PostgreSQL persistence baseline with durable S3-compatible artifacts, remote dataset versions/publication, and strict cross-host replay.
+**V1.0.0 RC1** is the full stability candidate. It consolidates the V0.6 object-storage baseline with
+the governed V1 public API, compatibility, operational-stability and representative-pilot contracts.
+The immutable `v0.6.0` release remains the historical stable/upgrade baseline until final `v1.0.0`
+qualification and publication.
 
 ## Product boundary
 
@@ -28,7 +31,7 @@ Replay              != new source acquisition
 PyIngestKit         != orchestrator
 ```
 
-## V0.6.0 stable capabilities
+## V1.0.0 RC1 candidate capabilities
 
 - immutable RAW with SHA-256 provenance;
 - CSV, JSON, NDJSON, Excel and Parquet parsing behind a dependency-neutral `Dataset`;
@@ -42,7 +45,10 @@ PyIngestKit         != orchestrator
 - optional `S3DatasetVersionStore` for remote snapshots/publication;
 - MinIO-tested S3-compatible behavior;
 - full replay from a fresh host/workspace using shared PostgreSQL metadata + object storage;
-- nine executable reference jobs.
+- deterministic plugin/config/error/CLI/logging behavior governed for V1;
+- explicit V1 public API and persisted compatibility contracts;
+- five representative pilots covering nine executable reference jobs;
+- clean-wheel RC packaging plus an executable V0.6.0 -> 1.0.0rc1 upgrade smoke.
 
 ## Installation
 
@@ -59,6 +65,9 @@ Production consumers can select only the required extras:
 pip install "pyingestkit[s3]"
 pip install "pyingestkit[postgres]"
 ```
+
+During RC qualification, release artifacts are built and installed from the generated
+`1.0.0rc1` wheels rather than published as stable `1.0.0` packages.
 
 ## Minimal S3-compatible configuration
 
@@ -164,7 +173,6 @@ pyingest config                       # Shows active configuration, origin & bac
 pyingest jobs
 pyingest inspect demo.versioned_s3
 
-
 # Executing baseline & quality reference jobs
 pyingest run demo.local_file --param path=examples/plugin_package/data/sample.txt
 pyingest run demo.http_csv
@@ -221,7 +229,7 @@ pyingest status --config examples/plugin_package/demo-versioned-s3.yml
 pyingest replay --config examples/plugin_package/demo-versioned-s3.yml
 ```
 
-## V0.6 reference jobs
+## V1 RC reference jobs
 
 ```text
 demo.local_file
@@ -235,7 +243,7 @@ demo.versioned_postgres
 demo.versioned_s3
 ```
 
-`demo.versioned_s3` is the full V0.6 vertical slice: V1 → V2 → remote RAW/reports/snapshots → PostgreSQL → publish V2 → destroy workspace A → strict replay from workspace B → fingerprint match → idempotent target SKIP.
+`demo.versioned_s3` remains the full cross-host vertical slice: V1 → V2 → remote RAW/reports/snapshots → PostgreSQL → publish V2 → destroy workspace A → strict replay from workspace B → fingerprint match → idempotent target SKIP.
 
 ## Durable storage model
 
@@ -259,25 +267,33 @@ make test
 make quality
 make security
 make build
-make verify
+make check
 make release-check
 ```
 
-GitHub CI qualifies Python 3.11/3.12/3.13, PostgreSQL 16, MinIO/S3 integration, full cross-host object-storage replay, public API freeze, build, and isolated clean-wheel installation.
+GitHub CI qualifies Python 3.11/3.12/3.13, PostgreSQL 16, MinIO/S3 integration, full cross-host object-storage replay, A1/A2/B1/B2 governance, clean-wheel installation and the real `v0.6.0` → `1.0.0rc1` upgrade path.
 
 See:
-- `docs/architecture/object-storage-release-v0.6.0.md`
-- `docs/guides/configure-object-storage.md`
-- `docs/guides/release-validation-v0.6.0.md`
+- `docs/guides/v1-quickstart.md`
+- `docs/guides/v1-production-pilot.md`
+- `docs/guides/migrate-v0.6-to-v1.md`
+- `docs/guides/release-validation-v1.0.0rc1.md`
+- `docs/reference/public-api.md`
+- `docs/reference/compatibility-v1.md`
+- `docs/reference/stability-v1.md`
+- `docs/reference/pilots-v1.md`
 - `SECURITY.md`
 
-## Release artifacts
+## RC1 build artifacts
 
 ```text
-pyingestkit-0.6.0-py3-none-any.whl
-pyingestkit-0.6.0.tar.gz
-pyingestkit_demo_jobs-0.6.0-py3-none-any.whl
-pyingestkit_demo_jobs-0.6.0.tar.gz
-pyingestkit-v0.6.0.zip
+pyingestkit-1.0.0rc1-py3-none-any.whl
+pyingestkit-1.0.0rc1.tar.gz
+pyingestkit_demo_jobs-1.0.0rc1-py3-none-any.whl
+pyingestkit_demo_jobs-1.0.0rc1.tar.gz
 SHA256SUMS
 ```
+
+CI groups these as `pyingestkit-v1.0.0rc1-source` and `pyingestkit-v1.0.0rc1-dist`. The historical
+`v0.6.0` release assets remain immutable and separate. Stable `v1.0.0` artifacts are created only after
+the RC baseline has been merged and the final stable qualification passes.
