@@ -66,9 +66,7 @@ def test_b1_contract_is_versioned_and_anchored_to_a2() -> None:
     contract = _contract()
     assert contract["schema_version"] == 1
     assert contract["milestone"] == "V1.0.0-b1"
-    assert contract["baseline"]["a2_merge_sha"] == (
-        "eccb7f65a05707c2f7ea9a9881c930a641d65b92"
-    )
+    assert contract["baseline"]["a2_merge_sha"] == ("eccb7f65a05707c2f7ea9a9881c930a641d65b92")
 
 
 def test_plugin_discovery_is_deterministic_and_isolates_duplicate_job_ids() -> None:
@@ -102,7 +100,9 @@ def test_discover_jobs_is_strict_by_default_but_cli_helpers_can_be_tolerant() ->
         assert [job.id for job in discover_jobs(strict=False)] == ["demo.same"]
 
 
-def test_selected_config_profile_is_fail_closed(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+def test_selected_config_profile_is_fail_closed(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
     monkeypatch.chdir(tmp_path)
     monkeypatch.delenv("PYINGEST_CONFIG", raising=False)
     monkeypatch.setenv("PYINGEST_ENV", "prod")
@@ -118,7 +118,9 @@ def test_invalid_profile_name_is_rejected(monkeypatch: pytest.MonkeyPatch, tmp_p
         load_config()
 
 
-def test_workspace_environment_overrides_yaml(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+def test_workspace_environment_overrides_yaml(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
     config_path = tmp_path / "config.yml"
     config_path.write_text("runtime:\n  workspace: from-yaml\n", encoding="utf-8")
     monkeypatch.setenv("PYINGEST_WORKSPACE", "from-env")
@@ -181,9 +183,7 @@ def test_file_logging_rejects_rich_format() -> None:
 
 
 def test_redaction_masks_url_credentials() -> None:
-    redacted = redact_text(
-        "database=postgresql://alice:hunter2@db.example/app?token=secret-value"
-    )
+    redacted = redact_text("database=postgresql://alice:hunter2@db.example/app?token=secret-value")
     assert "hunter2" not in redacted
     assert "secret-value" not in redacted
     assert "alice:***REDACTED***@" in redacted
