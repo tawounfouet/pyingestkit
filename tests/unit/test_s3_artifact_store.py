@@ -131,10 +131,8 @@ class S3ArtifactStoreTests(unittest.TestCase):
             manifest_key = updated.location_uri.key
             assert manifest_key is not None
             remote_manifest = client.objects[("demo-bucket", manifest_key)]
-            self.assertEqual(
-                remote_manifest["Metadata"]["pyingestkit-artifact-kind"], "manifest"
-            )
-            self.assertIn(b'SUCCESS', remote_manifest["Body"])
+            self.assertEqual(remote_manifest["Metadata"]["pyingestkit-artifact-kind"], "manifest")
+            self.assertIn(b"SUCCESS", remote_manifest["Body"])
 
             tampered = StoredArtifact(
                 relative_path=updated.relative_path,
