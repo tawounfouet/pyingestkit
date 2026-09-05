@@ -67,9 +67,7 @@ class ArtifactStore(ABC):
 
         location = uri if isinstance(uri, ArtifactURI) else ArtifactURI(uri)
         if not location.is_local:
-            raise StorageError(
-                f"Artifact store cannot read remote URI scheme {location.scheme!r}"
-            )
+            raise StorageError(f"Artifact store cannot read remote URI scheme {location.scheme!r}")
         path = location.as_path()
         try:
             return path.read_bytes()
@@ -99,7 +97,6 @@ class ArtifactStore(ABC):
         actual = sha256_bytes(data)
         if actual != artifact.sha256:
             raise StorageError(
-                "RAW materialization SHA-256 mismatch: "
-                f"expected {artifact.sha256}, got {actual}"
+                f"RAW materialization SHA-256 mismatch: expected {artifact.sha256}, got {actual}"
             )
         return local_path
