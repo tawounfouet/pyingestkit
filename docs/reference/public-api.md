@@ -1,6 +1,6 @@
 # PyIngestKit V1 — Public API Reference and A1 Classification
 
-Status: **V1.0.0-a1 — Public API Audit + Scope Freeze**
+Status: **Created in V1.0.0-a1; reviewed through V1.0.0-b1**
 
 This document is the human-readable companion to the machine-readable snapshot at
 `tests/contract/fixtures/public_api_v1.json`.
@@ -10,8 +10,9 @@ The A1 question is deliberately narrow:
 > Which PyIngestKit surfaces are intentionally public, and which of them are candidates for a
 > compatibility promise across the future 1.x line?
 
-A1 is not the final 1.0 compatibility policy. Persistent-schema compatibility is consolidated in
-V1.0.0-a2, while plugin/config/error/CLI/observability stability is finalized in V1.0.0-b1.
+A1 established the inventory. A2 consolidated structural/persistent compatibility, and B1 finalized
+plugin/config/error/CLI/observability stability. This document now reflects those later promotions while
+retaining the A1 inventory history.
 
 ## 1. Baseline
 
@@ -100,11 +101,13 @@ The following namespaces are inventoried and contract-snapshotted in A1:
 | --- | --- | --- |
 | `pyingestkit` | stable candidate | ergonomic top-level API |
 | `pyingestkit.artifacts` | stable candidate | artifact-store extension contract, local + S3-compatible |
-| `pyingestkit.config` | stable candidate surface | exact config stability finalized in b1 |
+| `pyingestkit.config` | stable candidate | B1 freezes precedence, env names and fail-closed selection |
 | `pyingestkit.contracts` | stable candidate | dataset/field contracts |
-| `pyingestkit.core` | mixed | execution types stable candidate; events/registry remain experimental |
+| `pyingestkit.core` | mixed | execution types + `JobRegistry` stable candidate; events/hooks remain experimental |
 | `pyingestkit.declarative` | stable candidate | decorators and compiled definitions |
 | `pyingestkit.diff` | stable candidate | deterministic dataset diff contract |
+| `pyingestkit.errors` | stable candidate | canonical V1 exception namespace; historical identities preserved |
+| `pyingestkit.deprecations` | stable candidate | canonical visible deprecation helper/category |
 | `pyingestkit.parsers` | stable candidate | parser contract and built-in adapters |
 | `pyingestkit.profiling` | stable candidate | descriptive profiling |
 | `pyingestkit.publication` | stable candidate | atomic publication abstraction |
@@ -117,10 +120,10 @@ The following namespaces are inventoried and contract-snapshotted in A1:
 | `pyingestkit.targets` | stable candidate | target/load/error surface |
 | `pyingestkit.validation` | stable candidate | rules/results/reports |
 | `pyingestkit.versioning` | stable candidate | fingerprint/version/snapshot/publication-store types |
-| `pyingestkit.logging` | experimental | observability contract finalized in b1 |
-| `pyingestkit.metadata` | experimental/mixed | stores/capabilities are candidates; records wait for a2 schema review |
-| `pyingestkit.plugins` | experimental | extension contract finalized in b1 |
-| `pyingestkit.provenance` | experimental | `RunManifest` is a persistent-format concern for a2 |
+| `pyingestkit.logging` | stable candidate | B1 observability/logging helper contract |
+| `pyingestkit.metadata` | mixed | A2 governs logical records/stores; physical SQL layout remains internal |
+| `pyingestkit.plugins` | stable candidate | B1 deterministic discovery + isolation contract |
+| `pyingestkit.provenance` | mixed | A2 governs `RunManifest` schema v1; low-level helpers remain reviewed separately |
 | `pyingestkit.cli` | experimental Python API | console entry point is public; Typer `app` object is not yet a 1.x promise |
 
 For all namespaces above, the exact current `__all__` set is captured in the JSON snapshot and
@@ -128,20 +131,18 @@ checked by `tests/contract/test_public_api_v1.py`.
 
 ## 6. Exceptions
 
-The controlled framework hierarchy currently lives in `pyingestkit.core.exceptions` and includes
-`IngestionError` plus configuration, discovery, fetch, parse, normalization, validation,
-publication, storage, plugin, hook, diff, snapshot, version-store and replay errors.
+B1 establishes `pyingestkit.errors` as the canonical V1 exception namespace. It aggregates the
+controlled core, HTTP and target error families while preserving historical class identity. Existing
+imports from `pyingestkit.core.exceptions`, `pyingestkit.sources.http` and `pyingestkit.targets` remain
+compatible aliases, so existing `except` clauses do not need to change.
 
-These exception identities are classified `PUBLIC_STABLE_CANDIDATE` because callers already need
-stable classes to catch predictable framework failures and V0.6 contract tests already protect
-part of the hierarchy.
+`IngestionError` remains the base class for controlled ingestion failures. Raw SQLAlchemy, psycopg or
+boto3 exceptions are not the intended user contract when PyIngestKit can translate them into a
+framework-level error.
 
-The import path is not ideal. V1.0.0-b1 may add a shorter canonical `pyingestkit.errors` namespace,
-but it must preserve existing exception identity or a documented compatibility alias rather than
-silently breaking callers.
-
-Provider exceptions such as raw SQLAlchemy, psycopg or boto3 errors are not the intended user
-contract when PyIngestKit can translate them into a framework-level error.
+Public deprecations use `pyingestkit.deprecations.PyIngestKitDeprecationWarning`, a `FutureWarning`
+subclass visible under normal Python warning filters. Stable 1.x APIs are retained until a later
+breaking major release.
 
 ## 7. Callable/signature audit
 
@@ -227,9 +228,10 @@ versions
 
 Root options include `--help`/`-h` and `--version`/`-V`.
 
-The command names are snapshotted in A1. Exact option names, exit-code semantics, Rich human output
-and machine-readable JSON payload stability are inventoried now but finalized in V1.0.0-b1, as
-required by the V1 roadmap.
+A1 snapshotted command names. B1 additionally freezes positional argument names, option aliases and
+exit-code classes through `stability_v1.json`. Successful `--json` payload semantics are stable;
+errors use stderr plus the canonical `Error:` prefix. Rich styling/wrapping remains presentation, not
+a byte-for-byte contract.
 
 ## 11. Configuration inventory
 
@@ -247,11 +249,12 @@ pyingest.yml / pyingestkit.yml / .pyingest.yml
 in-memory defaults
 ```
 
-A1 inventories these environment-facing names:
+The V1 environment-facing names are:
 
 ```text
 PYINGEST_CONFIG
 PYINGEST_ENV
+PYINGEST_WORKSPACE
 PYINGEST_DATABASE_URL
 PYINGEST_TARGET_DATABASE_URL
 PYINGEST_S3_ENDPOINT_URL
@@ -267,8 +270,9 @@ targets
 logging
 ```
 
-Configuration is user-facing, but its final 1.x compatibility/deprecation rules are completed in
-V1.0.0-b1.
+B1 finalizes configuration selection as fail closed for explicit environment/profile selectors,
+adds the implemented `PYINGEST_WORKSPACE` override, and freezes cwd-scoped dotenv behavior. Files
+ending in `.example` are templates only and are never auto-loaded.
 
 ## 12. Plugin inventory
 
@@ -278,9 +282,10 @@ The stable-candidate entry-point group is:
 pyingestkit.jobs
 ```
 
-The current reference package proves external discovery using installable entry points. Job entry
-points resolve to framework `Job`/`JobDefinition` compatible objects. Discovery diagnostics and
-helper functions remain `PUBLIC_EXPERIMENTAL` until V1.0.0-b1 freezes the external plugin contract.
+The reference package proves external discovery using installable entry points. B1 freezes accepted
+`Job`/`JobDefinition` values plus subclasses/factories, deterministic ordering, duplicate-job-ID
+isolation, strict library discovery and tolerant CLI registry loading. The discovery helpers are now
+`PUBLIC_STABLE_CANDIDATE`.
 
 ## 13. Optional extras
 
@@ -331,18 +336,18 @@ compatibility decision, not an incidental CI edit.
 
 ## 16. Accidental/ambiguous surface findings
 
-The audit identified several intentionally importable surfaces that should not be silently treated
-as already-frozen 1.x contracts:
+The audit identified intentionally importable surfaces that should not be silently treated as
+already-frozen 1.x contracts:
 
-- `pyingestkit.cli.app`: useful for tests/integration, but console behavior is the product contract;
-- metadata record classes: persistence-schema review belongs to a2;
-- logging helpers: observability contract belongs to b1;
-- plugin discovery helpers/diagnostics: plugin contract belongs to b1;
-- provenance/`RunManifest`: persistent schema belongs to a2;
-- `replay.materialize_replayed_raw`: low-level helper, not required for ordinary job authoring;
-- core events/registry helpers: public today, but extension semantics need b1 review.
+- `pyingestkit.cli.app`: Python import remains experimental; the console contract is stable;
+- metadata physical SQL layout remains internal although A2 governs logical records/stores;
+- provenance low-level helpers remain separate from the A2 `RunManifest` schema promise;
+- `replay.materialize_replayed_raw` remains a low-level experimental helper;
+- core `Event`/`EventBus`/`EventType`/`HookPolicy` remain experimental;
+- `JobRegistry` is promoted because stable B1 plugin helpers return/use it.
 
-They are documented as `PUBLIC_EXPERIMENTAL`, not removed behind users' backs.
+B1 promotes logging and plugin discovery helpers to stable candidates; remaining experimental items
+are explicitly excluded from the 1.x compatibility promise until separately promoted.
 
 ## 17. Internal rule
 
@@ -376,12 +381,11 @@ classification change rather than accidentally changing the API.
 
 ## 19. Deferred to later V1 milestones
 
-A1 intentionally does **not** solve:
+The A1 deferrals for persistent compatibility and operational surfaces are now resolved by A2 and
+B1 respectively. Remaining V1 work is:
 
-- persistent schema compatibility/migrations — V1.0.0-a2;
-- final backward-compatibility and deprecation mechanics — V1.0.0-a2;
-- plugin/config/error/CLI/observability stability — V1.0.0-b1;
 - real pilot qualification and documentation completion — V1.0.0-b2;
-- final release/upgrade/security E2E — V1.0.0-rc1.
+- final release/upgrade/security E2E and release-candidate packaging — V1.0.0-rc1;
+- stable version bump, final qualification and immutable `v1.0.0` release tag.
 
-No new ingestion provider or major product capability is introduced by A1.
+No new ingestion provider or orchestration platform is introduced by these governance milestones.
