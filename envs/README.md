@@ -1,31 +1,36 @@
 # PyIngestKit Environment Profiles (`envs/`)
 
-Ce dossier regroupe les profils d'environnement pour PyIngestKit.
+Ce dossier regroupe les modèles de profils d'environnement pour PyIngestKit.
 
 ## Profils disponibles
 
-| Profil | Fichier | Description | Services requis |
+| Profil | Modèle | Description | Services requis |
 |---|---|---|---|
-| **Dev** | `.env.dev.example` / `.env.dev` | Local-First (fichiers locaux + SQLite) | **Aucun** |
-| **Staging** | `.env.stg.example` | Docker Compose (PostgreSQL 16 + MinIO) | `docker compose -f docker-compose.staging.yml up -d` |
-| **Production** | `.env.prod.example` | Production managée (PostgreSQL distant + AWS S3 / Cloudflare R2) | Base PostgreSQL + Bucket S3 / R2 |
+| **Dev** | `.env.dev.example` | Local-First (fichiers locaux + SQLite) | **Aucun** |
+| **Staging** | `.env.stg.example` | Docker Compose (PostgreSQL 16 + MinIO) | PostgreSQL + MinIO |
+| **Production** | `.env.prod.example` | PostgreSQL distant + AWS S3 / Cloudflare R2 | PostgreSQL + S3/R2 |
 
-## Activation rapide
-
-Pour activer un environnement à la racine du projet :
+Les fichiers `*.example` sont des **templates de documentation uniquement**. Depuis le contrat V1
+B1, le runtime ne les charge jamais automatiquement. Copiez le modèle vers un vrai fichier dotenv
+avant utilisation.
 
 ```bash
-# Activer le profil Développement :
-cp envs/.env.dev .env
-
-# Activer le profil Staging :
-cp envs/.env.stg.example .env
-
-# Activer le profil Production :
-cp envs/.env.prod.example .env
+cp envs/.env.dev.example envs/.env.dev
+PYINGEST_ENV=dev pyingest config
 ```
 
-Alternativement, vous pouvez utiliser la variable `PYINGEST_ENV` :
-```bash
-PYINGEST_ENV=dev pyingest runs
+Avec `PYINGEST_ENV=dev`, le CLI cherche, dans le répertoire courant :
+
+```text
+envs/.env.dev
+.env.dev
 ```
+
+puis charge `.env`. La priorité est :
+
+```text
+variables déjà présentes dans l'OS > dotenv du profil > .env racine
+```
+
+`PYINGEST_ENV` sélectionne également `pyingest.yml.<env>`. Si ce fichier YAML n'existe pas, le CLI
+échoue explicitement au lieu de retomber silencieusement sur un autre profil.
