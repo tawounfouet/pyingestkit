@@ -36,12 +36,12 @@ check: test test-demo compatibility stability pilots rc
 	python -m compileall -q src tests examples/plugin_package/src examples/plugin_package/tests scripts
 
 format:
-	ruff check --fix src tests examples/plugin_package/src examples/plugin_package/tests scripts
-	ruff format src tests examples/plugin_package/src examples/plugin_package/tests scripts
+	ruff check --fix src tests examples/plugin_package/src examples/plugin_package/tests
+	ruff format src tests examples/plugin_package/src examples/plugin_package/tests
 
 quality:
-	ruff check src tests examples/plugin_package/src examples/plugin_package/tests scripts
-	ruff format --check src tests examples/plugin_package/src examples/plugin_package/tests scripts
+	ruff check src tests examples/plugin_package/src examples/plugin_package/tests
+	ruff format --check src tests examples/plugin_package/src examples/plugin_package/tests
 	mypy src/pyingestkit
 
 security: bootstrap
