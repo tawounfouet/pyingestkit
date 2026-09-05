@@ -64,3 +64,13 @@ Dataset snapshot format at `snapshot_version = "1"`. Portable diff reports are f
 - [ADR-045 — Target-load metadata is an additive run-linked capability](ADR-045-target-load-metadata-additive-capability.md)
 - [ADR-046 — PostgreSQL content load modes share one atomic transaction boundary](ADR-046-postgres-load-mode-transaction-semantics.md)
 - [ADR-047 — Target-load idempotency is history-driven and remains outside Target](ADR-047-target-load-idempotency-history-driven.md)
+
+## V0.6 Object Storage
+
+- [ADR-048 — Artifact URI and local materialization are separate identities](ADR-048-artifact-uri-and-local-materialization.md)
+- [ADR-049 — ArtifactStore URI support is additive](ADR-049-artifact-store-uri-contract-is-additive.md)
+- [ADR-050 — S3ArtifactStore owns remote RAW and local cache](ADR-050-s3-artifact-store-owns-remote-raw-and-local-cache.md)
+- [ADR-051 — S3 RAW is immutable and integrity-checked](ADR-051-s3-raw-immutability-and-integrity.md)
+- [ADR-052 — StoredArtifact is an additive durable run-artifact reference](ADR-052-stored-artifact-additive-run-artifact-contract.md)
+- [ADR-053 — S3 JSON run artifacts follow run-scoped lifecycle semantics](ADR-053-s3-json-run-artifact-lifecycle.md)
+- [ADR-054 — S3 DatasetVersion storage is immutable; publication is one mutable pointer](ADR-054-s3-dataset-version-publication.md)

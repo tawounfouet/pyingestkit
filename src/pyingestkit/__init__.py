@@ -40,6 +40,7 @@ from .versioning import (
     DatasetVersionStore,
     FilesystemDatasetVersionStore,
     PublishedDataset,
+    S3DatasetVersionStore,
     SnapshotCodec,
 )
 
@@ -83,6 +84,7 @@ __all__ = [
     "RunStatus",
     "Runner",
     "S3ArtifactStore",
+    "S3DatasetVersionStore",
     "StoredArtifact",
     "SchemaDiff",
     "SnapshotCodec",

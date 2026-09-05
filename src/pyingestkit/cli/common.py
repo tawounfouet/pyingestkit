@@ -7,7 +7,7 @@ from typing import Any, NoReturn
 import typer
 import yaml
 
-from pyingestkit.artifacts import ArtifactStore, create_artifact_store
+from pyingestkit.artifacts import ArtifactStore, S3ArtifactStore, create_artifact_store
 from pyingestkit.config import PyIngestKitConfig, load_config
 from pyingestkit.core.exceptions import ConfigurationError
 from pyingestkit.core.job import Job
@@ -17,6 +17,11 @@ from pyingestkit.plugins.discovery import (
     PluginFailure,
     load_registry,
     load_registry_with_diagnostics,
+)
+from pyingestkit.versioning import (
+    DatasetVersionStore,
+    FilesystemDatasetVersionStore,
+    S3DatasetVersionStore,
 )
 
 from .console import error_console
@@ -65,6 +70,18 @@ def metadata_store_or_exit(
         return create_metadata_store(project_config.metadata, workspace=workspace)
     except ConfigurationError as exc:
         fail(str(exc), code=2)
+
+
+def dataset_version_store_or_exit(
+    project_config: PyIngestKitConfig,
+    *,
+    workspace: Path,
+) -> DatasetVersionStore:
+    artifact_store = artifact_store_or_exit(project_config, workspace=workspace)
+    if isinstance(artifact_store, S3ArtifactStore):
+        return S3DatasetVersionStore(artifact_store)
+    root = getattr(artifact_store, "root", workspace)
+    return FilesystemDatasetVersionStore(root)
 
 
 def parse_params_json(value: str) -> dict[str, Any]:

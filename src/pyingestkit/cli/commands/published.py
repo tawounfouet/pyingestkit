@@ -6,16 +6,22 @@ from typing import Annotated
 
 import typer
 
+from pyingestkit.cli.common import dataset_version_store_or_exit, project_config_or_exit
 from pyingestkit.cli.console import console
-from pyingestkit.versioning import FilesystemDatasetVersionStore
 
 
 def published_command(
     dataset_id: Annotated[str, typer.Argument(help="Logical dataset identifier")],
-    workspace: Annotated[Path, typer.Option("--workspace", "-w")] = Path(".pyingest"),
+    config: Annotated[
+        Path | None, typer.Option("--config", "-c", exists=True, dir_okay=False)
+    ] = None,
+    workspace: Annotated[Path | None, typer.Option("--workspace", "-w")] = None,
     as_json: Annotated[bool, typer.Option("--json")] = False,
 ) -> None:
-    published = FilesystemDatasetVersionStore(workspace).get_published(dataset_id)
+    project_config = project_config_or_exit(config)
+    effective_workspace = workspace or project_config.runtime.workspace
+    store = dataset_version_store_or_exit(project_config, workspace=effective_workspace)
+    published = store.get_published(dataset_id)
     if published is None:
         raise typer.Exit(code=1)
     payload = {
