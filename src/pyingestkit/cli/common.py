@@ -12,6 +12,7 @@ from pyingestkit.config import PyIngestKitConfig, load_config
 from pyingestkit.core.exceptions import ConfigurationError
 from pyingestkit.core.job import Job
 from pyingestkit.core.registry import JobRegistry
+from pyingestkit.logging import redact_text
 from pyingestkit.metadata import MetadataStore, create_metadata_store
 from pyingestkit.plugins.discovery import (
     PluginFailure,
@@ -142,5 +143,7 @@ def parse_param_assignments(values: list[str] | None) -> dict[str, Any]:
 
 
 def fail(message: str, *, code: int = 1) -> NoReturn:
-    error_console.print(f"[bold red]Error:[/bold red] {message}")
+    """Emit the canonical CLI error prefix on stderr and terminate with ``code``."""
+
+    error_console.print(f"[bold red]Error:[/bold red] {redact_text(message)}")
     raise typer.Exit(code=code)
