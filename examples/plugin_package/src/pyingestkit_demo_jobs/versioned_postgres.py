@@ -3,6 +3,9 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
+from sqlalchemy import BigInteger, Column, MetaData, Table, Text, create_engine
+from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION
+
 from pyingestkit import (
     Dataset,
     DatasetContract,
@@ -126,23 +129,31 @@ def _target_parameters(context: RunContext) -> tuple[str, str, str | None, str]:
     return target_id, table, schema, dsn_env
 
 
-def _ensure_demo_target_table(dsn: str, table: str, schema: str | None) -> None:
-    from sqlalchemy import create_engine
+def _normalize_demo_postgres_dsn(dsn: str) -> str:
     if dsn.startswith("postgres://"):
-        dsn = "postgresql+psycopg://" + dsn.removeprefix("postgres://")
-    elif dsn.startswith("postgresql://"):
-        dsn = "postgresql+psycopg://" + dsn.removeprefix("postgresql://")
+        return "postgresql+psycopg://" + dsn.removeprefix("postgres://")
+    if dsn.startswith("postgresql://"):
+        return "postgresql+psycopg://" + dsn.removeprefix("postgresql://")
+    return dsn
 
-    engine = create_engine(dsn)
-    with engine.begin() as conn:
-        qualified = f'"{schema}"."{table}"' if schema else f'"{table}"'
-        conn.exec_driver_sql(
-            f"CREATE TABLE IF NOT EXISTS {qualified} ("
-            "id BIGINT PRIMARY KEY, "
-            "name TEXT NOT NULL, "
-            "score DOUBLE PRECISION NOT NULL)"
-        )
-    engine.dispose()
+
+def _ensure_demo_target_table(dsn: str, table: str, schema: str | None) -> None:
+    """Create only the fixed reference table when fixture mode is enabled."""
+
+    engine = create_engine(_normalize_demo_postgres_dsn(dsn), future=True)
+    metadata = MetaData()
+    demo_table = Table(
+        table,
+        metadata,
+        Column("id", BigInteger, primary_key=True),
+        Column("name", Text, nullable=False),
+        Column("score", DOUBLE_PRECISION(), nullable=False),
+        schema=schema,
+    )
+    try:
+        metadata.create_all(engine, tables=[demo_table], checkfirst=True)
+    finally:
+        engine.dispose()
 
 
 @step(name="FetchVersionedPostgresNdjson")
@@ -271,7 +282,7 @@ def version_load_publish_postgres(
 
 @job(
     id=DATASET_ID,
-    version="0.5.0",
+    version="0.5.1",
     description=(
         "V0.5 stable V1 -> V2 -> diff -> DatasetVersion -> PostgreSQL -> publish -> "
         "strict RAW replay -> idempotent SKIP reference slice."

@@ -81,7 +81,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: pyingestkit-v0.5.0-wheel-smoke-diagnostics
+          name: pyingestkit-v0.5.1-wheel-smoke-diagnostics
           path: wheel-smoke.log
           if-no-files-found: ignore
       - run: pyingest --version
@@ -93,10 +93,10 @@ jobs:
       - run: pyingest run demo.excel_quality --config examples/plugin_package/demo-quality.yml
       - run: pyingest run demo.parquet_quality --config examples/plugin_package/demo-quality.yml
       - run: pyingest runs
-      - name: Upload V0.5.0 stable artifact
+      - name: Upload V0.5.1 maintenance artifact
         uses: actions/upload-artifact@v4
         with:
-          name: pyingestkit-v0.5.0
+          name: pyingestkit-v0.5.1
           path: |
             .
             !.git/**
@@ -113,10 +113,10 @@ jobs:
             !**/__pycache__/**
           include-hidden-files: true
           if-no-files-found: error
-      - name: Upload V0.5.0 distribution artifacts
+      - name: Upload V0.5.1 distribution artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: pyingestkit-v0.5.0-dist
+          name: pyingestkit-v0.5.1-dist
           path: |
             dist/*
             examples/plugin_package/dist/*

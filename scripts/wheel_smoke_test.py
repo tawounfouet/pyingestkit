@@ -8,8 +8,8 @@ import tempfile
 import venv
 from pathlib import Path
 
-FRAMEWORK_VERSION = "0.5.0"
-DEMO_VERSION = "0.5.0"
+FRAMEWORK_VERSION = "0.5.1"
+DEMO_VERSION = "0.5.1"
 QUALITY_JOBS = ("demo.ndjson_quality", "demo.excel_quality", "demo.parquet_quality")
 VERSIONED_JOB = "demo.versioned_ndjson"
 
@@ -133,18 +133,28 @@ def main() -> int:
 
         first = json_command(
             [
-                str(pyingest), "run", VERSIONED_JOB,
-                "--config", "examples/plugin_package/demo-versioned.yml",
-                "--param", "revision=1", "--json",
+                str(pyingest),
+                "run",
+                VERSIONED_JOB,
+                "--config",
+                "examples/plugin_package/demo-versioned.yml",
+                "--param",
+                "revision=1",
+                "--json",
             ],
             cwd=root,
             env=env,
         )
         second = json_command(
             [
-                str(pyingest), "run", VERSIONED_JOB,
-                "--config", "examples/plugin_package/demo-versioned.yml",
-                "--param", "revision=2", "--json",
+                str(pyingest),
+                "run",
+                VERSIONED_JOB,
+                "--config",
+                "examples/plugin_package/demo-versioned.yml",
+                "--param",
+                "revision=2",
+                "--json",
             ],
             cwd=root,
             env=env,
@@ -155,7 +165,15 @@ def main() -> int:
             raise SystemExit("Versioned stable reference runs did not succeed")
 
         second_run_id = str(second["run_id"])
-        diff_path = workspace / "runs" / "demo" / "versioned_ndjson" / second_run_id / "reports" / "diff.json"
+        diff_path = (
+            workspace
+            / "runs"
+            / "demo"
+            / "versioned_ndjson"
+            / second_run_id
+            / "reports"
+            / "diff.json"
+        )
         diff = json.loads(diff_path.read_text(encoding="utf-8"))
         expected_summary = {"added": 1, "removed": 1, "changed": 1, "unchanged": 1}
         if diff.get("summary") != expected_summary:
@@ -180,8 +198,12 @@ def main() -> int:
 
         replay = json_command(
             [
-                str(pyingest), "replay", second_run_id,
-                "--config", "examples/plugin_package/demo-versioned.yml", "--json",
+                str(pyingest),
+                "replay",
+                second_run_id,
+                "--config",
+                "examples/plugin_package/demo-versioned.yml",
+                "--json",
             ],
             cwd=root,
             env=env,
@@ -197,8 +219,12 @@ def main() -> int:
             raise SystemExit("Replay actual fingerprint differs from published revision 2")
 
         replay_manifest = (
-            workspace / "runs" / "demo" / "versioned_ndjson" /
-            str(replay["run_id"]) / "manifest.json"
+            workspace
+            / "runs"
+            / "demo"
+            / "versioned_ndjson"
+            / str(replay["run_id"])
+            / "manifest.json"
         )
         replay_payload = json.loads(replay_manifest.read_text(encoding="utf-8"))
         replay_lineage = replay_payload.get("replay") or {}
@@ -223,8 +249,8 @@ def main() -> int:
 
     shutil.rmtree(workspace, ignore_errors=True)
     print(
-        "OK: V0.5.0 stable wheels expose eight reference jobs and preserve PostgreSQL persistence contracts while proving "
-        "V1 -> V2 -> diff -> publish -> strict RAW replay"
+        "OK: V0.5.1 wheels expose eight reference jobs and preserve PostgreSQL persistence "
+        "contracts while proving V1 -> V2 -> diff -> publish -> strict RAW replay"
     )
     return 0
 

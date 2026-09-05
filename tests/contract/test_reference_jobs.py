@@ -77,7 +77,7 @@ class ReferenceJobContractTests(unittest.TestCase):
                 [1, 3, 3, 4, 4, 4, 5, 5],
             )
             self.assertTrue(all(job.version == "0.4.0" for job in jobs[:-1]))
-            self.assertEqual(jobs[-1].version, "0.5.0")
+            self.assertEqual(jobs[-1].version, "0.5.1")
         finally:
             sys.path.remove(src)
 
@@ -87,6 +87,7 @@ class ReferenceJobContractTests(unittest.TestCase):
             (DEMO_PACKAGE / "demo-quality.yml").read_text(encoding="utf-8"),
             (DEMO_PACKAGE / "demo-versioned.yml").read_text(encoding="utf-8"),
             (DEMO_PACKAGE / "demo-versioned-postgres.yml").read_text(encoding="utf-8"),
+            (DEMO_PACKAGE / "demo-all-postgres.yml").read_text(encoding="utf-8"),
         )
         for config in configs:
             self.assertIn("fixture_mode: true", config)

@@ -67,6 +67,6 @@ expected = {
 actual = set(pyingestkit.__all__)
 if actual != expected:
     raise SystemExit(f"Unexpected public API. expected={sorted(expected)} actual={sorted(actual)}")
-if pyingestkit.__version__ != "0.5.0":
+if pyingestkit.__version__ != "0.5.1":
     raise SystemExit(f"Unexpected version: {pyingestkit.__version__}")
-print("OK: public API matches V0.5.0 stable PostgreSQL persistence contract")
+print("OK: public API matches V0.5.1 PostgreSQL persistence maintenance contract")

@@ -12,7 +12,7 @@ from pyingestkit_demo_jobs.versioned_postgres import (
     REVISION_2,
     job_definition,
 )
-from sqlalchemy import create_engine
+from sqlalchemy import MetaData, Table, create_engine, select
 
 from pyingestkit.artifacts import LocalArtifactStore
 from pyingestkit.core.registry import JobRegistry
@@ -39,20 +39,22 @@ class VersionedPostgresE2ETests(unittest.TestCase):
     def tearDown(self) -> None:
         self.engine.dispose()
 
-    def _prepare_target(self, table: str) -> None:
+    def _drop_target(self, table: str) -> None:
         with self.engine.begin() as connection:
-            connection.exec_driver_sql(f'DROP TABLE IF EXISTS "{table}"')
-            connection.exec_driver_sql(
-                f'CREATE TABLE "{table}" ('
-                "id BIGINT PRIMARY KEY, "
-                "name TEXT NOT NULL, "
-                "score DOUBLE PRECISION NOT NULL)"
-            )
+            Table(table, MetaData(), schema="public").drop(connection, checkfirst=True)
 
     def _rows(self, table: str) -> list[tuple[int, str, float]]:
         with self.engine.connect() as connection:
-            rows = connection.exec_driver_sql(
-                f'SELECT id, name, score FROM "{table}" ORDER BY id'
+            destination = Table(
+                table,
+                MetaData(),
+                schema="public",
+                autoload_with=connection,
+            )
+            rows = connection.execute(
+                select(destination.c.id, destination.c.name, destination.c.score).order_by(
+                    destination.c.id
+                )
             ).all()
         return [(int(row[0]), str(row[1]), float(row[2])) for row in rows]
 
@@ -60,7 +62,7 @@ class VersionedPostgresE2ETests(unittest.TestCase):
         suffix = uuid4().hex[:10]
         table = f"pyingestkit_rc1_{metadata_backend}_{suffix}"
         target_id = f"postgres.rc1.{metadata_backend}.{suffix}"
-        self._prepare_target(table)
+        self._drop_target(table)
 
         with tempfile.TemporaryDirectory() as tmp:
             workspace = Path(tmp) / ".pyingest"

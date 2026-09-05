@@ -2,6 +2,18 @@
 
 All notable changes to PyIngestKit are documented here.
 
+## [0.5.1] - 2026-09-05
+
+### PostgreSQL Persistence Release Hygiene
+
+- preserved the immutable `v0.5.0` release and moved post-release hygiene into the `0.5.1` maintenance line;
+- kept `python-dotenv` as the local CLI DX path while loading only `./.env` from the current working directory and never overriding already-injected OS environment variables;
+- hardened the `demo.versioned_postgres` fixture-only target table bootstrap by using SQLAlchemy schema objects instead of interpolated SQL identifiers;
+- extended PostgreSQL E2E coverage so `demo.versioned_postgres` proves automatic target-table creation from an absent table for both SQLite and PostgreSQL metadata backends;
+- added CLI contract tests for `.env` precedence and for refusing implicit parent-directory `.env` discovery;
+- corrected Ruff formatting for the V0.5 PostgreSQL reference-job enhancement so the full release quality gate can pass again;
+- retained all V0.5 Target, MetadataStore, COPY, load-mode, idempotency, versioning and replay public contracts unchanged.
+
 ## [0.5.0] - 2026-09-05
 
 ### PostgreSQL Persistence Targets Release
