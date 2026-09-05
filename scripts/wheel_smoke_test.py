@@ -215,7 +215,7 @@ def main() -> int:
                 f"found {len(reports)}"
             )
         for report_path in reports:
-            payload = json.loads(diff_path.read_text(encoding="utf-8"))
+            payload = json.loads(report_path.read_text(encoding="utf-8"))
             row_count = payload["profile"]["row_count"]
             if row_count not in (2, 3):
                 raise SystemExit(f"Unexpected profile report: {report_path}")
