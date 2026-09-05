@@ -106,6 +106,37 @@ class PostgresTargetConfig(BaseModel):
         return value
 
 
+class ArtifactBackend(StrEnum):
+    LOCAL = "local"
+    S3 = "s3"
+
+
+class S3ArtifactConfig(BaseModel):
+    """Remote RAW configuration. Credentials come from the AWS SDK provider chain."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    bucket: str | None = None
+    prefix: str = "pyingest"
+    region_name: str | None = None
+    endpoint_url_env: str | None = "PYINGEST_S3_ENDPOINT_URL"
+    cache_path: Path | None = None
+
+    @field_validator("bucket")
+    @classmethod
+    def validate_bucket(cls, value: str | None) -> str | None:
+        if value is not None and not value.strip():
+            raise ValueError("bucket must not be empty")
+        return value
+
+
+class ArtifactConfig(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    backend: ArtifactBackend = ArtifactBackend.LOCAL
+    s3: S3ArtifactConfig = Field(default_factory=S3ArtifactConfig)
+
+
 class RuntimeConfig(BaseModel):
     """Validated runtime defaults loaded from project configuration."""
 
@@ -122,6 +153,7 @@ class PyIngestKitConfig(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     runtime: RuntimeConfig = Field(default_factory=RuntimeConfig)
+    artifacts: ArtifactConfig = Field(default_factory=ArtifactConfig)
     metadata: MetadataConfig = Field(default_factory=MetadataConfig)
     targets: dict[str, PostgresTargetConfig] = Field(default_factory=dict)
     logging: LoggingConfig = Field(default_factory=LoggingConfig)

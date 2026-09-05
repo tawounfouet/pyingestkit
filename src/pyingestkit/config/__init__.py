@@ -1,5 +1,7 @@
 from .loader import load_config
 from .models import (
+    ArtifactBackend,
+    ArtifactConfig,
     FileLoggingConfig,
     LoggingConfig,
     LogOutputFormat,
@@ -9,10 +11,13 @@ from .models import (
     PostgresTargetConfig,
     PyIngestKitConfig,
     RuntimeConfig,
+    S3ArtifactConfig,
     SQLiteMetadataConfig,
 )
 
 __all__ = [
+    "ArtifactBackend",
+    "ArtifactConfig",
     "FileLoggingConfig",
     "LoggingConfig",
     "LogOutputFormat",
@@ -22,6 +27,7 @@ __all__ = [
     "PostgresTargetConfig",
     "PyIngestKitConfig",
     "RuntimeConfig",
+    "S3ArtifactConfig",
     "SQLiteMetadataConfig",
     "load_config",
 ]

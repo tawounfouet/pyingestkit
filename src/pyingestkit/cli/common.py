@@ -7,6 +7,7 @@ from typing import Any, NoReturn
 import typer
 import yaml
 
+from pyingestkit.artifacts import ArtifactStore, create_artifact_store
 from pyingestkit.config import PyIngestKitConfig, load_config
 from pyingestkit.core.exceptions import ConfigurationError
 from pyingestkit.core.job import Job
@@ -40,6 +41,17 @@ def get_job_or_exit(registry: JobRegistry, job_id: str) -> Job:
 def project_config_or_exit(config: Path | None) -> PyIngestKitConfig:
     try:
         return load_config(config) if config is not None else PyIngestKitConfig()
+    except ConfigurationError as exc:
+        fail(str(exc), code=2)
+
+
+def artifact_store_or_exit(
+    project_config: PyIngestKitConfig,
+    *,
+    workspace: Path,
+) -> ArtifactStore:
+    try:
+        return create_artifact_store(project_config.artifacts, workspace=workspace)
     except ConfigurationError as exc:
         fail(str(exc), code=2)
 

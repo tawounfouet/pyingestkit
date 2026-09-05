@@ -55,6 +55,39 @@ jobs:
           tests/integration/test_postgres_load_modes_idempotency.py
           tests/integration/test_versioned_postgres_e2e.py
 
+  s3-e2e:
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: minioadmin
+      AWS_SECRET_ACCESS_KEY: minioadmin
+      AWS_DEFAULT_REGION: us-east-1
+      PYINGEST_TEST_S3_ENDPOINT_URL: http://127.0.0.1:9000
+      PYINGEST_TEST_S3_BUCKET: pyingestkit
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Start MinIO S3-compatible service
+        run: |
+          docker run -d --name pyingestkit-minio \
+            -p 9000:9000 \
+            -e MINIO_ROOT_USER=minioadmin \
+            -e MINIO_ROOT_PASSWORD=minioadmin \
+            quay.io/minio/minio:latest server /data
+          for attempt in {1..30}; do
+            if curl -fsS http://127.0.0.1:9000/minio/health/live >/dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          docker logs pyingestkit-minio
+          exit 1
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e ".[dev,s3]"
+      - run: python -m pip install -e examples/plugin_package
+      - run: python -m pytest -q tests/integration/test_s3_remote_raw.py
+
   foundation-verify:
     runs-on: ubuntu-latest
     steps:
@@ -81,7 +114,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: pyingestkit-v0.6.0-a1-wheel-smoke-diagnostics
+          name: pyingestkit-v0.6.0-a2-wheel-smoke-diagnostics
           path: wheel-smoke.log
           if-no-files-found: ignore
       - run: pyingest --version
@@ -93,10 +126,10 @@ jobs:
       - run: pyingest run demo.excel_quality --config examples/plugin_package/demo-quality.yml
       - run: pyingest run demo.parquet_quality --config examples/plugin_package/demo-quality.yml
       - run: pyingest runs
-      - name: Upload V0.6.0-a1 artifact
+      - name: Upload V0.6.0-a2 artifact
         uses: actions/upload-artifact@v4
         with:
-          name: pyingestkit-v0.6.0-a1-artifactstore-uri
+          name: pyingestkit-v0.6.0-a2-s3-remote-raw
           path: |
             .
             !.git/**
@@ -113,10 +146,10 @@ jobs:
             !**/__pycache__/**
           include-hidden-files: true
           if-no-files-found: error
-      - name: Upload V0.6.0-a1 distribution artifacts
+      - name: Upload V0.6.0-a2 distribution artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: pyingestkit-v0.6.0-a1-dist
+          name: pyingestkit-v0.6.0-a2-dist
           path: |
             dist/*
             examples/plugin_package/dist/*

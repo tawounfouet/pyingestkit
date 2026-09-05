@@ -97,6 +97,7 @@ def status_command(
                     "artifact_id": row.artifact_id,
                     "kind": row.kind,
                     "path": row.path,
+                    "storage_uri": row.storage_uri,
                     "source_uri": row.source_uri,
                     "resolved_url": row.resolved_url,
                     "status_code": row.status_code,

@@ -1,0 +1,17 @@
+runtime:
+  workspace: .pyingest
+
+artifacts:
+  backend: s3
+  s3:
+    bucket: my-pyingest-raw
+    prefix: pyingest
+    region_name: eu-west-3
+    endpoint_url_env: PYINGEST_S3_ENDPOINT_URL
+
+metadata:
+  backend: sqlite
+
+logging:
+  level: INFO
+  format: rich
