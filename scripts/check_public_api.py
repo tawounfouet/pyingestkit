@@ -7,6 +7,7 @@ sys.path.insert(0, str(root / "src"))
 import pyingestkit
 
 expected = {
+    "ArtifactURI",
     "CsvParser",
     "Dataset",
     "DatasetFingerprintPolicy",
@@ -67,6 +68,6 @@ expected = {
 actual = set(pyingestkit.__all__)
 if actual != expected:
     raise SystemExit(f"Unexpected public API. expected={sorted(expected)} actual={sorted(actual)}")
-if pyingestkit.__version__ != "0.5.1":
+if pyingestkit.__version__ != "0.6.0a1":
     raise SystemExit(f"Unexpected version: {pyingestkit.__version__}")
-print("OK: public API matches V0.5.1 PostgreSQL persistence maintenance contract")
+print("OK: public API matches V0.6.0-a1 ArtifactStore URI contract")

@@ -5,10 +5,24 @@ from pathlib import Path
 
 from pyingestkit.artifacts.raw import RawArtifact
 from pyingestkit.core.context import RunContext
-from pyingestkit.core.exceptions import ReplayIntegrityError
+from pyingestkit.core.exceptions import ReplayIntegrityError, StorageError
 from pyingestkit.provenance.hashing import sha256_bytes
 
 from .models import ReplayRawArtifact
+
+
+def _historical_raw_bytes(context: RunContext, origin: ReplayRawArtifact) -> bytes:
+    if origin.origin_storage_uri is not None:
+        try:
+            return context.artifact_store.read_bytes(origin.origin_storage_uri)
+        except (StorageError, ValueError) as exc:
+            raise ReplayIntegrityError(
+                f"Historical RAW is not readable from {origin.origin_storage_uri}"
+            ) from exc
+    try:
+        return Path(origin.origin_path).read_bytes()
+    except OSError as exc:
+        raise ReplayIntegrityError(f"Historical RAW is not readable: {origin.origin_path}") from exc
 
 
 def materialize_replayed_raw(
@@ -17,14 +31,12 @@ def materialize_replayed_raw(
     *,
     name: str,
 ) -> RawArtifact:
-    try:
-        data = Path(origin.origin_path).read_bytes()
-    except OSError as exc:
-        raise ReplayIntegrityError(f"Historical RAW is not readable: {origin.origin_path}") from exc
+    data = _historical_raw_bytes(context, origin)
     actual = sha256_bytes(data)
     if actual != origin.sha256:
         raise ReplayIntegrityError(
-            f"Historical RAW SHA-256 mismatch for {origin.origin_artifact_id}: expected {origin.sha256}, got {actual}"
+            f"Historical RAW SHA-256 mismatch for {origin.origin_artifact_id}: "
+            f"expected {origin.sha256}, got {actual}"
         )
     artifact = context.artifact_store.write_raw(
         context.job_id,

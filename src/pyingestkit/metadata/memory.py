@@ -124,6 +124,7 @@ class MemoryMetadataStore(
                 status_code=artifact.status_code,
                 etag=artifact.etag,
                 last_modified=artifact.last_modified,
+                storage_uri=str(artifact.location_uri),
             )
         )
 

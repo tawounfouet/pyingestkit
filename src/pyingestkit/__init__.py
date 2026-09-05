@@ -3,6 +3,7 @@
 import logging as _stdlib_logging
 
 from ._version import __version__ as __version__
+from .artifacts import ArtifactURI
 from .contracts import DatasetContract, FieldContract
 from .core.context import RunContext
 from .core.job import Job
@@ -43,6 +44,7 @@ from .versioning import (
 )
 
 __all__ = [
+    "ArtifactURI",
     "CsvParser",
     "Dataset",
     "DatasetContract",
