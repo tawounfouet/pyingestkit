@@ -142,6 +142,8 @@
     "docs/guides/v1-production-pilot.md",
     "docs/guides/migrate-v0.6-to-v1.md",
     "docs/guides/package-a-job-plugin.md",
+    "docs/guides/inspect-run-history.md",
+    "docs/guides/replay.md",
     "docs/architecture/configuration.md",
     "docs/architecture/plugin-model.md",
     "docs/architecture/logging.md",
