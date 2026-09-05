@@ -77,6 +77,11 @@
 - [Replay](guides/replay.md)
 - [Configure S3-compatible storage](guides/configure-object-storage.md)
 
+### Release qualification
+
+- [V1.0.0rc1 release candidate validation](guides/release-validation-v1.0.0rc1.md)
+- [ADR-059 — RC1 packaging and V0.6 upgrade qualification](adr/ADR-059-v1-release-candidate-packaging-and-upgrade-qualification.md)
+
 ## Engineering Reviews
 
 - [V0.5.0 — PostgreSQL Persistence & CLI Enhancements](reviews/v0.5.0-postgres-persistence-enhancements-review.md)

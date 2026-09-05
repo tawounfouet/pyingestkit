@@ -12,6 +12,7 @@ sys.path.insert(0, str(ROOT / "src"))
 import pyingestkit
 
 MANIFEST_PATH = ROOT / "tests" / "contract" / "fixtures" / "public_api_v1.json"
+EXPECTED_PACKAGE_VERSION = "1.0.0rc1"
 
 
 def _manifest() -> dict[str, Any]:
@@ -33,10 +34,16 @@ def main() -> None:
             if not hasattr(module, attribute):
                 raise SystemExit(f"Missing public attribute: {module_name}.{attribute}")
 
-    if pyingestkit.__version__ != "0.6.0":
-        raise SystemExit(f"Unexpected package version during Pre-V1 governance work: {pyingestkit.__version__}")
+    if pyingestkit.__version__ != EXPECTED_PACKAGE_VERSION:
+        raise SystemExit(
+            "Unexpected package version during V1 RC qualification: "
+            f"{pyingestkit.__version__}"
+        )
 
-    print("OK: V1 public API inventory matches the governed manifest")
+    print(
+        "OK: V1 public API inventory matches the governed manifest "
+        f"for PyIngestKit {EXPECTED_PACKAGE_VERSION}"
+    )
 
 
 if __name__ == "__main__":

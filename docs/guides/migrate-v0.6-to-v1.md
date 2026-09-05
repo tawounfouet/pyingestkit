@@ -3,20 +3,21 @@
 This guide describes the compatibility work required when moving a V0.6 integration toward the V1
 stable contract candidate.
 
-> The immutable `v0.6.0` release remains the latest historical stable release while B2/RC1 are being
-> qualified. Do not infer a published `v1.0.0` package from the source-tree V1 documentation; the final
-> V1 version bump/tag happens only after RC1 and stable qualification.
+> The immutable `v0.6.0` release is the historical upgrade baseline. The source tree is now qualified
+> as the real PEP 440 candidate `1.0.0rc1`; this does **not** mean that stable `v1.0.0` has been tagged
+> or published. The final stable version/tag happens only after RC1 merge and post-merge qualification.
 
 ## 1. Migration posture
 
 V1 is designed as a consolidation of the V0.6 framework rather than a provider expansion. Existing
-V0.6 jobs should be reviewed against four governed layers:
+V0.6 jobs should be reviewed against five governed layers:
 
 ```text
-A1  public Python surface
-A2  compatibility + persisted logical contracts
-B1  plugin/config/error/CLI/observability behavior
-B2  representative pilot qualification + documentation
+A1   public Python surface
+A2   compatibility + persisted logical contracts
+B1   plugin/config/error/CLI/observability behavior
+B2   representative pilot qualification + documentation
+RC1  package/install/upgrade/release qualification
 ```
 
 The goal is to make accidental behavior explicit before 1.0.
@@ -203,9 +204,27 @@ When upgrading a real environment, preserve and test:
 
 Do not delete or rewrite historical durable state merely to match an implementation layout.
 
-## 11. Recommended migration qualification
+## 11. RC1 upgrade evidence
 
-Before RC1/stable adoption, run the same progressive ladder as the repository:
+RC1 now executes an actual package upgrade against the immutable release lineage. The repository
+release-check checks out the exact `v0.6.0` tag, installs the historical framework and demo package into
+a clean environment, creates real versioned run history, then upgrades the same environment to the
+built `1.0.0rc1` wheels.
+
+After upgrade it requires:
+
+- historical V0.6 run status remains readable;
+- both historical content-addressed DatasetVersion snapshots remain readable;
+- the historical PublishedDataset pointer still identifies V2;
+- strict replay succeeds from the historical RAW;
+- expected and actual fingerprints still match the V0.6 published fingerprint.
+
+The executable evidence is `scripts/upgrade_smoke_test.py`. See
+`docs/guides/release-validation-v1.0.0rc1.md` for the complete RC gate.
+
+## 12. Recommended migration qualification
+
+Before stable adoption, run the same progressive ladder as the repository:
 
 ```bash
 make quality
@@ -223,7 +242,7 @@ Then qualify the representative topology closest to your deployment:
 
 See `docs/reference/pilots-v1.md` for the B2 evidence matrix.
 
-## 12. Upgrade checklist
+## 13. Upgrade checklist
 
 A V0.6 consumer is ready for the V1 contract candidate when:
 
@@ -235,6 +254,7 @@ A V0.6 consumer is ready for the V1 contract candidate when:
 - automation handles the V1 CLI exit-code classes;
 - file logging uses `plain` or `json`;
 - stored historical data remains readable under the governed compatibility policy;
-- at least one representative B2 pilot matching the deployment topology has passed.
+- at least one representative B2 pilot matching the deployment topology has passed;
+- the RC1 package/install/upgrade gate passes against the exact V0.6 release baseline.
 
 Final release adoption should still wait for the immutable `v1.0.0` tag and stable release assets.

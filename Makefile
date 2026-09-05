@@ -1,4 +1,4 @@
-.PHONY: bootstrap install install-dev install-demo test test-demo compatibility stability pilots check format quality security build wheel-smoke demo verify release-check clean
+.PHONY: bootstrap install install-dev install-demo test test-demo compatibility stability pilots rc check format quality security build wheel-smoke upgrade-smoke demo verify release-check clean
 
 bootstrap:
 	python -m pip install --upgrade pip
@@ -29,8 +29,11 @@ stability:
 pilots:
 	PYTHONPATH=src python scripts/check_v1_pilots.py
 
-check: test test-demo compatibility stability pilots
-	python -m compileall -q src tests examples/plugin_package/src examples/plugin_package/tests
+rc:
+	PYTHONPATH=src python scripts/check_v1_rc.py
+
+check: test test-demo compatibility stability pilots rc
+	python -m compileall -q src tests examples/plugin_package/src examples/plugin_package/tests scripts
 
 format:
 	ruff check --fix src tests examples/plugin_package/src examples/plugin_package/tests
@@ -52,9 +55,12 @@ build:
 wheel-smoke:
 	python scripts/wheel_smoke_test.py
 
+upgrade-smoke:
+	python scripts/upgrade_smoke_test.py
+
 verify: check quality security build
 
-release-check: verify wheel-smoke
+release-check: verify wheel-smoke upgrade-smoke
 
 demo: install-demo
 	pyingest jobs
