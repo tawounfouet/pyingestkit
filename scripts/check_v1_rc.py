@@ -71,9 +71,12 @@ def main() -> None:
     if "pyingestkit-v0.6.0" in workflow or "Upload V0.6.0" in workflow:
         raise SystemExit("RC1 CI still publishes V0.6.0-named artifacts")
 
-    changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
-    if f"## [{framework_version}]" not in changelog:
-        raise SystemExit("CHANGELOG does not contain the V1 RC1 release candidate entry")
+    release_notes = ROOT / "docs" / "releases" / f"v{framework_version}.md"
+    if not release_notes.is_file():
+        raise SystemExit(f"Missing V1 RC1 release notes: {release_notes.relative_to(ROOT)}")
+    release_text = release_notes.read_text(encoding="utf-8")
+    if framework_version not in release_text or "not stable" not in release_text.lower():
+        raise SystemExit("V1 RC1 release notes do not clearly identify the candidate state")
 
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
     if "V1.0.0 RC1" not in readme or framework_version not in readme:
