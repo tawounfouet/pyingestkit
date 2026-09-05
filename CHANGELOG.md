@@ -2,6 +2,70 @@
 
 All notable changes to PyIngestKit are documented here.
 
+## [0.6.0] - 2026-09-05
+
+### Object Storage Release
+
+- promoted the fully qualified V0.6 RC1 to stable `0.6.0` without adding a new runtime capability;
+- froze the V0.6 public API, S3 configuration schema and framework-owned storage/replay error hierarchy;
+- released portable `ArtifactURI` / `StoredArtifact` references, `S3ArtifactStore`, remote RAW/reports/manifests and `S3DatasetVersionStore`;
+- released immutable content-addressed remote DatasetVersion snapshots plus the mutable remote `PublishedDataset.current` pointer;
+- qualified S3-compatible behavior against real MinIO while keeping boto3 optional behind the `s3` extra and the local filesystem backend first-class;
+- proved full cross-host replay after deleting the original workspace, with historical RAW resolved from durable S3 `storage_uri`, strict fingerprint equality and no live source acquisition;
+- preserved PostgreSQL V0.5 load semantics and proved idempotent `SKIP` survives a host/workspace change;
+- hardened stable CI by pinning the qualified MinIO image digest and generating random ephemeral MinIO credentials instead of static defaults;
+- finalized object-storage configuration/security guidance, stable contract documentation and release validation procedures;
+- retained Python 3.11/3.12/3.13, PostgreSQL 16, MinIO/S3, Ruff/Mypy, Bandit/`pip-audit`, wheel/sdist build and clean-wheel smoke gates across nine reference jobs.
+
+## [0.6.0rc1] - 2026-09-05
+
+### Release Candidate — Full Cross-Host Object Storage E2E
+
+- added `demo.versioned_s3` as the ninth installable reference job;
+- combined remote RAW, validation/profile/diff reports, remote DatasetVersion snapshots, remote publication, PostgreSQL target loading and PostgreSQL metadata in one scenario;
+- proved V1 `EXECUTE`, V2 `RELOAD`, deletion of workspace A, replay from workspace B and idempotent target `SKIP`;
+- proved the remote V2 diff remains readable after workspace A disappears and `PublishedDataset` remains V2;
+- proved strict replay reconstructs `actual_fingerprint == expected_fingerprint == V2` with the original RAW SHA-256;
+- retained the B2 public API unchanged and extended clean-wheel qualification to all nine jobs.
+
+## [0.6.0b2] - 2026-09-05
+
+### Beta 2 — Remote DatasetVersion + Publication
+
+- added `S3DatasetVersionStore` under the existing `DatasetVersionStore` contract;
+- stored immutable content-addressed snapshot/version objects and SHA-256 verified them on read;
+- represented publication as one replaceable remote `current.json` pointer while preserving immutable history;
+- made version listing/loading and `published` inspection independent from runner-local filesystem state;
+- added missing/corrupt snapshot rejection and shared filesystem/S3 behavioral contract qualification.
+
+## [0.6.0b1] - 2026-09-05
+
+### Beta 1 — Remote Artifact Lifecycle
+
+- added additive `StoredArtifact` references for non-RAW run artifacts;
+- persisted reports and manifests to deterministic S3 keys while retaining local parser/operator materialization;
+- preserved create-once RAW semantics and run-scoped rewritable report/manifest semantics;
+- added remote report/manifest integrity verification and remote `status` recovery.
+
+## [0.6.0a2] - 2026-09-05
+
+### Alpha 2 — S3ArtifactStore + Remote RAW
+
+- added optional `pyingestkit[s3]` support through boto3;
+- added `S3ArtifactStore` with AWS S3 and custom S3-compatible endpoint support;
+- made remote RAW immutable, SHA-256 annotated and integrity-verified on materialization;
+- persisted durable `storage_uri` independently from local cache paths;
+- qualified replay after deleting local cached RAW against real MinIO.
+
+## [0.6.0a1] - 2026-09-05
+
+### Alpha 1 — ArtifactStore Contract Hardening + URI
+
+- added credential-free `ArtifactURI` for `file://` and `s3://` locations;
+- separated durable artifact identity from parser-facing local materialization;
+- added URI-aware artifact resolution and replay while preserving the existing abstract `ArtifactStore` surface;
+- added artifact-location metadata and path/key traversal hardening without introducing an S3 dependency.
+
 ## [0.5.1] - 2026-09-05
 
 ### PostgreSQL Persistence Release Hygiene
