@@ -26,7 +26,8 @@ artifacts:
 metadata:
   backend: postgres
   postgres:
-    dsn_env: PYINGEST_DATABASE_URL       # Variable contenant le DSN PostgreSQL (ex: postgresql://postgres:postgres@localhost:5432/pyingest)
+    dsn_env: PYINGEST_DATABASE_URL       # Variable contenant le DSN PostgreSQL
+
 
 # Cibles de données de destination (PostgreSQL Data Warehouse / Staging)
 targets:
