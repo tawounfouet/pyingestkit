@@ -8,8 +8,8 @@ import tempfile
 import venv
 from pathlib import Path
 
-FRAMEWORK_VERSION = "0.6.0a2"
-DEMO_VERSION = "0.6.0a2"
+FRAMEWORK_VERSION = "0.6.0b1"
+DEMO_VERSION = "0.6.0b1"
 QUALITY_JOBS = ("demo.ndjson_quality", "demo.excel_quality", "demo.parquet_quality")
 VERSIONED_JOB = "demo.versioned_ndjson"
 
@@ -82,10 +82,10 @@ def main() -> int:
                 (
                     "import boto3, openpyxl, pyarrow, psycopg, pyingestkit; "
                     "from pyingestkit import ("
-                    "ArtifactURI, IdempotencyAction, IdempotencyPolicy, PostgresTarget, S3ArtifactStore, TargetLoadExecutor); "
+                    "ArtifactURI, IdempotencyAction, IdempotencyPolicy, PostgresTarget, S3ArtifactStore, StoredArtifact, TargetLoadExecutor); "
                     f"assert pyingestkit.__version__ == '{FRAMEWORK_VERSION}'; "
                     "assert ArtifactURI.s3('bucket', 'raw/key').scheme == 's3'; "
-                    "assert S3ArtifactStore.__name__ == 'S3ArtifactStore'; "
+                    "assert S3ArtifactStore.__name__ == 'S3ArtifactStore'; assert StoredArtifact.__name__ == 'StoredArtifact'; "
                     "assert PostgresTarget.B2_CAPABILITIES.truncate_load; "
                     "assert PostgresTarget.B2_CAPABILITIES.replace; "
                     "assert IdempotencyAction.SKIP.value == 'skip'; "
@@ -251,7 +251,7 @@ def main() -> int:
 
     shutil.rmtree(workspace, ignore_errors=True)
     print(
-        "OK: V0.6.0-a2 wheels expose S3ArtifactStore and preserve eight reference jobs plus "
+        "OK: V0.6.0-b1 wheels expose remote run-artifact lifecycle and preserve eight reference jobs plus "
         "PostgreSQL persistence contracts while proving V1 -> V2 -> diff -> publish -> strict RAW replay"
     )
     return 0

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import logging
 from collections.abc import Mapping
 from datetime import UTC, datetime
@@ -34,7 +35,7 @@ class S3ClientProtocol(Protocol):
 
 
 class S3ArtifactStore(ArtifactStore):
-    """Immutable remote RAW storage with a local parser-facing materialization cache."""
+    """Remote run-artifact storage with immutable RAW and a local materialization cache."""
 
     def __init__(
         self,
@@ -94,8 +95,48 @@ class S3ArtifactStore(ArtifactStore):
         return self._local.path_for(job_id, run_id, relative_path)
 
     def write_json(self, job_id: str, run_id: UUID, relative_path: str, payload: Any) -> Path:
-        # A2 intentionally keeps manifests/reports local. Only immutable RAW is remote.
-        return self._local.write_json(job_id, run_id, relative_path, payload)
+        """Persist JSON run artifacts remotely while keeping a local materialization.
+
+        RAW keeps stricter create-once semantics. JSON artifacts such as validation/profile/diff
+        reports and the run manifest may be rewritten within the same run lifecycle, so their
+        deterministic S3 key is updated atomically from the caller's perspective.
+        """
+
+        self.prepare_run(job_id, run_id)
+        local_path = self.path_for(job_id, run_id, relative_path)
+        data = json.dumps(payload, indent=2, sort_keys=True, default=str).encode("utf-8")
+        digest = sha256_bytes(data)
+        key = self._key_for(job_id, run_id, relative_path)
+        temp = local_path.with_name(f".{local_path.name}.tmp")
+        try:
+            temp.write_bytes(data)
+            self._client.put_object(
+                Bucket=self.bucket,
+                Key=key,
+                Body=data,
+                ContentType="application/json",
+                Metadata={
+                    "pyingestkit-sha256": digest,
+                    "pyingestkit-artifact-kind": (
+                        "manifest" if relative_path == "manifest.json" else "report"
+                    ),
+                },
+            )
+            temp.replace(local_path)
+        except Exception as exc:  # noqa: BLE001 - filesystem and optional SDK boundary
+            temp.unlink(missing_ok=True)
+            if isinstance(exc, OSError):
+                raise StorageError(f"Unable to materialize JSON artifact at {local_path}") from exc
+            raise StorageError(self._safe_error("Unable to persist S3 JSON artifact", exc)) from exc
+
+        logger.debug(
+            "S3 JSON artifact written uri=s3://%s/%s bytes=%d sha256=%s",
+            self.bucket,
+            key,
+            len(data),
+            digest,
+        )
+        return local_path
 
     def _key_for(self, job_id: str, run_id: UUID, relative_path: str) -> str:
         relative = run_relative_key(job_id, run_id, relative_path)

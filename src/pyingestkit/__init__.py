@@ -3,7 +3,7 @@
 import logging as _stdlib_logging
 
 from ._version import __version__ as __version__
-from .artifacts import ArtifactURI, S3ArtifactStore
+from .artifacts import ArtifactURI, S3ArtifactStore, StoredArtifact
 from .contracts import DatasetContract, FieldContract
 from .core.context import RunContext
 from .core.job import Job
@@ -83,6 +83,7 @@ __all__ = [
     "RunStatus",
     "Runner",
     "S3ArtifactStore",
+    "StoredArtifact",
     "SchemaDiff",
     "SnapshotCodec",
     "Step",

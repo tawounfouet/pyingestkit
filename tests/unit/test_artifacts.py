@@ -32,6 +32,18 @@ class ArtifactTests(unittest.TestCase):
                 Path(artifact.path).absolute(),
             )
 
+    def test_json_artifact_exposes_durable_location_and_verified_materialization(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            store = LocalArtifactStore(tmp)
+            run_id = uuid4()
+            artifact = store.write_json_artifact(
+                "demo.report", run_id, "reports/profile.json", {"rows": 3}
+            )
+            self.assertEqual(artifact.location_uri.scheme, "file")
+            self.assertEqual(artifact.content_type, "application/json")
+            self.assertEqual(artifact.sha256, sha256_bytes(artifact.local_path.read_bytes()))
+            self.assertEqual(store.materialize_artifact(artifact), artifact.local_path)
+
     def test_raw_materialization_detects_local_tampering(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             store = LocalArtifactStore(tmp)

@@ -9,6 +9,7 @@ from pyingestkit.core.exceptions import StorageError
 from pyingestkit.provenance.hashing import sha256_bytes
 
 from .raw import RawArtifact
+from .stored import StoredArtifact
 from .uri import ArtifactURI
 
 
@@ -74,17 +75,39 @@ class ArtifactStore(ABC):
         except OSError as exc:
             raise StorageError(f"Unable to read artifact URI {location}") from exc
 
-    def materialize_raw(self, artifact: RawArtifact) -> Path:
-        """Ensure RAW is present at its local materialization path and verify SHA-256."""
+    def write_json_artifact(
+        self, job_id: str, run_id: UUID, relative_path: str, payload: Any
+    ) -> StoredArtifact:
+        """Persist JSON and return its durable URI and integrity metadata.
 
-        local_path = artifact.local_path
+        This is additive to the V0.5 ``write_json`` contract. Third-party stores that only
+        implement ``write_json`` automatically gain a local-file implementation.
+        """
+
+        path = self.write_json(job_id, run_id, relative_path, payload)
+        try:
+            data = path.read_bytes()
+        except OSError as exc:
+            raise StorageError(f"Unable to inspect JSON artifact at {path}") from exc
+        return StoredArtifact(
+            relative_path=relative_path,
+            path=str(path),
+            storage_uri=str(self.uri_for(job_id, run_id, relative_path)),
+            content_type="application/json",
+            size_bytes=len(data),
+            sha256=sha256_bytes(data),
+        )
+
+    def _materialize_verified(
+        self, *, local_path: Path, storage_uri: ArtifactURI, expected_sha256: str, label: str
+    ) -> Path:
         if local_path.is_file():
             try:
                 data = local_path.read_bytes()
             except OSError as exc:
-                raise StorageError(f"Unable to read RAW materialization {local_path}") from exc
+                raise StorageError(f"Unable to read {label} materialization {local_path}") from exc
         else:
-            data = self.read_bytes(artifact.location_uri)
+            data = self.read_bytes(storage_uri)
             local_path.parent.mkdir(parents=True, exist_ok=True)
             temp = local_path.with_name(f".{local_path.name}.materializing")
             try:
@@ -92,11 +115,31 @@ class ArtifactStore(ABC):
                 temp.replace(local_path)
             except OSError as exc:
                 temp.unlink(missing_ok=True)
-                raise StorageError(f"Unable to materialize RAW artifact at {local_path}") from exc
+                raise StorageError(f"Unable to materialize {label} at {local_path}") from exc
 
         actual = sha256_bytes(data)
-        if actual != artifact.sha256:
+        if actual != expected_sha256:
             raise StorageError(
-                f"RAW materialization SHA-256 mismatch: expected {artifact.sha256}, got {actual}"
+                f"{label} materialization SHA-256 mismatch: expected {expected_sha256}, got {actual}"
             )
         return local_path
+
+    def materialize_raw(self, artifact: RawArtifact) -> Path:
+        """Ensure RAW is present at its local materialization path and verify SHA-256."""
+
+        return self._materialize_verified(
+            local_path=artifact.local_path,
+            storage_uri=artifact.location_uri,
+            expected_sha256=artifact.sha256,
+            label="RAW",
+        )
+
+    def materialize_artifact(self, artifact: StoredArtifact) -> Path:
+        """Materialize a non-RAW run artifact from its durable URI and verify SHA-256."""
+
+        return self._materialize_verified(
+            local_path=artifact.local_path,
+            storage_uri=artifact.location_uri,
+            expected_sha256=artifact.sha256,
+            label="artifact",
+        )

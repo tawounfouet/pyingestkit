@@ -25,6 +25,7 @@ expected = {
     "FilesystemDatasetVersionStore",
     "ExcelParser",
     "S3ArtifactStore",
+    "StoredArtifact",
     "SchemaDiff",
     "SnapshotCodec",
     "DiffPolicy",
@@ -69,6 +70,6 @@ expected = {
 actual = set(pyingestkit.__all__)
 if actual != expected:
     raise SystemExit(f"Unexpected public API. expected={sorted(expected)} actual={sorted(actual)}")
-if pyingestkit.__version__ != "0.6.0a2":
+if pyingestkit.__version__ != "0.6.0b1":
     raise SystemExit(f"Unexpected version: {pyingestkit.__version__}")
-print("OK: public API matches V0.6.0-a2 S3ArtifactStore + Remote RAW contract")
+print("OK: public API matches V0.6.0-b1 remote artifact lifecycle contract")

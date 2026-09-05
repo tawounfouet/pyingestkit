@@ -112,7 +112,7 @@ class ArtifactBackend(StrEnum):
 
 
 class S3ArtifactConfig(BaseModel):
-    """Remote RAW configuration. Credentials come from the AWS SDK provider chain."""
+    """Remote run-artifact configuration. Credentials use the AWS SDK provider chain."""
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
