@@ -219,7 +219,7 @@ jobs:
             SHA256SUMS
           if-no-files-found: error
 
-  stable-release-gate:
+  v1-pilot-gate:
     runs-on: ubuntu-latest
     needs:
       - test
@@ -228,4 +228,22 @@ jobs:
       - object-storage-e2e
       - foundation-verify
     steps:
-      - run: echo "All V0.6.0 stable qualification tiers passed."
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Validate V1 B2 pilot and documentation contract
+        run: python scripts/check_v1_pilots.py
+      - run: echo "All V1.0.0-b2 representative pilot tiers passed."
+
+  stable-release-gate:
+    runs-on: ubuntu-latest
+    needs:
+      - test
+      - postgres-e2e
+      - s3-e2e
+      - object-storage-e2e
+      - foundation-verify
+      - v1-pilot-gate
+    steps:
+      - run: echo "All current V1 qualification tiers passed."
