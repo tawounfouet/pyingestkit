@@ -2,6 +2,48 @@
 
 All notable changes to PyIngestKit are documented here.
 
+## [0.5.0rc1] - 2026-09-05
+
+### Release Candidate — Full PostgreSQL Persistence E2E
+
+- added `demo.versioned_postgres` as the eighth installable reference job;
+- proved deterministic V1 -> V2 -> diff -> DatasetVersion -> PostgreSQL `COPY` -> publish;
+- proved `RELOAD` for V2 and idempotent `SKIP` during strict replay of the already materialized V2;
+- proved replay uses historical RAW with live HTTP acquisition forbidden and fingerprint equality preserved;
+- qualified the same reference slice with SQLite metadata + PostgreSQL target and PostgreSQL metadata + PostgreSQL target;
+- kept target/metadata wiring explicit in the reference job through non-secret backend parameters and environment-variable DSN indirection;
+- retained the A2 COPY, B1 target-load metadata, B2 load-mode/rollback/idempotency regression suites on PostgreSQL 16.
+
+## [0.5.0b2] - 2026-09-05
+
+### Beta 2 — Load Modes + Transaction Semantics + Idempotency
+
+- added stable `APPEND`, `TRUNCATE_LOAD`, and `REPLACE` load modes to `PostgresTarget`;
+- made destructive PostgreSQL modes validate destination compatibility before mutation and share one transaction with COPY;
+- proved rollback restores prior target contents when destructive loads fail;
+- added `TargetLoadExecutor`, `IdempotencyPolicy`, `IdempotencyAction`, and deterministic `EXECUTE` / `SKIP` / `RETRY` / `RELOAD` decisions;
+- kept idempotency history outside `Target` and keyed equivalence by target, dataset version, destination and mode;
+- extended target-load metadata filtering for version/destination/mode history lookup.
+
+## [0.5.0b1] - 2026-09-05
+
+### Beta 1 — PostgreSQL Metadata Hardening + Target Load Records
+
+- added additive `TargetLoadMetadataCapability` and persistent `TargetLoadRecord`;
+- added `target_loads` to Memory, SQLite and PostgreSQL metadata stores without changing the abstract `MetadataStore` contract;
+- linked load attempts to run, logical target, dataset/version, destination, mode/status, row counts and timing;
+- hardened PostgreSQL metadata diagnostics with credential-redacted DSNs;
+- qualified target-load persistence/update/query behavior on PostgreSQL 16.
+
+## [0.5.0a2] - 2026-09-05
+
+### Alpha 2 — Dataset Schema Mapping + PostgreSQL COPY
+
+- added deterministic Dataset-to-PostgreSQL type planning and conservative existing-table compatibility validation;
+- adopted psycopg 3 `COPY ... FROM STDIN` as the production PostgreSQL bulk-load path;
+- preserved `Decimal`, Unicode, NULL, date/time, timezone-aware datetime and BYTEA values without silent coercion;
+- added real PostgreSQL 16 COPY and rollback qualification.
+
 ## [0.5.0a1] - 2026-09-04
 
 ### Alpha 1 — Target Contract + PostgreSQL Target Foundation
@@ -221,13 +263,21 @@ All notable changes to PyIngestKit are documented here.
 
 ## [0.1.2] - 2026-09-03
 
-- replaced the artificial zero-third-party-dependency rule with governed production-grade dependencies;
-- added Pydantic/PyYAML configuration and machine-safe CLI JSON output.
+- defined the framework-owned job registry and plugin loading boundary;
+- added project configuration loader and CLI job listing/inspection;
+- documented the Foundation public contract and compatibility policy.
 
 ## [0.1.1] - 2026-09-03
 
-- replaced argparse with Typer and Rich.
+- added packaging and CI gates for the Foundation milestone;
+- added offline deterministic smoke tests.
 
 ## [0.1.0] - 2026-09-03
 
-- initial MVP foundation: core/runtime, LocalSource, RAW, SHA-256, manifest, validation, atomic publication, plugins and CLI.
+### Foundation
+
+- established `src/pyingestkit` package layout, typed public API and semantic versioning;
+- added imperative `Job` / `Step` / `Pipeline` execution model;
+- added local immutable RAW artifact storage, SHA-256 identity and atomic writes;
+- added run manifests, lifecycle events and structured logging context;
+- introduced plugin discovery and a stable demo job package.

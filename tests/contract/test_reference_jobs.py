@@ -12,7 +12,7 @@ DEMO_PACKAGE = ROOT / "examples" / "plugin_package"
 
 
 class ReferenceJobContractTests(unittest.TestCase):
-    def test_demo_package_declares_seven_reference_entry_points(self) -> None:
+    def test_demo_package_declares_eight_reference_entry_points(self) -> None:
         payload = tomllib.loads((DEMO_PACKAGE / "pyproject.toml").read_text(encoding="utf-8"))
         entry_points = payload["project"]["entry-points"]["pyingestkit.jobs"]
         self.assertEqual(
@@ -25,6 +25,9 @@ class ReferenceJobContractTests(unittest.TestCase):
                 "demo-excel-quality": "pyingestkit_demo_jobs.excel_quality:job_definition",
                 "demo-parquet-quality": "pyingestkit_demo_jobs.parquet_quality:job_definition",
                 "demo-versioned-ndjson": "pyingestkit_demo_jobs.versioned_ndjson:job_definition",
+                "demo-versioned-postgres": (
+                    "pyingestkit_demo_jobs.versioned_postgres:job_definition"
+                ),
             },
         )
 
@@ -41,6 +44,9 @@ class ReferenceJobContractTests(unittest.TestCase):
             from pyingestkit_demo_jobs.versioned_ndjson import (
                 job_definition as versioned_ndjson_job,
             )
+            from pyingestkit_demo_jobs.versioned_postgres import (
+                job_definition as versioned_postgres_job,
+            )
 
             jobs = (
                 local_job,
@@ -50,6 +56,7 @@ class ReferenceJobContractTests(unittest.TestCase):
                 excel_job,
                 parquet_job,
                 versioned_ndjson_job,
+                versioned_postgres_job,
             )
             self.assertTrue(all(isinstance(job, JobDefinition) for job in jobs))
             self.assertEqual(
@@ -62,10 +69,15 @@ class ReferenceJobContractTests(unittest.TestCase):
                     "demo.excel_quality",
                     "demo.parquet_quality",
                     "demo.versioned_ndjson",
+                    "demo.versioned_postgres",
                 ],
             )
-            self.assertEqual([len(job.build().pipeline()) for job in jobs], [1, 3, 3, 4, 4, 4, 5])
-            self.assertTrue(all(job.version == "0.4.0" for job in jobs))
+            self.assertEqual(
+                [len(job.build().pipeline()) for job in jobs],
+                [1, 3, 3, 4, 4, 4, 5, 5],
+            )
+            self.assertTrue(all(job.version == "0.4.0" for job in jobs[:-1]))
+            self.assertEqual(jobs[-1].version, "0.5.0rc1")
         finally:
             sys.path.remove(src)
 
@@ -74,6 +86,7 @@ class ReferenceJobContractTests(unittest.TestCase):
             (DEMO_PACKAGE / "demo-http.yml").read_text(encoding="utf-8"),
             (DEMO_PACKAGE / "demo-quality.yml").read_text(encoding="utf-8"),
             (DEMO_PACKAGE / "demo-versioned.yml").read_text(encoding="utf-8"),
+            (DEMO_PACKAGE / "demo-versioned-postgres.yml").read_text(encoding="utf-8"),
         )
         for config in configs:
             self.assertIn("fixture_mode: true", config)

@@ -47,11 +47,13 @@ jobs:
           python-version: "3.12"
       - run: python -m pip install --upgrade pip
       - run: python -m pip install -e ".[dev,postgres]"
+      - run: python -m pip install -e examples/plugin_package
       - run: >-
           python -m pytest -q
           tests/integration/test_postgres_target_copy.py
           tests/integration/test_postgres_metadata_target_loads.py
           tests/integration/test_postgres_load_modes_idempotency.py
+          tests/integration/test_versioned_postgres_e2e.py
 
   foundation-verify:
     runs-on: ubuntu-latest
@@ -79,7 +81,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: pyingestkit-v0.5.0-b2-wheel-smoke-diagnostics
+          name: pyingestkit-v0.5.0-rc1-wheel-smoke-diagnostics
           path: wheel-smoke.log
           if-no-files-found: ignore
       - run: pyingest --version
@@ -91,10 +93,10 @@ jobs:
       - run: pyingest run demo.excel_quality --config examples/plugin_package/demo-quality.yml
       - run: pyingest run demo.parquet_quality --config examples/plugin_package/demo-quality.yml
       - run: pyingest runs
-      - name: Upload V0.5.0-b2 PostgreSQL load-modes/idempotency artifact
+      - name: Upload V0.5.0-rc1 PostgreSQL full E2E artifact
         uses: actions/upload-artifact@v4
         with:
-          name: pyingestkit-v0.5.0-b2-postgres-load-modes-idempotency
+          name: pyingestkit-v0.5.0-rc1-postgres-e2e
           path: |
             .
             !.git/**
