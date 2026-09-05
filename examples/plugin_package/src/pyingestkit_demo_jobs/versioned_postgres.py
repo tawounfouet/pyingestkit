@@ -97,9 +97,7 @@ def _workspace(context: RunContext) -> Path:
 def _metadata(context: RunContext) -> TargetLoadMetadataCapability:
     backend = str(context.parameter("metadata_backend", "sqlite")).lower()
     if backend == "sqlite":
-        metadata = SQLiteMetadataStore(
-            _workspace(context) / "state" / "pyingest.sqlite3"
-        )
+        metadata = SQLiteMetadataStore(_workspace(context) / "state" / "pyingest.sqlite3")
     elif backend == "postgres":
         env_name = str(context.parameter("metadata_dsn_env", "PYINGEST_DATABASE_URL"))
         dsn = os.getenv(env_name)
