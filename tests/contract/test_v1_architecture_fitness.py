@@ -40,9 +40,7 @@ def test_v1_core_does_not_depend_on_provider_implementations() -> None:
 
 
 def test_v1_runner_depends_on_contracts_not_optional_provider_sdks() -> None:
-    runner = (ROOT / "src" / "pyingestkit" / "runtime" / "runner.py").read_text(
-        encoding="utf-8"
-    )
+    runner = (ROOT / "src" / "pyingestkit" / "runtime" / "runner.py").read_text(encoding="utf-8")
     for token in ("boto3", "psycopg", "PostgresTarget", "S3ArtifactStore"):
         assert token not in runner
 
