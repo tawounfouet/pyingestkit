@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "milestone": "V1.0.0",
+  "baseline": {
+    "rc1_merge_sha": "e98a12cc3bbfb634d2fd2257f43049fa1e0333dd",
+    "b2_merge_sha": "a29be350498aae1c2002c280aead7e4d1f02cff9",
+    "upgrade_from": "0.6.0"
+  },
+  "versions": {
+    "framework": "1.0.0",
+    "demo_package": "1.0.0",
+    "release_candidate": "1.0.0rc1"
+  },
+  "public_api": {
+    "inventory": "tests/contract/fixtures/public_api_v1.json",
+    "promotion_from": "PUBLIC_STABLE_CANDIDATE",
+    "promotion_to": "PUBLIC_STABLE",
+    "experimental_remains_experimental": true,
+    "policy": "All A1 stable-candidate surfaces that survived A2, B1, B2 and RC1 qualification become the stable 1.x compatibility contract at V1.0.0; explicitly experimental surfaces remain experimental."
+  },
+  "scope": {
+    "introduces_new_ingestion_provider": false,
+    "introduces_orchestration_platform": false,
+    "changes_persisted_schema_versions": false,
+    "purpose": "Promote the fully qualified RC1 contract to stable 1.0.0 without adding product scope."
+  },
+  "release": {
+    "tag": "v1.0.0",
+    "tag_kind": "annotated",
+    "immutable": true,
+    "creation_phase": "after stable PR merge and successful post-merge CI and Security on the exact merge SHA"
+  },
+  "distribution_artifacts": [
+    "pyingestkit-1.0.0-py3-none-any.whl",
+    "pyingestkit-1.0.0.tar.gz",
+    "pyingestkit_demo_jobs-1.0.0-py3-none-any.whl",
+    "pyingestkit_demo_jobs-1.0.0.tar.gz",
+    "SHA256SUMS"
+  ],
+  "ci_artifact_names": [
+    "pyingestkit-v1.0.0-source",
+    "pyingestkit-v1.0.0-dist"
+  ],
+  "required_docs": [
+    "docs/adr/ADR-060-v1-stable-release-governance.md",
+    "docs/guides/release-validation-v1.0.0.md",
+    "docs/guides/migrate-v0.6-to-v1.md",
+    "docs/releases/v1.0.0.md",
+    "docs/reference/public-api.md",
+    "docs/reference/compatibility-v1.md",
+    "docs/reference/stability-v1.md",
+    "docs/reference/pilots-v1.md"
+  ],
+  "required_scripts": [
+    "scripts/check_public_api.py",
+    "scripts/check_v1_compatibility.py",
+    "scripts/check_v1_stability.py",
+    "scripts/check_v1_pilots.py",
+    "scripts/check_v1_rc.py",
+    "scripts/check_v1_stable.py",
+    "scripts/wheel_smoke_test.py",
+    "scripts/upgrade_smoke_test.py"
+  ],
+  "required_ci_jobs": [
+    "test",
+    "postgres-e2e",
+    "s3-e2e",
+    "object-storage-e2e",
+    "foundation-verify",
+    "v1-pilot-gate",
+    "v1-rc-history-gate",
+    "stable-release-gate"
+  ],
+  "python_versions": ["3.11", "3.12", "3.13"]
+}
