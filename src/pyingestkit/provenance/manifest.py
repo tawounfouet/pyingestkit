@@ -7,6 +7,8 @@ from typing import Any
 from pyingestkit.artifacts.raw import RawArtifact
 from pyingestkit.core.result import RunResult, StepResult
 
+RUN_MANIFEST_SCHEMA_VERSION = 1
+
 
 def _machine_value(value: Any) -> Any:
     """Normalize manifest values to stable machine-readable JSON primitives."""
@@ -62,6 +64,7 @@ class RunManifest:
 
     def as_dict(self) -> dict[str, Any]:
         return {
+            "schema_version": RUN_MANIFEST_SCHEMA_VERSION,
             "run_id": self.run_id,
             "job_id": self.job_id,
             "job_version": self.job_version,
