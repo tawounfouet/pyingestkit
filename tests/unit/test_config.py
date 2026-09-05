@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from pyingestkit.config import MetadataBackend, load_config
+from pyingestkit.config import ArtifactBackend, MetadataBackend, load_config
 from pyingestkit.core.exceptions import ConfigurationError
 
 
@@ -88,6 +88,28 @@ targets:
             )
             with self.assertRaises(ConfigurationError):
                 load_config(path)
+
+    def test_s3_artifact_config_contains_no_credentials(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "pyingest.yml"
+            path.write_text(
+                """
+artifacts:
+  backend: s3
+  s3:
+    bucket: pyingest-raw
+    prefix: company/ingest
+    region_name: eu-west-3
+    endpoint_url_env: PYINGEST_S3_ENDPOINT_URL
+""".strip(),
+                encoding="utf-8",
+            )
+            config = load_config(path)
+            self.assertIs(config.artifacts.backend, ArtifactBackend.S3)
+            self.assertEqual(config.artifacts.s3.bucket, "pyingest-raw")
+            self.assertEqual(config.artifacts.s3.prefix, "company/ingest")
+            self.assertFalse(hasattr(config.artifacts.s3, "access_key"))
+            self.assertFalse(hasattr(config.artifacts.s3, "secret_key"))
 
     def test_invalid_logging_level_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

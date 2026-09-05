@@ -8,8 +8,8 @@ import typer
 from rich.panel import Panel
 from rich.table import Table
 
-from pyingestkit.artifacts.filesystem import LocalArtifactStore
 from pyingestkit.cli.common import (
+    artifact_store_or_exit,
     fail,
     get_job_or_exit,
     get_registry,
@@ -114,10 +114,8 @@ def run_command(
     parameters.update(parse_param_assignments(param))
 
     metadata_store = metadata_store_or_exit(project_config, workspace=effective_workspace)
-    runner = Runner(
-        LocalArtifactStore(effective_workspace),
-        metadata_store=metadata_store,
-    )
+    artifact_store = artifact_store_or_exit(project_config, workspace=effective_workspace)
+    runner = Runner(artifact_store, metadata_store=metadata_store)
     result = runner.run(job, parameters=parameters, fixture_mode=effective_fixture)
     payload = {
         "run_id": result.run_id,

@@ -52,6 +52,7 @@ class ArtifactRecord:
     status_code: int | None = None
     etag: str | None = None
     last_modified: str | None = None
+    storage_uri: str | None = None
 
     @property
     def retrieved_at(self) -> datetime:

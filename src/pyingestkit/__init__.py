@@ -3,6 +3,7 @@
 import logging as _stdlib_logging
 
 from ._version import __version__ as __version__
+from .artifacts import ArtifactURI, S3ArtifactStore, StoredArtifact
 from .contracts import DatasetContract, FieldContract
 from .core.context import RunContext
 from .core.job import Job
@@ -39,10 +40,12 @@ from .versioning import (
     DatasetVersionStore,
     FilesystemDatasetVersionStore,
     PublishedDataset,
+    S3DatasetVersionStore,
     SnapshotCodec,
 )
 
 __all__ = [
+    "ArtifactURI",
     "CsvParser",
     "Dataset",
     "DatasetContract",
@@ -80,6 +83,9 @@ __all__ = [
     "RunResult",
     "RunStatus",
     "Runner",
+    "S3ArtifactStore",
+    "S3DatasetVersionStore",
+    "StoredArtifact",
     "SchemaDiff",
     "SnapshotCodec",
     "Step",

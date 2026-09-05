@@ -21,7 +21,8 @@ class CliSmokeTests(unittest.TestCase):
     def test_version(self) -> None:
         result = self.runner.invoke(app, ["--version"])
         self.assertEqual(result.exit_code, 0, result.output)
-        self.assertIn("0.5.1", result.output)
+        self.assertIn("0.6.0", result.output)
+        self.assertNotIn("rc1", result.output)
         self.assertNotIn("\x1b", result.output)
 
     def test_root_help(self) -> None:

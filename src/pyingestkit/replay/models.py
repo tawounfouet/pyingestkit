@@ -6,6 +6,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from pyingestkit.artifacts import ArtifactURI
 from pyingestkit.core.exceptions import ReplayError
 from pyingestkit.core.result import RunResult
 
@@ -31,13 +32,20 @@ class ReplayRawArtifact:
     status_code: int | None = None
     etag: str | None = None
     last_modified: str | None = None
+    origin_storage_uri: str | None = None
 
     @classmethod
     def from_record(cls, record: Any) -> ReplayRawArtifact:
+        storage_uri = getattr(record, "storage_uri", None)
+        artifact_name = (
+            ArtifactURI(str(storage_uri)).name
+            if storage_uri is not None
+            else Path(str(record.path)).name
+        )
         return cls(
             origin_run_id=str(record.run_id),
             origin_artifact_id=str(record.artifact_id),
-            artifact_name=Path(str(record.path)).name,
+            artifact_name=artifact_name,
             origin_path=str(record.path),
             source_uri=str(record.source_uri),
             content_type=record.content_type,
@@ -47,6 +55,7 @@ class ReplayRawArtifact:
             status_code=record.status_code,
             etag=record.etag,
             last_modified=record.last_modified,
+            origin_storage_uri=None if storage_uri is None else str(storage_uri),
         )
 
 
@@ -77,7 +86,7 @@ class ReplayContext:
             raise ReplayError(
                 f"Replay RAW not found for name={safe_name!r} source_uri={source_uri!r}; live fallback is disabled"
             )
-        raise ReplayError("Non-strict live fallback is not implemented in V0.4")
+        raise ReplayError("Non-strict live fallback is not implemented")
 
     def as_manifest_dict(self, *, executed_job_version: str) -> dict[str, object]:
         return {

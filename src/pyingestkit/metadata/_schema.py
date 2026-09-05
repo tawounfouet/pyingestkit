@@ -68,6 +68,20 @@ artifacts = Table(
 )
 Index("idx_artifacts_run", artifacts.c.run_id)
 
+artifact_locations = Table(
+    "artifact_locations",
+    metadata,
+    Column(
+        "artifact_id",
+        String,
+        ForeignKey("artifacts.artifact_id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
+    Column("storage_uri", Text, nullable=False),
+    Column("local_path", Text),
+)
+Index("idx_artifact_locations_uri", artifact_locations.c.storage_uri)
+
 artifact_http_provenance = Table(
     "artifact_http_provenance",
     metadata,

@@ -4,11 +4,14 @@ from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine, make_url
 from sqlalchemy.exc import ArgumentError, NoSuchModuleError, SQLAlchemyError
 
+from pyingestkit.artifacts.raw import RawArtifact
 from pyingestkit.core.exceptions import ConfigurationError
 from pyingestkit.logging.filters import redact_text
 
+from ._artifact_locations import enrich_artifact_locations, record_artifact_location
 from ._sqlalchemy import _SQLAlchemyMetadataStore
 from ._target_loads import SQLAlchemyTargetLoadMetadataMixin
+from .models import ArtifactRecord
 
 
 def _normalize_dsn(dsn: str) -> str:
@@ -56,6 +59,14 @@ class PostgresMetadataStore(SQLAlchemyTargetLoadMetadataMixin, _SQLAlchemyMetada
             raise ConfigurationError(
                 f"Unable to initialize PostgreSQL metadata backend at {self.safe_dsn}: {message}"
             ) from exc
+
+    def record_artifact(self, run_id: str, artifact: RawArtifact, *, kind: str = "raw") -> None:
+        _SQLAlchemyMetadataStore.record_artifact(self, run_id, artifact, kind=kind)
+        record_artifact_location(self.engine, artifact)
+
+    def list_artifacts(self, run_id: str) -> tuple[ArtifactRecord, ...]:
+        records = _SQLAlchemyMetadataStore.list_artifacts(self, run_id)
+        return enrich_artifact_locations(self.engine, records)
 
     @property
     def safe_dsn(self) -> str:

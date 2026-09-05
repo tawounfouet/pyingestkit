@@ -8,9 +8,14 @@ from uuid import UUID
 import typer
 from rich.table import Table
 
-from pyingestkit.artifacts import LocalArtifactStore
-from pyingestkit.cli.common import fail, metadata_store_or_exit, project_config_or_exit
+from pyingestkit.cli.common import (
+    artifact_store_or_exit,
+    fail,
+    metadata_store_or_exit,
+    project_config_or_exit,
+)
 from pyingestkit.cli.console import console
+from pyingestkit.core.exceptions import StorageError
 from pyingestkit.metadata import DiffMetadataCapability
 
 
@@ -56,16 +61,20 @@ def status_command(
 
     reports: list[dict[str, object]] = []
     try:
-        manifest_path = (
-            LocalArtifactStore(effective_workspace).run_root(run.job_id, UUID(run.run_id))
-            / "manifest.json"
-        )
+        artifact_store = artifact_store_or_exit(project_config, workspace=effective_workspace)
+        run_uuid = UUID(run.run_id)
+        manifest_path = artifact_store.path_for(run.job_id, run_uuid, "manifest.json")
         if manifest_path.is_file():
-            manifest_payload = json.loads(manifest_path.read_text(encoding="utf-8"))
-            raw_reports = manifest_payload.get("reports", [])
-            if isinstance(raw_reports, list):
-                reports = [report for report in raw_reports if isinstance(report, dict)]
-    except (OSError, ValueError, TypeError, json.JSONDecodeError):
+            manifest_bytes = manifest_path.read_bytes()
+        else:
+            manifest_bytes = artifact_store.read_bytes(
+                artifact_store.uri_for(run.job_id, run_uuid, "manifest.json")
+            )
+        manifest_payload = json.loads(manifest_bytes)
+        raw_reports = manifest_payload.get("reports", [])
+        if isinstance(raw_reports, list):
+            reports = [report for report in raw_reports if isinstance(report, dict)]
+    except (OSError, StorageError, ValueError, TypeError, json.JSONDecodeError):
         reports = []
 
     if json_output:
@@ -97,6 +106,7 @@ def status_command(
                     "artifact_id": row.artifact_id,
                     "kind": row.kind,
                     "path": row.path,
+                    "storage_uri": row.storage_uri,
                     "source_uri": row.source_uri,
                     "resolved_url": row.resolved_url,
                     "status_code": row.status_code,

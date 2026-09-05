@@ -1,0 +1,29 @@
+runtime:
+  workspace: .pyingest
+  fixture_mode: true
+  parameters:
+    target_id: postgres.demo.versioned_s3
+    target_schema: public
+    target_table: pyingestkit_demo_versioned_s3
+    target_dsn_env: PYINGEST_TARGET_DATABASE_URL
+    metadata_dsn_env: PYINGEST_DATABASE_URL
+
+artifacts:
+  backend: s3
+  s3:
+    bucket: pyingestkit
+    prefix: demo/versioned-s3
+    region_name: us-east-1
+    endpoint_url_env: PYINGEST_S3_ENDPOINT_URL
+
+metadata:
+  backend: postgres
+  postgres:
+    dsn_env: PYINGEST_DATABASE_URL
+
+logging:
+  level: INFO
+  format: rich
+  console: false
+  file:
+    enabled: false

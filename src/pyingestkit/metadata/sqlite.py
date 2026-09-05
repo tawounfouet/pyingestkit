@@ -7,8 +7,12 @@ from sqlalchemy import create_engine, event
 from sqlalchemy.engine import URL, Engine
 from sqlalchemy.pool import NullPool
 
+from pyingestkit.artifacts.raw import RawArtifact
+
+from ._artifact_locations import enrich_artifact_locations, record_artifact_location
 from ._sqlalchemy import _SQLAlchemyMetadataStore
 from ._target_loads import SQLAlchemyTargetLoadMetadataMixin
+from .models import ArtifactRecord
 
 
 class SQLiteMetadataStore(SQLAlchemyTargetLoadMetadataMixin, _SQLAlchemyMetadataStore):
@@ -48,6 +52,14 @@ class SQLiteMetadataStore(SQLAlchemyTargetLoadMetadataMixin, _SQLAlchemyMetadata
                 cursor.close()
 
         return engine
+
+    def record_artifact(self, run_id: str, artifact: RawArtifact, *, kind: str = "raw") -> None:
+        _SQLAlchemyMetadataStore.record_artifact(self, run_id, artifact, kind=kind)
+        record_artifact_location(self.engine, artifact)
+
+    def list_artifacts(self, run_id: str) -> tuple[ArtifactRecord, ...]:
+        records = _SQLAlchemyMetadataStore.list_artifacts(self, run_id)
+        return enrich_artifact_locations(self.engine, records)
 
     def initialize(self) -> None:
         with self.engine.connect() as connection:

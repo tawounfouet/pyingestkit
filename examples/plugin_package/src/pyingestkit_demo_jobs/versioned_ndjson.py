@@ -3,13 +3,17 @@ from __future__ import annotations
 from pathlib import Path
 
 from pyingestkit import Dataset, DatasetContract, FieldContract, NdjsonParser, RunContext, job, step
-from pyingestkit.artifacts import RawArtifact
+from pyingestkit.artifacts import RawArtifact, S3ArtifactStore
 from pyingestkit.core.exceptions import ConfigurationError
 from pyingestkit.diff import DatasetDiffer, DiffPolicy
 from pyingestkit.metadata import SQLiteMetadataStore
 from pyingestkit.retry import RetryPolicy
 from pyingestkit.sources.http import HttpRequest, HttpResponse, HttpSource
-from pyingestkit.versioning import FilesystemDatasetVersionStore
+from pyingestkit.versioning import (
+    DatasetVersionStore,
+    FilesystemDatasetVersionStore,
+    S3DatasetVersionStore,
+)
 
 from .http_common import FixtureSequenceClient
 from .quality_common import profiled_payload, validated_payload
@@ -67,13 +71,15 @@ def _fixture_payload(context: RunContext) -> bytes:
     raise ConfigurationError("demo.versioned_ndjson revision must be 1 or 2")
 
 
-def _version_store(context: RunContext) -> FilesystemDatasetVersionStore:
+def _version_store(context: RunContext) -> DatasetVersionStore:
     root = getattr(context.artifact_store, "root", None)
     if root is None:
-        raise ConfigurationError("demo.versioned_ndjson requires the LocalArtifactStore workspace")
+        raise ConfigurationError("demo.versioned_ndjson requires an ArtifactStore workspace/cache")
     workspace = Path(root)
     metadata = SQLiteMetadataStore(workspace / "state" / "pyingest.sqlite3")
     metadata.initialize()
+    if isinstance(context.artifact_store, S3ArtifactStore):
+        return S3DatasetVersionStore(context.artifact_store, metadata_store=metadata)
     return FilesystemDatasetVersionStore(workspace, metadata_store=metadata)
 
 

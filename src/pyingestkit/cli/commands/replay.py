@@ -6,8 +6,8 @@ from typing import Annotated
 
 import typer
 
-from pyingestkit.artifacts import LocalArtifactStore
 from pyingestkit.cli.common import (
+    artifact_store_or_exit,
     fail,
     get_registry,
     metadata_store_or_exit,
@@ -34,7 +34,8 @@ def replay_command(
     project_config = project_config_or_exit(config)
     effective_workspace = workspace or project_config.runtime.workspace
     metadata = metadata_store_or_exit(project_config, workspace=effective_workspace)
-    runner = Runner(LocalArtifactStore(effective_workspace), metadata_store=metadata)
+    artifact_store = artifact_store_or_exit(project_config, workspace=effective_workspace)
+    runner = Runner(artifact_store, metadata_store=metadata)
     service = ReplayService(runner, get_registry())
     overrides = dict(project_config.runtime.parameters)
     overrides.update(parse_param_assignments(param))

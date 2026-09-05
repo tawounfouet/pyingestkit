@@ -8,8 +8,8 @@ import tempfile
 import venv
 from pathlib import Path
 
-FRAMEWORK_VERSION = "0.5.1"
-DEMO_VERSION = "0.5.1"
+FRAMEWORK_VERSION = "0.6.0"
+DEMO_VERSION = "0.6.0"
 QUALITY_JOBS = ("demo.ndjson_quality", "demo.excel_quality", "demo.parquet_quality")
 VERSIONED_JOB = "demo.versioned_ndjson"
 
@@ -68,7 +68,7 @@ def main() -> int:
 
         run([str(python), "-m", "pip", "install", "--upgrade", "pip"], cwd=root, env=env)
         framework_requirement = (
-            "pyingestkit[excel,parquet,postgres] @ " + framework_wheel.resolve().as_uri()
+            "pyingestkit[excel,parquet,postgres,s3] @ " + framework_wheel.resolve().as_uri()
         )
         run(
             [str(python), "-m", "pip", "install", framework_requirement, str(demo_wheel)],
@@ -80,10 +80,15 @@ def main() -> int:
                 str(python),
                 "-c",
                 (
-                    "import openpyxl, pyarrow, psycopg, pyingestkit; "
+                    "import boto3, openpyxl, pyarrow, psycopg, pyingestkit; "
                     "from pyingestkit import ("
-                    "IdempotencyAction, IdempotencyPolicy, PostgresTarget, TargetLoadExecutor); "
+                    "ArtifactURI, IdempotencyAction, IdempotencyPolicy, PostgresTarget, "
+                    "S3ArtifactStore, S3DatasetVersionStore, StoredArtifact, TargetLoadExecutor); "
                     f"assert pyingestkit.__version__ == '{FRAMEWORK_VERSION}'; "
+                    "assert ArtifactURI.s3('bucket', 'raw/key').scheme == 's3'; "
+                    "assert S3ArtifactStore.__name__ == 'S3ArtifactStore'; "
+                    "assert S3DatasetVersionStore.__name__ == 'S3DatasetVersionStore'; "
+                    "assert StoredArtifact.__name__ == 'StoredArtifact'; "
                     "assert PostgresTarget.B2_CAPABILITIES.truncate_load; "
                     "assert PostgresTarget.B2_CAPABILITIES.replace; "
                     "assert IdempotencyAction.SKIP.value == 'skip'; "
@@ -109,6 +114,7 @@ def main() -> int:
             "demo.parquet_quality",
             VERSIONED_JOB,
             "demo.versioned_postgres",
+            "demo.versioned_s3",
         }
         if installed_ids != expected_ids:
             raise SystemExit(f"Unexpected installed jobs: {sorted(installed_ids)}")
@@ -249,8 +255,8 @@ def main() -> int:
 
     shutil.rmtree(workspace, ignore_errors=True)
     print(
-        "OK: V0.5.1 wheels expose eight reference jobs and preserve PostgreSQL persistence "
-        "contracts while proving V1 -> V2 -> diff -> publish -> strict RAW replay"
+        "OK: V0.6.0 stable wheels expose nine reference jobs and preserve local/postgres contracts "
+        "while service-backed CI proves full cross-host object-storage replay and idempotent load"
     )
     return 0
 

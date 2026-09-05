@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import logging
-import re
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -12,16 +11,11 @@ from pyingestkit.core.exceptions import StorageError
 from pyingestkit.provenance.hashing import sha256_bytes
 
 from .base import ArtifactStore
+from .naming import job_parts, relative_artifact_path, safe_component
 from .raw import RawArtifact
+from .uri import ArtifactURI
 
 logger = logging.getLogger(__name__)
-
-_SAFE = re.compile(r"[^A-Za-z0-9._-]+")
-
-
-def _safe(value: str) -> str:
-    cleaned = _SAFE.sub("_", value).strip("._")
-    return cleaned or "unnamed"
 
 
 class LocalArtifactStore(ArtifactStore):
@@ -29,7 +23,7 @@ class LocalArtifactStore(ArtifactStore):
         self.root = Path(root)
 
     def _job_parts(self, job_id: str) -> tuple[str, ...]:
-        return tuple(_safe(part) for part in job_id.split("."))
+        return job_parts(job_id)
 
     def run_root(self, job_id: str, run_id: UUID) -> Path:
         return self.root / "runs" / Path(*self._job_parts(job_id)) / str(run_id)
@@ -41,9 +35,15 @@ class LocalArtifactStore(ArtifactStore):
         return run_root
 
     def path_for(self, job_id: str, run_id: UUID, relative_path: str) -> Path:
-        path = self.run_root(job_id, run_id) / relative_path
+        relative = relative_artifact_path(relative_path)
+        path = self.run_root(job_id, run_id).joinpath(*relative.parts)
         path.parent.mkdir(parents=True, exist_ok=True)
         return path
+
+    def uri_for(self, job_id: str, run_id: UUID, relative_path: str) -> ArtifactURI:
+        relative = relative_artifact_path(relative_path)
+        path = self.run_root(job_id, run_id).joinpath(*relative.parts)
+        return ArtifactURI.from_path(path)
 
     def write_raw(
         self,
@@ -61,7 +61,8 @@ class LocalArtifactStore(ArtifactStore):
     ) -> RawArtifact:
         self.prepare_run(job_id, run_id)
         digest = sha256_bytes(data)
-        path = self.path_for(job_id, run_id, f"raw/{_safe(name)}")
+        relative_path = f"raw/{safe_component(name)}"
+        path = self.path_for(job_id, run_id, relative_path)
         try:
             with path.open("xb") as handle:
                 handle.write(data)
@@ -82,6 +83,7 @@ class LocalArtifactStore(ArtifactStore):
             status_code=status_code,
             etag=etag,
             last_modified=last_modified,
+            storage_uri=str(self.uri_for(job_id, run_id, relative_path)),
         )
 
     def write_json(self, job_id: str, run_id: UUID, relative_path: str, payload: Any) -> Path:
