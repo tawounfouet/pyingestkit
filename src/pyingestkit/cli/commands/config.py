@@ -32,7 +32,7 @@ def _mask_url(url: str | None) -> str | None:
             netloc = f"{user}:******@{host}{port}"
             return urlunparse(parsed._replace(netloc=netloc))
         return url
-    except Exception:
+    except ValueError:
         return re.sub(r":([^/@]+)@", r":******@", url)
 
 
@@ -90,7 +90,7 @@ def config_command(
 
     # Targets resolution
     targets_info: list[dict[str, object]] = []
-    for target_key, target in project_config.targets.items():
+    for target in project_config.targets.values():
         raw_target_dsn = os.getenv(target.dsn_env)
         target_dsn = raw_target_dsn if show_secrets else _mask_url(raw_target_dsn)
         targets_info.append(

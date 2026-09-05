@@ -16,7 +16,6 @@ from pyingestkit.cli.commands import (
     status_command,
     versions_command,
 )
-
 from pyingestkit.cli.console import console
 
 
@@ -63,7 +62,6 @@ app.command("status", help="Inspect one persisted ingestion run.")(status_comman
 app.command("versions", help="List immutable versions of a logical dataset.")(versions_command)
 app.command("published", help="Inspect the currently published dataset version.")(published_command)
 app.command("replay", help="Replay a historical run from captured RAW artifacts.")(replay_command)
-
 
 
 @app.command("help")

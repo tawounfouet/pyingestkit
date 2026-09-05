@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import os
 import tempfile
 import unittest
 from pathlib import Path
 
+from pyingestkit import Step, job
 from pyingestkit.config import ArtifactBackend, MetadataBackend, load_config
 from pyingestkit.core.exceptions import ConfigurationError
 
@@ -119,7 +121,6 @@ artifacts:
                 load_config(path)
 
     def test_env_var_config_auto_discovery(self) -> None:
-        import os
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "custom.yml"
             path.write_text("logging:\n  level: DEBUG\n", encoding="utf-8")
@@ -131,8 +132,6 @@ artifacts:
                 os.environ.pop("PYINGEST_CONFIG", None)
 
     def test_job_backend_requirements_declaration(self) -> None:
-        from pyingestkit import job, Step
-
         class DummyStep(Step):
             def execute(self, context, data):
                 return data

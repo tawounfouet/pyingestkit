@@ -1,14 +1,14 @@
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from typing import Any
 
 import yaml
 from pydantic import ValidationError as PydanticValidationError
 
+from pyingestkit.config.models import PyIngestKitConfig
 from pyingestkit.core.exceptions import ConfigurationError
-
-from .models import PyIngestKitConfig
 
 
 DEFAULT_CONFIG_FILES: tuple[str, ...] = (
@@ -23,7 +23,6 @@ def resolve_config_path_with_source(path: Path | None = None) -> tuple[Path | No
     if path is not None:
         return path, "explicit (--config)"
 
-    import os
     env_path = os.getenv("PYINGEST_CONFIG")
     if env_path and env_path.strip():
         candidate = Path(env_path.strip())
@@ -85,4 +84,3 @@ def load_config(path: Path | None = None) -> PyIngestKitConfig:
         return PyIngestKitConfig.model_validate(payload)
     except PydanticValidationError as exc:
         raise ConfigurationError(f"Invalid PyIngestKit configuration: {exc}") from exc
-
