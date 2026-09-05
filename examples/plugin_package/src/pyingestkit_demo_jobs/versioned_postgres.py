@@ -126,6 +126,25 @@ def _target_parameters(context: RunContext) -> tuple[str, str, str | None, str]:
     return target_id, table, schema, dsn_env
 
 
+def _ensure_demo_target_table(dsn: str, table: str, schema: str | None) -> None:
+    from sqlalchemy import create_engine
+    if dsn.startswith("postgres://"):
+        dsn = "postgresql+psycopg://" + dsn.removeprefix("postgres://")
+    elif dsn.startswith("postgresql://"):
+        dsn = "postgresql+psycopg://" + dsn.removeprefix("postgresql://")
+
+    engine = create_engine(dsn)
+    with engine.begin() as conn:
+        qualified = f'"{schema}"."{table}"' if schema else f'"{table}"'
+        conn.exec_driver_sql(
+            f"CREATE TABLE IF NOT EXISTS {qualified} ("
+            "id BIGINT PRIMARY KEY, "
+            "name TEXT NOT NULL, "
+            "score DOUBLE PRECISION NOT NULL)"
+        )
+    engine.dispose()
+
+
 @step(name="FetchVersionedPostgresNdjson")
 def fetch_versioned_postgres_ndjson(context: RunContext) -> RawArtifact:
     if context.replay is not None:
@@ -206,6 +225,9 @@ def version_load_publish_postgres(
             "demo.versioned_postgres expects PostgreSQL target DSN in environment variable "
             f"{dsn_env!r}"
         )
+
+    if context.fixture_mode:
+        _ensure_demo_target_table(dsn, table, schema)
 
     request = TargetLoadRequest(
         target_id=target_id,
