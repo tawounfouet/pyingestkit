@@ -11,7 +11,6 @@ from pyingestkit.core.exceptions import ConfigurationError
 
 from .models import PyIngestKitConfig
 
-
 DEFAULT_CONFIG_FILES: tuple[str, ...] = (
     "pyingest.yml",
     "pyingestkit.yml",
