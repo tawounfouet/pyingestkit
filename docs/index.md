@@ -60,10 +60,22 @@
 
 ## V1 — Stable Framework Contract
 
+### Contracts
+
 - [Public API reference](reference/public-api.md)
 - [Compatibility contract](reference/compatibility-v1.md)
 - [Operational stability contract](reference/stability-v1.md)
+- [Representative pilot qualification](reference/pilots-v1.md)
 - [V1 product scope](architecture/product-scope-v1.md)
+
+### Operator journey
+
+- [V1 quickstart](guides/v1-quickstart.md)
+- [V1 production-like PostgreSQL + S3 pilot](guides/v1-production-pilot.md)
+- [Migrate V0.6 stable integrations toward V1](guides/migrate-v0.6-to-v1.md)
+- [Package a job plugin](guides/package-a-job-plugin.md)
+- [Replay](guides/replay.md)
+- [Configure S3-compatible storage](guides/configure-object-storage.md)
 
 ## Engineering Reviews
 
