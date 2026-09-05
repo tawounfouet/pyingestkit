@@ -72,17 +72,12 @@ def config_command(
     # Artifacts resolution
     artifacts_backend = project_config.artifacts.backend.value
     s3_config = project_config.artifacts.s3
-    s3_endpoint = (
-        os.getenv(s3_config.endpoint_url_env)
-        if s3_config.endpoint_url_env
-        else None
-    )
+    s3_endpoint = os.getenv(s3_config.endpoint_url_env) if s3_config.endpoint_url_env else None
 
     # Metadata resolution
     metadata_backend = project_config.metadata.backend.value
-    sqlite_path = (
-        project_config.metadata.sqlite.path
-        or (Path(effective_workspace) / "state" / "pyingest.sqlite3")
+    sqlite_path = project_config.metadata.sqlite.path or (
+        Path(effective_workspace) / "state" / "pyingest.sqlite3"
     )
     postgres_dsn_env = project_config.metadata.postgres.dsn_env
     raw_postgres_dsn = os.getenv(postgres_dsn_env)
@@ -120,7 +115,9 @@ def config_command(
             },
             "artifacts": {
                 "backend": artifacts_backend,
-                "local_root": str(effective_workspace) if artifacts_backend == ArtifactBackend.LOCAL.value else None,
+                "local_root": str(effective_workspace)
+                if artifacts_backend == ArtifactBackend.LOCAL.value
+                else None,
                 "s3": {
                     "bucket": s3_config.bucket,
                     "prefix": s3_config.prefix,
@@ -170,7 +167,11 @@ def config_command(
     table.add_column("Value")
 
     # Source & Environment
-    table.add_row("Resolution", "Config File", str(resolved_path) if resolved_path else "[dim]None (in-memory defaults)[/dim]")
+    table.add_row(
+        "Resolution",
+        "Config File",
+        str(resolved_path) if resolved_path else "[dim]None (in-memory defaults)[/dim]",
+    )
     table.add_row("", "Origin", f"[green]{resolution_method}[/green]")
     table.add_row("", "Environment (PYINGEST_ENV)", active_env or "[dim]—[/dim]")
     table.add_row("", "Workspace", str(Path(effective_workspace).resolve()))
@@ -205,13 +206,27 @@ def config_command(
         table.add_section()
         for idx, t in enumerate(targets_info):
             cat = "Targets" if idx == 0 else ""
-            table.add_row(cat, f"[{t['id']}] Table", f"{t['schema']}.{t['table']} ({t['load_mode']})")
-            table.add_row("", f"[{t['id']}] DSN", str(t['dsn']) if t['dsn_set'] else f"[bold red]UNSET[/bold red] ({t['dsn_env']})")
+            table.add_row(
+                cat, f"[{t['id']}] Table", f"{t['schema']}.{t['table']} ({t['load_mode']})"
+            )
+            table.add_row(
+                "",
+                f"[{t['id']}] DSN",
+                str(t["dsn"]) if t["dsn_set"] else f"[bold red]UNSET[/bold red] ({t['dsn_env']})",
+            )
 
     # Logging
     table.add_section()
-    table.add_row("Logging", "Level / Format", f"{project_config.logging.level} / {project_config.logging.format.value}")
+    table.add_row(
+        "Logging",
+        "Level / Format",
+        f"{project_config.logging.level} / {project_config.logging.format.value}",
+    )
     if project_config.logging.file.enabled:
-        table.add_row("", "File Log", f"{project_config.logging.file.path} ({project_config.logging.file.level})")
+        table.add_row(
+            "",
+            "File Log",
+            f"{project_config.logging.file.path} ({project_config.logging.file.level})",
+        )
 
     console.print(table)

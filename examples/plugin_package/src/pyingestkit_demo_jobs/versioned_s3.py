@@ -272,7 +272,6 @@ def version_load_publish_s3(
     requires_artifacts="s3",
     requires_metadata="postgres",
 )
-
 def versioned_s3_job() -> None:
     fetch_versioned_s3_ndjson()
     parse_versioned_s3_ndjson()

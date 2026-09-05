@@ -23,9 +23,7 @@ from pyingestkit.runtime import Runner
 def replay_command(
     source_run_id: Annotated[
         str | None,
-        typer.Argument(
-            help="Historical run ID or unique prefix. Defaults to the most recent run."
-        ),
+        typer.Argument(help="Historical run ID or unique prefix. Defaults to the most recent run."),
     ] = None,
     config: Annotated[
         Path | None, typer.Option("--config", "-c", exists=True, dir_okay=False)

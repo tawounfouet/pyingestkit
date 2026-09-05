@@ -21,4 +21,3 @@ __all__ = [
     "status_command",
     "versions_command",
 ]
-

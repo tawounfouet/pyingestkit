@@ -41,7 +41,6 @@ class CliSmokeTests(unittest.TestCase):
         ):
             self.assertIn(command, result.output)
 
-
     def test_help_command(self) -> None:
         result = self.runner.invoke(app, ["help"])
         self.assertEqual(result.exit_code, 0, result.output)
@@ -124,4 +123,3 @@ class CliSmokeTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
