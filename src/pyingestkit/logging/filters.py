@@ -17,10 +17,11 @@ _SECRET_PATTERNS = (
 _SECRET_KEY = re.compile(
     r"(?i)(password|passwd|secret|token|api[_-]?key|client[_-]?secret|authorization)"
 )
+_URL_PASSWORD = re.compile(r"(?i)([a-z][a-z0-9+.-]*://[^:/@\s]+:)([^@/\s]+)(@)")
 
 
 def redact_text(value: str) -> str:
-    redacted = value
+    redacted = _URL_PASSWORD.sub(r"\1***REDACTED***\3", value)
     for pattern in _SECRET_PATTERNS:
         if "authorization" in pattern.pattern.lower():
             redacted = pattern.sub(r"\1***REDACTED***", redacted)
