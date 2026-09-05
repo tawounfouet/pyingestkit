@@ -1,0 +1,605 @@
+{
+  "schema_version": 1,
+  "milestone": "V1.0.0-a2",
+  "title": "Contract Consolidation + Compatibility",
+  "baseline": {
+    "a1_merge_sha": "6a4f93e3b4beec4b67a846d22f909abebc95524c"
+  },
+  "policy": {
+    "public_exports": "Existing stable-candidate exports may not be removed or renamed without an explicit breaking-change decision before V1.0 RC1.",
+    "dataclass_fields": "Existing field names and order are compatibility-sensitive. Additive fields must be optional or defaulted and require an intentional contract update.",
+    "enum_values": "Existing enum names and serialized values are immutable compatibility data. Additions are governed because callers may use exhaustive matching.",
+    "abstract_contracts": "Existing abstract method sets are frozen. New abstract methods are breaking; additive concrete methods are preferred.",
+    "persistent_json": "Existing keys and meanings are preserved. Additive keys are allowed within a schema version; incompatible semantic changes require a schema-version bump and an upgrade path.",
+    "physical_metadata_schema": "SQL table/layout details remain internal. Logical record and capability contracts are the V1 compatibility boundary."
+  },
+  "enums": {
+    "pyingestkit.core.result.RunStatus": {
+      "PENDING": "PENDING",
+      "RUNNING": "RUNNING",
+      "SUCCESS": "SUCCESS",
+      "FAILED": "FAILED",
+      "CANCELLED": "CANCELLED"
+    },
+    "pyingestkit.diff.DiffKind": {
+      "ADDED": "ADDED",
+      "REMOVED": "REMOVED",
+      "CHANGED": "CHANGED"
+    },
+    "pyingestkit.targets.LoadMode": {
+      "APPEND": "append",
+      "TRUNCATE_LOAD": "truncate_load",
+      "REPLACE": "replace"
+    },
+    "pyingestkit.targets.TargetLoadStatus": {
+      "PENDING": "PENDING",
+      "RUNNING": "RUNNING",
+      "SKIPPED": "SKIPPED",
+      "SUCCESS": "SUCCESS",
+      "FAILED": "FAILED",
+      "ROLLED_BACK": "ROLLED_BACK"
+    },
+    "pyingestkit.targets.IdempotencyPolicy": {
+      "AUTO": "auto",
+      "DISABLED": "disabled",
+      "REQUIRE_VERSION": "require_version"
+    },
+    "pyingestkit.targets.IdempotencyAction": {
+      "EXECUTE": "execute",
+      "SKIP": "skip",
+      "RETRY": "retry",
+      "RELOAD": "reload"
+    },
+    "pyingestkit.validation.ValidationSeverity": {
+      "ERROR": "ERROR",
+      "WARNING": "WARNING",
+      "REVIEW": "REVIEW"
+    },
+    "pyingestkit.config.MetadataBackend": {
+      "SQLITE": "sqlite",
+      "POSTGRES": "postgres"
+    },
+    "pyingestkit.config.ArtifactBackend": {
+      "LOCAL": "local",
+      "S3": "s3"
+    },
+    "pyingestkit.config.LogOutputFormat": {
+      "RICH": "rich",
+      "PLAIN": "plain",
+      "JSON": "json"
+    }
+  },
+  "dataclasses": {
+    "pyingestkit.core.context.RunContext": [
+      "job_id",
+      "job_version",
+      "artifact_store",
+      "run_id",
+      "started_at",
+      "as_of",
+      "fixture_mode",
+      "parameters",
+      "replay"
+    ],
+    "pyingestkit.core.result.StepResult": [
+      "step_name",
+      "status",
+      "started_at",
+      "completed_at",
+      "duration_seconds",
+      "output",
+      "error",
+      "warnings",
+      "metrics"
+    ],
+    "pyingestkit.core.result.RunResult": [
+      "run_id",
+      "job_id",
+      "job_version",
+      "status",
+      "started_at",
+      "completed_at",
+      "duration_seconds",
+      "steps",
+      "error",
+      "warnings"
+    ],
+    "pyingestkit.artifacts.raw.RawArtifact": [
+      "artifact_id",
+      "source_uri",
+      "retrieved_at",
+      "content_type",
+      "size_bytes",
+      "sha256",
+      "path",
+      "resolved_url",
+      "status_code",
+      "etag",
+      "last_modified",
+      "storage_uri",
+      "acquisition_mode",
+      "origin_run_id",
+      "origin_artifact_id",
+      "origin_retrieved_at"
+    ],
+    "pyingestkit.diff.DiffPolicy": [
+      "key_fields",
+      "ignore_fields",
+      "compare_fields",
+      "order_sensitive",
+      "max_entries",
+      "capture_values"
+    ],
+    "pyingestkit.diff.SchemaDiff": [
+      "added_fields",
+      "removed_fields",
+      "common_fields",
+      "field_order_changed"
+    ],
+    "pyingestkit.diff.DiffEntry": [
+      "kind",
+      "key",
+      "changed_fields",
+      "before",
+      "after"
+    ],
+    "pyingestkit.diff.DatasetDiff": [
+      "previous_fingerprint",
+      "candidate_fingerprint",
+      "policy",
+      "schema",
+      "added_count",
+      "removed_count",
+      "changed_count",
+      "unchanged_count",
+      "entries",
+      "entries_truncated"
+    ],
+    "pyingestkit.versioning.DatasetFingerprintPolicy": [
+      "order_sensitive"
+    ],
+    "pyingestkit.versioning.DatasetFingerprint": [
+      "algorithm",
+      "value",
+      "order_sensitive",
+      "row_count",
+      "field_count"
+    ],
+    "pyingestkit.versioning.DatasetVersion": [
+      "dataset_id",
+      "version_id",
+      "fingerprint",
+      "snapshot_uri",
+      "created_at",
+      "created_from_run_id",
+      "job_id",
+      "job_version",
+      "source_artifact_id",
+      "source_raw_sha256",
+      "quality_reports"
+    ],
+    "pyingestkit.versioning.PublishedDataset": [
+      "dataset_id",
+      "version_id",
+      "fingerprint",
+      "snapshot_uri",
+      "published_at",
+      "published_from_run_id"
+    ],
+    "pyingestkit.replay.ReplayRawArtifact": [
+      "origin_run_id",
+      "origin_artifact_id",
+      "artifact_name",
+      "origin_path",
+      "source_uri",
+      "content_type",
+      "sha256",
+      "origin_retrieved_at",
+      "resolved_url",
+      "status_code",
+      "etag",
+      "last_modified",
+      "origin_storage_uri"
+    ],
+    "pyingestkit.replay.ReplayContext": [
+      "source_run_id",
+      "source_job_id",
+      "source_job_version",
+      "raw_artifacts",
+      "verification_mode",
+      "verify_expected_fingerprint",
+      "strict"
+    ],
+    "pyingestkit.replay.ReplayResult": [
+      "run",
+      "source_run_id",
+      "source_job_version",
+      "executed_job_version",
+      "verification_mode",
+      "expected_fingerprint",
+      "actual_fingerprint",
+      "matched"
+    ],
+    "pyingestkit.validation.ValidationIssue": [
+      "rule",
+      "message",
+      "severity",
+      "field",
+      "row_index",
+      "value_preview",
+      "constraint",
+      "context"
+    ],
+    "pyingestkit.metadata.RunRecord": [
+      "run_id",
+      "job_id",
+      "job_version",
+      "status",
+      "started_at",
+      "completed_at",
+      "duration_seconds",
+      "fixture_mode",
+      "parameters",
+      "error",
+      "created_at"
+    ],
+    "pyingestkit.metadata.StepRecord": [
+      "id",
+      "run_id",
+      "position",
+      "step_name",
+      "status",
+      "started_at",
+      "completed_at",
+      "duration_seconds",
+      "error",
+      "metrics"
+    ],
+    "pyingestkit.metadata.ArtifactRecord": [
+      "artifact_id",
+      "run_id",
+      "kind",
+      "path",
+      "source_uri",
+      "content_type",
+      "size_bytes",
+      "sha256",
+      "created_at",
+      "resolved_url",
+      "status_code",
+      "etag",
+      "last_modified",
+      "storage_uri"
+    ],
+    "pyingestkit.metadata.EventRecord": [
+      "id",
+      "run_id",
+      "job_id",
+      "step",
+      "event_type",
+      "level",
+      "message",
+      "timestamp",
+      "metadata"
+    ],
+    "pyingestkit.metadata.ValidationRecord": [
+      "id",
+      "run_id",
+      "rule",
+      "severity",
+      "status",
+      "message",
+      "metadata"
+    ],
+    "pyingestkit.metadata.PublicationRecord": [
+      "id",
+      "run_id",
+      "dataset_id",
+      "status",
+      "candidate_path",
+      "published_path",
+      "published_at"
+    ],
+    "pyingestkit.metadata.TargetLoadRecord": [
+      "load_id",
+      "run_id",
+      "target_id",
+      "dataset_id",
+      "dataset_version_id",
+      "mode",
+      "status",
+      "destination",
+      "rows_input",
+      "rows_loaded",
+      "rows_verified",
+      "started_at",
+      "completed_at",
+      "duration_seconds",
+      "idempotency_action",
+      "metrics",
+      "error",
+      "created_at"
+    ],
+    "pyingestkit.metadata.DiffRecord": [
+      "id",
+      "run_id",
+      "step_name",
+      "dataset_id",
+      "previous_version_id",
+      "candidate_fingerprint",
+      "added_count",
+      "removed_count",
+      "changed_count",
+      "unchanged_count",
+      "entries_truncated",
+      "report_path",
+      "created_at"
+    ],
+    "pyingestkit.metadata.DatasetVersionRecord": [
+      "dataset_id",
+      "version_id",
+      "fingerprint",
+      "snapshot_uri",
+      "created_from_run_id",
+      "job_id",
+      "job_version",
+      "source_artifact_id",
+      "source_raw_sha256",
+      "created_at"
+    ],
+    "pyingestkit.metadata.DatasetVersionRunRecord": [
+      "dataset_id",
+      "version_id",
+      "run_id",
+      "created_at"
+    ],
+    "pyingestkit.metadata.PublishedDatasetRecord": [
+      "dataset_id",
+      "version_id",
+      "published_from_run_id",
+      "published_at"
+    ],
+    "pyingestkit.metadata.ReplayRecord": [
+      "run_id",
+      "source_run_id",
+      "source_job_id",
+      "source_job_version",
+      "executed_job_version",
+      "verification_mode",
+      "expected_fingerprint",
+      "actual_fingerprint",
+      "status",
+      "created_at"
+    ],
+    "pyingestkit.metadata.ReproducibilityRecord": [
+      "run_id",
+      "framework_version",
+      "as_of",
+      "parameters_fingerprint",
+      "created_at"
+    ],
+    "pyingestkit.targets.TargetLoadDecision": [
+      "action",
+      "reason",
+      "prior_load_id",
+      "prior_status"
+    ],
+    "pyingestkit.targets.TargetLoadRequest": [
+      "target_id",
+      "dataset_id",
+      "run_id",
+      "dataset",
+      "table",
+      "dataset_version_id",
+      "mode",
+      "schema",
+      "key_fields",
+      "expected_row_count",
+      "idempotency_policy",
+      "options",
+      "metadata"
+    ],
+    "pyingestkit.targets.TargetLoadResult": [
+      "load_id",
+      "target_id",
+      "dataset_id",
+      "run_id",
+      "mode",
+      "status",
+      "rows_input",
+      "rows_loaded",
+      "rows_verified",
+      "started_at",
+      "completed_at",
+      "duration_seconds",
+      "destination",
+      "dataset_version_id",
+      "idempotency_action",
+      "metrics",
+      "error"
+    ]
+  },
+  "abstract_contracts": {
+    "pyingestkit.sources.Source": [
+      "fetch"
+    ],
+    "pyingestkit.parsers.Parser": [
+      "parse"
+    ],
+    "pyingestkit.targets.Target": [
+      "capabilities",
+      "close",
+      "load",
+      "open",
+      "target_id"
+    ],
+    "pyingestkit.artifacts.ArtifactStore": [
+      "path_for",
+      "prepare_run",
+      "write_json",
+      "write_raw"
+    ],
+    "pyingestkit.versioning.DatasetVersionStore": [
+      "create_version",
+      "get_published",
+      "get_version",
+      "list_versions",
+      "load_dataset",
+      "publish"
+    ],
+    "pyingestkit.metadata.MetadataStore": [
+      "finish_run",
+      "get_run",
+      "initialize",
+      "list_artifacts",
+      "list_events",
+      "list_publications",
+      "list_runs",
+      "list_steps",
+      "list_validations",
+      "record_artifact",
+      "record_event",
+      "record_publication",
+      "record_step",
+      "record_validation",
+      "start_run"
+    ],
+    "pyingestkit.metadata.DiffMetadataCapability": [
+      "list_dataset_diffs",
+      "record_dataset_diff"
+    ],
+    "pyingestkit.metadata.VersionMetadataCapability": [
+      "get_published_dataset",
+      "list_dataset_versions",
+      "record_dataset_version",
+      "record_dataset_version_run",
+      "record_published_dataset"
+    ],
+    "pyingestkit.metadata.ReplayMetadataCapability": [
+      "find_expected_fingerprint_for_run",
+      "get_replay_run",
+      "get_run_reproducibility",
+      "record_replay_run",
+      "record_run_reproducibility"
+    ],
+    "pyingestkit.metadata.TargetLoadMetadataCapability": [
+      "get_target_load",
+      "list_target_loads",
+      "record_target_load"
+    ]
+  },
+  "persistent_formats": {
+    "run_manifest": {
+      "schema_version": 1,
+      "keys": [
+        "schema_version",
+        "run_id",
+        "job_id",
+        "job_version",
+        "started_at",
+        "completed_at",
+        "status",
+        "artifacts",
+        "steps",
+        "validations",
+        "reports",
+        "replay",
+        "metrics",
+        "warnings",
+        "error"
+      ]
+    },
+    "dataset_snapshot": {
+      "schema_field": "snapshot_version",
+      "schema_version": "1",
+      "keys": [
+        "snapshot_version",
+        "dataset"
+      ]
+    },
+    "dataset_version_metadata": {
+      "schema_field": "version_schema",
+      "schema_version": "1",
+      "keys": [
+        "version_schema",
+        "dataset_id",
+        "version_id",
+        "fingerprint",
+        "snapshot_uri",
+        "created_from_run_id",
+        "job_id",
+        "job_version",
+        "source_artifact_id",
+        "source_raw_sha256",
+        "quality_reports",
+        "created_at"
+      ]
+    },
+    "published_dataset_pointer": {
+      "schema_field": "published_schema",
+      "schema_version": "1",
+      "keys": [
+        "published_schema",
+        "dataset_id",
+        "version_id",
+        "fingerprint",
+        "snapshot_uri",
+        "published_at",
+        "published_from_run_id"
+      ]
+    },
+    "dataset_fingerprint": {
+      "keys": [
+        "algorithm",
+        "value",
+        "id",
+        "order_sensitive",
+        "row_count",
+        "field_count"
+      ]
+    },
+    "dataset_diff": {
+      "keys": [
+        "previous_fingerprint",
+        "candidate_fingerprint",
+        "policy",
+        "schema",
+        "summary",
+        "entries_truncated",
+        "entries"
+      ]
+    },
+    "replay_manifest": {
+      "keys": [
+        "source_run_id",
+        "source_job_id",
+        "source_job_version",
+        "executed_job_version",
+        "verification_mode",
+        "expected_fingerprint",
+        "actual_fingerprint",
+        "matched"
+      ]
+    },
+    "validation_issue": {
+      "keys": [
+        "rule",
+        "message",
+        "severity",
+        "field",
+        "row_index",
+        "value_preview",
+        "constraint",
+        "context"
+      ]
+    },
+    "validation_report": {
+      "keys": [
+        "valid",
+        "error_count",
+        "warning_count",
+        "issues"
+      ]
+    }
+  }
+}
