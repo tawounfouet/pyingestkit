@@ -7,9 +7,8 @@ import unittest
 from pathlib import Path
 from uuid import uuid4
 
-from typer.testing import CliRunner
-
 from pyingestkit_demo_jobs.versioned_ndjson import job_definition
+from typer.testing import CliRunner
 
 from pyingestkit.artifacts import S3ArtifactStore, StoredArtifact
 from pyingestkit.cli.app import app
@@ -68,9 +67,7 @@ class S3RemoteRawIntegrationTests(unittest.TestCase):
             )
             self.assertEqual(remote["Metadata"]["pyingestkit-sha256"], source.sha256)
 
-            manifest_path = artifact_store.path_for(
-                job.id, first.run_id, "manifest.json"
-            )
+            manifest_path = artifact_store.path_for(job.id, first.run_id, "manifest.json")
             manifest_payload = json.loads(manifest_path.read_text(encoding="utf-8"))
             self.assertGreaterEqual(len(manifest_payload["reports"]), 2)
             for report in manifest_payload["reports"]:
@@ -95,9 +92,7 @@ class S3RemoteRawIntegrationTests(unittest.TestCase):
             manifest_key = manifest_uri.key
             assert manifest_key is not None
             manifest_head = self.client.head_object(Bucket=BUCKET, Key=manifest_key)
-            self.assertEqual(
-                manifest_head["Metadata"]["pyingestkit-artifact-kind"], "manifest"
-            )
+            self.assertEqual(manifest_head["Metadata"]["pyingestkit-artifact-kind"], "manifest")
             stored_manifest = StoredArtifact(
                 relative_path="manifest.json",
                 path=str(manifest_path),
@@ -156,9 +151,7 @@ class S3RemoteRawIntegrationTests(unittest.TestCase):
             self.assertTrue(Path(replay_raw.path).is_file())
             self.assertNotEqual(replay_raw.storage_uri, source.storage_uri)
 
-            replay_manifest_uri = artifact_store.uri_for(
-                job.id, replay.run.run_id, "manifest.json"
-            )
+            replay_manifest_uri = artifact_store.uri_for(job.id, replay.run.run_id, "manifest.json")
             replay_manifest_bytes = artifact_store.read_bytes(replay_manifest_uri)
             replay_manifest = json.loads(replay_manifest_bytes)
             self.assertEqual(replay_manifest["replay"]["source_run_id"], first.run_id)
