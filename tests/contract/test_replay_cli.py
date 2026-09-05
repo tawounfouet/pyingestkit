@@ -13,5 +13,7 @@ def test_replay_command_is_exposed() -> None:
     assert result.exit_code == 0
 
     parameters = signature(replay_command).parameters
+    assert "source_run_id" in parameters
+    assert parameters["source_run_id"].default is None
     assert "allow_version_change" in parameters
     assert "no_verify" in parameters

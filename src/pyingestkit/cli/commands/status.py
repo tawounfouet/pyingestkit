@@ -20,7 +20,10 @@ from pyingestkit.metadata import DiffMetadataCapability
 
 
 def status_command(
-    run_id: Annotated[str, typer.Argument(help="Full run UUID or unique prefix.")],
+    run_id: Annotated[
+        str | None,
+        typer.Argument(help="Full run UUID or unique prefix. Defaults to the most recent run."),
+    ] = None,
     config: Annotated[
         Path | None,
         typer.Option(
@@ -45,12 +48,26 @@ def status_command(
     project_config = project_config_or_exit(config)
     effective_workspace = workspace or project_config.runtime.workspace
     store = metadata_store_or_exit(project_config, workspace=effective_workspace)
-    try:
-        run = store.get_run(run_id)
-    except KeyError:
-        fail(f"Unknown run: {run_id}", code=2)
-    except ValueError as exc:
-        fail(str(exc), code=2)
+    if run_id is None:
+        recent_runs = store.list_runs(limit=1)
+        if not recent_runs:
+            fail(
+                "Missing argument 'run_id'. No ingestion runs found in metadata store.\n"
+                "Execute a job first with 'pyingest run <job_id>'.",
+                code=2,
+            )
+        run = recent_runs[0]
+        if not json_output:
+            console.print(
+                f"[dim]No run ID specified. Showing most recent run: [bold cyan]{run.run_id[:8]}[/bold cyan] ({run.job_id})[/dim]\n"
+            )
+    else:
+        try:
+            run = store.get_run(run_id)
+        except KeyError:
+            fail(f"Unknown run: {run_id}", code=2)
+        except ValueError as exc:
+            fail(str(exc), code=2)
     steps = store.list_steps(run.run_id)
     artifacts = store.list_artifacts(run.run_id)
     validations = store.list_validations(run.run_id)

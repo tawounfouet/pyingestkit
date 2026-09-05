@@ -45,9 +45,39 @@ def get_job_or_exit(registry: JobRegistry, job_id: str) -> Job:
 
 def project_config_or_exit(config: Path | None) -> PyIngestKitConfig:
     try:
-        return load_config(config) if config is not None else PyIngestKitConfig()
+        return load_config(config)
     except ConfigurationError as exc:
         fail(str(exc), code=2)
+
+
+def validate_job_requirements_or_exit(
+    job: Job,
+    project_config: PyIngestKitConfig,
+) -> None:
+    """Ensure that the resolved configuration satisfies the explicit backend requirements of the job."""
+    if job.requires_artifacts is not None:
+        configured_backend = project_config.artifacts.backend.value.lower()
+        required_backend = job.requires_artifacts.lower()
+        if configured_backend != required_backend:
+            fail(
+                f"Ingestion job '{job.id}' requires an artifact backend of type {required_backend!r}, "
+                f"but {configured_backend!r} is configured.\n"
+                "Please specify a compatible configuration file using `--config <file.yml>` "
+                "or set the PYINGEST_CONFIG environment variable.",
+                code=2,
+            )
+
+    if job.requires_metadata is not None:
+        configured_backend = project_config.metadata.backend.value.lower()
+        required_backend = job.requires_metadata.lower()
+        if configured_backend != required_backend:
+            fail(
+                f"Ingestion job '{job.id}' requires a metadata backend of type {required_backend!r}, "
+                f"but {configured_backend!r} is configured.\n"
+                "Please specify a compatible configuration file using `--config <file.yml>` "
+                "or set the PYINGEST_CONFIG environment variable.",
+                code=2,
+            )
 
 
 def artifact_store_or_exit(

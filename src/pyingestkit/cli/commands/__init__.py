@@ -1,5 +1,6 @@
 """Typer command implementations for the PyIngestKit CLI."""
 
+from .config import config_command
 from .inspect import inspect_command
 from .jobs import jobs_command
 from .published import published_command
@@ -10,6 +11,7 @@ from .status import status_command
 from .versions import versions_command
 
 __all__ = [
+    "config_command",
     "inspect_command",
     "jobs_command",
     "published_command",
@@ -19,3 +21,4 @@ __all__ = [
     "status_command",
     "versions_command",
 ]
+

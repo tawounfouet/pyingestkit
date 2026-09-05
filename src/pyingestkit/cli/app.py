@@ -6,6 +6,7 @@ import typer
 
 from pyingestkit import __version__
 from pyingestkit.cli.commands import (
+    config_command,
     inspect_command,
     jobs_command,
     published_command,
@@ -15,6 +16,7 @@ from pyingestkit.cli.commands import (
     status_command,
     versions_command,
 )
+
 from pyingestkit.cli.console import console
 
 
@@ -54,12 +56,14 @@ def root(
 
 app.command("jobs", help="List installed ingestion jobs.")(jobs_command)
 app.command("inspect", help="Inspect an installed ingestion job.")(inspect_command)
+app.command("config", help="Show active configuration, resolved source, and backend settings.")(config_command)
 app.command("run", help="Execute an installed ingestion job.")(run_command)
 app.command("runs", help="List persisted ingestion runs.")(runs_command)
 app.command("status", help="Inspect one persisted ingestion run.")(status_command)
 app.command("versions", help="List immutable versions of a logical dataset.")(versions_command)
 app.command("published", help="Inspect the currently published dataset version.")(published_command)
 app.command("replay", help="Replay a historical run from captured RAW artifacts.")(replay_command)
+
 
 
 @app.command("help")

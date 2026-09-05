@@ -17,6 +17,7 @@ from pyingestkit.cli.common import (
     parse_param_assignments,
     parse_params_json,
     project_config_or_exit,
+    validate_job_requirements_or_exit,
 )
 from pyingestkit.cli.console import console
 from pyingestkit.config import LogOutputFormat
@@ -106,6 +107,7 @@ def run_command(
         fail(str(exc), code=2)
 
     job = get_job_or_exit(get_registry(), job_id)
+    validate_job_requirements_or_exit(job, project_config)
     effective_workspace = workspace or project_config.runtime.workspace
     effective_fixture = fixture if fixture is not None else project_config.runtime.fixture_mode
     parameters = dict(project_config.runtime.parameters)

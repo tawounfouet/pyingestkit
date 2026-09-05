@@ -31,6 +31,7 @@ class CliSmokeTests(unittest.TestCase):
         for command in (
             "jobs",
             "inspect",
+            "config",
             "run",
             "runs",
             "status",
@@ -39,6 +40,7 @@ class CliSmokeTests(unittest.TestCase):
             "replay",
         ):
             self.assertIn(command, result.output)
+
 
     def test_help_command(self) -> None:
         result = self.runner.invoke(app, ["help"])
@@ -100,6 +102,26 @@ class CliSmokeTests(unittest.TestCase):
             if previous is not None:
                 os.environ[key] = previous
 
+    def test_config_command(self) -> None:
+        result = self.runner.invoke(app, ["config"])
+        self.assertEqual(result.exit_code, 0, result.output)
+        self.assertIn("PyIngestKit Configuration", result.output)
+        self.assertIn("Resolution", result.output)
+        self.assertIn("Artifacts", result.output)
+        self.assertIn("Metadata", result.output)
+
+    def test_config_json(self) -> None:
+        result = self.runner.invoke(app, ["config", "--json"])
+        self.assertEqual(result.exit_code, 0, result.output)
+        payload = json.loads(result.stdout)
+        self.assertIn("source", payload)
+        self.assertIn("runtime", payload)
+        self.assertIn("artifacts", payload)
+        self.assertIn("metadata", payload)
+        self.assertIn("backend", payload["artifacts"])
+        self.assertIn("backend", payload["metadata"])
+
 
 if __name__ == "__main__":
     unittest.main()
+
