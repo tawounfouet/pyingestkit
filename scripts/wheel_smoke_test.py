@@ -8,8 +8,8 @@ import tempfile
 import venv
 from pathlib import Path
 
-FRAMEWORK_VERSION = "0.5.0rc1"
-DEMO_VERSION = "0.5.0rc1"
+FRAMEWORK_VERSION = "0.5.0"
+DEMO_VERSION = "0.5.0"
 QUALITY_JOBS = ("demo.ndjson_quality", "demo.excel_quality", "demo.parquet_quality")
 VERSIONED_JOB = "demo.versioned_ndjson"
 
@@ -223,7 +223,7 @@ def main() -> int:
 
     shutil.rmtree(workspace, ignore_errors=True)
     print(
-        "OK: V0.5.0-rc1 wheels expose eight reference jobs and preserve target-load idempotency contracts while proving "
+        "OK: V0.5.0 stable wheels expose eight reference jobs and preserve PostgreSQL persistence contracts while proving "
         "V1 -> V2 -> diff -> publish -> strict RAW replay"
     )
     return 0
