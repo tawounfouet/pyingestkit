@@ -78,3 +78,4 @@ Dataset snapshot format at `snapshot_version = "1"`. Portable diff reports are f
 ## V1 Stable Framework Contract
 
 - [ADR-055 — V1 public API and product scope are governed by an explicit manifest](ADR-055-v1-public-api-and-scope-governance.md)
+- [ADR-056 — V1 compatibility is enforced at logical contracts and versioned persistence boundaries](ADR-056-v1-compatibility-contract-and-persistent-schema-policy.md)
