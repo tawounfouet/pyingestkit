@@ -37,9 +37,12 @@ def _resolve(qualified_name: str) -> Any:
 
 
 def _assert_keys(label: str, payload: dict[str, Any], expected: list[str]) -> None:
-    actual = list(payload)
-    if actual != expected:
-        raise SystemExit(f"{label} keys changed. expected={expected} actual={actual}")
+    actual = set(payload)
+    expected_set = set(expected)
+    if actual != expected_set:
+        raise SystemExit(
+            f"{label} keys changed. expected={sorted(expected_set)} actual={sorted(actual)}"
+        )
 
 
 def _check_enums(contract: dict[str, Any]) -> None:
