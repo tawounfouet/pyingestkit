@@ -17,8 +17,8 @@ jobs:
       matrix:
         python-version: ["3.11", "3.12", "3.13"]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
       - run: python -m pip install --upgrade pip
@@ -47,8 +47,8 @@ jobs:
     env:
       PYINGEST_TEST_POSTGRES_DSN: postgresql+psycopg://postgres:postgres@localhost:5432/pyingestkit
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - run: python -m pip install --upgrade pip
@@ -68,8 +68,8 @@ jobs:
       PYINGEST_TEST_S3_ENDPOINT_URL: http://127.0.0.1:9000
       PYINGEST_TEST_S3_BUCKET: pyingestkit
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - name: Generate ephemeral MinIO credentials
@@ -126,8 +126,8 @@ jobs:
       PYINGEST_TEST_S3_BUCKET: pyingestkit
       PYINGEST_TEST_POSTGRES_DSN: postgresql+psycopg://postgres:postgres@localhost:5432/pyingestkit
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - name: Generate ephemeral MinIO credentials
@@ -163,8 +163,8 @@ jobs:
   foundation-verify:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - run: python -m pip install --upgrade pip
