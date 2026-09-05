@@ -78,10 +78,12 @@ class QualityReportsRuntimeTests(unittest.TestCase):
             self.assertIn("PROFILE_COMPLETED", event_types)
             self.assertIn("QUALITY_REPORT_WRITTEN", event_types)
 
-            status_result = CliRunner().invoke(
-                app,
-                ["status", result.run_id[:8], "--workspace", str(workspace), "--json"],
-            )
+            cli_runner = CliRunner()
+            with cli_runner.isolated_filesystem(temp_dir=tmp):
+                status_result = cli_runner.invoke(
+                    app,
+                    ["status", result.run_id[:8], "--workspace", str(workspace), "--json"],
+                )
             self.assertEqual(status_result.exit_code, 0, status_result.output)
             status_payload = json.loads(status_result.stdout)
             status_reports = {(entry["kind"], entry["path"]) for entry in status_payload["reports"]}

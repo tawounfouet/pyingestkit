@@ -45,7 +45,7 @@ class CliRunHistoryTests(unittest.TestCase):
             handler.close()
 
     def test_run_then_runs_then_status(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp:
+        with tempfile.TemporaryDirectory() as tmp, self.runner.isolated_filesystem(temp_dir=tmp):
             workspace = Path(tmp) / ".pyingest"
             run_result = self.runner.invoke(
                 app, ["run", "demo.cli_history", "--workspace", str(workspace), "--json"]
@@ -74,7 +74,7 @@ class CliRunHistoryTests(unittest.TestCase):
         self.assertIn("mutually exclusive", result.output)
 
     def test_verbose_exposes_debug_console_log(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp:
+        with tempfile.TemporaryDirectory() as tmp, self.runner.isolated_filesystem(temp_dir=tmp):
             result = self.runner.invoke(
                 app, ["run", "demo.cli_history", "--workspace", tmp, "-v", "--json"]
             )
@@ -84,7 +84,7 @@ class CliRunHistoryTests(unittest.TestCase):
             json.loads(result.stdout)
 
     def test_quiet_suppresses_info_logs(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp:
+        with tempfile.TemporaryDirectory() as tmp, self.runner.isolated_filesystem(temp_dir=tmp):
             result = self.runner.invoke(
                 app, ["run", "demo.cli_history", "--workspace", tmp, "-q", "--json"]
             )

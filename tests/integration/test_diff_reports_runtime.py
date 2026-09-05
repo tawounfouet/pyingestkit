@@ -188,10 +188,12 @@ class DiffReportsRuntimeTests(unittest.TestCase):
                 {"DIFF_STARTED", "DIFF_COMPLETED", "DIFF_REPORT_WRITTEN"}.issubset(event_types)
             )
 
-            status_result = CliRunner().invoke(
-                app,
-                ["status", result.run_id[:8], "--workspace", str(workspace), "--json"],
-            )
+            cli_runner = CliRunner()
+            with cli_runner.isolated_filesystem(temp_dir=tmp):
+                status_result = cli_runner.invoke(
+                    app,
+                    ["status", result.run_id[:8], "--workspace", str(workspace), "--json"],
+                )
             self.assertEqual(status_result.exit_code, 0, status_result.output)
             status_payload = json.loads(status_result.stdout)
             self.assertEqual(status_payload["diffs"][0]["changed_count"], 1)
