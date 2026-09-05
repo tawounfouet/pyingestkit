@@ -4,16 +4,16 @@
 [![Security](https://github.com/tawounfouet/pyingestkit/actions/workflows/security.yml/badge.svg)](https://github.com/tawounfouet/pyingestkit/actions/workflows/security.yml)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Candidate: v1.0.0rc1](https://img.shields.io/badge/candidate-v1.0.0rc1-orange.svg)](CHANGELOG.md)
+[![Stable: v1.0.0](https://img.shields.io/badge/stable-v1.0.0-brightgreen.svg)](docs/releases/v1.0.0.md)
 
 **PyIngestKit** is a focused Python framework for reliable, traceable batch ingestion.
 
 > Transform an external source into a reliable, validated, reproducible and publishable dataset without rewriting ingestion plumbing for every job.
 
-**V1.0.0 RC1** is the full stability candidate. It consolidates the V0.6 object-storage baseline with
-the governed V1 public API, compatibility, operational-stability and representative-pilot contracts.
-The immutable `v0.6.0` release remains the historical stable/upgrade baseline until final `v1.0.0`
-qualification and publication.
+**V1.0.0 Stable** is the first protected 1.x framework contract. It promotes the qualified RC1
+baseline without adding product scope and retains the immutable `v0.6.0` release as executable
+historical upgrade evidence. The annotated `v1.0.0` release tag is created only after the exact stable
+merge SHA passes post-merge CI and Security.
 
 ## Product boundary
 
@@ -31,7 +31,7 @@ Replay              != new source acquisition
 PyIngestKit         != orchestrator
 ```
 
-## V1.0.0 RC1 candidate capabilities
+## V1.0.0 stable capabilities
 
 - immutable RAW with SHA-256 provenance;
 - CSV, JSON, NDJSON, Excel and Parquet parsing behind a dependency-neutral `Dataset`;
@@ -45,10 +45,10 @@ PyIngestKit         != orchestrator
 - optional `S3DatasetVersionStore` for remote snapshots/publication;
 - MinIO-tested S3-compatible behavior;
 - full replay from a fresh host/workspace using shared PostgreSQL metadata + object storage;
-- deterministic plugin/config/error/CLI/logging behavior governed for V1;
-- explicit V1 public API and persisted compatibility contracts;
+- deterministic plugin/config/error/CLI/logging behavior governed for 1.x;
+- explicit stable Python/public/persisted compatibility contracts;
 - five representative pilots covering nine executable reference jobs;
-- clean-wheel RC packaging plus an executable V0.6.0 -> 1.0.0rc1 upgrade smoke.
+- clean-wheel packaging plus an executable V0.6.0 -> 1.0.0 upgrade smoke.
 
 ## Installation
 
@@ -62,12 +62,12 @@ python -m pip install -e examples/plugin_package
 Production consumers can select only the required extras:
 
 ```bash
-pip install "pyingestkit[s3]"
-pip install "pyingestkit[postgres]"
+pip install "pyingestkit[s3]>=1,<2"
+pip install "pyingestkit[postgres]>=1,<2"
 ```
 
-During RC qualification, release artifacts are built and installed from the generated
-`1.0.0rc1` wheels rather than published as stable `1.0.0` packages.
+Stable qualification builds and installs the generated `1.0.0` wheels in clean environments before
+the immutable release tag is published.
 
 ## Minimal S3-compatible configuration
 
@@ -142,38 +142,30 @@ PyIngestKit resolves configuration in the following order:
 Explicit environment/profile selectors are fail closed: a missing selected config is an error.
 Workspace precedence is `--workspace` → `PYINGEST_WORKSPACE` → `runtime.workspace` → `.pyingest`.
 
-Jobs can explicitly declare backend requirements (e.g. `requires_artifacts="s3"`, `requires_metadata="postgres"`). If a job's requirements are not met by the active configuration, `pyingest run` will halt immediately before executing any step with a clear error message.
+Jobs can explicitly declare backend requirements (e.g. `requires_artifacts="s3"`, `requires_metadata="postgres"`). If a job's requirements are not met by the active configuration, `pyingest run` halts before executing any step with a clear error message.
 
 ### Configuration Profiles & Environment Files
 
-Three ready-to-use YAML profiles and their corresponding environment templates (in `envs/`) are provided:
-The `*.example` dotenv files are templates only and are never auto-loaded; copy them to real `.env`/`.env.<env>` files before use.
+Three ready-to-use YAML profiles and corresponding environment templates in `envs/` are provided.
+The `*.example` dotenv files are templates only and are never auto-loaded.
 
-- `pyingest.yml.dev` & `envs/.env.dev.example`: Local-first development (`local` filesystem artifacts + `sqlite` metadata).
-- `pyingest.yml.stg` & `envs/.env.stg.example`: Staging environment (`s3` artifacts via MinIO + `postgres` metadata, launchable via `docker-compose.staging.yml`).
-- `pyingest.yml.prod` & `envs/.env.prod.example`: Production environment (`s3` artifacts via AWS S3 / Cloudflare R2 + `postgres` metadata).
+- `pyingest.yml.dev` & `envs/.env.dev.example`: local filesystem artifacts + SQLite metadata.
+- `pyingest.yml.stg` & `envs/.env.stg.example`: S3-compatible artifacts via MinIO + PostgreSQL metadata.
+- `pyingest.yml.prod` & `envs/.env.prod.example`: S3-compatible artifacts via AWS S3 / Cloudflare R2 + PostgreSQL metadata.
 
 ```bash
-# Quickstart local dev:
 cp envs/.env.dev.example .env
 cp pyingest.yml.dev pyingest.yml
 ```
 
-### Option A: Using Project Auto-Discovery (Recommended)
-
-Copy or link the desired profile as `pyingest.yml` at your project root, or set `export PYINGEST_CONFIG=pyingest.yml.<env>`:
+### Project auto-discovery
 
 ```bash
-# Setup project config (e.g. staging with Docker Compose or dev)
-cp pyingest.yml.stg pyingest.yml
-
-# Inspect configuration, jobs & backend requirements
 pyingest --version
-pyingest config                       # Shows active configuration, origin & backend settings
+pyingest config
 pyingest jobs
 pyingest inspect demo.versioned_s3
 
-# Executing baseline & quality reference jobs
 pyingest run demo.local_file --param path=examples/plugin_package/data/sample.txt
 pyingest run demo.http_csv
 pyingest run demo.http_json
@@ -181,55 +173,33 @@ pyingest run demo.ndjson_quality
 pyingest run demo.excel_quality
 pyingest run demo.parquet_quality
 
-# Executing versioned reference jobs
 pyingest run demo.versioned_postgres --param revision=1
 pyingest run demo.versioned_s3 --param revision=1
 pyingest run demo.versioned_s3 --param revision=2
 
-# Note: demo.versioned_ndjson requires isolated SQLite metadata backend
-pyingest run demo.versioned_ndjson --config examples/plugin_package/demo-versioned.yml --param revision=1
-
-# Inspecting versions, publication, history, and status
 pyingest versions demo.versioned_s3
 pyingest published demo.versioned_s3
 pyingest runs
-pyingest status                      # Automatically inspects the most recent run
-# Or inspect a specific run: pyingest status {run_id}
-
-# Replay run from historical RAW
-pyingest replay                      # Automatically replays the most recent run
-# Or replay a specific run: pyingest replay {run_id}
+pyingest status
+pyingest replay
 ```
 
-### Option B: Using Explicit Demo Configuration Files
-
-You can also pass specific YAML configuration files per job using `--config`:
+### Explicit demo configuration
 
 ```bash
-# Executing baseline reference jobs (V0.1 - V0.3)
 pyingest run demo.local_file --config examples/plugin_package/demo.yml
 pyingest run demo.http_csv --config examples/plugin_package/demo-http.yml
 pyingest run demo.http_json --config examples/plugin_package/demo-http.yml
 pyingest run demo.ndjson_quality --config examples/plugin_package/demo-quality.yml
 pyingest run demo.excel_quality --config examples/plugin_package/demo-quality.yml
 pyingest run demo.parquet_quality --config examples/plugin_package/demo-quality.yml
-
-# Executing versioned reference jobs (V0.4 - V0.6)
 pyingest run demo.versioned_ndjson --config examples/plugin_package/demo-versioned.yml --param revision=1
 pyingest run demo.versioned_postgres --config examples/plugin_package/demo-versioned-postgres.yml --param revision=1
 pyingest run demo.versioned_s3 --config examples/plugin_package/demo-versioned-s3.yml --param revision=1
 pyingest run demo.versioned_s3 --config examples/plugin_package/demo-versioned-s3.yml --param revision=2
-
-# Inspecting configuration, history, and status per config
-pyingest config --config examples/plugin_package/demo-versioned-s3.yml
-pyingest versions demo.versioned_s3 --config examples/plugin_package/demo-versioned-s3.yml
-pyingest published demo.versioned_s3 --config examples/plugin_package/demo-versioned-s3.yml
-pyingest runs --config examples/plugin_package/demo-versioned-s3.yml
-pyingest status --config examples/plugin_package/demo-versioned-s3.yml
-pyingest replay --config examples/plugin_package/demo-versioned-s3.yml
 ```
 
-## V1 RC reference jobs
+## V1 stable reference jobs
 
 ```text
 demo.local_file
@@ -258,8 +228,6 @@ PostgreSQL Target
   └── consumable dataset
 ```
 
-The durable artifact URI is independent from a local parser-facing cache path.
-
 ## Quality and release gates
 
 ```bash
@@ -271,29 +239,32 @@ make check
 make release-check
 ```
 
-GitHub CI qualifies Python 3.11/3.12/3.13, PostgreSQL 16, MinIO/S3 integration, full cross-host object-storage replay, A1/A2/B1/B2 governance, clean-wheel installation and the real `v0.6.0` → `1.0.0rc1` upgrade path.
+GitHub CI qualifies Python 3.11/3.12/3.13, PostgreSQL 16, MinIO/S3 integration, full cross-host
+object-storage replay, A1/A2/B1/B2 governance, historical RC1 evidence, the stable release contract,
+clean-wheel installation and the real `v0.6.0` → `1.0.0` upgrade path.
 
 See:
 - `docs/guides/v1-quickstart.md`
 - `docs/guides/v1-production-pilot.md`
 - `docs/guides/migrate-v0.6-to-v1.md`
-- `docs/guides/release-validation-v1.0.0rc1.md`
+- `docs/guides/release-validation-v1.0.0.md`
+- `docs/reference/stable-contract-v1.md`
 - `docs/reference/public-api.md`
 - `docs/reference/compatibility-v1.md`
 - `docs/reference/stability-v1.md`
 - `docs/reference/pilots-v1.md`
 - `SECURITY.md`
 
-## RC1 build artifacts
+## V1.0.0 stable build artifacts
 
 ```text
-pyingestkit-1.0.0rc1-py3-none-any.whl
-pyingestkit-1.0.0rc1.tar.gz
-pyingestkit_demo_jobs-1.0.0rc1-py3-none-any.whl
-pyingestkit_demo_jobs-1.0.0rc1.tar.gz
+pyingestkit-1.0.0-py3-none-any.whl
+pyingestkit-1.0.0.tar.gz
+pyingestkit_demo_jobs-1.0.0-py3-none-any.whl
+pyingestkit_demo_jobs-1.0.0.tar.gz
 SHA256SUMS
 ```
 
-CI groups these as `pyingestkit-v1.0.0rc1-source` and `pyingestkit-v1.0.0rc1-dist`. The historical
-`v0.6.0` release assets remain immutable and separate. Stable `v1.0.0` artifacts are created only after
-the RC baseline has been merged and the final stable qualification passes.
+CI groups these as `pyingestkit-v1.0.0-source` and `pyingestkit-v1.0.0-dist`. The historical `v0.6.0`
+and RC1 evidence remain immutable and separate. The annotated `v1.0.0` tag is created only after the
+exact stable merge SHA passes post-merge CI and Security.

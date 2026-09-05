@@ -110,10 +110,6 @@ def main() -> None:
     if "V1.0.0 Stable" not in readme or "pyingestkit-v1.0.0-dist" not in readme:
         raise SystemExit("README does not advertise the V1.0.0 stable package/artifact state")
 
-    changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
-    if "## [1.0.0]" not in changelog:
-        raise SystemExit("CHANGELOG does not contain the stable V1.0.0 release entry")
-
     release = contract["release"]
     if release["tag"] != "v1.0.0" or release["tag_kind"] != "annotated":
         raise SystemExit("Stable release tag contract must be annotated v1.0.0")

@@ -43,10 +43,9 @@ package-dir = {"" = "src"}
 where = ["src"]
 ```
 
-While V1.0.0 is still in B2/RC1 qualification, use a source/editable dependency or the currently
-published compatible package version rather than declaring a PyPI range for a release that does not
-exist yet. The `pyingestkit>=1,<2` example above represents the intended post-V1 stable consumer
-constraint.
+PyIngestKit 1.0.0 is the stable V1 line, so external job packs can declare a normal compatible V1
+range such as `pyingestkit>=1,<2`. Use a narrower upper/lower bound when your own package policy or
+tested compatibility matrix requires it.
 
 ## 2. Define a declarative job
 
@@ -103,9 +102,7 @@ pyingest inspect acme.customers
 Every installed logical `job.id` must be unique across the environment. Discovery order is
 deterministic by `(entry_point.name, entry_point.value)`. If two installed packages expose the same
 logical job ID, the first deterministic entry point is retained and the later duplicate is reported
-as a plugin failure.
-
-Do not use duplicate IDs as an override mechanism.
+as a plugin failure. Do not use duplicate IDs as an override mechanism.
 
 ## 5. Strict library discovery vs tolerant CLI discovery
 
@@ -129,27 +126,18 @@ from pyingestkit.plugins import load_registry_with_diagnostics
 registry, failures = load_registry_with_diagnostics()
 ```
 
-Use the diagnostics when building custom operator tooling.
-
 ## 6. Declare backend requirements
 
 A job that genuinely requires a backend should say so at definition time rather than failing deep in a
-step. For example, a production slice may require S3-compatible artifacts and PostgreSQL metadata.
-
-The runner validates declared requirements against active configuration before executing the pipeline.
-This keeps dev/staging/prod mismatches fail-fast.
-
-Do not declare a stronger requirement than the job actually needs; local filesystem/SQLite remain
-first-class backends.
+step. The runner validates declared requirements against active configuration before executing the
+pipeline. Do not declare a stronger requirement than the job actually needs; local filesystem/SQLite
+remain first-class backends.
 
 ## 7. Keep credentials out of the job package
 
 Plugin source and YAML configuration should contain logical configuration and names of environment
-variables, not access keys, passwords or tokens.
-
-Use provider-standard credential chains and the deployment secret manager. Log through Python's
-standard `logging` package and rely on PyIngestKit's configured application boundary for handlers and
-redaction.
+variables, not access keys, passwords or tokens. Use provider-standard credential chains and the
+deployment secret manager.
 
 ## 8. Test the plugin as a package
 
@@ -167,28 +155,21 @@ The repository's `examples/plugin_package` is the maintained reference implement
 
 ## 9. Versioning and compatibility
 
-Treat these as public contracts of your own job pack:
-
-- distribution name and entry-point name;
-- logical `job.id`;
-- externally documented runtime parameters;
-- persisted dataset identity used by versioning/publication;
-- output/target schemas consumed downstream.
-
-Changing a Python package version does not automatically justify changing logical dataset identity.
-Use explicit migration/deprecation guidance when downstream consumers are affected.
+Treat distribution name, entry-point name, logical `job.id`, documented runtime parameters, persisted
+dataset identity and downstream output/target schemas as contracts of your own job pack. Changing a
+Python package version does not automatically justify changing logical dataset identity.
 
 ## 10. Framework boundary
 
 A plugin may fetch, parse, validate, normalize and publish data through PyIngestKit. It should not turn
-PyIngestKit into a scheduler or hide infrastructure provisioning inside the job definition.
-
-External orchestration owns **when** the job runs. PyIngestKit owns **how** the ingestion execution is
-made reliable and traceable.
+PyIngestKit into a scheduler or hide infrastructure provisioning inside the job definition. External
+orchestration owns **when** the job runs. PyIngestKit owns **how** the ingestion execution is made
+reliable and traceable.
 
 See:
 
 - `docs/architecture/plugin-model.md`;
+- `docs/reference/stable-contract-v1.md`;
 - `docs/reference/stability-v1.md`;
 - `docs/reference/pilots-v1.md`;
 - `examples/plugin_package/README.md`.
