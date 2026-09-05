@@ -71,6 +71,6 @@ expected = {
 actual = set(pyingestkit.__all__)
 if actual != expected:
     raise SystemExit(f"Unexpected public API. expected={sorted(expected)} actual={sorted(actual)}")
-if pyingestkit.__version__ != "0.6.0b2":
+if pyingestkit.__version__ != "0.6.0rc1":
     raise SystemExit(f"Unexpected version: {pyingestkit.__version__}")
-print("OK: public API matches V0.6.0-b2 remote DatasetVersion/publication contract")
+print("OK: public API is unchanged for V0.6.0-rc1 full remote storage E2E")
