@@ -69,11 +69,13 @@ def test_v1_cli_command_names_match_manifest() -> None:
     actual = {command.name for command in app.registered_commands if command.name is not None}
     assert actual == expected
 
+
+def test_v1_cli_root_options_are_invokable() -> None:
+    data = _manifest()
     runner = CliRunner()
-    help_result = runner.invoke(app, ["--help"])
-    assert help_result.exit_code == 0, help_result.output
     for option in data["cli"]["root_options"]:
-        assert option in help_result.output
+        result = runner.invoke(app, [option])
+        assert result.exit_code == 0, f"{option} failed: {result.output}"
 
 
 def test_v1_python_support_and_optional_extra_names_match_packaging() -> None:
