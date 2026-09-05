@@ -173,8 +173,12 @@ jobs:
       - run: python -m pip install --upgrade pip
       - run: python -m pip install -e ".[dev]"
       - run: python -m pip install -e examples/plugin_package
-      - name: Final V1.0.0rc1 release-check
-        run: make release-check
+      - name: RC1 verify — tests, contracts, quality, security and build
+        run: make verify
+      - name: RC1 clean-wheel smoke
+        run: make wheel-smoke
+      - name: RC1 V0.6.0 upgrade smoke
+        run: make upgrade-smoke
       - run: pyingest --version
       - run: pyingest jobs
       - name: Build SHA-256 manifest
