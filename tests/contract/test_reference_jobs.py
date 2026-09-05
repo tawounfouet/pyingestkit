@@ -77,7 +77,7 @@ class ReferenceJobContractTests(unittest.TestCase):
                 [1, 3, 3, 4, 4, 4, 5, 5],
             )
             self.assertTrue(all(job.version == "0.4.0" for job in jobs[:-1]))
-            self.assertEqual(jobs[-1].version, "0.5.0rc1")
+            self.assertEqual(jobs[-1].version, "0.5.0")
         finally:
             sys.path.remove(src)
 
