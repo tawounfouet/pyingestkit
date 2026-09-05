@@ -9,6 +9,7 @@ from rich.table import Table
 
 from pyingestkit.cli.common import get_registry_with_diagnostics
 from pyingestkit.cli.console import console, error_console
+from pyingestkit.logging import redact_text
 
 
 def jobs_command(
@@ -27,7 +28,9 @@ def jobs_command(
             "healthy plugins remain available."
         )
         for failure in failures:
-            error_console.print(f"  [yellow]- {failure.entry_point}:[/yellow] {failure.error}")
+            error_console.print(
+                f"  [yellow]- {failure.entry_point}:[/yellow] {redact_text(failure.error)}"
+            )
 
     if json_output:
         payload = [

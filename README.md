@@ -125,15 +125,21 @@ class MyJob(Job):
 
 PyIngestKit resolves configuration in the following order:
 1. Explicit `--config <path.yml>` CLI flag.
-2. `PYINGEST_CONFIG` environment variable path (e.g. `export PYINGEST_CONFIG=path/to/config.yml`).
-3. Automatic discovery of `pyingest.yml`, `pyingestkit.yml`, or `.pyingest.yml` in the working directory.
-4. Local in-memory defaults (`filesystem` artifacts & `sqlite` metadata).
+2. `PYINGEST_CONFIG` environment variable path.
+3. `PYINGEST_ENV=<env>` selecting `pyingest.yml.<env>`.
+4. Automatic discovery of `pyingest.yml`, `pyingestkit.yml`, or `.pyingest.yml` in the working directory.
+5. Local in-memory defaults (`filesystem` artifacts & `sqlite` metadata).
+
+Explicit environment/profile selectors are fail closed: a missing selected config is an error.
+Workspace precedence is `--workspace` → `PYINGEST_WORKSPACE` → `runtime.workspace` → `.pyingest`.
 
 Jobs can explicitly declare backend requirements (e.g. `requires_artifacts="s3"`, `requires_metadata="postgres"`). If a job's requirements are not met by the active configuration, `pyingest run` will halt immediately before executing any step with a clear error message.
 
 ### Configuration Profiles & Environment Files
 
 Three ready-to-use YAML profiles and their corresponding environment templates (in `envs/`) are provided:
+The `*.example` dotenv files are templates only and are never auto-loaded; copy them to real `.env`/`.env.<env>` files before use.
+
 - `pyingest.yml.dev` & `envs/.env.dev.example`: Local-first development (`local` filesystem artifacts + `sqlite` metadata).
 - `pyingest.yml.stg` & `envs/.env.stg.example`: Staging environment (`s3` artifacts via MinIO + `postgres` metadata, launchable via `docker-compose.staging.yml`).
 - `pyingest.yml.prod` & `envs/.env.prod.example`: Production environment (`s3` artifacts via AWS S3 / Cloudflare R2 + `postgres` metadata).

@@ -1,19 +1,44 @@
-# Configuration — V0.6.0 stable contract
+# Configuration — V1 stable candidate contract
 
-PyIngestKit uses Pydantic for validated configuration and PyYAML for project files. Configuration models are frozen and reject unknown keys (`extra="forbid"`) so drift fails early.
+PyIngestKit uses Pydantic for validated configuration and PyYAML for project files. Configuration
+models are frozen and reject unknown keys (`extra="forbid"`) so drift fails early.
 
-## Runtime precedence
+## Configuration-file precedence
 
 ```text
-framework defaults
-        ↓
-YAML project configuration
+explicit --config
+  -> PYINGEST_CONFIG
+  -> PYINGEST_ENV -> pyingest.yml.<env>
+  -> pyingest.yml / pyingestkit.yml / .pyingest.yml
+  -> in-memory defaults
+```
+
+Explicit environment/profile selectors are fail closed. If the selected path/profile is missing,
+configuration fails instead of silently falling through.
+
+## Workspace precedence
+
+```text
+explicit --workspace
+  -> PYINGEST_WORKSPACE
+  -> runtime.workspace
+  -> .pyingest
+```
+
+## Dotenv policy
+
+Only current-working-directory dotenv files are considered. Profile files are
+`envs/.env.<env>` then `.env.<env>`, followed by root `.env`. OS environment values always win.
+Files ending in `.example` are templates and are never auto-loaded.
+
+## Runtime parameters
+
+```text
+framework/YAML runtime.parameters
         ↓
 --params-json
         ↓
 --param / -p KEY=VALUE
-        ↓
-explicit CLI runtime options
 ```
 
 `--param/-p` is repeatable and uses YAML scalar parsing.
@@ -34,19 +59,8 @@ artifacts:
     cache_path: .pyingest
 ```
 
-The V0.6.0 `S3ArtifactConfig` contract is limited to:
-
-```text
-bucket
-prefix
-region_name
-endpoint_url_env
-cache_path
-```
-
-Inline access keys, secret keys, session tokens, passwords, and provider-specific secret fields are not accepted by the project configuration model. Credentials are resolved by boto3 through its standard provider chain.
-
-For AWS S3, `endpoint_url_env` may be omitted/unset. For MinIO and other compatible services, set the named environment variable to the endpoint URL.
+`S3ArtifactConfig` contains no inline credentials. Boto3 resolves credentials through its standard
+provider chain.
 
 ## Metadata and PostgreSQL targets
 
@@ -66,7 +80,8 @@ targets:
     load_mode: replace
 ```
 
-The environment contains the actual DSNs. The YAML contains only variable names and logical destination identity.
+The environment contains the actual DSNs. YAML contains only variable names and logical destination
+identity.
 
 ## Logging
 
@@ -84,4 +99,7 @@ logging:
     backup_count: 5
 ```
 
-Accepted console/file formats are `rich`, `plain`, and `json`. Secret-looking values are redacted at logging boundaries.
+Console formats are `rich`, `plain` and `json`. File formats are `plain` and `json`; `rich` is a
+terminal renderer and is rejected for file logging.
+
+See [V1 operational stability contract](../reference/stability-v1.md).

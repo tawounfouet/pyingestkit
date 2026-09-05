@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "milestone": "V1.0.0-b1",
+  "baseline": {"a2_merge_sha": "eccb7f65a05707c2f7ea9a9881c930a641d65b92"},
+  "plugins": {
+    "entry_point_group": "pyingestkit.jobs",
+    "ordering": ["entry_point.name", "entry_point.value"],
+    "duplicate_job_id_policy": "first deterministic entry point wins; later duplicates are isolated as PluginFailure",
+    "strict_library_default": true,
+    "cli_registry_mode": "tolerant",
+    "failure_fields": ["entry_point", "error"],
+    "accepted_objects": ["Job", "JobDefinition", "Job subclass", "zero-argument factory returning Job or JobDefinition"]
+  },
+  "configuration": {
+    "resolution_order": ["explicit", "environment", "profile", "default_file", "in_memory"],
+    "default_files": ["pyingest.yml", "pyingestkit.yml", ".pyingest.yml"],
+    "profile_pattern": "pyingest.yml.<PYINGEST_ENV>",
+    "missing_explicit_environment_config": "error",
+    "missing_selected_profile": "error",
+    "unknown_yaml_keys": "error",
+    "environment_variables": ["PYINGEST_CONFIG", "PYINGEST_ENV", "PYINGEST_WORKSPACE", "PYINGEST_DATABASE_URL", "PYINGEST_TARGET_DATABASE_URL", "PYINGEST_S3_ENDPOINT_URL"],
+    "workspace_precedence": ["explicit --workspace", "PYINGEST_WORKSPACE", "runtime.workspace", ".pyingest default"],
+    "dotenv": {"scope": "current working directory only", "root_file": ".env", "profile_files": ["envs/.env.<env>", ".env.<env>"], "example_templates_loaded": false, "precedence": ["OS environment", "profile dotenv", "root .env"]}
+  },
+  "errors": {
+    "canonical_module": "pyingestkit.errors",
+    "base_class": "IngestionError",
+    "deprecation_module": "pyingestkit.deprecations",
+    "deprecation_warning": "PyIngestKitDeprecationWarning",
+    "deprecation_base": "FutureWarning",
+    "removal_policy": "stable V1 public APIs are retained throughout 1.x and removed only in a later breaking major release"
+  },
+  "cli": {
+    "entrypoint": "pyingest",
+    "root_options": ["--help", "-h", "--version", "-V"],
+    "forbidden_root_options": ["--install-completion", "--show-completion"],
+    "commands": {
+      "jobs": {"arguments": [], "options": ["--json"]},
+      "inspect": {"arguments": ["job_id"], "options": ["--json"]},
+      "config": {"arguments": [], "options": ["--config", "-c", "--workspace", "-w", "--show-secrets", "--json"]},
+      "run": {"arguments": ["job_id"], "options": ["--config", "-c", "--workspace", "-w", "--fixture", "--no-fixture", "--params-json", "--param", "-p", "--log-level", "--log-format", "--verbose", "-v", "--quiet", "-q", "--json"]},
+      "runs": {"arguments": [], "options": ["--config", "-c", "--workspace", "-w", "--job", "--status", "--limit", "--json"]},
+      "status": {"arguments": ["run_id"], "options": ["--config", "-c", "--workspace", "-w", "--json"]},
+      "versions": {"arguments": ["dataset_id"], "options": ["--config", "-c", "--workspace", "-w", "--json"]},
+      "published": {"arguments": ["dataset_id"], "options": ["--config", "-c", "--workspace", "-w", "--json"]},
+      "replay": {"arguments": ["source_run_id"], "options": ["--config", "-c", "--workspace", "-w", "--param", "-p", "--allow-version-change", "--no-verify", "--json"]},
+      "help": {"arguments": [], "options": []}
+    },
+    "exit_codes": {"success": 0, "usage_or_configuration_error": 2, "runtime_or_domain_failure": 1},
+    "json_policy": "--json stabilizes successful machine payloads; errors remain on stderr with the canonical Error: prefix and exit code",
+    "human_policy": "semantic headings, labels, warning/error prefixes and identifiers are stable; Rich color, spacing and terminal wrapping are presentation details"
+  },
+  "observability": {
+    "module": "pyingestkit.logging",
+    "exports": ["configure_logging", "current_log_context", "log_context", "redact_mapping", "redact_text"],
+    "terminal_format": "YYYY-MM-DD HH:mm:ss  LEVEL    [run=<8-char-id> job=<job_id> step=<step_name>] Message",
+    "terminal_timezone": "local",
+    "terminal_run_id": "first 8 characters",
+    "json_timestamp": "ISO 8601 UTC timezone-aware",
+    "json_base_fields": ["timestamp", "level", "logger", "message"],
+    "json_context_fields": ["run_id", "job_id", "step"],
+    "json_exception_field": "exception",
+    "file_formats": ["plain", "json"],
+    "default_file_format": "json",
+    "redaction_marker": "***REDACTED***",
+    "import_time_handler_configuration": false,
+    "runtime_events_are_distinct_from_logs": true
+  }
+}

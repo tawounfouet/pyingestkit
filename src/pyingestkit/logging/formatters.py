@@ -7,6 +7,8 @@ from typing import Any
 
 from rich.markup import escape
 
+from .filters import redact_text
+
 _LEVEL_STYLES = {
     "DEBUG": "dim cyan",
     "INFO": "green",
@@ -30,9 +32,10 @@ class PlainTerminalFormatter(logging.Formatter):
         level = f"{record.levelname:<8}"
         context = _context(record)
         spacer = f" {context}" if context else ""
-        message = record.getMessage()
+        message = redact_text(record.getMessage())
         if record.exc_info:
-            message = f"{message}\n{self.formatException(record.exc_info)}"
+            exception = redact_text(self.formatException(record.exc_info))
+            message = f"{message}\n{exception}"
         return f"{timestamp}  {level}{spacer} {message}".rstrip()
 
 
@@ -44,11 +47,12 @@ class RichTerminalFormatter(logging.Formatter):
         level = record.levelname
         style = _LEVEL_STYLES.get(level, "white")
         context = escape(_context(record))
-        message = escape(record.getMessage())
+        message = escape(redact_text(record.getMessage()))
         context_part = f" [dim]{context}[/dim]" if context else ""
         rendered = f"[dim]{timestamp}[/dim]  [{style}]{level:<8}[/{style}]{context_part} {message}"
         if record.exc_info:
-            rendered += f"\n[red]{escape(self.formatException(record.exc_info))}[/red]"
+            exception = escape(redact_text(self.formatException(record.exc_info)))
+            rendered += f"\n[red]{exception}[/red]"
         return rendered.rstrip()
 
 
@@ -60,12 +64,12 @@ class JsonFormatter(logging.Formatter):
             "timestamp": datetime.fromtimestamp(record.created, tz=UTC).isoformat(),
             "level": record.levelname,
             "logger": record.name,
-            "message": record.getMessage(),
+            "message": redact_text(record.getMessage()),
         }
         for key in ("run_id", "job_id", "step"):
             value = record.__dict__.get(key)
             if value:
                 payload[key] = value
         if record.exc_info:
-            payload["exception"] = self.formatException(record.exc_info)
+            payload["exception"] = redact_text(self.formatException(record.exc_info))
         return json.dumps(payload, ensure_ascii=False, default=str)

@@ -34,6 +34,13 @@ class FileLoggingConfig(BaseModel):
             raise ValueError(f"Unknown logging level: {value}")
         return normalized
 
+    @field_validator("format")
+    @classmethod
+    def validate_file_format(cls, value: LogOutputFormat) -> LogOutputFormat:
+        if value is LogOutputFormat.RICH:
+            raise ValueError("file logging format must be 'plain' or 'json'")
+        return value
+
 
 class LoggingConfig(BaseModel):
     """Application logging policy used by the PyIngestKit CLI."""
