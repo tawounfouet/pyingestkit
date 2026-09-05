@@ -1,9 +1,15 @@
 name: CI
+
 on:
   push:
   pull_request:
+
 permissions:
   contents: read
+
+env:
+  MINIO_IMAGE: quay.io/minio/minio@sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -58,8 +64,6 @@ jobs:
   s3-e2e:
     runs-on: ubuntu-latest
     env:
-      AWS_ACCESS_KEY_ID: minioadmin
-      AWS_SECRET_ACCESS_KEY: minioadmin
       AWS_DEFAULT_REGION: us-east-1
       PYINGEST_TEST_S3_ENDPOINT_URL: http://127.0.0.1:9000
       PYINGEST_TEST_S3_BUCKET: pyingestkit
@@ -68,13 +72,22 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Start MinIO S3-compatible service
+      - name: Generate ephemeral MinIO credentials
+        shell: bash
+        run: |
+          user="ci$(python -c 'import secrets; print(secrets.token_hex(8))')"
+          password="$(python -c 'import secrets; print(secrets.token_urlsafe(32))')"
+          echo "AWS_ACCESS_KEY_ID=$user" >> "$GITHUB_ENV"
+          echo "AWS_SECRET_ACCESS_KEY=$password" >> "$GITHUB_ENV"
+          echo "MINIO_ROOT_USER=$user" >> "$GITHUB_ENV"
+          echo "MINIO_ROOT_PASSWORD=$password" >> "$GITHUB_ENV"
+      - name: Start pinned MinIO S3-compatible service
         run: |
           docker run -d --name pyingestkit-minio \
             -p 9000:9000 \
-            -e MINIO_ROOT_USER=minioadmin \
-            -e MINIO_ROOT_PASSWORD=minioadmin \
-            quay.io/minio/minio:latest server /data
+            -e MINIO_ROOT_USER \
+            -e MINIO_ROOT_PASSWORD \
+            "$MINIO_IMAGE" server /data
           for attempt in {1..30}; do
             if curl -fsS http://127.0.0.1:9000/minio/health/live >/dev/null; then
               exit 0
@@ -91,7 +104,7 @@ jobs:
           tests/integration/test_s3_remote_raw.py
           tests/integration/test_s3_dataset_versions.py
 
-  object-storage-rc1-e2e:
+  object-storage-e2e:
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -108,8 +121,6 @@ jobs:
           --health-timeout 5s
           --health-retries 12
     env:
-      AWS_ACCESS_KEY_ID: minioadmin
-      AWS_SECRET_ACCESS_KEY: minioadmin
       AWS_DEFAULT_REGION: us-east-1
       PYINGEST_TEST_S3_ENDPOINT_URL: http://127.0.0.1:9000
       PYINGEST_TEST_S3_BUCKET: pyingestkit
@@ -119,20 +130,29 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Start MinIO S3-compatible service
+      - name: Generate ephemeral MinIO credentials
+        shell: bash
         run: |
-          docker run -d --name pyingestkit-minio-rc1 \
+          user="ci$(python -c 'import secrets; print(secrets.token_hex(8))')"
+          password="$(python -c 'import secrets; print(secrets.token_urlsafe(32))')"
+          echo "AWS_ACCESS_KEY_ID=$user" >> "$GITHUB_ENV"
+          echo "AWS_SECRET_ACCESS_KEY=$password" >> "$GITHUB_ENV"
+          echo "MINIO_ROOT_USER=$user" >> "$GITHUB_ENV"
+          echo "MINIO_ROOT_PASSWORD=$password" >> "$GITHUB_ENV"
+      - name: Start pinned MinIO S3-compatible service
+        run: |
+          docker run -d --name pyingestkit-minio-stable \
             -p 9000:9000 \
-            -e MINIO_ROOT_USER=minioadmin \
-            -e MINIO_ROOT_PASSWORD=minioadmin \
-            quay.io/minio/minio:latest server /data
+            -e MINIO_ROOT_USER \
+            -e MINIO_ROOT_PASSWORD \
+            "$MINIO_IMAGE" server /data
           for attempt in {1..30}; do
             if curl -fsS http://127.0.0.1:9000/minio/health/live >/dev/null; then
               exit 0
             fi
             sleep 2
           done
-          docker logs pyingestkit-minio-rc1
+          docker logs pyingestkit-minio-stable
           exit 1
       - run: python -m pip install --upgrade pip
       - run: python -m pip install -e ".[dev,postgres,s3]"
@@ -150,38 +170,29 @@ jobs:
       - run: python -m pip install --upgrade pip
       - run: python -m pip install -e ".[dev]"
       - run: python -m pip install -e examples/plugin_package
-      - name: Release gate — tests and public API
-        run: make check
-      - name: Release gate — quality
-        run: make quality
-      - name: Release gate — security
-        run: make security
-      - name: Release gate — build distributions
-        run: make build
-      - name: Release gate — wheel smoke
-        run: |
-          set -o pipefail
-          make wheel-smoke 2>&1 | tee wheel-smoke.log
-      - name: Upload wheel-smoke diagnostics
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: pyingestkit-v0.6.0-rc1-wheel-smoke-diagnostics
-          path: wheel-smoke.log
-          if-no-files-found: ignore
+      - name: Final stable release-check
+        run: make release-check
       - run: pyingest --version
       - run: pyingest jobs
-      - run: pyingest run demo.local_file --config examples/plugin_package/demo.yml
-      - run: pyingest run demo.http_csv --config examples/plugin_package/demo-http.yml
-      - run: pyingest run demo.http_json --config examples/plugin_package/demo-http.yml
-      - run: pyingest run demo.ndjson_quality --config examples/plugin_package/demo-quality.yml
-      - run: pyingest run demo.excel_quality --config examples/plugin_package/demo-quality.yml
-      - run: pyingest run demo.parquet_quality --config examples/plugin_package/demo-quality.yml
-      - run: pyingest runs
-      - name: Upload V0.6.0-rc1 artifact
+      - name: Build SHA-256 manifest
+        shell: bash
+        run: |
+          python - <<'PY'
+          from hashlib import sha256
+          from pathlib import Path
+
+          paths = sorted(Path("dist").glob("*")) + sorted(Path("examples/plugin_package/dist").glob("*"))
+          lines = []
+          for path in paths:
+              digest = sha256(path.read_bytes()).hexdigest()
+              lines.append(f"{digest}  {path.as_posix()}")
+          Path("SHA256SUMS").write_text("\n".join(lines) + "\n", encoding="utf-8")
+          print(Path("SHA256SUMS").read_text(encoding="utf-8"), end="")
+          PY
+      - name: Upload V0.6.0 source artifact
         uses: actions/upload-artifact@v4
         with:
-          name: pyingestkit-v0.6.0-rc1-object-storage-e2e
+          name: pyingestkit-v0.6.0-source
           path: |
             .
             !.git/**
@@ -198,11 +209,23 @@ jobs:
             !**/__pycache__/**
           include-hidden-files: true
           if-no-files-found: error
-      - name: Upload V0.6.0-rc1 distribution artifacts
+      - name: Upload V0.6.0 distribution artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: pyingestkit-v0.6.0-rc1-object-storage-e2e-dist
+          name: pyingestkit-v0.6.0-dist
           path: |
             dist/*
             examples/plugin_package/dist/*
+            SHA256SUMS
           if-no-files-found: error
+
+  stable-release-gate:
+    runs-on: ubuntu-latest
+    needs:
+      - test
+      - postgres-e2e
+      - s3-e2e
+      - object-storage-e2e
+      - foundation-verify
+    steps:
+      - run: echo "All V0.6.0 stable qualification tiers passed."

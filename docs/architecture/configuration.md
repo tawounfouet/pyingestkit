@@ -1,18 +1,6 @@
-# Configuration
+# Configuration — V0.6.0 stable contract
 
-PyIngestKit V0.1.3 uses **Pydantic** for schema validation and **PyYAML** for YAML project configuration.
-
-## Project file
-
-```yaml
-runtime:
-  workspace: .pyingest
-  fixture_mode: false
-  parameters:
-    source: local
-```
-
-Unknown keys are rejected (`extra="forbid"`) so configuration drift fails early.
+PyIngestKit uses Pydantic for validated configuration and PyYAML for project files. Configuration models are frozen and reject unknown keys (`extra="forbid"`) so drift fails early.
 
 ## Runtime precedence
 
@@ -28,18 +16,59 @@ YAML project configuration
 explicit CLI runtime options
 ```
 
-`--param/-p` is repeatable and uses YAML scalar parsing, preserving values such as booleans and integers.
+`--param/-p` is repeatable and uses YAML scalar parsing.
 
-```bash
-pyingest run demo.local_file \
-  --param path=examples/plugin_package/data/sample.txt \
-  --param retries=3 \
-  --param enabled=true
+## Stable object-storage schema
+
+```yaml
+runtime:
+  workspace: .pyingest
+
+artifacts:
+  backend: s3
+  s3:
+    bucket: my-pyingest-artifacts
+    prefix: pyingest
+    region_name: eu-west-3
+    endpoint_url_env: PYINGEST_S3_ENDPOINT_URL
+    cache_path: .pyingest
 ```
 
-## Logging configuration
+The V0.6.0 `S3ArtifactConfig` contract is limited to:
 
-The root project configuration also accepts a `logging` section:
+```text
+bucket
+prefix
+region_name
+endpoint_url_env
+cache_path
+```
+
+Inline access keys, secret keys, session tokens, passwords, and provider-specific secret fields are not accepted by the project configuration model. Credentials are resolved by boto3 through its standard provider chain.
+
+For AWS S3, `endpoint_url_env` may be omitted/unset. For MinIO and other compatible services, set the named environment variable to the endpoint URL.
+
+## Metadata and PostgreSQL targets
+
+```yaml
+metadata:
+  backend: postgres
+  postgres:
+    dsn_env: PYINGEST_DATABASE_URL
+
+targets:
+  warehouse:
+    type: postgres
+    target_id: postgres.demo.versioned
+    dsn_env: PYINGEST_TARGET_DATABASE_URL
+    schema: public
+    table: demo_dataset
+    load_mode: replace
+```
+
+The environment contains the actual DSNs. The YAML contains only variable names and logical destination identity.
+
+## Logging
 
 ```yaml
 logging:
@@ -55,6 +84,4 @@ logging:
     backup_count: 5
 ```
 
-`level` and `file.level` are validated by Pydantic. Accepted formats are `rich`, `plain`, and `json`.
-
-The CLI can override the console policy with `--log-level` and `--log-format`.
+Accepted console/file formats are `rich`, `plain`, and `json`. Secret-looking values are redacted at logging boundaries.
