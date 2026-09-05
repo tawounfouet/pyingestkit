@@ -74,3 +74,7 @@ Dataset snapshot format at `snapshot_version = "1"`. Portable diff reports are f
 - [ADR-052 — StoredArtifact is an additive durable run-artifact reference](ADR-052-stored-artifact-additive-run-artifact-contract.md)
 - [ADR-053 — S3 JSON run artifacts follow run-scoped lifecycle semantics](ADR-053-s3-json-run-artifact-lifecycle.md)
 - [ADR-054 — S3 DatasetVersion storage is immutable; publication is one mutable pointer](ADR-054-s3-dataset-version-publication.md)
+
+## V1 Stable Framework Contract
+
+- [ADR-055 — V1 public API and product scope are governed by an explicit manifest](ADR-055-v1-public-api-and-scope-governance.md)
