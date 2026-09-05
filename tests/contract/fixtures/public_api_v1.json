@@ -80,454 +80,81 @@
         "job",
         "step"
       ],
-      "attributes": [
-        "__version__"
-      ]
+      "attributes": ["__version__"]
     },
     "pyingestkit.artifacts": {
       "classification": "PUBLIC_STABLE_CANDIDATE",
-      "exports": [
-        "ArtifactStore",
-        "ArtifactURI",
-        "LocalArtifactStore",
-        "RawArtifact",
-        "S3ArtifactStore",
-        "StoredArtifact",
-        "create_artifact_store"
-      ]
+      "exports": ["ArtifactStore", "ArtifactURI", "LocalArtifactStore", "RawArtifact", "S3ArtifactStore", "StoredArtifact", "create_artifact_store"]
     },
     "pyingestkit.cli": {
       "classification": "PUBLIC_EXPERIMENTAL",
-      "exports": [
-        "app"
-      ],
+      "exports": ["app"],
       "rationale": "The console command is public; importing the Typer app object is supported for tests but is not yet a 1.x compatibility promise."
     },
     "pyingestkit.config": {
       "classification": "PUBLIC_STABLE_CANDIDATE",
-      "exports": [
-        "ArtifactBackend",
-        "ArtifactConfig",
-        "FileLoggingConfig",
-        "LoggingConfig",
-        "LogOutputFormat",
-        "MetadataBackend",
-        "MetadataConfig",
-        "PostgresMetadataConfig",
-        "PostgresTargetConfig",
-        "PyIngestKitConfig",
-        "RuntimeConfig",
-        "S3ArtifactConfig",
-        "SQLiteMetadataConfig",
-        "load_config"
-      ]
+      "exports": ["ArtifactBackend", "ArtifactConfig", "FileLoggingConfig", "LoggingConfig", "LogOutputFormat", "MetadataBackend", "MetadataConfig", "PostgresMetadataConfig", "PostgresTargetConfig", "PyIngestKitConfig", "RuntimeConfig", "S3ArtifactConfig", "SQLiteMetadataConfig", "load_config"]
     },
-    "pyingestkit.contracts": {
-      "classification": "PUBLIC_STABLE_CANDIDATE",
-      "exports": [
-        "DatasetContract",
-        "ExpectedType",
-        "FieldContract"
-      ]
-    },
+    "pyingestkit.contracts": {"classification": "PUBLIC_STABLE_CANDIDATE", "exports": ["DatasetContract", "ExpectedType", "FieldContract"]},
     "pyingestkit.core": {
       "classification": "PUBLIC_STABLE_CANDIDATE",
-      "exports": [
-        "Event",
-        "EventBus",
-        "EventType",
-        "HookPolicy",
-        "Job",
-        "JobRegistry",
-        "Pipeline",
-        "RunContext",
-        "RunResult",
-        "RunStatus",
-        "Step",
-        "StepResult"
-      ],
-      "experimental_symbols": [
-        "Event",
-        "EventBus",
-        "EventType",
-        "HookPolicy",
-        "JobRegistry"
-      ]
+      "exports": ["Event", "EventBus", "EventType", "HookPolicy", "Job", "JobRegistry", "Pipeline", "RunContext", "RunResult", "RunStatus", "Step", "StepResult"],
+      "experimental_symbols": ["Event", "EventBus", "EventType", "HookPolicy"]
     },
-    "pyingestkit.declarative": {
-      "classification": "PUBLIC_STABLE_CANDIDATE",
-      "exports": [
-        "JobDefinition",
-        "StepDefinition",
-        "StepInvocation",
-        "job",
-        "step"
-      ]
-    },
-    "pyingestkit.diff": {
-      "classification": "PUBLIC_STABLE_CANDIDATE",
-      "exports": [
-        "DatasetDiff",
-        "DatasetDiffer",
-        "DiffEntry",
-        "DiffKind",
-        "DiffPolicy",
-        "SchemaDiff"
-      ]
-    },
+    "pyingestkit.declarative": {"classification": "PUBLIC_STABLE_CANDIDATE", "exports": ["JobDefinition", "StepDefinition", "StepInvocation", "job", "step"]},
+    "pyingestkit.diff": {"classification": "PUBLIC_STABLE_CANDIDATE", "exports": ["DatasetDiff", "DatasetDiffer", "DiffEntry", "DiffKind", "DiffPolicy", "SchemaDiff"]},
     "pyingestkit.logging": {
-      "classification": "PUBLIC_EXPERIMENTAL",
-      "exports": [
-        "configure_logging",
-        "current_log_context",
-        "log_context",
-        "redact_mapping",
-        "redact_text"
-      ],
-      "rationale": "Observability stability is finalized in V1.0.0-b1."
+      "classification": "PUBLIC_STABLE_CANDIDATE",
+      "exports": ["configure_logging", "current_log_context", "log_context", "redact_mapping", "redact_text"],
+      "rationale": "V1 observability/logging helper contract finalized in V1.0.0-b1."
     },
     "pyingestkit.metadata": {
       "classification": "PUBLIC_EXPERIMENTAL",
-      "exports": [
-        "ArtifactRecord",
-        "DatasetVersionRecord",
-        "DatasetVersionRunRecord",
-        "DiffMetadataCapability",
-        "DiffRecord",
-        "EventRecord",
-        "MemoryMetadataStore",
-        "MetadataStore",
-        "PostgresMetadataStore",
-        "PublicationRecord",
-        "PublishedDatasetRecord",
-        "ReplayMetadataCapability",
-        "ReplayRecord",
-        "TargetLoadMetadataCapability",
-        "TargetLoadRecord",
-        "ReproducibilityRecord",
-        "RunRecord",
-        "SQLiteMetadataStore",
-        "StepRecord",
-        "ValidationRecord",
-        "VersionMetadataCapability",
-        "create_metadata_store"
-      ],
-      "stable_candidate_symbols": [
-        "MetadataStore",
-        "DiffMetadataCapability",
-        "ReplayMetadataCapability",
-        "TargetLoadMetadataCapability",
-        "VersionMetadataCapability",
-        "MemoryMetadataStore",
-        "SQLiteMetadataStore",
-        "PostgresMetadataStore"
-      ],
+      "exports": ["ArtifactRecord", "DatasetVersionRecord", "DatasetVersionRunRecord", "DiffMetadataCapability", "DiffRecord", "EventRecord", "MemoryMetadataStore", "MetadataStore", "PostgresMetadataStore", "PublicationRecord", "PublishedDatasetRecord", "ReplayMetadataCapability", "ReplayRecord", "TargetLoadMetadataCapability", "TargetLoadRecord", "ReproducibilityRecord", "RunRecord", "SQLiteMetadataStore", "StepRecord", "ValidationRecord", "VersionMetadataCapability", "create_metadata_store"],
+      "stable_candidate_symbols": ["MetadataStore", "DiffMetadataCapability", "ReplayMetadataCapability", "TargetLoadMetadataCapability", "VersionMetadataCapability", "MemoryMetadataStore", "SQLiteMetadataStore", "PostgresMetadataStore"],
       "rationale": "Store/capability contracts are strong candidates; record/persistent schema details remain subject to V1.0.0-a2 compatibility review."
     },
-    "pyingestkit.parsers": {
-      "classification": "PUBLIC_STABLE_CANDIDATE",
-      "exports": [
-        "CsvParser",
-        "ExcelParser",
-        "JsonParser",
-        "JsonPathPart",
-        "NdjsonParser",
-        "ParquetParser",
-        "Parser"
-      ]
-    },
+    "pyingestkit.parsers": {"classification": "PUBLIC_STABLE_CANDIDATE", "exports": ["CsvParser", "ExcelParser", "JsonParser", "JsonPathPart", "NdjsonParser", "ParquetParser", "Parser"]},
     "pyingestkit.plugins": {
-      "classification": "PUBLIC_EXPERIMENTAL",
-      "exports": [
-        "DiscoveryReport",
-        "PluginFailure",
-        "discover_jobs",
-        "discover_plugins",
-        "load_registry",
-        "load_registry_with_diagnostics"
-      ],
-      "rationale": "Plugin extension stability is finalized in V1.0.0-b1."
-    },
-    "pyingestkit.profiling": {
       "classification": "PUBLIC_STABLE_CANDIDATE",
-      "exports": [
-        "DatasetProfile",
-        "DatasetProfiler",
-        "FieldProfile"
-      ]
+      "exports": ["ENTRY_POINT_GROUP", "DiscoveryReport", "PluginFailure", "discover_jobs", "discover_plugins", "load_registry", "load_registry_with_diagnostics"],
+      "rationale": "External job-pack discovery semantics finalized in V1.0.0-b1."
     },
-    "pyingestkit.provenance": {
-      "classification": "PUBLIC_EXPERIMENTAL",
-      "exports": [
-        "RunManifest",
-        "sha256_bytes",
-        "sha256_file"
-      ],
-      "rationale": "RunManifest is a persistent-format concern finalized in V1.0.0-a2."
-    },
-    "pyingestkit.publication": {
+    "pyingestkit.profiling": {"classification": "PUBLIC_STABLE_CANDIDATE", "exports": ["DatasetProfile", "DatasetProfiler", "FieldProfile"]},
+    "pyingestkit.provenance": {"classification": "PUBLIC_EXPERIMENTAL", "exports": ["RunManifest", "sha256_bytes", "sha256_file"], "rationale": "RunManifest is a persistent-format concern finalized in V1.0.0-a2."},
+    "pyingestkit.publication": {"classification": "PUBLIC_STABLE_CANDIDATE", "exports": ["AtomicPublisher"]},
+    "pyingestkit.quality": {"classification": "PUBLIC_STABLE_CANDIDATE", "exports": ["QualityReport"]},
+    "pyingestkit.replay": {"classification": "PUBLIC_STABLE_CANDIDATE", "exports": ["ReplayContext", "ReplayRawArtifact", "ReplayResult", "ReplayService", "materialize_replayed_raw"], "experimental_symbols": ["materialize_replayed_raw"]},
+    "pyingestkit.retry": {"classification": "PUBLIC_STABLE_CANDIDATE", "exports": ["DEFAULT_RETRY_METHODS", "DEFAULT_RETRY_STATUS_CODES", "RetryAttempt", "RetryPolicy", "parse_retry_after"]},
+    "pyingestkit.runtime": {"classification": "PUBLIC_STABLE_CANDIDATE", "exports": ["Runner"]},
+    "pyingestkit.sources": {"classification": "PUBLIC_STABLE_CANDIDATE", "exports": ["LocalSource", "Source"]},
+    "pyingestkit.sources.http": {"classification": "PUBLIC_STABLE_CANDIDATE", "exports": ["HttpClient", "HttpError", "HttpRequest", "HttpResponse", "HttpSource", "HttpStatusError", "HttpTimeoutError", "HttpTransportError", "HttpxClient", "QueryValue"]},
+    "pyingestkit.targets": {"classification": "PUBLIC_STABLE_CANDIDATE", "exports": ["IdempotencyAction", "IdempotencyPolicy", "InvalidTargetIdentifierError", "LoadMode", "PostgresTarget", "Target", "TargetCapabilities", "TargetClosedError", "TargetConfigurationError", "TargetConnectionError", "TargetError", "TargetLoadConflictError", "TargetLoadDecision", "TargetLoadError", "TargetLoadExecutor", "TargetLoadRequest", "TargetLoadResult", "TargetLoadStatus", "UnsupportedLoadModeError"]},
+    "pyingestkit.validation": {"classification": "PUBLIC_STABLE_CANDIDATE", "exports": ["MinimumRows", "RequiredField", "UniqueField", "ValidationIssue", "ValidationReport", "ValidationResult", "ValidationRule", "ValidationSeverity", "validate"]},
+    "pyingestkit.versioning": {"classification": "PUBLIC_STABLE_CANDIDATE", "exports": ["DatasetFingerprint", "DatasetFingerprinter", "DatasetFingerprintPolicy", "DatasetVersion", "DatasetVersionStore", "FilesystemDatasetVersionStore", "PublishedDataset", "S3DatasetVersionStore", "SnapshotCodec"]},
+    "pyingestkit.deprecations": {"classification": "PUBLIC_STABLE_CANDIDATE", "exports": ["PyIngestKitDeprecationWarning", "warn_deprecated"], "rationale": "Canonical visible-by-default deprecation mechanism for V1 public surfaces."},
+    "pyingestkit.errors": {
       "classification": "PUBLIC_STABLE_CANDIDATE",
-      "exports": [
-        "AtomicPublisher"
-      ]
-    },
-    "pyingestkit.quality": {
-      "classification": "PUBLIC_STABLE_CANDIDATE",
-      "exports": [
-        "QualityReport"
-      ]
-    },
-    "pyingestkit.replay": {
-      "classification": "PUBLIC_STABLE_CANDIDATE",
-      "exports": [
-        "ReplayContext",
-        "ReplayRawArtifact",
-        "ReplayResult",
-        "ReplayService",
-        "materialize_replayed_raw"
-      ],
-      "experimental_symbols": [
-        "materialize_replayed_raw"
-      ]
-    },
-    "pyingestkit.retry": {
-      "classification": "PUBLIC_STABLE_CANDIDATE",
-      "exports": [
-        "DEFAULT_RETRY_METHODS",
-        "DEFAULT_RETRY_STATUS_CODES",
-        "RetryAttempt",
-        "RetryPolicy",
-        "parse_retry_after"
-      ]
-    },
-    "pyingestkit.runtime": {
-      "classification": "PUBLIC_STABLE_CANDIDATE",
-      "exports": [
-        "Runner"
-      ]
-    },
-    "pyingestkit.sources": {
-      "classification": "PUBLIC_STABLE_CANDIDATE",
-      "exports": [
-        "LocalSource",
-        "Source"
-      ]
-    },
-    "pyingestkit.sources.http": {
-      "classification": "PUBLIC_STABLE_CANDIDATE",
-      "exports": [
-        "HttpClient",
-        "HttpError",
-        "HttpRequest",
-        "HttpResponse",
-        "HttpSource",
-        "HttpStatusError",
-        "HttpTimeoutError",
-        "HttpTransportError",
-        "HttpxClient",
-        "QueryValue"
-      ]
-    },
-    "pyingestkit.targets": {
-      "classification": "PUBLIC_STABLE_CANDIDATE",
-      "exports": [
-        "IdempotencyAction",
-        "IdempotencyPolicy",
-        "InvalidTargetIdentifierError",
-        "LoadMode",
-        "PostgresTarget",
-        "Target",
-        "TargetCapabilities",
-        "TargetClosedError",
-        "TargetConfigurationError",
-        "TargetConnectionError",
-        "TargetError",
-        "TargetLoadConflictError",
-        "TargetLoadDecision",
-        "TargetLoadError",
-        "TargetLoadExecutor",
-        "TargetLoadRequest",
-        "TargetLoadResult",
-        "TargetLoadStatus",
-        "UnsupportedLoadModeError"
-      ]
-    },
-    "pyingestkit.validation": {
-      "classification": "PUBLIC_STABLE_CANDIDATE",
-      "exports": [
-        "MinimumRows",
-        "RequiredField",
-        "UniqueField",
-        "ValidationIssue",
-        "ValidationReport",
-        "ValidationResult",
-        "ValidationRule",
-        "ValidationSeverity",
-        "validate"
-      ]
-    },
-    "pyingestkit.versioning": {
-      "classification": "PUBLIC_STABLE_CANDIDATE",
-      "exports": [
-        "DatasetFingerprint",
-        "DatasetFingerprinter",
-        "DatasetFingerprintPolicy",
-        "DatasetVersion",
-        "DatasetVersionStore",
-        "FilesystemDatasetVersionStore",
-        "PublishedDataset",
-        "S3DatasetVersionStore",
-        "SnapshotCodec"
-      ]
+      "exports": ["ConfigurationError", "DiffError", "DiscoveryError", "FetchError", "HookError", "HttpError", "HttpStatusError", "HttpTimeoutError", "HttpTransportError", "IngestionError", "InvalidTargetIdentifierError", "NormalizationError", "ParseError", "PluginError", "PublicationError", "ReplayError", "ReplayIntegrityError", "ReplayMismatchError", "SnapshotError", "StorageError", "TargetClosedError", "TargetConfigurationError", "TargetConnectionError", "TargetError", "TargetLoadConflictError", "TargetLoadError", "UnsupportedLoadModeError", "ValidationError", "VersionStoreError"],
+      "rationale": "Canonical V1 exception namespace; historical class identities are preserved."
     }
   },
   "exceptions": {
-    "module": "pyingestkit.core.exceptions",
+    "module": "pyingestkit.errors",
     "classification": "PUBLIC_STABLE_CANDIDATE",
-    "symbols": [
-      "IngestionError",
-      "ConfigurationError",
-      "DiscoveryError",
-      "FetchError",
-      "ParseError",
-      "NormalizationError",
-      "ValidationError",
-      "PublicationError",
-      "StorageError",
-      "PluginError",
-      "HookError",
-      "DiffError",
-      "SnapshotError",
-      "VersionStoreError",
-      "ReplayError",
-      "ReplayIntegrityError",
-      "ReplayMismatchError"
-    ],
-    "note": "Canonical error namespace may be improved in b1, but these exception identities/hierarchy are already user-catchable and must not disappear silently."
+    "symbols": ["ConfigurationError", "DiffError", "DiscoveryError", "FetchError", "HookError", "HttpError", "HttpStatusError", "HttpTimeoutError", "HttpTransportError", "IngestionError", "InvalidTargetIdentifierError", "NormalizationError", "ParseError", "PluginError", "PublicationError", "ReplayError", "ReplayIntegrityError", "ReplayMismatchError", "SnapshotError", "StorageError", "TargetClosedError", "TargetConfigurationError", "TargetConnectionError", "TargetError", "TargetLoadConflictError", "TargetLoadError", "UnsupportedLoadModeError", "ValidationError", "VersionStoreError"],
+    "note": "pyingestkit.errors is canonical in V1; historical submodule imports remain identity-compatible."
   },
-  "cli": {
-    "entrypoint": "pyingest",
-    "classification": "PUBLIC_STABLE_CANDIDATE",
-    "commands": [
-      "config",
-      "help",
-      "inspect",
-      "jobs",
-      "published",
-      "replay",
-      "run",
-      "runs",
-      "status",
-      "versions"
-    ],
-    "root_options": [
-      "--help",
-      "-h",
-      "--version",
-      "-V"
-    ],
-    "option_level": "PUBLIC_EXPERIMENTAL",
-    "note": "Command names are A1 stable candidates. Exact option/exit-code/output stability is finalized in V1.0.0-b1."
-  },
-  "plugins": {
-    "entry_point_group": "pyingestkit.jobs",
-    "classification": "PUBLIC_STABLE_CANDIDATE",
-    "accepted_objects": [
-      "Job",
-      "JobDefinition"
-    ],
-    "discovery_api": "PUBLIC_EXPERIMENTAL"
-  },
-  "configuration": {
-    "classification": "PUBLIC_EXPERIMENTAL",
-    "resolution_order": [
-      "explicit --config",
-      "PYINGEST_CONFIG",
-      "PYINGEST_ENV profile",
-      "default project files",
-      "in-memory defaults"
-    ],
-    "default_files": [
-      "pyingest.yml",
-      "pyingestkit.yml",
-      ".pyingest.yml"
-    ],
-    "environment_variables": [
-      "PYINGEST_CONFIG",
-      "PYINGEST_ENV",
-      "PYINGEST_DATABASE_URL",
-      "PYINGEST_TARGET_DATABASE_URL",
-      "PYINGEST_S3_ENDPOINT_URL"
-    ],
-    "note": "Config surface is inventoried in A1 and finalized for 1.x stability in b1."
-  },
-  "python_support": {
-    "classification": "PUBLIC_STABLE_CANDIDATE",
-    "versions": [
-      "3.11",
-      "3.12",
-      "3.13"
-    ]
-  },
-  "optional_extras": {
-    "classification": "PUBLIC_STABLE_CANDIDATE",
-    "names": [
-      "dev",
-      "excel",
-      "parquet",
-      "postgres",
-      "s3"
-    ]
-  },
+  "cli": {"entrypoint": "pyingest", "classification": "PUBLIC_STABLE_CANDIDATE", "commands": ["config", "help", "inspect", "jobs", "published", "replay", "run", "runs", "status", "versions"], "root_options": ["--help", "-h", "--version", "-V"], "option_level": "PUBLIC_STABLE_CANDIDATE", "note": "Command names, option aliases, exit-code classes and output semantics are finalized in V1.0.0-b1."},
+  "plugins": {"entry_point_group": "pyingestkit.jobs", "classification": "PUBLIC_STABLE_CANDIDATE", "accepted_objects": ["Job", "JobDefinition", "Job subclass", "zero-argument factory returning Job or JobDefinition"], "discovery_api": "PUBLIC_STABLE_CANDIDATE"},
+  "configuration": {"classification": "PUBLIC_STABLE_CANDIDATE", "resolution_order": ["explicit --config", "PYINGEST_CONFIG", "PYINGEST_ENV profile", "default project files", "in-memory defaults"], "default_files": ["pyingest.yml", "pyingestkit.yml", ".pyingest.yml"], "environment_variables": ["PYINGEST_CONFIG", "PYINGEST_ENV", "PYINGEST_WORKSPACE", "PYINGEST_DATABASE_URL", "PYINGEST_TARGET_DATABASE_URL", "PYINGEST_S3_ENDPOINT_URL"], "note": "Configuration precedence, environment variables, fail-closed profile selection and deprecation policy are finalized in V1.0.0-b1."},
+  "python_support": {"classification": "PUBLIC_STABLE_CANDIDATE", "versions": ["3.11", "3.12", "3.13"]},
+  "optional_extras": {"classification": "PUBLIC_STABLE_CANDIDATE", "names": ["dev", "excel", "parquet", "postgres", "s3"]},
   "scope": {
-    "in_scope": [
-      "job discovery",
-      "runtime execution",
-      "acquisition",
-      "RAW persistence",
-      "parsing",
-      "normalization hooks",
-      "validation",
-      "profiling",
-      "fingerprinting",
-      "diff",
-      "versioning",
-      "publication",
-      "replay",
-      "metadata",
-      "persistence targets",
-      "CLI",
-      "plugins",
-      "configuration",
-      "observability",
-      "S3-compatible object storage"
-    ],
-    "out_of_scope": [
-      "scheduling",
-      "DAG orchestration platform",
-      "worker fleet",
-      "queue system",
-      "cluster manager",
-      "IAM/RBAC platform",
-      "data catalog",
-      "external lineage platform",
-      "GUI",
-      "SaaS",
-      "ML/AI platform",
-      "stream processing"
-    ],
-    "extension_only": [
-      "PostgreSQL target/metadata integration",
-      "S3-compatible object storage",
-      "Excel parsing",
-      "Parquet parsing",
-      "external job packs/plugins"
-    ],
-    "future_not_committed": [
-      "additional cloud storage protocols",
-      "distributed execution",
-      "new orchestration engine",
-      "catalog/RBAC/GUI features"
-    ]
-  }
+    "in_scope": ["job discovery", "runtime execution", "acquisition", "RAW persistence", "parsing", "normalization hooks", "validation", "profiling", "fingerprinting", "diff", "versioning", "publication", "replay", "metadata", "persistence targets", "CLI", "plugins", "configuration", "observability", "S3-compatible object storage"],
+    "out_of_scope": ["scheduling", "DAG orchestration platform", "worker fleet", "queue system", "cluster manager", "IAM/RBAC platform", "data catalog", "external lineage platform", "GUI", "SaaS", "ML/AI platform", "stream processing"],
+    "extension_only": ["PostgreSQL target/metadata integration", "S3-compatible object storage", "Excel parsing", "Parquet parsing", "external job packs/plugins"],
+    "future_not_committed": ["additional cloud storage protocols", "distributed execution", "new orchestration engine", "catalog/RBAC/GUI features"]
+  },
+  "last_reviewed_milestone": "V1.0.0-b1"
 }
