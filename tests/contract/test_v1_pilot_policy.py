@@ -28,9 +28,7 @@ def test_b2_contract_is_versioned_and_anchored_to_b1() -> None:
     contract = _contract()
     assert contract["schema_version"] == 1
     assert contract["milestone"] == "V1.0.0-b2"
-    assert contract["baseline"]["b1_merge_sha"] == (
-        "9dc4dcfc8363937f4d7653292cce411f559fbf69"
-    )
+    assert contract["baseline"]["b1_merge_sha"] == ("9dc4dcfc8363937f4d7653292cce411f559fbf69")
 
 
 def test_b2_does_not_expand_product_scope() -> None:
