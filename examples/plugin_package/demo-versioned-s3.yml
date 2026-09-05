@@ -6,14 +6,15 @@ runtime:
     target_schema: public
     target_table: pyingestkit_demo_versioned_s3
     target_dsn_env: PYINGEST_TARGET_DATABASE_URL
+    metadata_backend: postgres
     metadata_dsn_env: PYINGEST_DATABASE_URL
 
 artifacts:
   backend: s3
   s3:
-    bucket: pyingestkit
+    bucket: pyingest-artifacts
     prefix: demo/versioned-s3
-    region_name: us-east-1
+    region_name: auto
     endpoint_url_env: PYINGEST_S3_ENDPOINT_URL
 
 metadata:

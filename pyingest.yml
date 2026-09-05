@@ -1,12 +1,24 @@
 runtime:
   workspace: .pyingest
-  fixture_mode: false
-  parameters: {}
+  fixture_mode: true
+  parameters:
+    target_id: postgres.demo.versioned_s3
+    target_schema: public
+    target_table: pyingestkit_demo_versioned_s3
+    target_dsn_env: PYINGEST_TARGET_DATABASE_URL
+    metadata_backend: postgres
+    metadata_dsn_env: PYINGEST_DATABASE_URL
+
+artifacts:
+  backend: s3
+  s3:
+    bucket: pyingest-artifacts
+    prefix: demo/versioned-s3
+    region_name: auto
+    endpoint_url_env: PYINGEST_S3_ENDPOINT_URL
 
 metadata:
-  backend: sqlite
-  sqlite:
-    path: null
+  backend: postgres
   postgres:
     dsn_env: PYINGEST_DATABASE_URL
 
@@ -15,9 +27,4 @@ logging:
   format: rich
   console: true
   file:
-    enabled: true
-    path: .pyingest/logs/pyingest.log
-    level: DEBUG
-    format: json
-    max_bytes: 10000000
-    backup_count: 5
+    enabled: false

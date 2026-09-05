@@ -14,3 +14,7 @@ htmlcov/
 .pyingest-demo/
 .DS_Store
 .env
+.env.*
+!.env*.example
+envs/.env*
+!envs/.env*.example

@@ -269,6 +269,8 @@ def version_load_publish_s3(
         "V0.6 RC1 remote RAW -> remote versions -> diff -> PostgreSQL -> publish -> "
         "cross-workspace strict replay -> idempotent SKIP reference slice."
     ),
+    requires_artifacts="s3",
+    requires_metadata="postgres",
 )
 def versioned_s3_job() -> None:
     fetch_versioned_s3_ndjson()

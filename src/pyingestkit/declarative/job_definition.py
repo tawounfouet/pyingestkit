@@ -21,12 +21,16 @@ class DeclarativeJob(Job):
         description: str,
         depends_on: tuple[str, ...],
         pipeline: Pipeline,
+        requires_artifacts: str | None = None,
+        requires_metadata: str | None = None,
     ) -> None:
         self.id = job_id
         self.version = version
         self.description = description
         self.depends_on = depends_on
         self._pipeline = pipeline
+        self.requires_artifacts = requires_artifacts
+        self.requires_metadata = requires_metadata
 
     def pipeline(self) -> Pipeline:
         return self._pipeline
@@ -39,6 +43,8 @@ class JobDefinition:
     version: str = "0.1.0"
     description: str = ""
     depends_on: tuple[str, ...] = ()
+    requires_artifacts: str | None = None
+    requires_metadata: str | None = None
 
     def build(self) -> Job:
         builder = PipelineBuilder()
@@ -55,6 +61,8 @@ class JobDefinition:
             description=self.description,
             depends_on=self.depends_on,
             pipeline=pipeline,
+            requires_artifacts=self.requires_artifacts,
+            requires_metadata=self.requires_metadata,
         )
         job.validate_definition()
         return job

@@ -1,0 +1,32 @@
+# ==============================================================================
+# PyIngestKit Development Configuration (Local-First: Filesystem + SQLite)
+# ==============================================================================
+
+runtime:
+  workspace: .pyingest
+  fixture_mode: true
+  parameters:
+    environment: development
+
+# Stockage d'artéfacts local (système de fichiers)
+artifacts:
+  backend: local
+
+# Métadonnées d'exécution locales stockées dans SQLite
+metadata:
+  backend: sqlite
+  sqlite:
+    path: null  # Par défaut: .pyingest/state/pyingest.sqlite3
+
+# Journalisation orientée confort développeur (Rich console + fichier JSON)
+logging:
+  level: INFO
+  format: rich
+  console: true
+  file:
+    enabled: true
+    path: .pyingest/logs/pyingest.log
+    level: DEBUG
+    format: json
+    max_bytes: 10000000
+    backup_count: 5

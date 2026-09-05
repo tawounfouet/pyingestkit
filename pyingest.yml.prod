@@ -1,0 +1,52 @@
+# ==============================================================================
+# PyIngestKit Production Configuration (Enterprise: S3 + PostgreSQL)
+# ==============================================================================
+
+runtime:
+  workspace: .pyingest
+  # En production, les vrais flux réseaux et sources réelles sont activés (pas de fixtures)
+  fixture_mode: false
+  parameters:
+    environment: production
+    target_schema: public
+    target_dsn_env: PYINGEST_TARGET_DATABASE_URL
+    metadata_dsn_env: PYINGEST_DATABASE_URL
+
+# Stockage d'artéfacts immuables distants (S3, Cloudflare R2, MinIO)
+artifacts:
+  backend: s3
+  s3:
+    bucket: pyingest-artifacts
+    prefix: production/artifacts
+    region_name: auto                    # 'auto' pour Cloudflare R2 / MinIO, ou région AWS (ex: eu-west-3)
+    endpoint_url_env: PYINGEST_S3_ENDPOINT_URL # Variable optionnelle pour S3 compatible (R2/MinIO)
+    cache_path: .pyingest/cache
+
+# Métadonnées d'exécution distribuées et partagées (PostgreSQL)
+metadata:
+  backend: postgres
+  postgres:
+    dsn_env: PYINGEST_DATABASE_URL       # Lit le DSN depuis l'environnement (zéro secret en clair)
+
+# Cibles de données de destination (PostgreSQL Data Warehouse)
+targets:
+  warehouse:
+    type: postgres
+    target_id: postgres.production.warehouse
+    dsn_env: PYINGEST_TARGET_DATABASE_URL
+    schema: public
+    table: pyingest_production_target
+    load_mode: replace                   # append | truncate_load | replace
+
+# Journalisation orientée observabilité et conteneurs (Airflow, Docker, Datadog)
+logging:
+  level: INFO
+  format: plain                          # Format texte brut compatible orchestrateurs
+  console: true                          # Émission sur stdout capturée par les collecteurs
+  file:
+    enabled: true                        # Journalisation sur disque pour audit local
+    path: .pyingest/logs/pyingest.log
+    level: INFO
+    format: json                         # Format JSON structuré indexable
+    max_bytes: 10485760                  # Rotation automatique tous les 10 Mo
+    backup_count: 5
