@@ -2,6 +2,19 @@
 
 All notable changes to PyIngestKit are documented here.
 
+## [0.5.0] - 2026-09-05
+
+### PostgreSQL Persistence Targets Release
+
+- promoted the fully qualified PostgreSQL persistence release candidate to stable `0.5.0` without adding new runtime features;
+- froze the V0.5 `Target`, `TargetLoadRequest`, `TargetLoadResult`, `LoadMode`, capability and idempotency surfaces;
+- released `PostgresTarget` with deterministic schema compatibility, psycopg 3 COPY, transactional `APPEND`, `TRUNCATE_LOAD`, and `REPLACE`;
+- released additive target-load lineage for Memory, SQLite and PostgreSQL metadata backends;
+- released history-driven `EXECUTE`, `SKIP`, `RETRY`, and `RELOAD` decisions outside the Target contract;
+- froze eight executable reference jobs, including `demo.versioned_postgres` proving V1 -> V2 -> diff -> PostgreSQL -> publish -> strict RAW replay -> idempotent SKIP;
+- qualified SQLite metadata + PostgreSQL target and PostgreSQL metadata + PostgreSQL target against PostgreSQL 16;
+- retained Python 3.11/3.12/3.13, Ruff/Mypy, Bandit/pip-audit, wheel/sdist build and clean-wheel smoke gates.
+
 ## [0.5.0rc1] - 2026-09-05
 
 ### Release Candidate — Full PostgreSQL Persistence E2E
