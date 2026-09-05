@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "milestone": "V1.0.0-b2",
+  "baseline": {
+    "b1_merge_sha": "9dc4dcfc8363937f4d7653292cce411f559fbf69"
+  },
+  "scope": {
+    "introduces_new_ingestion_provider": false,
+    "introduces_orchestration_platform": false,
+    "purpose": "Qualify representative existing V1 workflows and complete user-facing documentation."
+  },
+  "pilots": [
+    {
+      "id": "local-plugin-operator",
+      "title": "Local plugin operator",
+      "job_ids": ["demo.local_file"],
+      "entry_points": ["demo-local-file"],
+      "configs": ["examples/plugin_package/demo.yml"],
+      "execution_class": "offline",
+      "capabilities": [
+        "plugin-discovery",
+        "cli-run",
+        "filesystem-artifacts",
+        "sqlite-metadata",
+        "run-history"
+      ],
+      "evidence": [
+        "examples/plugin_package/tests/test_demo_job.py",
+        "tests/integration/test_cli_run_history.py"
+      ]
+    },
+    {
+      "id": "http-quality-formats",
+      "title": "HTTP acquisition and quality formats",
+      "job_ids": [
+        "demo.http_csv",
+        "demo.http_json",
+        "demo.ndjson_quality",
+        "demo.excel_quality",
+        "demo.parquet_quality"
+      ],
+      "entry_points": [
+        "demo-http-csv",
+        "demo-http-json",
+        "demo-ndjson-quality",
+        "demo-excel-quality",
+        "demo-parquet-quality"
+      ],
+      "configs": [
+        "examples/plugin_package/demo-http.yml",
+        "examples/plugin_package/demo-quality.yml"
+      ],
+      "execution_class": "offline",
+      "capabilities": [
+        "http-source",
+        "retry-policy",
+        "raw-provenance",
+        "validation",
+        "profiling",
+        "quality-reports",
+        "csv-json-ndjson-excel-parquet"
+      ],
+      "evidence": [
+        "examples/plugin_package/tests/test_http_jobs.py",
+        "examples/plugin_package/tests/test_quality_format_jobs.py",
+        "tests/integration/test_http_raw_provenance.py",
+        "tests/integration/test_quality_reports_runtime.py"
+      ]
+    },
+    {
+      "id": "local-versioning-replay",
+      "title": "Local versioning, diff, publish and strict replay",
+      "job_ids": ["demo.versioned_ndjson"],
+      "entry_points": ["demo-versioned-ndjson"],
+      "configs": ["examples/plugin_package/demo-versioned.yml"],
+      "execution_class": "offline",
+      "capabilities": [
+        "dataset-fingerprint",
+        "dataset-diff",
+        "dataset-version",
+        "publication",
+        "strict-replay"
+      ],
+      "evidence": [
+        "tests/integration/test_versioned_ndjson_e2e.py",
+        "tests/integration/test_replay_runtime.py"
+      ]
+    },
+    {
+      "id": "postgres-production-slice",
+      "title": "PostgreSQL metadata and target production slice",
+      "job_ids": ["demo.versioned_postgres"],
+      "entry_points": ["demo-versioned-postgres"],
+      "configs": ["examples/plugin_package/demo-versioned-postgres.yml"],
+      "execution_class": "service-backed-ci",
+      "ci_job": "postgres-e2e",
+      "capabilities": [
+        "postgres-metadata",
+        "postgres-target",
+        "copy-load",
+        "load-modes",
+        "idempotency",
+        "versioned-ingestion"
+      ],
+      "evidence": [
+        "tests/integration/test_postgres_target_copy.py",
+        "tests/integration/test_postgres_metadata_target_loads.py",
+        "tests/integration/test_postgres_load_modes_idempotency.py",
+        "tests/integration/test_versioned_postgres_e2e.py"
+      ]
+    },
+    {
+      "id": "cross-host-object-storage",
+      "title": "Cross-host object storage recovery and replay",
+      "job_ids": ["demo.versioned_s3"],
+      "entry_points": ["demo-versioned-s3"],
+      "configs": ["examples/plugin_package/demo-versioned-s3.yml"],
+      "execution_class": "service-backed-ci",
+      "ci_job": "object-storage-e2e",
+      "capabilities": [
+        "s3-artifacts",
+        "remote-raw",
+        "remote-reports",
+        "remote-manifests",
+        "remote-dataset-versions",
+        "publication",
+        "postgres-metadata",
+        "postgres-target",
+        "fresh-workspace-replay"
+      ],
+      "evidence": [
+        "tests/integration/test_versioned_s3_e2e.py",
+        "tests/integration/test_s3_remote_raw.py",
+        "tests/integration/test_s3_dataset_versions.py"
+      ]
+    }
+  ],
+  "required_docs": [
+    "docs/reference/pilots-v1.md",
+    "docs/guides/v1-quickstart.md",
+    "docs/guides/v1-production-pilot.md",
+    "docs/guides/migrate-v0.6-to-v1.md",
+    "docs/architecture/configuration.md",
+    "docs/architecture/plugin-model.md",
+    "docs/architecture/logging.md",
+    "docs/reference/public-api.md",
+    "docs/reference/compatibility-v1.md",
+    "docs/reference/stability-v1.md"
+  ],
+  "required_ci_jobs": [
+    "test",
+    "postgres-e2e",
+    "s3-e2e",
+    "object-storage-e2e",
+    "foundation-verify",
+    "v1-pilot-gate"
+  ]
+}
