@@ -10,7 +10,6 @@ from typer.testing import CliRunner
 
 from pyingestkit.cli.app import app
 
-
 ROOT = Path(__file__).resolve().parents[2]
 MANIFEST_PATH = ROOT / "tests" / "contract" / "fixtures" / "public_api_v1.json"
 
@@ -34,7 +33,7 @@ def test_v1_public_namespace_exports_match_manifest_exactly() -> None:
     data = _manifest()
     for module_name, contract in data["modules"].items():
         module = importlib.import_module(module_name)
-        actual = set(getattr(module, "__all__"))
+        actual = set(module.__all__)
         expected = set(contract["exports"])
         assert actual == expected, (
             f"Unexpected public exports for {module_name}: "
@@ -57,10 +56,10 @@ def test_v1_exception_inventory_is_importable_and_keeps_replay_hierarchy() -> No
         assert isinstance(value, type)
         assert issubclass(value, Exception)
 
-    replay_error = getattr(module, "ReplayError")
-    assert issubclass(getattr(module, "ReplayIntegrityError"), replay_error)
-    assert issubclass(getattr(module, "ReplayMismatchError"), replay_error)
-    assert issubclass(replay_error, getattr(module, "IngestionError"))
+    replay_error = module.ReplayError
+    assert issubclass(module.ReplayIntegrityError, replay_error)
+    assert issubclass(module.ReplayMismatchError, replay_error)
+    assert issubclass(replay_error, module.IngestionError)
 
 
 def test_v1_cli_command_names_match_manifest() -> None:
