@@ -121,18 +121,98 @@ class MyJob(Job):
         return Pipeline([Fetch()])
 ```
 
-## CLI
+## Configuration Management & Backend Requirements
+
+PyIngestKit resolves configuration in the following order:
+1. Explicit `--config <path.yml>` CLI flag.
+2. `PYINGEST_CONFIG` environment variable path (e.g. `export PYINGEST_CONFIG=path/to/config.yml`).
+3. Automatic discovery of `pyingest.yml`, `pyingestkit.yml`, or `.pyingest.yml` in the working directory.
+4. Local in-memory defaults (`filesystem` artifacts & `sqlite` metadata).
+
+Jobs can explicitly declare backend requirements (e.g. `requires_artifacts="s3"`, `requires_metadata="postgres"`). If a job's requirements are not met by the active configuration, `pyingest run` will halt immediately before executing any step with a clear error message.
+
+### Configuration Profiles & Environment Files
+
+Three ready-to-use YAML profiles and their corresponding environment templates (in `envs/`) are provided:
+- `pyingest.yml.dev` & `envs/.env.dev.example`: Local-first development (`local` filesystem artifacts + `sqlite` metadata).
+- `pyingest.yml.stg` & `envs/.env.stg.example`: Staging environment (`s3` artifacts via MinIO + `postgres` metadata, launchable via `docker-compose.staging.yml`).
+- `pyingest.yml.prod` & `envs/.env.prod.example`: Production environment (`s3` artifacts via AWS S3 / Cloudflare R2 + `postgres` metadata).
 
 ```bash
+# Quickstart local dev:
+cp envs/.env.dev.example .env
+cp pyingest.yml.dev pyingest.yml
+```
+
+### Option A: Using Project Auto-Discovery (Recommended)
+
+Copy or link the desired profile as `pyingest.yml` at your project root, or set `export PYINGEST_CONFIG=pyingest.yml.<env>`:
+
+```bash
+# Setup project config (e.g. staging with Docker Compose or dev)
+cp pyingest.yml.stg pyingest.yml
+
+# Inspect configuration, jobs & backend requirements
 pyingest --version
+pyingest config                       # Shows active configuration, origin & backend settings
 pyingest jobs
 pyingest inspect demo.versioned_s3
+
+
+# Executing baseline & quality reference jobs
+pyingest run demo.local_file --param path=examples/plugin_package/data/sample.txt
+pyingest run demo.http_csv
+pyingest run demo.http_json
+pyingest run demo.ndjson_quality
+pyingest run demo.excel_quality
+pyingest run demo.parquet_quality
+
+# Executing versioned reference jobs
+pyingest run demo.versioned_postgres --param revision=1
+pyingest run demo.versioned_s3 --param revision=1
+pyingest run demo.versioned_s3 --param revision=2
+
+# Note: demo.versioned_ndjson requires isolated SQLite metadata backend
+pyingest run demo.versioned_ndjson --config examples/plugin_package/demo-versioned.yml --param revision=1
+
+# Inspecting versions, publication, history, and status
+pyingest versions demo.versioned_s3
+pyingest published demo.versioned_s3
+pyingest runs
+pyingest status                      # Automatically inspects the most recent run
+# Or inspect a specific run: pyingest status {run_id}
+
+# Replay run from historical RAW
+pyingest replay                      # Automatically replays the most recent run
+# Or replay a specific run: pyingest replay {run_id}
+```
+
+### Option B: Using Explicit Demo Configuration Files
+
+You can also pass specific YAML configuration files per job using `--config`:
+
+```bash
+# Executing baseline reference jobs (V0.1 - V0.3)
 pyingest run demo.local_file --config examples/plugin_package/demo.yml
+pyingest run demo.http_csv --config examples/plugin_package/demo-http.yml
+pyingest run demo.http_json --config examples/plugin_package/demo-http.yml
+pyingest run demo.ndjson_quality --config examples/plugin_package/demo-quality.yml
+pyingest run demo.excel_quality --config examples/plugin_package/demo-quality.yml
+pyingest run demo.parquet_quality --config examples/plugin_package/demo-quality.yml
+
+# Executing versioned reference jobs (V0.4 - V0.6)
+pyingest run demo.versioned_ndjson --config examples/plugin_package/demo-versioned.yml --param revision=1
+pyingest run demo.versioned_postgres --config examples/plugin_package/demo-versioned-postgres.yml --param revision=1
+pyingest run demo.versioned_s3 --config examples/plugin_package/demo-versioned-s3.yml --param revision=1
+pyingest run demo.versioned_s3 --config examples/plugin_package/demo-versioned-s3.yml --param revision=2
+
+# Inspecting configuration, history, and status per config
+pyingest config --config examples/plugin_package/demo-versioned-s3.yml
 pyingest versions demo.versioned_s3 --config examples/plugin_package/demo-versioned-s3.yml
 pyingest published demo.versioned_s3 --config examples/plugin_package/demo-versioned-s3.yml
-pyingest replay <run-id> --config examples/plugin_package/demo-versioned-s3.yml
-pyingest runs
-pyingest status <run-id-or-prefix>
+pyingest runs --config examples/plugin_package/demo-versioned-s3.yml
+pyingest status --config examples/plugin_package/demo-versioned-s3.yml
+pyingest replay --config examples/plugin_package/demo-versioned-s3.yml
 ```
 
 ## V0.6 reference jobs
