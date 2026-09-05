@@ -1,4 +1,4 @@
-.PHONY: bootstrap install install-dev install-demo test test-demo check format quality security build wheel-smoke demo verify release-check clean
+.PHONY: bootstrap install install-dev install-demo test test-demo compatibility check format quality security build wheel-smoke demo verify release-check clean
 
 bootstrap:
 	python -m pip install --upgrade pip
@@ -19,8 +19,11 @@ test:
 test-demo:
 	PYTHONPATH=src:examples/plugin_package/src python -m unittest discover -s examples/plugin_package/tests -v
 
-check: test test-demo
+compatibility:
 	PYTHONPATH=src python scripts/check_public_api.py
+	PYTHONPATH=src python scripts/check_v1_compatibility.py
+
+check: test test-demo compatibility
 	python -m compileall -q src tests examples/plugin_package/src examples/plugin_package/tests
 
 format:
