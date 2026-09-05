@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import tempfile
 import unittest
+from contextlib import chdir
 from pathlib import Path
 
 from typer.testing import CliRunner
@@ -79,7 +80,7 @@ class QualityReportsRuntimeTests(unittest.TestCase):
             self.assertIn("QUALITY_REPORT_WRITTEN", event_types)
 
             cli_runner = CliRunner()
-            with cli_runner.isolated_filesystem(temp_dir=tmp):
+            with chdir(tmp):
                 status_result = cli_runner.invoke(
                     app,
                     ["status", result.run_id[:8], "--workspace", str(workspace), "--json"],

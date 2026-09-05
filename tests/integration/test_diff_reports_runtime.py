@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import tempfile
 import unittest
+from contextlib import chdir
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -189,7 +190,7 @@ class DiffReportsRuntimeTests(unittest.TestCase):
             )
 
             cli_runner = CliRunner()
-            with cli_runner.isolated_filesystem(temp_dir=tmp):
+            with chdir(tmp):
                 status_result = cli_runner.invoke(
                     app,
                     ["status", result.run_id[:8], "--workspace", str(workspace), "--json"],
