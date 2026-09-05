@@ -7,8 +7,9 @@ from typing import Any
 import yaml
 from pydantic import ValidationError as PydanticValidationError
 
-from pyingestkit.config.models import PyIngestKitConfig
 from pyingestkit.core.exceptions import ConfigurationError
+
+from .models import PyIngestKitConfig
 
 
 DEFAULT_CONFIG_FILES: tuple[str, ...] = (
