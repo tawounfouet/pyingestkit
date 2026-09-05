@@ -118,6 +118,8 @@ def main() -> int:
                     VERSIONED_JOB,
                     "--config",
                     str(old_config),
+                    "--workspace",
+                    str(workspace),
                     "--param",
                     "revision=1",
                     "--json",
@@ -132,6 +134,8 @@ def main() -> int:
                     VERSIONED_JOB,
                     "--config",
                     str(old_config),
+                    "--workspace",
+                    str(workspace),
                     "--param",
                     "revision=2",
                     "--json",
@@ -171,13 +175,16 @@ def main() -> int:
                     source_run_id,
                     "--config",
                     str(old_config),
+                    "--workspace",
+                    str(workspace),
                     "--json",
                 ],
                 cwd=root,
                 env=env,
             )
             assert isinstance(status, dict)
-            if status.get("status") != "SUCCESS":
+            status_run = status.get("run")
+            if not isinstance(status_run, dict) or status_run.get("status") != "SUCCESS":
                 raise SystemExit(f"V0.6.0 run history is not readable after upgrade: {status}")
 
             versions = json_command(
@@ -222,6 +229,8 @@ def main() -> int:
                     source_run_id,
                     "--config",
                     str(old_config),
+                    "--workspace",
+                    str(workspace),
                     "--json",
                 ],
                 cwd=root,
