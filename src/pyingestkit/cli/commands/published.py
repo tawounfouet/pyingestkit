@@ -6,7 +6,7 @@ from typing import Annotated
 
 import typer
 
-from pyingestkit.cli.common import dataset_version_store_or_exit, project_config_or_exit
+from pyingestkit.cli.common import dataset_version_store_or_exit, fail, project_config_or_exit
 from pyingestkit.cli.console import console
 
 
@@ -23,7 +23,7 @@ def published_command(
     store = dataset_version_store_or_exit(project_config, workspace=effective_workspace)
     published = store.get_published(dataset_id)
     if published is None:
-        raise typer.Exit(code=1)
+        fail(f"No published version found for dataset: {dataset_id}", code=1)
     payload = {
         "dataset_id": published.dataset_id,
         "version_id": published.version_id,
