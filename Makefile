@@ -1,4 +1,4 @@
-.PHONY: bootstrap install install-dev install-demo test test-demo compatibility stability check format quality security build wheel-smoke demo verify release-check clean
+.PHONY: bootstrap install install-dev install-demo test test-demo compatibility stability pilots check format quality security build wheel-smoke demo verify release-check clean
 
 bootstrap:
 	python -m pip install --upgrade pip
@@ -26,7 +26,10 @@ compatibility:
 stability:
 	PYTHONPATH=src python scripts/check_v1_stability.py
 
-check: test test-demo compatibility stability
+pilots:
+	PYTHONPATH=src python scripts/check_v1_pilots.py
+
+check: test test-demo compatibility stability pilots
 	python -m compileall -q src tests examples/plugin_package/src examples/plugin_package/tests
 
 format:
