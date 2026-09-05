@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyingestkit-demo-jobs"
-version = "1.0.0rc1"
+version = "1.0.0"
 description = "Installable demonstration job pack for PyIngestKit."
 requires-python = ">=3.11"
 dependencies = [
-  "pyingestkit>=1.0.0rc1,<1.1",
+  "pyingestkit>=1.0.0,<1.1",
 ]
 
 [project.entry-points."pyingestkit.jobs"]
