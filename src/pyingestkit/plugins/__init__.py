@@ -1,4 +1,5 @@
 from .discovery import (
+    ENTRY_POINT_GROUP,
     DiscoveryReport,
     PluginFailure,
     discover_jobs,
@@ -8,6 +9,7 @@ from .discovery import (
 )
 
 __all__ = [
+    "ENTRY_POINT_GROUP",
     "DiscoveryReport",
     "PluginFailure",
     "discover_jobs",
