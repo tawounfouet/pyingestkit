@@ -264,11 +264,13 @@ def version_load_publish_s3(
 
 @job(
     id=DATASET_ID,
-    version="0.6.0rc1",
+    version="0.6.0",
     description=(
-        "V0.6 RC1 remote RAW -> remote versions -> diff -> PostgreSQL -> publish -> "
+        "V0.6 stable remote RAW -> remote versions -> diff -> PostgreSQL -> publish -> "
         "cross-workspace strict replay -> idempotent SKIP reference slice."
     ),
+    requires_artifacts="s3",
+    requires_metadata="postgres",
 )
 def versioned_s3_job() -> None:
     fetch_versioned_s3_ndjson()

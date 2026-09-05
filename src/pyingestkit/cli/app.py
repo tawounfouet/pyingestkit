@@ -6,6 +6,7 @@ import typer
 
 from pyingestkit import __version__
 from pyingestkit.cli.commands import (
+    config_command,
     inspect_command,
     jobs_command,
     published_command,
@@ -54,6 +55,9 @@ def root(
 
 app.command("jobs", help="List installed ingestion jobs.")(jobs_command)
 app.command("inspect", help="Inspect an installed ingestion job.")(inspect_command)
+app.command("config", help="Show active configuration, resolved source, and backend settings.")(
+    config_command
+)
 app.command("run", help="Execute an installed ingestion job.")(run_command)
 app.command("runs", help="List persisted ingestion runs.")(runs_command)
 app.command("status", help="Inspect one persisted ingestion run.")(status_command)

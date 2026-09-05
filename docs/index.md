@@ -57,3 +57,13 @@
 - [V0.6.0 stable contract](architecture/object-storage-release-v0.6.0.md)
 - [Configure S3-compatible storage](guides/configure-object-storage.md)
 - [V0.6.0 release validation](guides/release-validation-v0.6.0.md)
+
+## Engineering Reviews
+
+- [V0.5.0 — PostgreSQL Persistence & CLI Enhancements](reviews/v0.5.0-postgres-persistence-enhancements-review.md)
+- [V0.6.0 — Config Auto-Discovery & Fail-Fast Validation](reviews/v0.6.0-config-autodiscovery-and-failfast-review.md)
+- [V0.6.0 — Multi-Environment Profiles & Cloud Object Storage](reviews/v0.6.0-multienv-profiles-and-s3-object-storage-review.md)
+- [V0.6.0 — Environment Management, Project Hygiene & Observability](reviews/v0.6.0-environment-management-and-project-hygiene-review.md)
+- [V0.6.0 — Live Configuration Inspection & Origin Tracing](reviews/v0.6.0-live-config-inspection-review.md)
+- [V0.6.0 — CLI Ergonomics, Parameter Defaults & Shell Resilience](reviews/v0.6.0-cli-ergonomics-and-subcommand-resilience-review.md)
+

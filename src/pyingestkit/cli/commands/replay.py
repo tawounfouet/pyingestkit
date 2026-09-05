@@ -21,7 +21,10 @@ from pyingestkit.runtime import Runner
 
 
 def replay_command(
-    source_run_id: Annotated[str, typer.Argument(help="Historical run ID or unique prefix")],
+    source_run_id: Annotated[
+        str | None,
+        typer.Argument(help="Historical run ID or unique prefix. Defaults to the most recent run."),
+    ] = None,
     config: Annotated[
         Path | None, typer.Option("--config", "-c", exists=True, dir_okay=False)
     ] = None,
@@ -39,9 +42,26 @@ def replay_command(
     service = ReplayService(runner, get_registry())
     overrides = dict(project_config.runtime.parameters)
     overrides.update(parse_param_assignments(param))
+
+    if source_run_id is None:
+        recent_runs = metadata.list_runs(limit=1)
+        if not recent_runs:
+            fail(
+                "Missing argument 'source_run_id'. No historical runs found in metadata store.\n"
+                "Execute a job first with 'pyingest run <job_id>'.",
+                code=2,
+            )
+        target_run_id = recent_runs[0].run_id
+        if not json_output:
+            console.print(
+                f"[dim]No run ID specified. Replaying most recent run: [bold cyan]{target_run_id[:8]}[/bold cyan] ({recent_runs[0].job_id})[/dim]\n"
+            )
+    else:
+        target_run_id = source_run_id
+
     try:
         result = service.replay(
-            source_run_id,
+            target_run_id,
             parameters=overrides,
             allow_version_change=allow_version_change,
             verify=not no_verify,

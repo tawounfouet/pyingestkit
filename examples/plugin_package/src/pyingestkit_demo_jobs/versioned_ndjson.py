@@ -158,6 +158,7 @@ def diff_version_publish(context: RunContext, data: dict[str, object]) -> dict[s
     id=DATASET_ID,
     version="0.4.0",
     description="Stable V0.4 NDJSON V1 -> V2 -> diff -> version -> publish -> replay E2E slice.",
+    requires_metadata="sqlite",
 )
 def versioned_ndjson_job() -> None:
     fetch_versioned_ndjson()

@@ -186,7 +186,16 @@ def main() -> int:
             raise SystemExit(f"Unexpected stable diff summary: {diff.get('summary')}")
 
         versions = json_command(
-            [str(pyingest), "versions", VERSIONED_JOB, "--workspace", str(workspace), "--json"],
+            [
+                str(pyingest),
+                "versions",
+                VERSIONED_JOB,
+                "--config",
+                "examples/plugin_package/demo-versioned.yml",
+                "--workspace",
+                str(workspace),
+                "--json",
+            ],
             cwd=root,
             env=env,
         )
@@ -194,7 +203,16 @@ def main() -> int:
             raise SystemExit(f"Expected exactly 2 content-addressed versions, got: {versions}")
 
         published = json_command(
-            [str(pyingest), "published", VERSIONED_JOB, "--workspace", str(workspace), "--json"],
+            [
+                str(pyingest),
+                "published",
+                VERSIONED_JOB,
+                "--config",
+                "examples/plugin_package/demo-versioned.yml",
+                "--workspace",
+                str(workspace),
+                "--json",
+            ],
             cwd=root,
             env=env,
         )
@@ -239,7 +257,18 @@ def main() -> int:
         if replay_lineage.get("matched") is not True:
             raise SystemExit("Replay manifest does not record a successful fingerprint verification")
 
-        run([str(pyingest), "runs"], cwd=root, env=env)
+        run(
+            [
+                str(pyingest),
+                "runs",
+                "--config",
+                "examples/plugin_package/demo-versioned.yml",
+                "--workspace",
+                str(workspace),
+            ],
+            cwd=root,
+            env=env,
+        )
 
         reports = list(workspace.glob("runs/demo/*/*/reports/profile.json"))
         if len(reports) != 6:

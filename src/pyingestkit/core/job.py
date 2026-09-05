@@ -12,6 +12,8 @@ class Job(ABC):
     version: str = "0.1.0"
     description: str = ""
     depends_on: tuple[str, ...] = ()
+    requires_artifacts: str | None = None
+    requires_metadata: str | None = None
 
     @abstractmethod
     def pipeline(self) -> Pipeline:

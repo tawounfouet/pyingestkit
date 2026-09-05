@@ -31,7 +31,14 @@ def jobs_command(
 
     if json_output:
         payload = [
-            {"id": job.id, "version": job.version, "description": job.description} for job in jobs
+            {
+                "id": job.id,
+                "version": job.version,
+                "description": job.description,
+                "requires_artifacts": job.requires_artifacts,
+                "requires_metadata": job.requires_metadata,
+            }
+            for job in jobs
         ]
         typer.echo(json.dumps(payload, ensure_ascii=False))
         return
@@ -49,7 +56,14 @@ def jobs_command(
     table = Table(title="Installed ingestion jobs", show_header=True, header_style="bold")
     table.add_column("Job ID", style="bold")
     table.add_column("Version")
+    table.add_column("Required Backends")
     table.add_column("Description")
     for job in jobs:
-        table.add_row(job.id, job.version, job.description or "—")
+        reqs: list[str] = []
+        if job.requires_artifacts:
+            reqs.append(f"artifacts: {job.requires_artifacts}")
+        if job.requires_metadata:
+            reqs.append(f"metadata: {job.requires_metadata}")
+        reqs_str = ", ".join(reqs) if reqs else "Any"
+        table.add_row(job.id, job.version, reqs_str, job.description or "—")
     console.print(table)

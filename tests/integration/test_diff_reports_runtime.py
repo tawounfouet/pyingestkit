@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import tempfile
 import unittest
+from contextlib import chdir
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -188,10 +189,12 @@ class DiffReportsRuntimeTests(unittest.TestCase):
                 {"DIFF_STARTED", "DIFF_COMPLETED", "DIFF_REPORT_WRITTEN"}.issubset(event_types)
             )
 
-            status_result = CliRunner().invoke(
-                app,
-                ["status", result.run_id[:8], "--workspace", str(workspace), "--json"],
-            )
+            cli_runner = CliRunner()
+            with chdir(tmp):
+                status_result = cli_runner.invoke(
+                    app,
+                    ["status", result.run_id[:8], "--workspace", str(workspace), "--json"],
+                )
             self.assertEqual(status_result.exit_code, 0, status_result.output)
             status_payload = json.loads(status_result.stdout)
             self.assertEqual(status_payload["diffs"][0]["changed_count"], 1)

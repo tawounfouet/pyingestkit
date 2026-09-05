@@ -43,6 +43,8 @@ def job(
     version: str = "0.1.0",
     description: str = "",
     depends_on: tuple[str, ...] = (),
+    requires_artifacts: str | None = None,
+    requires_metadata: str | None = None,
 ) -> Callable[[Callable[[], None]], JobDefinition]:
     """Declare an ingestion job that compiles to the imperative Job/Pipeline model."""
 
@@ -53,6 +55,8 @@ def job(
             version=version,
             description=description,
             depends_on=tuple(depends_on),
+            requires_artifacts=requires_artifacts,
+            requires_metadata=requires_metadata,
         )
 
     return decorate

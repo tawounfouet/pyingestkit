@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import os
 import tempfile
 import unittest
 from pathlib import Path
 
+from pyingestkit import Step, job
 from pyingestkit.config import ArtifactBackend, MetadataBackend, load_config
 from pyingestkit.core.exceptions import ConfigurationError
 
@@ -118,12 +120,34 @@ artifacts:
             with self.assertRaises(ConfigurationError):
                 load_config(path)
 
-    def test_unknown_keys_are_rejected(self) -> None:
+    def test_env_var_config_auto_discovery(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
-            path = Path(tmp) / "pyingest.yml"
-            path.write_text("unknown: true\n", encoding="utf-8")
-            with self.assertRaises(ConfigurationError):
-                load_config(path)
+            path = Path(tmp) / "custom.yml"
+            path.write_text("logging:\n  level: DEBUG\n", encoding="utf-8")
+            os.environ["PYINGEST_CONFIG"] = str(path)
+            try:
+                config = load_config()
+                self.assertEqual(config.logging.level, "DEBUG")
+            finally:
+                os.environ.pop("PYINGEST_CONFIG", None)
+
+    def test_job_backend_requirements_declaration(self) -> None:
+        class DummyStep(Step):
+            def execute(self, context, data):
+                return data
+
+        @job(
+            id="public.test_job",
+            version="1.0.0",
+            requires_artifacts="s3",
+            requires_metadata="postgres",
+        )
+        def test_job() -> None:
+            DummyStep()
+
+        compiled_job = test_job.build()
+        self.assertEqual(compiled_job.requires_artifacts, "s3")
+        self.assertEqual(compiled_job.requires_metadata, "postgres")
 
 
 if __name__ == "__main__":

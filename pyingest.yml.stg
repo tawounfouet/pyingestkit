@@ -1,0 +1,53 @@
+# ==============================================================================
+# PyIngestKit Staging Configuration (Docker Compose: PostgreSQL + MinIO)
+# ==============================================================================
+
+runtime:
+  workspace: .pyingest
+  # En staging, basculer à true si exécution avec des jeux de test hors ligne
+  fixture_mode: false
+  parameters:
+    environment: staging
+    target_schema: public
+    target_dsn_env: PYINGEST_TARGET_DATABASE_URL
+    metadata_dsn_env: PYINGEST_DATABASE_URL
+
+# Stockage d'artéfacts immuables via MinIO (S3-compatible)
+artifacts:
+  backend: s3
+  s3:
+    bucket: pyingest-staging             # Bucket MinIO pour l'environnement de staging
+    prefix: staging/artifacts
+    region_name: us-east-1               # MinIO utilise us-east-1 par défaut
+    endpoint_url_env: PYINGEST_S3_ENDPOINT_URL # Variable pointant vers MinIO (ex: http://localhost:9000)
+    cache_path: .pyingest/cache
+
+# Métadonnées d'exécution stockées dans PostgreSQL
+metadata:
+  backend: postgres
+  postgres:
+    dsn_env: PYINGEST_DATABASE_URL       # Variable contenant le DSN PostgreSQL
+
+
+# Cibles de données de destination (PostgreSQL Data Warehouse / Staging)
+targets:
+  warehouse:
+    type: postgres
+    target_id: postgres.staging.warehouse
+    dsn_env: PYINGEST_TARGET_DATABASE_URL
+    schema: public
+    table: pyingest_staging_target
+    load_mode: replace                   # append | truncate_load | replace
+
+# Journalisation orientée validation staging (Rich en console + journal JSON structuré)
+logging:
+  level: INFO
+  format: rich                           # 'rich' pour le confort interactif ou 'plain' pour conteneur CI
+  console: true
+  file:
+    enabled: true
+    path: .pyingest/logs/pyingest.log
+    level: DEBUG
+    format: json
+    max_bytes: 10485760
+    backup_count: 5
