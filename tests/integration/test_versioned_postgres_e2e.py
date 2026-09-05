@@ -7,13 +7,12 @@ import unittest
 from pathlib import Path
 from uuid import UUID, uuid4
 
-from sqlalchemy import create_engine
-
 from pyingestkit_demo_jobs.versioned_postgres import (
     DATASET_ID,
     REVISION_2,
     job_definition,
 )
+from sqlalchemy import create_engine
 
 from pyingestkit.artifacts import LocalArtifactStore
 from pyingestkit.core.registry import JobRegistry
