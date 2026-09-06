@@ -30,7 +30,7 @@ pip install -e ".[s3,postgres]"
 
 ## Étape 3 : Configuration du Fichier `.env` Local
 
-Renseignez les variables d'environnement dans votre fichier [`.env`](../../.env.example) :
+Renseignez les variables d'environnement dans votre fichier [`.env`](https://github.com/tawounfouet/pyingestkit/blob/main/.env.example) :
 
 ```env
 # Variables d'environnement pour Cloudflare R2 Object Storage (API S3)
@@ -48,7 +48,7 @@ PYINGEST_DATABASE_URL=postgresql://postgres@localhost:5432/pyingest
 
 ## Étape 4 : Fichier de Configuration YAML (`demo-versioned-s3.yml`)
 
-Configurez le fichier YAML de votre job (voir exemple [`demo-versioned-s3.yml`](../../examples/plugin_package/demo-versioned-s3.yml)) :
+Configurez le fichier YAML de votre job (voir exemple [`demo-versioned-s3.yml`](https://github.com/tawounfouet/pyingestkit/blob/main/examples/plugin_package/demo-versioned-s3.yml)) :
 
 ```yaml
 runtime:
