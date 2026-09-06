@@ -16,7 +16,8 @@ install-demo:
 	python -m pip install -e examples/plugin_package
 
 docs-install: bootstrap
-	python -m pip install -e ".[docs]"
+	python -m pip install -e .
+	python -m pip install -r docs/requirements.txt
 
 docs-build:
 	mkdocs build --strict

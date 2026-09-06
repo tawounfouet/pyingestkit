@@ -48,12 +48,6 @@ dev = [
   "psycopg[binary]>=3.2,<4",
   "boto3>=1.35,<2",
 ]
-docs = [
-  "mkdocs>=1.6,<2",
-  "mkdocs-material>=9.6,<10",
-  "mkdocstrings[python]>=0.30,<1",
-  "mike>=2.1,<3",
-]
 postgres = ["psycopg[binary]>=3.2,<4"]
 s3 = ["boto3>=1.35,<2"]
 excel = ["openpyxl>=3.1,<4"]

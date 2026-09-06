@@ -43,11 +43,18 @@ pyingest jobs
 
 ## Documentation contributors
 
-Documentation tooling is isolated in the `docs` optional extra and is not part of PyIngestKit runtime dependencies:
+Documentation tooling is repository tooling rather than a PyIngestKit public package extra. This keeps the frozen V1 optional-extra contract unchanged.
 
 ```bash
-python -m pip install -e ".[docs]"
+python -m pip install -e .
+python -m pip install -r docs/requirements.txt
 make docs-build
+```
+
+Or use the convenience target:
+
+```bash
+make docs-install
 ```
 
 For live preview while editing:
