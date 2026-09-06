@@ -12,7 +12,7 @@ sys.path.insert(0, str(ROOT / "src"))
 import pyingestkit
 
 MANIFEST_PATH = ROOT / "tests" / "contract" / "fixtures" / "public_api_v1.json"
-EXPECTED_PACKAGE_VERSION = "1.0.0rc1"
+EXPECTED_PACKAGE_VERSION = "1.0.0"
 
 
 def _manifest() -> dict[str, Any]:
@@ -36,7 +36,7 @@ def main() -> None:
 
     if pyingestkit.__version__ != EXPECTED_PACKAGE_VERSION:
         raise SystemExit(
-            "Unexpected package version during V1 RC qualification: "
+            "Unexpected package version during V1 stable qualification: "
             f"{pyingestkit.__version__}"
         )
 

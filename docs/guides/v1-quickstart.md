@@ -1,10 +1,10 @@
 # V1 Quickstart — From install to traceable ingestion
 
-This guide exercises the V1 contract candidate using the maintained demo job pack. It is intentionally
+This guide exercises the stable V1 contract using the maintained demo job pack. It is intentionally
 local-first and requires no PostgreSQL or object-storage service.
 
-> V1.0.0 has not been tagged yet. During B2/RC1 the source tree still carries the latest stable package
-> version metadata while the V1 compatibility contract is being qualified.
+PyIngestKit 1.0.0 is the stable package line. The repository release discipline still requires the
+annotated `v1.0.0` tag to point at the exact post-merge-qualified stable SHA before publication.
 
 ## 1. Create an isolated environment
 
@@ -53,15 +53,8 @@ pyingest run demo.local_file \
   --config examples/plugin_package/demo.yml
 ```
 
-The config supplies the fixture path and uses:
-
-```text
-filesystem artifacts
-SQLite metadata
-.pyingest workspace
-```
-
-The run creates immutable RAW plus metadata under the configured workspace.
+The config supplies the fixture path and uses filesystem artifacts, SQLite metadata and the `.pyingest`
+workspace. The run creates immutable RAW plus metadata under the configured workspace.
 
 ## 4. Inspect history and status
 
@@ -78,26 +71,18 @@ pyingest status <run-id> --config examples/plugin_package/demo.yml
 
 ## 5. Exercise HTTP + quality without public network access
 
-The maintained HTTP reference jobs use deterministic fixture transports:
-
 ```bash
 pyingest run demo.http_csv --config examples/plugin_package/demo-http.yml
 pyingest run demo.http_json --config examples/plugin_package/demo-http.yml
-```
-
-Quality-format slices:
-
-```bash
 pyingest run demo.ndjson_quality --config examples/plugin_package/demo-quality.yml
 pyingest run demo.excel_quality --config examples/plugin_package/demo-quality.yml
 pyingest run demo.parquet_quality --config examples/plugin_package/demo-quality.yml
 ```
 
-These flows exercise RAW provenance, parsing, validation, profiling and portable reports.
+These maintained reference jobs use deterministic fixture transports/data and exercise RAW provenance,
+parsing, validation, profiling and portable reports.
 
 ## 6. Exercise versioning, diff and publication
-
-Run two deterministic revisions:
 
 ```bash
 pyingest run demo.versioned_ndjson \
@@ -107,11 +92,7 @@ pyingest run demo.versioned_ndjson \
 pyingest run demo.versioned_ndjson \
   --config examples/plugin_package/demo-versioned.yml \
   --param revision=2
-```
 
-Inspect immutable versions and the current publication pointer:
-
-```bash
 pyingest versions demo.versioned_ndjson \
   --config examples/plugin_package/demo-versioned.yml
 
@@ -123,8 +104,6 @@ The second revision produces a deterministic diff against the previously publish
 publishes the new version.
 
 ## 7. Strict replay
-
-Replay the latest historical run:
 
 ```bash
 pyingest replay --config examples/plugin_package/demo-versioned.yml
@@ -164,26 +143,18 @@ Workspace resolution is:
 Explicit selectors fail closed. If `PYINGEST_CONFIG` or `PYINGEST_ENV` points to a missing selection,
 PyIngestKit does not silently fall back to a different environment.
 
-For the full rules see `docs/architecture/configuration.md`.
-
 ## 9. Machine-readable operator output
 
 Use `--json` where a command exposes it and another program needs the result. Successful structured
-payloads go to stdout; operational logs and controlled errors remain on stderr.
-
-Normal config inspection masks secret-bearing values:
-
-```bash
-pyingest config --config examples/plugin_package/demo-versioned.yml
-```
-
-Secret display is explicit opt-in only where supported.
+payloads go to stdout; operational logs and controlled errors remain on stderr. Normal configuration
+inspection masks secret-bearing values.
 
 ## 10. Move to a production-like pilot
 
-Once the local flows are understood, continue with:
+Continue with:
 
 - `docs/guides/v1-production-pilot.md` for PostgreSQL + S3-compatible object storage;
-- `docs/reference/pilots-v1.md` for the five B2 qualification scenarios;
-- `docs/reference/public-api.md` for the governed Python surface;
-- `docs/reference/compatibility-v1.md` and `docs/reference/stability-v1.md` for 1.x promises.
+- `docs/reference/pilots-v1.md` for the five representative qualification scenarios;
+- `docs/reference/stable-contract-v1.md` for the effective 1.x promise;
+- `docs/reference/public-api.md` for the historical governed Python inventory;
+- `docs/reference/compatibility-v1.md` and `docs/reference/stability-v1.md` for compatibility details.

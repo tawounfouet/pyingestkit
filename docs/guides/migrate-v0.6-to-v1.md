@@ -1,34 +1,33 @@
-# Migration guide — V0.6 stable to the V1 contract
+# Migration guide — V0.6 stable to V1.0.0 stable
 
-This guide describes the compatibility work required when moving a V0.6 integration toward the V1
-stable contract candidate.
+This guide describes the compatibility work required when moving a V0.6 integration to the stable V1
+contract.
 
-> The immutable `v0.6.0` release is the historical upgrade baseline. The source tree is now qualified
-> as the real PEP 440 candidate `1.0.0rc1`; this does **not** mean that stable `v1.0.0` has been tagged
-> or published. The final stable version/tag happens only after RC1 merge and post-merge qualification.
+The immutable `v0.6.0` release remains the historical upgrade baseline. PyIngestKit `1.0.0` is the
+stable package identity; official release publication is anchored to the annotated immutable `v1.0.0`
+tag created only after the exact stable merge SHA passes post-merge CI and Security.
 
 ## 1. Migration posture
 
-V1 is designed as a consolidation of the V0.6 framework rather than a provider expansion. Existing
-V0.6 jobs should be reviewed against five governed layers:
+V1 is a consolidation of the V0.6 framework rather than a provider expansion. Existing V0.6 jobs
+should be reviewed against the governed ladder:
 
 ```text
-A1   public Python surface
-A2   compatibility + persisted logical contracts
-B1   plugin/config/error/CLI/observability behavior
-B2   representative pilot qualification + documentation
-RC1  package/install/upgrade/release qualification
+A1      public Python surface
+A2      compatibility + persisted logical contracts
+B1      plugin/config/error/CLI/observability behavior
+B2      representative pilots + documentation
+RC1     package/install/upgrade/release qualification
+Stable  protected 1.x compatibility contract
 ```
-
-The goal is to make accidental behavior explicit before 1.0.
 
 ## 2. Public imports
 
-Use paths listed in `docs/reference/public-api.md` for code that must remain compatible through 1.x.
-Anything not listed in the governed public manifest is internal by default even if Python can import
-it today.
+Use paths listed in `docs/reference/public-api.md` and the promotion policy in
+`docs/reference/stable-contract-v1.md` for code that must remain compatible through 1.x. Anything not
+listed in the governed public inventory is internal by default even if Python can import it today.
 
-For controlled exceptions, prefer the canonical namespace:
+For controlled exceptions, prefer:
 
 ```python
 import pyingestkit.errors as errors
@@ -40,14 +39,11 @@ except errors.ConfigurationError:
 ```
 
 Historical public exception classes are re-exported by identity, so existing `except` clauses remain
-compatible. The canonical namespace improves consistency without creating replacement exception
-objects.
+compatible.
 
 ## 3. Configuration selectors are fail closed
 
-V0.6-era projects that relied on permissive fallback should be corrected.
-
-V1 candidate resolution is:
+Stable V1 resolution is:
 
 ```text
 --config
@@ -57,22 +53,18 @@ V1 candidate resolution is:
   -> in-memory defaults
 ```
 
-If `PYINGEST_CONFIG` names a missing file, configuration fails. If `PYINGEST_ENV=prod` is selected and
-`pyingest.yml.prod` is missing, configuration fails. PyIngestKit does not silently substitute another
-environment.
+If `PYINGEST_CONFIG` names a missing file or a selected `PYINGEST_ENV` profile is absent, configuration
+fails instead of silently falling through.
 
-Action for migration:
+Migration action:
 
 ```bash
 pyingest config
 ```
 
-Run this in every deployment environment and confirm the reported origin/backends before scheduling
-production work.
+Confirm the reported origin/backends in every deployment environment.
 
 ## 4. Workspace precedence is explicit
-
-V1 candidate workspace precedence is:
 
 ```text
 --workspace
@@ -81,67 +73,29 @@ V1 candidate workspace precedence is:
   -> .pyingest
 ```
 
-If a V0.6 deployment set `PYINGEST_WORKSPACE` expecting it to be merely documentation, re-check the
-result: it is now an implemented stable override.
+`PYINGEST_WORKSPACE` is a real stable runtime override.
 
 ## 5. Dotenv templates are never runtime files
 
-Files such as:
-
-```text
-envs/.env.dev.example
-envs/.env.stg.example
-envs/.env.prod.example
-```
-
-are templates only. Copy values into a real environment file or inject variables with the deployment
-secret manager. The console entry point does not auto-load `*.example` files and does not search parent
-directories for dotenv files.
-
-This avoids accidentally treating sample values as runtime credentials/configuration.
+`envs/.env.dev.example`, `envs/.env.stg.example` and `envs/.env.prod.example` are templates only. The
+console entry point does not auto-load `*.example` files and does not search parent directories for
+dotenv files.
 
 ## 6. Plugin discovery is deterministic
 
-The V1 entry-point group remains:
-
-```text
-pyingestkit.jobs
-```
-
-Migration checks for external job packs:
-
-- every exported logical `job.id` must be unique;
-- entry points should not depend on installation order;
-- broken plugins must be fixable independently from healthy packages;
-- libraries calling `discover_jobs()` should account for strict-by-default behavior;
-- CLI/operator flows may use tolerant registry loading so healthy jobs remain available.
-
-Duplicate job IDs are explicit plugin failures. Deterministic entry-point ordering decides which first
-entry is retained for diagnostics rather than relying on environment-specific package ordering.
+The stable entry-point group is `pyingestkit.jobs`. External job packs must use globally unique logical
+`job.id` values. Library discovery is strict by default; tolerant operator registry loading keeps
+healthy jobs usable while reporting plugin failures.
 
 ## 7. Deprecations are visible
 
-Public V1 deprecations use `PyIngestKitDeprecationWarning`, a `FutureWarning` subclass, so migration
-messages are visible under normal Python warning filters.
-
-If you maintain an extension package, use the canonical helper for public migration guidance:
-
-```python
-from pyingestkit.deprecations import warn_deprecated
-
-warn_deprecated(
-    "old.option",
-    replacement="new.option",
-    removal="2.0.0",
-)
-```
-
-Stable V1 public paths are retained through 1.x and removed only in a later breaking major release,
-except for explicitly governed security/correctness emergencies.
+Public V1 deprecations use `PyIngestKitDeprecationWarning`, a `FutureWarning` subclass. Stable public
+paths are retained through 1.x and removed only in a later breaking major release except for explicitly
+governed security/correctness emergencies.
 
 ## 8. CLI compatibility is semantic
 
-The stable command set is:
+Stable command names are:
 
 ```text
 config
@@ -156,9 +110,6 @@ status
 versions
 ```
 
-Generated Typer management options `--install-completion` and `--show-completion` are intentionally
-not part of the V1 product surface.
-
 Exit-code classes are:
 
 ```text
@@ -172,29 +123,13 @@ colors, wrapping or whitespace.
 
 ## 9. Logging changes to review
 
-Python standard-library logging remains the framework/plugin contract.
-
 Human terminal logs use local timestamps and short run IDs. Structured JSON uses timezone-aware UTC
-ISO-8601 timestamps and full identifiers.
-
-File logging accepts:
-
-```text
-plain
-json
-```
-
-`rich` is a terminal renderer and is rejected for file logging. If a V0.6 config used `rich` under
-`logging.file.format`, migrate it to `plain` or `json`.
-
-Secret redaction applies to normal messages, exception text and URL-embedded credentials.
+ISO-8601 timestamps and full identifiers. Stable file logging formats are `plain` and `json`; `rich` is
+terminal presentation only. Secret redaction applies to normal messages and exception text.
 
 ## 10. Persistence and replay compatibility
 
-A2 governs logical persistence contracts and versioned portable schemas rather than freezing every
-physical SQL implementation detail.
-
-When upgrading a real environment, preserve and test:
+Preserve and test:
 
 - historical run/step/artifact records;
 - durable artifact locations;
@@ -204,27 +139,23 @@ When upgrading a real environment, preserve and test:
 
 Do not delete or rewrite historical durable state merely to match an implementation layout.
 
-## 11. RC1 upgrade evidence
+## 11. Executable V0.6 -> 1.0.0 evidence
 
-RC1 now executes an actual package upgrade against the immutable release lineage. The repository
-release-check checks out the exact `v0.6.0` tag, installs the historical framework and demo package into
-a clean environment, creates real versioned run history, then upgrades the same environment to the
-built `1.0.0rc1` wheels.
+`scripts/upgrade_smoke_test.py` checks out exact `v0.6.0`, installs the historical framework/demo pack,
+creates real versioned run history and publication state, then upgrades that same environment to the
+built `1.0.0` wheels.
 
 After upgrade it requires:
 
 - historical V0.6 run status remains readable;
-- both historical content-addressed DatasetVersion snapshots remain readable;
-- the historical PublishedDataset pointer still identifies V2;
-- strict replay succeeds from the historical RAW;
+- both content-addressed DatasetVersion snapshots remain readable;
+- the PublishedDataset pointer still identifies historical V2;
+- strict replay succeeds from historical RAW;
 - expected and actual fingerprints still match the V0.6 published fingerprint.
 
-The executable evidence is `scripts/upgrade_smoke_test.py`. See
-`docs/guides/release-validation-v1.0.0rc1.md` for the complete RC gate.
+See `docs/guides/release-validation-v1.0.0.md` for the complete stable gate.
 
 ## 12. Recommended migration qualification
-
-Before stable adoption, run the same progressive ladder as the repository:
 
 ```bash
 make quality
@@ -232,29 +163,23 @@ make check
 make release-check
 ```
 
-Then qualify the representative topology closest to your deployment:
-
-- local filesystem + SQLite;
-- HTTP + validation/profile/reporting;
-- local diff/version/publish/replay;
-- PostgreSQL metadata + PostgreSQL target;
-- PostgreSQL + S3-compatible durable cross-host replay.
-
-See `docs/reference/pilots-v1.md` for the B2 evidence matrix.
+Then qualify the topology closest to your deployment: local filesystem + SQLite, HTTP + quality,
+local versioning/replay, PostgreSQL persistence and/or PostgreSQL + S3-compatible durable cross-host
+replay.
 
 ## 13. Upgrade checklist
 
-A V0.6 consumer is ready for the V1 contract candidate when:
+A V0.6 consumer is ready for V1.0.0 when:
 
 - imports use governed public paths;
-- config/profile resolution is explicit and fail-closed behavior is accepted;
-- workspace precedence is understood;
+- config/profile selection and workspace precedence are explicit;
 - dotenv templates are not used as runtime files;
-- plugin job IDs are globally unique in the environment;
-- automation handles the V1 CLI exit-code classes;
+- plugin job IDs are globally unique;
+- automation handles stable CLI exit-code classes;
 - file logging uses `plain` or `json`;
-- stored historical data remains readable under the governed compatibility policy;
-- at least one representative B2 pilot matching the deployment topology has passed;
-- the RC1 package/install/upgrade gate passes against the exact V0.6 release baseline.
+- stored historical data remains readable;
+- the representative pilot closest to the deployment passes;
+- the executable V0.6.0 -> 1.0.0 package upgrade/replay gate passes.
 
-Final release adoption should still wait for the immutable `v1.0.0` tag and stable release assets.
+For production adoption, pin to the immutable published `v1.0.0` release lineage or a later compatible
+1.x release according to your dependency policy.

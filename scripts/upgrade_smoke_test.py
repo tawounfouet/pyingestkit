@@ -9,7 +9,7 @@ from pathlib import Path
 
 BASELINE_TAG = "v0.6.0"
 BASELINE_VERSION = "0.6.0"
-RC_VERSION = "1.0.0rc1"
+TARGET_VERSION = "1.0.0"
 VERSIONED_JOB = "demo.versioned_ndjson"
 
 
@@ -42,17 +42,17 @@ def json_command(command: list[str], *, cwd: Path, env: dict[str, str]) -> objec
 
 def main() -> int:
     root = Path(__file__).resolve().parents[1]
-    framework_wheel = root / "dist" / f"pyingestkit-{RC_VERSION}-py3-none-any.whl"
+    framework_wheel = root / "dist" / f"pyingestkit-{TARGET_VERSION}-py3-none-any.whl"
     demo_wheel = (
         root
         / "examples"
         / "plugin_package"
         / "dist"
-        / f"pyingestkit_demo_jobs-{RC_VERSION}-py3-none-any.whl"
+        / f"pyingestkit_demo_jobs-{TARGET_VERSION}-py3-none-any.whl"
     )
     for artifact in (framework_wheel, demo_wheel):
         if not artifact.is_file():
-            raise SystemExit(f"Missing RC wheel: {artifact}")
+            raise SystemExit(f"Missing stable wheel: {artifact}")
 
     git_env = os.environ.copy()
     run(
@@ -165,7 +165,7 @@ def main() -> int:
             upgraded_version = run(
                 [str(pyingest), "--version"], cwd=root, env=env, capture=True
             )
-            if RC_VERSION not in upgraded_version:
+            if TARGET_VERSION not in upgraded_version:
                 raise SystemExit(f"Unexpected upgraded CLI version: {upgraded_version.strip()}")
 
             status = json_command(
@@ -254,7 +254,7 @@ def main() -> int:
 
     print(
         "OK: V0.6.0 workspace/history/version/publication state upgrades to "
-        "V1.0.0rc1 and remains strict-replay compatible"
+        "V1.0.0 stable and remains strict-replay compatible"
     )
     return 0
 
