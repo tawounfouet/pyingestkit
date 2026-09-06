@@ -1,4 +1,7 @@
-.PHONY: bootstrap install install-dev install-demo test test-demo compatibility stability pilots rc stable check format quality security build wheel-smoke upgrade-smoke demo verify release-check clean
+.PHONY: bootstrap install install-dev install-demo docs-install docs-build docs-serve docs-deploy test test-demo compatibility stability pilots rc stable check format quality security build wheel-smoke upgrade-smoke demo verify release-check clean
+
+DOCS_VERSION ?= 1.0
+DOCS_ALIAS ?= latest
 
 bootstrap:
 	python -m pip install --upgrade pip
@@ -11,6 +14,19 @@ install-dev: bootstrap
 
 install-demo:
 	python -m pip install -e examples/plugin_package
+
+docs-install: bootstrap
+	python -m pip install -e ".[docs]"
+
+docs-build:
+	mkdocs build --strict
+
+docs-serve:
+	mkdocs serve
+
+docs-deploy:
+	mike deploy --push --update-aliases $(DOCS_VERSION) $(DOCS_ALIAS)
+	mike set-default --push $(DOCS_ALIAS)
 
 test:
 	PYTHONPATH=src:examples/plugin_package/src python -m unittest discover -s tests -v
@@ -76,5 +92,5 @@ demo: install-demo
 	pyingest runs
 
 clean:
-	rm -rf .pyingest build dist *.egg-info .pytest_cache .mypy_cache .ruff_cache
+	rm -rf .pyingest build dist site *.egg-info .pytest_cache .mypy_cache .ruff_cache
 	find src examples -type d -name '*.egg-info' -prune -exec rm -rf {} +

@@ -1,0 +1,95 @@
+site_name: PyIngestKit
+site_description: Reliable, traceable batch ingestion for Python.
+site_url: https://tawounfouet.github.io/pyingestkit/
+repo_url: https://github.com/tawounfouet/pyingestkit
+repo_name: tawounfouet/pyingestkit
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  language: en
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.indexes
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.action.edit
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths:
+            - src
+          options:
+            docstring_style: google
+            show_root_heading: true
+            show_source: false
+            members_order: source
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+
+extra:
+  version:
+    provider: mike
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Installation: getting-started/installation.md
+      - Quickstart: getting-started/quickstart.md
+      - V1 Quickstart: guides/v1-quickstart.md
+  - Tutorials:
+      - Demo plugin: tutorials/demo-plugin.md
+      - Dataset diff: guides/dataset-diff.md
+      - Dataset versioning: guides/dataset-versioning.md
+      - Replay: guides/replay.md
+      - Production-like PostgreSQL + S3 pilot: guides/v1-production-pilot.md
+  - Guides:
+      - Decorator jobs: guides/write-a-job-with-decorators.md
+      - Imperative jobs: guides/write-a-job-imperative.md
+      - Configuration: architecture/configuration.md
+      - PostgreSQL metadata: guides/configure-postgres-metadata.md
+      - S3-compatible object storage: guides/configure-object-storage.md
+      - Cloudflare R2: guides/configure-cloudflare-r2.md
+      - Run history: guides/inspect-run-history.md
+      - Package a job plugin: guides/package-a-job-plugin.md
+      - Migrate V0.6 to V1: guides/migrate-v0.6-to-v1.md
+  - Reference:
+      - Generated API: reference/api.md
+      - Public API contract: reference/public-api.md
+      - Stable 1.x contract: reference/stable-contract-v1.md
+      - Compatibility contract: reference/compatibility-v1.md
+      - Operational stability: reference/stability-v1.md
+      - Representative pilots: reference/pilots-v1.md
+  - Architecture:
+      - Overview: architecture/overview.md
+      - V1 product scope: architecture/product-scope-v1.md
+      - Ingestion lifecycle: architecture/ingestion-lifecycle.md
+      - Workspace: architecture/workspace.md
+      - Metadata store: architecture/metadata-store.md
+      - Plugin model: architecture/plugin-model.md
+      - Logging: architecture/logging.md
+  - Decisions:
+      - ADR index: adr/README.md
+  - Releases:
+      - V1.0.0: releases/v1.0.0.md
