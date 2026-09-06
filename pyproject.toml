@@ -22,13 +22,21 @@ dependencies = [
   "python-dotenv>=1.0,<2",
 ]
 classifiers = [
-  "Development Status :: 4 - Beta",
+  "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Developers",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
+  "Topic :: Software Development :: Libraries :: Python Modules",
 ]
+
+[project.urls]
+Homepage = "https://github.com/tawounfouet/pyingestkit"
+Documentation = "https://github.com/tawounfouet/pyingestkit#readme"
+Repository = "https://github.com/tawounfouet/pyingestkit"
+Issues = "https://github.com/tawounfouet/pyingestkit/issues"
+Changelog = "https://github.com/tawounfouet/pyingestkit/releases"
 
 [project.optional-dependencies]
 dev = [

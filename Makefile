@@ -1,4 +1,7 @@
-.PHONY: bootstrap install install-dev install-demo test test-demo compatibility stability pilots rc stable check format quality security build wheel-smoke upgrade-smoke demo verify release-check clean
+.PHONY: bootstrap install install-dev install-demo test test-demo compatibility stability pilots rc stable check format quality security build wheel-smoke upgrade-smoke demo verify release-check clean publish-check publish
+
+-include .env
+export
 
 bootstrap:
 	python -m pip install --upgrade pip
@@ -78,3 +81,10 @@ demo: install-demo
 clean:
 	rm -rf .pyingest build dist *.egg-info .pytest_cache .mypy_cache .ruff_cache
 	find src examples -type d -name '*.egg-info' -prune -exec rm -rf {} +
+
+publish-check: clean build
+	python -m twine check dist/*
+
+publish: publish-check
+	python -m twine upload dist/pyingestkit-*
+
