@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from collections.abc import Mapping
 from typing import Any
 
 from .report import ValidationIssue, ValidationReport, ValidationSeverity
@@ -48,7 +49,7 @@ class RequiredField(ValidationRule):
 
     def evaluate(self, data: Any) -> ValidationIssue | None:
         for index, row in enumerate(data):
-            if not isinstance(row, dict) or self.field not in row or row[self.field] in (None, ""):
+            if not isinstance(row, (dict, Mapping)) or self.field not in row or row[self.field] in (None, ""):
                 return ValidationIssue(
                     "required_field",
                     f"Missing required field {self.field!r} at row {index}",
@@ -70,7 +71,7 @@ class UniqueField(ValidationRule):
     def evaluate(self, data: Any) -> ValidationIssue | None:
         seen: set[Any] = set()
         for index, row in enumerate(data):
-            if not isinstance(row, dict):
+            if not isinstance(row, (dict, Mapping)):
                 continue
             value = row.get(self.field)
             if value in seen:
