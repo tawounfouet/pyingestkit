@@ -59,10 +59,10 @@ contract-v2:
 	PYTHONPATH=src pytest -q tests/contract/public_api
 
 v2-core:
-	PYTHONPATH=src pytest -q tests/unit/v2 tests/contract/public_api/test_v2_boundary_values.py
+	PYTHONPATH=src pytest -q tests/unit/v2 tests/conformance/v2 tests/contract/public_api
 
 v2-baseline: architecture-v2 contract-v2 v2-core
-	python -m compileall -q src/pyingestkit tests/architecture tests/contract/public_api tests/unit/v2
+	python -m compileall -q src/pyingestkit tests/architecture tests/contract/public_api tests/unit/v2 tests/conformance/v2
 
 check: test test-demo compatibility stability pilots rc stable v2-baseline
 	python -m compileall -q src tests examples/plugin_package/src examples/plugin_package/tests scripts

@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pyingestkit
 from pyingestkit._api_v2 import (
-    V2_API_PHASE,
+    V2_COMPLETED_LOTS,
     V2_IMPLEMENTED_AUTHORING_VALUES,
     V2_PROVISIONAL_ROOT_EXPORTS,
 )
@@ -21,8 +21,8 @@ def _fixture() -> dict[str, object]:
     return json.loads(FIXTURE.read_text(encoding="utf-8"))
 
 
-def test_lot02_phase_and_authoring_values_are_recorded() -> None:
-    assert V2_API_PHASE == "LOT-02_SOURCE_DEFINITION"
+def test_lot02_authoring_values_remain_recorded_after_later_lots() -> None:
+    assert "LOT-02" in V2_COMPLETED_LOTS
     assert "IngestionDefinition" in V2_IMPLEMENTED_AUTHORING_VALUES
     assert "Source" in V2_IMPLEMENTED_AUTHORING_VALUES
 

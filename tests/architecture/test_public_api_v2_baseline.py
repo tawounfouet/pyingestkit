@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pyingestkit._api_v2 import (
+    V2_COMPLETED_LOTS,
     V2_FORBIDDEN_LEGACY_ROOT_EXPORTS,
     V2_IMPLEMENTED_AUTHORING_VALUES,
     V2_IMPLEMENTED_BOUNDARY_VALUES,
@@ -40,3 +41,7 @@ def test_lot01_boundary_values_remain_implemented() -> None:
     assert "ResourceReference" in V2_IMPLEMENTED_BOUNDARY_VALUES
     assert "IngestionDefinition" not in V2_IMPLEMENTED_BOUNDARY_VALUES
     assert "IngestionDefinition" in V2_IMPLEMENTED_AUTHORING_VALUES
+
+
+def test_completed_lots_are_cumulative_and_ordered() -> None:
+    assert V2_COMPLETED_LOTS == ("LOT-00", "LOT-01", "LOT-02", "LOT-03")
