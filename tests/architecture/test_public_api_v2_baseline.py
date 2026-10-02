@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pyingestkit._api_v2 import (
     V2_FORBIDDEN_LEGACY_ROOT_EXPORTS,
+    V2_IMPLEMENTED_AUTHORING_VALUES,
     V2_IMPLEMENTED_BOUNDARY_VALUES,
     V2_PUBLIC_NAMESPACE_BASELINE,
     V2_TARGET_ROOT_EXPORTS,
