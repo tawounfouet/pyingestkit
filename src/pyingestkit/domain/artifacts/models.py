@@ -18,8 +18,8 @@ from pyingestkit.domain.shared.validation import (
     validate_metadata,
     validate_optional_text,
 )
-from .references import ArtifactReference
 
+from .references import ArtifactReference
 
 class ArtifactKind(StrEnum):
     """Portable artifact categories owned by PyIngestKit."""
