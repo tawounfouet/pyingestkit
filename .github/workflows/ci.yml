@@ -7,9 +7,6 @@ on:
 permissions:
   contents: read
 
-env:
-  MINIO_IMAGE: quay.io/minio/minio@sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e
-
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -27,6 +24,55 @@ jobs:
       - run: python -c "import openpyxl, pyarrow; print(openpyxl.__version__, pyarrow.__version__)"
       - run: make check
       - run: make quality
+
+  v2-architecture-baseline:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e .
+      - run: python -m pip install "pytest>=8"
+      - name: V2 architecture contracts
+        run: python -m pytest -q tests/architecture
+      - name: V2 public API target contracts
+        run: python -m pytest -q tests/contract/public_api
+      - name: Compile V2 baseline
+        run: python -m compileall -q src/pyingestkit tests/architecture tests/contract/public_api
+
+  v2-package-baseline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install "build>=1.2"
+      - name: Build PyIngestKit distribution
+        run: python -m build
+      - name: Clean wheel install and optional-provider isolation
+        shell: bash
+        run: |
+          python -m venv /tmp/pyingestkit-v2-wheel
+          /tmp/pyingestkit-v2-wheel/bin/python -m pip install --upgrade pip
+          wheel="$(ls dist/pyingestkit-*.whl | head -n 1)"
+          /tmp/pyingestkit-v2-wheel/bin/python -m pip install "$wheel"
+          /tmp/pyingestkit-v2-wheel/bin/python - <<'PY'
+          import importlib.util
+          import pyingestkit
+
+          print("pyingestkit", pyingestkit.__version__)
+          optional = ("boto3", "openpyxl", "psycopg", "pyarrow", "pytransformkit")
+          leaked = [name for name in optional if importlib.util.find_spec(name) is not None]
+          if leaked:
+              raise SystemExit(f"optional provider dependencies leaked into base install: {leaked}")
+          PY
 
   postgres-e2e:
     runs-on: ubuntu-latest
@@ -72,29 +118,26 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
-      - name: Generate ephemeral MinIO credentials
+      - name: Generate ephemeral S3 test credentials
         shell: bash
         run: |
           user="ci$(python -c 'import secrets; print(secrets.token_hex(8))')"
           password="$(python -c 'import secrets; print(secrets.token_urlsafe(32))')"
           echo "AWS_ACCESS_KEY_ID=$user" >> "$GITHUB_ENV"
           echo "AWS_SECRET_ACCESS_KEY=$password" >> "$GITHUB_ENV"
-          echo "MINIO_ROOT_USER=$user" >> "$GITHUB_ENV"
-          echo "MINIO_ROOT_PASSWORD=$password" >> "$GITHUB_ENV"
-      - name: Start pinned MinIO S3-compatible service
+      - name: Start S3-compatible Moto server
+        shell: bash
         run: |
-          docker run -d --name pyingestkit-minio \
-            -p 9000:9000 \
-            -e MINIO_ROOT_USER \
-            -e MINIO_ROOT_PASSWORD \
-            "$MINIO_IMAGE" server /data
+          python -m pip install "moto[server]>=5.1,<6"
+          moto_server -H 127.0.0.1 -p 9000 >/tmp/pyingestkit-moto-s3.log 2>&1 &
+          echo $! >/tmp/pyingestkit-moto-s3.pid
           for attempt in {1..30}; do
-            if curl -fsS http://127.0.0.1:9000/minio/health/live >/dev/null; then
+            if curl -fsS http://127.0.0.1:9000/ >/dev/null; then
               exit 0
             fi
-            sleep 2
+            sleep 1
           done
-          docker logs pyingestkit-minio
+          cat /tmp/pyingestkit-moto-s3.log
           exit 1
       - run: python -m pip install --upgrade pip
       - run: python -m pip install -e ".[dev,s3]"
@@ -130,29 +173,26 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
-      - name: Generate ephemeral MinIO credentials
+      - name: Generate ephemeral S3 test credentials
         shell: bash
         run: |
           user="ci$(python -c 'import secrets; print(secrets.token_hex(8))')"
           password="$(python -c 'import secrets; print(secrets.token_urlsafe(32))')"
           echo "AWS_ACCESS_KEY_ID=$user" >> "$GITHUB_ENV"
           echo "AWS_SECRET_ACCESS_KEY=$password" >> "$GITHUB_ENV"
-          echo "MINIO_ROOT_USER=$user" >> "$GITHUB_ENV"
-          echo "MINIO_ROOT_PASSWORD=$password" >> "$GITHUB_ENV"
-      - name: Start pinned MinIO S3-compatible service
+      - name: Start S3-compatible Moto server
+        shell: bash
         run: |
-          docker run -d --name pyingestkit-minio-stable \
-            -p 9000:9000 \
-            -e MINIO_ROOT_USER \
-            -e MINIO_ROOT_PASSWORD \
-            "$MINIO_IMAGE" server /data
+          python -m pip install "moto[server]>=5.1,<6"
+          moto_server -H 127.0.0.1 -p 9000 >/tmp/pyingestkit-moto-s3.log 2>&1 &
+          echo $! >/tmp/pyingestkit-moto-s3.pid
           for attempt in {1..30}; do
-            if curl -fsS http://127.0.0.1:9000/minio/health/live >/dev/null; then
+            if curl -fsS http://127.0.0.1:9000/ >/dev/null; then
               exit 0
             fi
-            sleep 2
+            sleep 1
           done
-          docker logs pyingestkit-minio-stable
+          cat /tmp/pyingestkit-moto-s3.log
           exit 1
       - run: python -m pip install --upgrade pip
       - run: python -m pip install -e ".[dev,postgres,s3]"
@@ -266,6 +306,8 @@ jobs:
       - foundation-verify
       - v1-pilot-gate
       - v1-rc-history-gate
+      - v2-architecture-baseline
+      - v2-package-baseline
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7

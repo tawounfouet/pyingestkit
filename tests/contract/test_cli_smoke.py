@@ -9,6 +9,7 @@ from unittest.mock import patch
 
 from typer.testing import CliRunner
 
+from pyingestkit import __version__
 from pyingestkit.cli.app import app
 from pyingestkit.cli.main import main as cli_main
 from pyingestkit.core.registry import JobRegistry
@@ -21,7 +22,10 @@ class CliSmokeTests(unittest.TestCase):
     def test_version(self) -> None:
         result = self.runner.invoke(app, ["--version"])
         self.assertEqual(result.exit_code, 0, result.output)
-        self.assertIn("1.0.0", result.output)
+        major, minor, patch_version = __version__.split(".")
+        self.assertEqual((major, minor), ("1", "0"))
+        self.assertTrue(patch_version.isdigit())
+        self.assertIn(__version__, result.output)
         self.assertNotIn("1.0.0rc1", result.output)
         self.assertNotIn("0.6.0", result.output)
         self.assertNotIn("\x1b", result.output)

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 import tempfile
 import venv
@@ -9,8 +10,16 @@ from pathlib import Path
 
 BASELINE_TAG = "v0.6.0"
 BASELINE_VERSION = "0.6.0"
-TARGET_VERSION = "1.0.0"
 VERSIONED_JOB = "demo.versioned_ndjson"
+_VERSION_PATTERN = re.compile(r'^__version__\s*=\s*"([^"]+)"\s*$', re.MULTILINE)
+
+
+def _current_framework_version(root: Path) -> str:
+    version_file = root / "src" / "pyingestkit" / "_version.py"
+    match = _VERSION_PATTERN.search(version_file.read_text(encoding="utf-8"))
+    if match is None:
+        raise SystemExit(f"Unable to resolve framework version from {version_file}")
+    return match.group(1)
 
 
 def run(
@@ -42,13 +51,14 @@ def json_command(command: list[str], *, cwd: Path, env: dict[str, str]) -> objec
 
 def main() -> int:
     root = Path(__file__).resolve().parents[1]
-    framework_wheel = root / "dist" / f"pyingestkit-{TARGET_VERSION}-py3-none-any.whl"
+    target_version = _current_framework_version(root)
+    framework_wheel = root / "dist" / f"pyingestkit-{target_version}-py3-none-any.whl"
     demo_wheel = (
         root
         / "examples"
         / "plugin_package"
         / "dist"
-        / f"pyingestkit_demo_jobs-{TARGET_VERSION}-py3-none-any.whl"
+        / "pyingestkit_demo_jobs-1.0.0-py3-none-any.whl"
     )
     for artifact in (framework_wheel, demo_wheel):
         if not artifact.is_file():
@@ -165,7 +175,7 @@ def main() -> int:
             upgraded_version = run(
                 [str(pyingest), "--version"], cwd=root, env=env, capture=True
             )
-            if TARGET_VERSION not in upgraded_version:
+            if target_version not in upgraded_version:
                 raise SystemExit(f"Unexpected upgraded CLI version: {upgraded_version.strip()}")
 
             status = json_command(
@@ -254,7 +264,7 @@ def main() -> int:
 
     print(
         "OK: V0.6.0 workspace/history/version/publication state upgrades to "
-        "V1.0.0 stable and remains strict-replay compatible"
+        f"V1 maintenance {target_version} and remains strict-replay compatible"
     )
     return 0
 

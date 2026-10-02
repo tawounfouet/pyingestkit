@@ -1,4 +1,4 @@
-.PHONY: bootstrap install install-dev install-demo docs-install docs-build docs-serve docs-deploy test test-demo compatibility stability pilots rc stable check format quality security build wheel-smoke upgrade-smoke demo verify release-check clean
+.PHONY: bootstrap install install-dev install-demo docs-install docs-build docs-serve docs-deploy test test-demo compatibility stability pilots rc stable check format quality security build wheel-smoke upgrade-smoke demo verify release-check architecture-v2 contract-v2 v2-baseline clean
 
 DOCS_VERSION ?= 1.0
 DOCS_ALIAS ?= latest
@@ -52,7 +52,16 @@ rc:
 stable:
 	PYTHONPATH=src python scripts/check_v1_stable.py
 
-check: test test-demo compatibility stability pilots rc stable
+architecture-v2:
+	PYTHONPATH=src pytest -q tests/architecture
+
+contract-v2:
+	PYTHONPATH=src pytest -q tests/contract/public_api
+
+v2-baseline: architecture-v2 contract-v2
+	python -m compileall -q src/pyingestkit tests/architecture tests/contract/public_api
+
+check: test test-demo compatibility stability pilots rc stable v2-baseline
 	python -m compileall -q src tests examples/plugin_package/src examples/plugin_package/tests scripts
 
 format:

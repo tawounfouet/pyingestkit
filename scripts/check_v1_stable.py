@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import sys
 import tomllib
 from pathlib import Path
@@ -37,9 +38,11 @@ def main() -> None:
     if contract["baseline"]["upgrade_from"] != "0.6.0":
         raise SystemExit("Stable V1 must retain V0.6.0 as the executable upgrade baseline")
 
-    if pyingestkit.__version__ != framework_version:
+    current_version = pyingestkit.__version__
+    if re.fullmatch(r"1\.0\.\d+", current_version) is None:
         raise SystemExit(
-            f"Framework version drift: expected {framework_version}, got {pyingestkit.__version__}"
+            "Framework version left the governed V1.0 maintenance line: "
+            f"historical_stable={framework_version}, current={current_version}"
         )
 
     project = _read_toml(ROOT / "pyproject.toml")
@@ -79,16 +82,15 @@ def main() -> None:
         raise SystemExit("A REMOVE_BEFORE_V1 module survived into the stable release")
 
     wheel_smoke = (ROOT / "scripts" / "wheel_smoke_test.py").read_text(encoding="utf-8")
-    for needle in (
-        f'FRAMEWORK_VERSION = "{framework_version}"',
-        f'DEMO_VERSION = "{demo_version}"',
-    ):
-        if needle not in wheel_smoke:
-            raise SystemExit(f"Wheel smoke is not aligned to stable V1: {needle}")
+    if "_current_framework_version" not in wheel_smoke:
+        raise SystemExit("Wheel smoke must resolve the current V1 maintenance framework version")
+    demo_needle = f'DEMO_VERSION = "{demo_version}"'
+    if demo_needle not in wheel_smoke:
+        raise SystemExit(f"Wheel smoke is not aligned to the historical V1 demo pack: {demo_needle}")
 
     upgrade_smoke = (ROOT / "scripts" / "upgrade_smoke_test.py").read_text(encoding="utf-8")
-    if f'TARGET_VERSION = "{framework_version}"' not in upgrade_smoke:
-        raise SystemExit("V0.6 upgrade smoke is not aligned to stable V1")
+    if "_current_framework_version" not in upgrade_smoke:
+        raise SystemExit("V0.6 upgrade smoke must target the current V1 maintenance version")
 
     workflow = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
     for job in contract["required_ci_jobs"]:
@@ -128,8 +130,9 @@ def main() -> None:
         raise SystemExit("Stable V1 promotion must not expand product scope or persisted schemas")
 
     print(
-        "OK: V1.0.0 stable release contract is intact "
-        f"(framework={framework_version}, demo={demo_version}, rc1={versions['release_candidate']}, "
+        "OK: V1.0.0 stable release contract is intact as the historical baseline "
+        f"(historical_framework={framework_version}, current_framework={current_version}, "
+        f"demo={demo_version}, rc1={versions['release_candidate']}, "
         "upgrade_from=0.6.0, tag=v1.0.0 post-merge)"
     )
 

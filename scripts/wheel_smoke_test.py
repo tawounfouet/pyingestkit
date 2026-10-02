@@ -2,16 +2,25 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import shutil
 import subprocess
 import tempfile
 import venv
 from pathlib import Path
 
-FRAMEWORK_VERSION = "1.0.0"
 DEMO_VERSION = "1.0.0"
 QUALITY_JOBS = ("demo.ndjson_quality", "demo.excel_quality", "demo.parquet_quality")
 VERSIONED_JOB = "demo.versioned_ndjson"
+_VERSION_PATTERN = re.compile(r'^__version__\s*=\s*"([^"]+)"\s*$', re.MULTILINE)
+
+
+def _current_framework_version(root: Path) -> str:
+    version_file = root / "src" / "pyingestkit" / "_version.py"
+    match = _VERSION_PATTERN.search(version_file.read_text(encoding="utf-8"))
+    if match is None:
+        raise SystemExit(f"Unable to resolve framework version from {version_file}")
+    return match.group(1)
 
 
 def run(command: list[str], *, cwd: Path, env: dict[str, str], capture: bool = False) -> str:
@@ -37,7 +46,8 @@ def json_command(command: list[str], *, cwd: Path, env: dict[str, str]) -> objec
 
 def main() -> int:
     root = Path(__file__).resolve().parents[1]
-    framework_wheel = root / "dist" / f"pyingestkit-{FRAMEWORK_VERSION}-py3-none-any.whl"
+    framework_version = _current_framework_version(root)
+    framework_wheel = root / "dist" / f"pyingestkit-{framework_version}-py3-none-any.whl"
     demo_wheel = (
         root
         / "examples"
@@ -84,7 +94,7 @@ def main() -> int:
                     "from pyingestkit import ("
                     "ArtifactURI, IdempotencyAction, IdempotencyPolicy, PostgresTarget, "
                     "S3ArtifactStore, S3DatasetVersionStore, StoredArtifact, TargetLoadExecutor); "
-                    f"assert pyingestkit.__version__ == '{FRAMEWORK_VERSION}'; "
+                    f"assert pyingestkit.__version__ == '{framework_version}'; "
                     "assert ArtifactURI.s3('bucket', 'raw/key').scheme == 's3'; "
                     "assert S3ArtifactStore.__name__ == 'S3ArtifactStore'; "
                     "assert S3DatasetVersionStore.__name__ == 'S3DatasetVersionStore'; "
@@ -284,8 +294,8 @@ def main() -> int:
 
     shutil.rmtree(workspace, ignore_errors=True)
     print(
-        "OK: V1.0.0 stable wheels expose nine reference jobs and preserve local/postgres contracts "
-        "while service-backed CI proves full cross-host object-storage replay and idempotent load"
+        f"OK: V1 maintenance {framework_version} wheel preserves the stable 1.0 contract and "
+        "nine reference jobs while service-backed CI proves object-storage and target behavior"
     )
     return 0
 

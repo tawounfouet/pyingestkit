@@ -28,6 +28,7 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
 ]
 
 [project.optional-dependencies]
@@ -85,3 +86,14 @@ mypy_path = "src"
 testpaths = ["tests", "examples/plugin_package/tests"]
 pythonpath = ["src", "examples/plugin_package/src"]
 addopts = "-ra"
+markers = [
+  "architecture: executable architecture constraints",
+  "contract: public/stable contract checks",
+  "integration: integration tests requiring multiple components",
+  "provider: provider-specific conformance or integration tests",
+  "migration: V1 to V2 migration evidence",
+  "packaging: built-artifact and clean-install checks",
+  "security: security and negative-behavior checks",
+  "e2e: end-to-end reference scenarios",
+  "slow: intentionally slower qualification tests",
+]
