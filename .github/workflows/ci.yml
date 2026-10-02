@@ -42,8 +42,12 @@ jobs:
         run: python -m pytest -q tests/architecture
       - name: V2 public API target contracts
         run: python -m pytest -q tests/contract/public_api
-      - name: V2 LOT-01 core boundary values
-        run: python -m pytest -q tests/unit/v2 tests/contract/public_api/test_v2_boundary_values.py
+      - name: V2 core, contracts and connector conformance
+        run: >-
+          python -m pytest -q
+          tests/unit/v2
+          tests/conformance/v2
+          tests/contract/public_api
       - name: Compile V2 baseline
         run: >-
           python -m compileall -q
@@ -51,6 +55,7 @@ jobs:
           tests/architecture
           tests/contract/public_api
           tests/unit/v2
+          tests/conformance/v2
 
   v2-package-baseline:
     runs-on: ubuntu-latest
@@ -71,11 +76,22 @@ jobs:
           wheel="$(ls dist/pyingestkit-*.whl | head -n 1)"
           /tmp/pyingestkit-v2-wheel/bin/python -m pip install "$wheel"
           /tmp/pyingestkit-v2-wheel/bin/python - <<'PY'
+          import hashlib
           import importlib.util
+          import tempfile
+          from pathlib import Path
+
           import pyingestkit
           from pyingestkit import IngestionDefinition, Source
           from pyingestkit.domain.resources import ResourceReference
+          from pyingestkit.domain.runtime import CorrelationContext
           from pyingestkit.domain.shared import IngestionRunId
+          from pyingestkit.sources import (
+              FileAccessPolicy,
+              FileSourceConnector,
+              SourceRegistry,
+          )
+          from pyingestkit.sources.v2 import AcquisitionRequest, AcquisitionStatus
 
           print("pyingestkit", pyingestkit.__version__)
           run_id = IngestionRunId.new()
@@ -95,6 +111,29 @@ jobs:
           assert definition.fingerprint.algorithm == "sha256"
           assert len(definition.fingerprint.value) == 64
           assert "IngestionDefinition" not in pyingestkit.__all__
+
+          with tempfile.TemporaryDirectory() as directory:
+              root = Path(directory)
+              source_file = root / "customers.csv"
+              content = b"id,name\n1,Ada\n"
+              source_file.write_bytes(content)
+              connector = FileSourceConnector(
+                  policy=FileAccessPolicy(allowed_roots=(root,))
+              )
+              registry = SourceRegistry()
+              registry.register(connector)
+              request = AcquisitionRequest(
+                  source=Source.file(path=str(source_file)),
+                  ingestion_run_id=run_id,
+                  correlation=CorrelationContext(
+                      ingestion_run_id=str(run_id)
+                  ),
+              )
+              result = registry.resolve(request.source).acquire(request)
+              assert result.status is AcquisitionStatus.SUCCEEDED
+              assert result.content == content
+              assert result.checksum == hashlib.sha256(content).hexdigest()
+
           optional = ("boto3", "openpyxl", "psycopg", "pyarrow", "pytransformkit")
           leaked = [name for name in optional if importlib.util.find_spec(name) is not None]
           if leaked:
