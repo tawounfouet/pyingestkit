@@ -143,7 +143,9 @@ class CsvDecoder:
         for row in chain(initial_rows, reader):
             _validate_row(row, headers, self._config.limits)
             rows.append(
-                DecodedRecord(tuple((name, value) for name, value in zip(headers, row, strict=True)))
+                DecodedRecord(
+                    tuple((name, value) for name, value in zip(headers, row, strict=True))
+                )
             )
             if len(rows) > self._config.limits.max_rows:
                 raise DecodeLimitError(f"CSV exceeds max_rows={self._config.limits.max_rows}.")
