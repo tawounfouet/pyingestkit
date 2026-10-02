@@ -1,0 +1,18 @@
+{
+  "schema": "pyingestkit-v1-migration-evidence-v1",
+  "source_version": "1.0.1",
+  "source_commit": "a19264845e10769fb8fd8cd42c83193ae011f702",
+  "evidence": [
+    {"kind": "raw", "source": "tests/unit/test_raw_immutability.py", "target_lot": "LOT-04"},
+    {"kind": "dataset_version", "source": "tests/unit/versioning/test_version_store.py", "target_lot": "LOT-07/LOT-08"},
+    {"kind": "published_dataset", "source": "tests/unit/versioning/test_version_store.py", "target_lot": "LOT-08"},
+    {"kind": "replay", "source": "tests/integration/test_replay_runtime.py", "target_lot": "LOT-11/LOT-18"},
+    {"kind": "postgres", "source": "tests/integration/test_versioned_postgres_e2e.py", "target_lot": "LOT-14/LOT-18"},
+    {"kind": "s3", "source": "tests/integration/test_versioned_s3_e2e.py", "target_lot": "LOT-15/LOT-18"},
+    {"kind": "validation", "source": "tests/integration/test_validation_runtime.py", "target_lot": "LOT-06"},
+    {"kind": "quality", "source": "tests/integration/test_quality_reports_runtime.py", "target_lot": "LOT-06"},
+    {"kind": "http_provenance", "source": "tests/integration/test_http_raw_provenance.py", "target_lot": "LOT-13"},
+    {"kind": "plugins", "source": "tests/contract/test_demo_plugin_package.py", "target_lot": "LOT-16/LOT-18"},
+    {"kind": "configuration", "source": "tests/unit/test_config.py", "target_lot": "LOT-00/LOT-18"}
+  ]
+}
