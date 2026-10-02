@@ -42,8 +42,15 @@ jobs:
         run: python -m pytest -q tests/architecture
       - name: V2 public API target contracts
         run: python -m pytest -q tests/contract/public_api
+      - name: V2 LOT-01 core boundary values
+        run: python -m pytest -q tests/unit/v2 tests/contract/public_api/test_v2_boundary_values.py
       - name: Compile V2 baseline
-        run: python -m compileall -q src/pyingestkit tests/architecture tests/contract/public_api
+        run: >-
+          python -m compileall -q
+          src/pyingestkit
+          tests/architecture
+          tests/contract/public_api
+          tests/unit/v2
 
   v2-package-baseline:
     runs-on: ubuntu-latest
@@ -66,8 +73,18 @@ jobs:
           /tmp/pyingestkit-v2-wheel/bin/python - <<'PY'
           import importlib.util
           import pyingestkit
+          from pyingestkit.domain.resources import ResourceReference
+          from pyingestkit.domain.shared import IngestionRunId
 
           print("pyingestkit", pyingestkit.__version__)
+          run_id = IngestionRunId.new()
+          resource = ResourceReference(
+              namespace="pyingestkit.resource",
+              resource_id="clean-wheel-smoke",
+              locator="file:///tmp/input.csv",
+          )
+          assert str(IngestionRunId.parse(str(run_id))) == str(run_id)
+          assert resource.portable is True
           optional = ("boto3", "openpyxl", "psycopg", "pyarrow", "pytransformkit")
           leaked = [name for name in optional if importlib.util.find_spec(name) is not None]
           if leaked:
