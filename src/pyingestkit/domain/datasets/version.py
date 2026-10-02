@@ -6,6 +6,7 @@ import hashlib
 import json
 from dataclasses import dataclass
 from datetime import datetime
+
 from pyingestkit.domain.artifacts.references import ArtifactReference
 from pyingestkit.domain.decoding.models import (
     DecodedArray,
@@ -17,7 +18,7 @@ from pyingestkit.domain.decoding.models import (
     DecodeStatus,
     SchemaEvidence,
 )
-from pyingestkit.domain.shared import IngestionRunId
+from pyingestkit.domain.shared.identifiers import IngestionRunId
 from pyingestkit.domain.shared.validation import require_non_blank, validate_aware_datetime
 
 from .references import DatasetVersionReference
