@@ -17,9 +17,7 @@ FORBIDDEN_IMPORTS = {
 
 def test_validation_quality_v2_boundary_is_engine_neutral() -> None:
     violations: list[str] = []
-    for path, modules in imported_roots(
-        python_files("validation/v2.py", "quality/v2.py")
-    ).items():
+    for path, modules in imported_roots(python_files("validation/v2.py", "quality/v2.py")).items():
         for module in modules:
             if matches_prefix(module, FORBIDDEN_IMPORTS):
                 violations.append(f"{path}: {module}")
