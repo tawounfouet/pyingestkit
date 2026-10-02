@@ -281,7 +281,7 @@ def _artifact_id(request: PutArtifactRequest, checksum: str) -> str:
     material = (
         f"{request.ingestion_run_id}\x00{request.kind.value}\x00"
         f"{request.name}\x00{checksum}"
-    ).encode("utf-8")
+    ).encode()
     return f"{request.kind.value}_{hashlib.sha256(material).hexdigest()}"
 
 

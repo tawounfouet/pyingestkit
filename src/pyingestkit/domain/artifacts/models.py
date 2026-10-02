@@ -7,7 +7,6 @@ from datetime import datetime
 from enum import StrEnum
 
 from pyingestkit.domain.acquisition import AcquisitionResult, AcquisitionStatus
-from .references import ArtifactReference
 from pyingestkit.domain.resources import ResourceReference
 from pyingestkit.domain.runtime.context import CorrelationContext
 from pyingestkit.domain.runtime.diagnostics import Diagnostic
@@ -19,6 +18,8 @@ from pyingestkit.domain.shared.validation import (
     validate_metadata,
     validate_optional_text,
 )
+
+from .references import ArtifactReference
 
 
 class ArtifactKind(StrEnum):
