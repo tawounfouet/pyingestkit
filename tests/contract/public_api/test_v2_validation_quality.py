@@ -5,8 +5,8 @@ from pyingestkit._api_v2 import (
     V2_COMPLETED_LOTS,
     V2_IMPLEMENTED_VALIDATION_VALUES,
 )
-from pyingestkit.quality import QualityEvidence
-from pyingestkit.validation import (
+from pyingestkit.quality.v2 import QualityEvidence
+from pyingestkit.validation.v2 import (
     MinimumRowsV2,
     RequiredFieldV2,
     UniqueFieldV2,
