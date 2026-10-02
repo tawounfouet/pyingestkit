@@ -4,6 +4,7 @@ from dataclasses import FrozenInstanceError
 
 import pytest
 
+from pyingestkit.decoders import CsvDecoder, DecodeStatus
 from pyingestkit.quality import QualityEvidence
 from pyingestkit.validation import (
     MinimumRowsV2,
@@ -16,7 +17,6 @@ from pyingestkit.validation import (
 )
 
 from .test_decoders import _request
-from pyingestkit.decoders import CsvDecoder, DecodeStatus
 
 
 def _validation_request(content: bytes, *, max_issues: int = 1000) -> ValidationRequest:
