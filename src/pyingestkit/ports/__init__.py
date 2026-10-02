@@ -1,5 +1,6 @@
 """PyIngestKit V2 provider and persistence port contracts."""
 
+from pyingestkit.ports.artifacts import ArtifactReader, ArtifactStore
 from pyingestkit.ports.sources import (
     SourceConnector,
     SourceConnectorCapability,
@@ -7,6 +8,8 @@ from pyingestkit.ports.sources import (
 )
 
 __all__ = [
+    "ArtifactReader",
+    "ArtifactStore",
     "SourceConnector",
     "SourceConnectorCapability",
     "SourceConnectorDescriptor",

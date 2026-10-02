@@ -1,9 +1,10 @@
 """Internal metadata describing the PyIngestKit V2 public API target.
 
 LOT-00 recorded the target contract. LOT-01 added portable boundary values.
-LOT-02 added the real Source/IngestionDefinition authoring root. LOT-03 adds
-the first acquisition port and local-file adapter while the V1 package keeps
-its exact star-import contract until the 2.0 alpha cut.
+LOT-02 added Source/IngestionDefinition. LOT-03 added the acquisition port and
+local-file connector. LOT-04 adds durable RAW semantics and the ArtifactStore
+port while the V1 package keeps its exact star-import contract until the 2.0
+alpha cut.
 """
 
 from __future__ import annotations
@@ -71,11 +72,27 @@ V2_IMPLEMENTED_ACQUISITION_VALUES: tuple[str, ...] = (
     "SourceRegistry",
 )
 
+V2_IMPLEMENTED_ARTIFACT_VALUES: tuple[str, ...] = (
+    "ArtifactIntegrityError",
+    "ArtifactKind",
+    "ArtifactPutStatus",
+    "ArtifactReader",
+    "ArtifactReference",
+    "ArtifactRetention",
+    "ArtifactStore",
+    "FileArtifactReader",
+    "FileArtifactStore",
+    "PutArtifactRequest",
+    "PutArtifactResult",
+    "RawArtifactEvidence",
+)
+
 V2_COMPLETED_LOTS: tuple[str, ...] = (
     "LOT-00",
     "LOT-01",
     "LOT-02",
     "LOT-03",
+    "LOT-04",
 )
 
 V2_FORBIDDEN_LEGACY_ROOT_EXPORTS: frozenset[str] = frozenset(
@@ -118,4 +135,4 @@ V2_PUBLIC_NAMESPACE_BASELINE: tuple[str, ...] = (
     "pyingestkit.quality",
 )
 
-V2_API_PHASE = "LOT-03_ACQUISITION_LOCAL_FILE"
+V2_API_PHASE = "LOT-04_RAW_ARTIFACT_STORE"
