@@ -102,9 +102,7 @@ class FailureEvidence:
             self.category is FailureCategory.UNKNOWN_OUTCOME
             and self.uncertainty is OutcomeUncertainty.KNOWN
         ):
-            raise ValueError(
-                "UNKNOWN_OUTCOME failure evidence cannot declare a known outcome."
-            )
+            raise ValueError("UNKNOWN_OUTCOME failure evidence cannot declare a known outcome.")
 
     @property
     def portable(self) -> bool:

@@ -49,9 +49,7 @@ class IngestionExecutionReference:
             )
         if self.status is not None:
             if not isinstance(self.status, IngestionStatus):
-                raise TypeError(
-                    "IngestionExecutionReference status must be an IngestionStatus."
-                )
+                raise TypeError("IngestionExecutionReference status must be an IngestionStatus.")
             if not self.status.terminal:
                 raise ValueError(
                     "IngestionExecutionReference status must be terminal when provided."
