@@ -130,7 +130,7 @@ def main() -> None:
         raise SystemExit("Stable V1 promotion must not expand product scope or persisted schemas")
 
     print(
-        "OK: V1.0.0 historical stable contract is intact "
+        "OK: V1.0.0 stable release contract is intact as the historical baseline "
         f"(historical_framework={framework_version}, current_framework={current_version}, "
         f"demo={demo_version}, rc1={versions['release_candidate']}, "
         "upgrade_from=0.6.0, tag=v1.0.0 post-merge)"
