@@ -118,10 +118,12 @@ class FileSourceConnector:
             raise TypeError("FileSourceConnector.acquire expects AcquisitionRequest.")
         if request.source.kind is not SourceKind.FILE:
             raise ValueError("FileSourceConnector only supports SourceKind.FILE.")
-        assert request.source.locator is not None
+        locator = request.source.locator
+        if locator is None:
+            raise ValueError("File Source requires a locator.")
 
         try:
-            path = self._resolve_path(request.source.locator)
+            path = self._resolve_path(locator)
             self._validate_extension(path)
             stat = path.stat()
             if stat.st_size > self._policy.max_bytes:
