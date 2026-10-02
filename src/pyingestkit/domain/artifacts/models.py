@@ -216,7 +216,7 @@ class PutArtifactResult:
     ingestion_run_id: IngestionRunId
     correlation: CorrelationContext
     kind: ArtifactKind
-    persisted_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    persisted_at: datetime | None = None
     reference: ArtifactReference | None = None
     raw_evidence: RawArtifactEvidence | None = None
     diagnostics: tuple[Diagnostic, ...] = ()
@@ -248,6 +248,8 @@ class PutArtifactResult:
             raise TypeError("PutArtifactResult failure must be FailureEvidence.")
 
         if self.status is ArtifactPutStatus.SUCCEEDED:
+            if self.persisted_at is None:
+                raise ValueError("Successful PutArtifactResult requires persisted_at.")
             if self.reference is None:
                 raise ValueError("Successful PutArtifactResult requires ArtifactReference.")
             if self.failure is not None:
@@ -257,6 +259,8 @@ class PutArtifactResult:
             if self.kind is not ArtifactKind.RAW and self.raw_evidence is not None:
                 raise ValueError("Only RAW PutArtifactResult may contain RawArtifactEvidence.")
         else:
+            if self.persisted_at is not None:
+                raise ValueError("Failed/conflicting PutArtifactResult cannot claim persisted_at.")
             if self.failure is None:
                 raise ValueError("Non-successful PutArtifactResult requires FailureEvidence.")
             if self.reference is not None or self.raw_evidence is not None:
