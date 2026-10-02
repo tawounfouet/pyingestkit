@@ -5,14 +5,14 @@ from dataclasses import FrozenInstanceError
 import pytest
 
 from pyingestkit.decoders import CsvDecoder, DecodeStatus
-from pyingestkit.quality import QualityEvidence
-from pyingestkit.validation import (
+from pyingestkit.quality.v2 import QualityEvidence
+from pyingestkit.validation import ValidationSeverity
+from pyingestkit.validation.v2 import (
     MinimumRowsV2,
     RequiredFieldV2,
     UniqueFieldV2,
     ValidationLimits,
     ValidationRequest,
-    ValidationSeverity,
     validate_v2,
 )
 
