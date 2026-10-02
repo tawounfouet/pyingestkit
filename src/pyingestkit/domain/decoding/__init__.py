@@ -1,9 +1,6 @@
 """PyIngestKit V2 decode-domain contracts."""
 
 from pyingestkit.domain.decoding.models import (
-    DecodeRequest,
-    DecodeResult,
-    DecodeStatus,
     DecodedArray,
     DecodedObject,
     DecodedRecord,
@@ -11,6 +8,9 @@ from pyingestkit.domain.decoding.models import (
     DecodedScalar,
     DecodedType,
     DecodedValue,
+    DecodeRequest,
+    DecodeResult,
+    DecodeStatus,
     SchemaEvidence,
     SchemaFieldEvidence,
 )
