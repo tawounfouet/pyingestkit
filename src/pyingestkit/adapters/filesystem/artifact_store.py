@@ -81,10 +81,7 @@ class FileArtifactStore:
             raise TypeError("FileArtifactStore.put expects PutArtifactRequest.")
 
         digest = hashlib.sha256(request.content).hexdigest()
-        if (
-            request.expected_checksum_algorithm is not None
-            and request.expected_checksum != digest
-        ):
+        if request.expected_checksum_algorithm is not None and request.expected_checksum != digest:
             return self._failed(
                 request,
                 status=ArtifactPutStatus.FAILED,
@@ -192,11 +189,7 @@ class FileArtifactStore:
 
     def _path_for(self, request: PutArtifactRequest) -> Path:
         return (
-            self._root
-            / "runs"
-            / str(request.ingestion_run_id)
-            / request.kind.value
-            / request.name
+            self._root / "runs" / str(request.ingestion_run_id) / request.kind.value / request.name
         )
 
     def _write_create_once(self, path: Path, content: bytes) -> None:
@@ -279,11 +272,10 @@ class FileArtifactStore:
 
 def _artifact_id(request: PutArtifactRequest, checksum: str) -> str:
     material = (
-        f"{request.ingestion_run_id}\x00{request.kind.value}\x00"
-        f"{request.name}\x00{checksum}"
+        f"{request.ingestion_run_id}\x00{request.kind.value}\x00{request.name}\x00{checksum}"
     ).encode()
     return f"{request.kind.value}_{hashlib.sha256(material).hexdigest()}"
 
 
 def _resource_id(uri: str) -> str:
-    return f"file_{hashlib.sha256(uri.encode('utf-8')).hexdigest()}"
+    return f"file_{hashlib.sha256(uri.encode()).hexdigest()}"

@@ -268,7 +268,9 @@ class PutArtifactResult:
             if self.failure is None:
                 raise ValueError("Non-successful PutArtifactResult requires FailureEvidence.")
             if self.reference is not None or self.raw_evidence is not None:
-                raise ValueError("Failed/conflicting PutArtifactResult cannot expose durable evidence.")
+                raise ValueError(
+                    "Failed/conflicting PutArtifactResult cannot expose durable evidence."
+                )
 
 
 def _validate_artifact_name(value: str) -> None:

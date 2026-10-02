@@ -37,9 +37,7 @@ def _acquire(tmp_path: Path, content: bytes = b"id,name\n1,Ada\n"):
         ingestion_run_id=run_id,
         correlation=CorrelationContext(ingestion_run_id=str(run_id)),
     )
-    connector = FileSourceConnector(
-        policy=FileAccessPolicy(allowed_roots=(source_file.parent,))
-    )
+    connector = FileSourceConnector(policy=FileAccessPolicy(allowed_roots=(source_file.parent,)))
     return connector.acquire(request)
 
 
@@ -92,9 +90,7 @@ def test_raw_artifact_path_is_create_once_and_existing_bytes_are_not_mutated(
 def test_reader_detects_durable_byte_tampering(tmp_path: Path) -> None:
     acquisition = _acquire(tmp_path)
     store = FileArtifactStore(root=tmp_path / "artifacts")
-    result = store.put(
-        PutArtifactRequest.from_acquisition(acquisition, name="customers.csv")
-    )
+    result = store.put(PutArtifactRequest.from_acquisition(acquisition, name="customers.csv"))
     assert result.reference is not None
     locator = result.reference.resource.locator
     assert locator is not None

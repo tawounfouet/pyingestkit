@@ -42,9 +42,7 @@ def test_artifact_store_protocol_surface_matches_fixture() -> None:
     store_methods = sorted(
         name for name in ("put", "open", "exists") if hasattr(ArtifactStore, name)
     )
-    reader_methods = sorted(
-        name for name in ("reference", "read") if hasattr(ArtifactReader, name)
-    )
+    reader_methods = sorted(name for name in ("reference", "read") if hasattr(ArtifactReader, name))
 
     assert store_methods == sorted(payload["store_methods"])
     assert reader_methods == sorted(payload["reader_methods"])
@@ -53,6 +51,4 @@ def test_artifact_store_protocol_surface_matches_fixture() -> None:
 def test_raw_evidence_fields_match_fixture() -> None:
     payload = _fixture()
 
-    assert [field.name for field in fields(RawArtifactEvidence)] == payload[
-        "raw_evidence_fields"
-    ]
+    assert [field.name for field in fields(RawArtifactEvidence)] == payload["raw_evidence_fields"]
