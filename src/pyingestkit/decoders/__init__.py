@@ -9,15 +9,15 @@ from pyingestkit.adapters.formats import (
 )
 from pyingestkit.application.decoders import DecoderRegistry
 from pyingestkit.domain.decoding import (
-    DecodeRequest,
-    DecodeResult,
-    DecodeStatus,
     DecodedArray,
     DecodedObject,
     DecodedRecord,
     DecodedRepresentation,
     DecodedType,
     DecoderLimits,
+    DecodeRequest,
+    DecodeResult,
+    DecodeStatus,
     EncodingErrorMode,
     EncodingPolicy,
     SchemaEvidence,
