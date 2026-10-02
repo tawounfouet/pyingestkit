@@ -84,6 +84,7 @@ jobs:
           import pyingestkit
           from pyingestkit import IngestionDefinition, Source
           from pyingestkit.artifacts.v2 import ArtifactPutStatus, PutArtifactRequest
+          from pyingestkit.decoders import CsvDecoder, DecodeRequest, DecodeStatus
           from pyingestkit.domain.resources import ResourceReference
           from pyingestkit.domain.runtime import CorrelationContext
           from pyingestkit.domain.shared import IngestionRunId
@@ -147,7 +148,23 @@ jobs:
               assert persisted.reference is not None
               assert persisted.reference.checksum == result.checksum
               assert artifact_store.exists(persisted.reference)
-              assert artifact_store.open(persisted.reference).read() == content
+              raw_bytes = artifact_store.open(persisted.reference).read()
+              assert raw_bytes == content
+
+              decoded = CsvDecoder().decode(
+                  DecodeRequest(
+                      ingestion_run_id=run_id,
+                      correlation=request.correlation,
+                      artifact=persisted.reference,
+                      content=raw_bytes,
+                  )
+              )
+              assert decoded.status is DecodeStatus.SUCCEEDED
+              assert decoded.row_count == 1
+              assert decoded.representation is not None
+              assert decoded.representation.records[0].get("name") == "Ada"
+              assert decoded.schema is not None
+              assert [field.name for field in decoded.schema.fields] == ["id", "name"]
 
           optional = ("boto3", "openpyxl", "psycopg", "pyarrow", "pytransformkit")
           leaked = [name for name in optional if importlib.util.find_spec(name) is not None]
