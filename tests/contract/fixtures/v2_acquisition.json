@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "milestone": "LOT-03",
+  "connector_id": "pyingestkit.file",
+  "connector_version": "1",
+  "capabilities": [
+    "acquire"
+  ],
+  "request_fields": [
+    "source",
+    "ingestion_run_id",
+    "correlation"
+  ],
+  "result_fields": [
+    "status",
+    "ingestion_run_id",
+    "correlation",
+    "source_kind",
+    "acquired_at",
+    "resource",
+    "content",
+    "checksum_algorithm",
+    "checksum",
+    "size_bytes",
+    "media_type",
+    "source_metadata",
+    "provider_operation_id",
+    "diagnostics",
+    "failure"
+  ],
+  "statuses": [
+    "succeeded",
+    "failed",
+    "unknown_outcome",
+    "requires_reconciliation"
+  ],
+  "checksum_algorithm": "sha256"
+}
