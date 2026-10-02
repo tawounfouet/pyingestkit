@@ -6,8 +6,8 @@ import hashlib
 import json
 from dataclasses import dataclass
 from datetime import datetime
-from pyingestkit.domain.artifacts import ArtifactReference
-from pyingestkit.domain.decoding import (
+from pyingestkit.domain.artifacts.references import ArtifactReference
+from pyingestkit.domain.decoding.models import (
     DecodedArray,
     DecodedObject,
     DecodedRepresentation,
