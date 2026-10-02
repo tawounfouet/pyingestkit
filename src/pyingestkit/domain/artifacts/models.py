@@ -7,7 +7,7 @@ from datetime import UTC, datetime
 from enum import StrEnum
 
 from pyingestkit.domain.acquisition import AcquisitionResult, AcquisitionStatus
-from pyingestkit.domain.artifacts.references import ArtifactReference
+from .references import ArtifactReference
 from pyingestkit.domain.resources import ResourceReference
 from pyingestkit.domain.runtime import CorrelationContext, Diagnostic, FailureEvidence
 from pyingestkit.domain.shared import IngestionRunId
