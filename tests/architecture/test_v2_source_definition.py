@@ -49,3 +49,7 @@ def test_v2_provisional_root_does_not_change_v1_star_import_contract() -> None:
     assert "Source" not in pyingestkit.__all__
     assert "Job" in pyingestkit.__all__
     assert "Pipeline" in pyingestkit.__all__
+
+
+def test_no_public_ingestion_plan_is_introduced() -> None:
+    assert not hasattr(pyingestkit, "IngestionPlan")
