@@ -22,13 +22,9 @@ class SourceRegistry:
     ) -> None:
         descriptor = connector.descriptor
         if not isinstance(descriptor, SourceConnectorDescriptor):
-            raise TypeError(
-                "Source connector descriptor must be a SourceConnectorDescriptor."
-            )
+            raise TypeError("Source connector descriptor must be a SourceConnectorDescriptor.")
         if descriptor.id in self._connectors and not replace:
-            raise ValueError(
-                f"Source connector already registered: {descriptor.id}"
-            )
+            raise ValueError(f"Source connector already registered: {descriptor.id}")
         self._connectors[descriptor.id] = connector
 
     def register_many(
@@ -44,9 +40,7 @@ class SourceRegistry:
         try:
             return self._connectors[connector_id]
         except KeyError as exc:
-            raise KeyError(
-                f"Unknown source connector: {connector_id}"
-            ) from exc
+            raise KeyError(f"Unknown source connector: {connector_id}") from exc
 
     def resolve(self, source: Source) -> SourceConnector:
         if not isinstance(source, Source):
@@ -69,21 +63,16 @@ class SourceRegistry:
             if source.kind in connector.descriptor.supported_source_kinds
         )
         if not matches:
-            raise KeyError(
-                f"No source connector registered for kind: {source.kind.value}"
-            )
+            raise KeyError(f"No source connector registered for kind: {source.kind.value}")
         if len(matches) > 1:
             ids = sorted(connector.descriptor.id for connector in matches)
             raise LookupError(
-                f"Multiple source connectors registered for "
-                f"{source.kind.value!r}: {ids}"
+                f"Multiple source connectors registered for {source.kind.value!r}: {ids}"
             )
         return matches[0]
 
     def list(self) -> tuple[SourceConnector, ...]:
-        return tuple(
-            self._connectors[key] for key in sorted(self._connectors)
-        )
+        return tuple(self._connectors[key] for key in sorted(self._connectors))
 
     def __len__(self) -> int:
         return len(self._connectors)

@@ -26,9 +26,7 @@ FORBIDDEN_FILE_ADAPTER_IMPORTS = {
 
 def test_file_adapter_has_no_provider_or_sibling_framework_dependency() -> None:
     violations: list[str] = []
-    for path, modules in imported_roots(
-        python_files("adapters/filesystem")
-    ).items():
+    for path, modules in imported_roots(python_files("adapters/filesystem")).items():
         for module in modules:
             if matches_prefix(module, FORBIDDEN_FILE_ADAPTER_IMPORTS):
                 violations.append(f"{path}: {module}")

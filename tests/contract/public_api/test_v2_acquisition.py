@@ -33,30 +33,20 @@ def test_lot03_is_recorded_cumulatively() -> None:
 def test_lot03_request_and_result_fields_match_fixture() -> None:
     payload = _fixture()
 
-    assert [field.name for field in fields(AcquisitionRequest)] == payload[
-        "request_fields"
-    ]
-    assert [field.name for field in fields(AcquisitionResult)] == payload[
-        "result_fields"
-    ]
+    assert [field.name for field in fields(AcquisitionRequest)] == payload["request_fields"]
+    assert [field.name for field in fields(AcquisitionResult)] == payload["result_fields"]
 
 
 def test_lot03_status_and_file_connector_contract_match_fixture(
     tmp_path: Path,
 ) -> None:
     payload = _fixture()
-    connector = FileSourceConnector(
-        policy=FileAccessPolicy(allowed_roots=(tmp_path,))
-    )
+    connector = FileSourceConnector(policy=FileAccessPolicy(allowed_roots=(tmp_path,)))
 
     assert [status.value for status in AcquisitionStatus] == payload["statuses"]
     assert connector.descriptor.id == payload["connector_id"]
-    assert connector.descriptor.connector_version == payload[
-        "connector_version"
+    assert connector.descriptor.connector_version == payload["connector_version"]
+    assert [capability.value for capability in connector.descriptor.capabilities] == payload[
+        "capabilities"
     ]
-    assert [
-        capability.value for capability in connector.descriptor.capabilities
-    ] == payload["capabilities"]
-    assert connector.descriptor.capabilities == (
-        SourceConnectorCapability.ACQUIRE,
-    )
+    assert connector.descriptor.capabilities == (SourceConnectorCapability.ACQUIRE,)

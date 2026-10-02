@@ -26,9 +26,7 @@ class SourceConnectorDescriptor:
     display_name: str
     connector_version: str
     supported_source_kinds: tuple[SourceKind, ...]
-    capabilities: tuple[SourceConnectorCapability, ...] = (
-        SourceConnectorCapability.ACQUIRE,
-    )
+    capabilities: tuple[SourceConnectorCapability, ...] = (SourceConnectorCapability.ACQUIRE,)
     optional_dependencies_available: bool = True
 
     def __post_init__(self) -> None:
@@ -42,31 +40,16 @@ class SourceConnectorDescriptor:
             "SourceConnectorDescriptor connector_version",
         )
         if not isinstance(self.supported_source_kinds, tuple):
-            raise TypeError(
-                "SourceConnectorDescriptor supported_source_kinds must be a tuple."
-            )
+            raise TypeError("SourceConnectorDescriptor supported_source_kinds must be a tuple.")
         if not self.supported_source_kinds:
-            raise ValueError(
-                "SourceConnectorDescriptor requires at least one source kind."
-            )
-        if any(
-            not isinstance(kind, SourceKind)
-            for kind in self.supported_source_kinds
-        ):
-            raise TypeError(
-                "SourceConnectorDescriptor source kinds must be SourceKind values."
-            )
-        if len(set(self.supported_source_kinds)) != len(
-            self.supported_source_kinds
-        ):
-            raise ValueError(
-                "SourceConnectorDescriptor source kinds must be unique."
-            )
+            raise ValueError("SourceConnectorDescriptor requires at least one source kind.")
+        if any(not isinstance(kind, SourceKind) for kind in self.supported_source_kinds):
+            raise TypeError("SourceConnectorDescriptor source kinds must be SourceKind values.")
+        if len(set(self.supported_source_kinds)) != len(self.supported_source_kinds):
+            raise ValueError("SourceConnectorDescriptor source kinds must be unique.")
 
         if not isinstance(self.capabilities, tuple):
-            raise TypeError(
-                "SourceConnectorDescriptor capabilities must be a tuple."
-            )
+            raise TypeError("SourceConnectorDescriptor capabilities must be a tuple.")
         if any(
             not isinstance(capability, SourceConnectorCapability)
             for capability in self.capabilities
@@ -76,17 +59,12 @@ class SourceConnectorDescriptor:
                 "SourceConnectorCapability values."
             )
         if len(set(self.capabilities)) != len(self.capabilities):
-            raise ValueError(
-                "SourceConnectorDescriptor capabilities must be unique."
-            )
+            raise ValueError("SourceConnectorDescriptor capabilities must be unique.")
         if SourceConnectorCapability.ACQUIRE not in self.capabilities:
-            raise ValueError(
-                "SourceConnectorDescriptor must advertise ACQUIRE."
-            )
+            raise ValueError("SourceConnectorDescriptor must advertise ACQUIRE.")
         if not isinstance(self.optional_dependencies_available, bool):
             raise TypeError(
-                "SourceConnectorDescriptor optional_dependencies_available "
-                "must be bool."
+                "SourceConnectorDescriptor optional_dependencies_available must be bool."
             )
 
 
@@ -95,8 +73,6 @@ class SourceConnector(Protocol):
     """Port implemented by ingestion source adapters."""
 
     @property
-    def descriptor(self) -> SourceConnectorDescriptor:
-        ...
+    def descriptor(self) -> SourceConnectorDescriptor: ...
 
-    def acquire(self, request: AcquisitionRequest) -> AcquisitionResult:
-        ...
+    def acquire(self, request: AcquisitionRequest) -> AcquisitionResult: ...

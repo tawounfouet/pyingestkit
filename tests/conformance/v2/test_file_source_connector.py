@@ -25,25 +25,19 @@ def _request(source: Source) -> AcquisitionRequest:
 def test_file_source_connector_satisfies_port_and_descriptor_contract(
     tmp_path: Path,
 ) -> None:
-    connector = FileSourceConnector(
-        policy=FileAccessPolicy(allowed_roots=(tmp_path,))
-    )
+    connector = FileSourceConnector(policy=FileAccessPolicy(allowed_roots=(tmp_path,)))
 
     assert isinstance(connector, SourceConnector)
     assert connector.descriptor.id == "pyingestkit.file"
     assert connector.descriptor.supported_source_kinds == (SourceKind.FILE,)
-    assert connector.descriptor.capabilities == (
-        SourceConnectorCapability.ACQUIRE,
-    )
+    assert connector.descriptor.capabilities == (SourceConnectorCapability.ACQUIRE,)
     assert connector.descriptor.optional_dependencies_available is True
 
 
 def test_file_source_connector_acquire_conformance(tmp_path: Path) -> None:
     source_file = tmp_path / "payload.csv"
     source_file.write_bytes(b"id\n1\n")
-    connector = FileSourceConnector(
-        policy=FileAccessPolicy(allowed_roots=(tmp_path,))
-    )
+    connector = FileSourceConnector(policy=FileAccessPolicy(allowed_roots=(tmp_path,)))
     request = _request(Source.file(path=str(source_file)))
 
     result = connector.acquire(request)

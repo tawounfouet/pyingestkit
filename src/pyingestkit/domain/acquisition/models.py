@@ -46,13 +46,9 @@ class AcquisitionRequest:
         if not isinstance(self.source, Source):
             raise TypeError("AcquisitionRequest source must be a V2 Source.")
         if not isinstance(self.ingestion_run_id, IngestionRunId):
-            raise TypeError(
-                "AcquisitionRequest ingestion_run_id must be an IngestionRunId."
-            )
+            raise TypeError("AcquisitionRequest ingestion_run_id must be an IngestionRunId.")
         if not isinstance(self.correlation, CorrelationContext):
-            raise TypeError(
-                "AcquisitionRequest correlation must be a CorrelationContext."
-            )
+            raise TypeError("AcquisitionRequest correlation must be a CorrelationContext.")
         if (
             self.correlation.ingestion_run_id is not None
             and self.correlation.ingestion_run_id != str(self.ingestion_run_id)
@@ -87,13 +83,9 @@ class AcquisitionResult:
         if not isinstance(self.status, AcquisitionStatus):
             raise TypeError("AcquisitionResult status must be an AcquisitionStatus.")
         if not isinstance(self.ingestion_run_id, IngestionRunId):
-            raise TypeError(
-                "AcquisitionResult ingestion_run_id must be an IngestionRunId."
-            )
+            raise TypeError("AcquisitionResult ingestion_run_id must be an IngestionRunId.")
         if not isinstance(self.correlation, CorrelationContext):
-            raise TypeError(
-                "AcquisitionResult correlation must be a CorrelationContext."
-            )
+            raise TypeError("AcquisitionResult correlation must be a CorrelationContext.")
         if not isinstance(self.source_kind, SourceKind):
             raise TypeError("AcquisitionResult source_kind must be a SourceKind.")
         validate_aware_datetime(self.acquired_at, "AcquisitionResult acquired_at")
@@ -102,9 +94,7 @@ class AcquisitionResult:
             self.resource,
             ResourceReference,
         ):
-            raise TypeError(
-                "AcquisitionResult resource must be a ResourceReference."
-            )
+            raise TypeError("AcquisitionResult resource must be a ResourceReference.")
         if self.content is not None and not isinstance(self.content, bytes):
             raise TypeError("AcquisitionResult content must be bytes.")
         validate_optional_text(
@@ -114,17 +104,14 @@ class AcquisitionResult:
         validate_optional_text(self.checksum, "AcquisitionResult checksum")
         if (self.checksum_algorithm is None) != (self.checksum is None):
             raise ValueError(
-                "AcquisitionResult checksum_algorithm and checksum must be "
-                "provided together."
+                "AcquisitionResult checksum_algorithm and checksum must be provided together."
             )
 
         if self.size_bytes is not None:
             if not isinstance(self.size_bytes, int):
                 raise TypeError("AcquisitionResult size_bytes must be an int.")
             if self.size_bytes < 0:
-                raise ValueError(
-                    "AcquisitionResult size_bytes must be non-negative."
-                )
+                raise ValueError("AcquisitionResult size_bytes must be non-negative.")
         validate_optional_text(self.media_type, "AcquisitionResult media_type")
         validate_metadata(
             self.source_metadata,
@@ -138,46 +125,28 @@ class AcquisitionResult:
         if not isinstance(self.diagnostics, tuple):
             raise TypeError("AcquisitionResult diagnostics must be a tuple.")
         if any(not isinstance(item, Diagnostic) for item in self.diagnostics):
-            raise TypeError(
-                "AcquisitionResult diagnostics must contain Diagnostic values."
-            )
+            raise TypeError("AcquisitionResult diagnostics must contain Diagnostic values.")
         if self.failure is not None and not isinstance(
             self.failure,
             FailureEvidence,
         ):
-            raise TypeError(
-                "AcquisitionResult failure must be a FailureEvidence."
-            )
+            raise TypeError("AcquisitionResult failure must be a FailureEvidence.")
 
         if self.status is AcquisitionStatus.SUCCEEDED:
             self._validate_success()
         elif self.failure is None:
-            raise ValueError(
-                "Non-successful AcquisitionResult requires FailureEvidence."
-            )
+            raise ValueError("Non-successful AcquisitionResult requires FailureEvidence.")
 
     def _validate_success(self) -> None:
         if self.resource is None:
-            raise ValueError(
-                "Successful AcquisitionResult requires ResourceReference."
-            )
+            raise ValueError("Successful AcquisitionResult requires ResourceReference.")
         if self.content is None:
-            raise ValueError(
-                "Successful AcquisitionResult requires acquired content."
-            )
+            raise ValueError("Successful AcquisitionResult requires acquired content.")
         if self.checksum_algorithm is None or self.checksum is None:
-            raise ValueError(
-                "Successful AcquisitionResult requires checksum evidence."
-            )
+            raise ValueError("Successful AcquisitionResult requires checksum evidence.")
         if self.size_bytes is None:
-            raise ValueError(
-                "Successful AcquisitionResult requires size evidence."
-            )
+            raise ValueError("Successful AcquisitionResult requires size evidence.")
         if self.size_bytes != len(self.content):
-            raise ValueError(
-                "AcquisitionResult size_bytes must equal acquired content length."
-            )
+            raise ValueError("AcquisitionResult size_bytes must equal acquired content length.")
         if self.failure is not None:
-            raise ValueError(
-                "Successful AcquisitionResult cannot contain FailureEvidence."
-            )
+            raise ValueError("Successful AcquisitionResult cannot contain FailureEvidence.")

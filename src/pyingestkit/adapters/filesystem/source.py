@@ -45,35 +45,25 @@ class FileAccessPolicy:
         if not isinstance(self.allowed_roots, tuple):
             raise TypeError("FileAccessPolicy allowed_roots must be a tuple.")
         if not self.allowed_roots:
-            raise ValueError(
-                "FileAccessPolicy requires at least one allowed root."
-            )
+            raise ValueError("FileAccessPolicy requires at least one allowed root.")
         if any(not isinstance(root, Path) for root in self.allowed_roots):
-            raise TypeError(
-                "FileAccessPolicy allowed_roots must contain pathlib.Path values."
-            )
+            raise TypeError("FileAccessPolicy allowed_roots must contain pathlib.Path values.")
         if not isinstance(self.max_bytes, int):
             raise TypeError("FileAccessPolicy max_bytes must be an int.")
         if self.max_bytes < 1:
             raise ValueError("FileAccessPolicy max_bytes must be >= 1.")
         if not isinstance(self.allowed_extensions, tuple):
-            raise TypeError(
-                "FileAccessPolicy allowed_extensions must be a tuple."
-            )
+            raise TypeError("FileAccessPolicy allowed_extensions must be a tuple.")
         for extension in self.allowed_extensions:
             if not isinstance(extension, str) or not extension.strip():
-                raise ValueError(
-                    "FileAccessPolicy extensions must be non-empty strings."
-                )
+                raise ValueError("FileAccessPolicy extensions must be non-empty strings.")
         if not isinstance(self.allow_symlinks, bool):
             raise TypeError("FileAccessPolicy allow_symlinks must be bool.")
 
     @property
     def normalized_extensions(self) -> frozenset[str]:
         return frozenset(
-            extension.lower()
-            if extension.startswith(".")
-            else f".{extension.lower()}"
+            extension.lower() if extension.startswith(".") else f".{extension.lower()}"
             for extension in self.allowed_extensions
         )
 
@@ -112,9 +102,7 @@ class FileSourceConnector:
 
     def __init__(self, *, policy: FileAccessPolicy) -> None:
         if not isinstance(policy, FileAccessPolicy):
-            raise TypeError(
-                "FileSourceConnector policy must be a FileAccessPolicy."
-            )
+            raise TypeError("FileSourceConnector policy must be a FileAccessPolicy.")
         self._policy = policy
 
     @property
@@ -127,13 +115,9 @@ class FileSourceConnector:
 
     def acquire(self, request: AcquisitionRequest) -> AcquisitionResult:
         if not isinstance(request, AcquisitionRequest):
-            raise TypeError(
-                "FileSourceConnector.acquire expects AcquisitionRequest."
-            )
+            raise TypeError("FileSourceConnector.acquire expects AcquisitionRequest.")
         if request.source.kind is not SourceKind.FILE:
-            raise ValueError(
-                "FileSourceConnector only supports SourceKind.FILE."
-            )
+            raise ValueError("FileSourceConnector only supports SourceKind.FILE.")
         assert request.source.locator is not None
 
         try:
@@ -229,20 +213,15 @@ class FileSourceConnector:
 
         eligible = False
         for configured_root, resolved_root in configured_roots:
-            candidate = (
-                source_path
-                if source_path.is_absolute()
-                else configured_root / source_path
-            )
+            candidate = source_path if source_path.is_absolute() else configured_root / source_path
             lexical_candidate = Path(os.path.abspath(candidate))
             lexical_root = Path(os.path.abspath(configured_root))
             if not lexical_candidate.is_relative_to(lexical_root):
                 continue
             eligible = True
 
-            if (
-                not self._policy.allow_symlinks
-                and _contains_symlink(lexical_root, lexical_candidate)
+            if not self._policy.allow_symlinks and _contains_symlink(
+                lexical_root, lexical_candidate
             ):
                 raise _FileAccessError(
                     code="acquisition.file.symlink_forbidden",

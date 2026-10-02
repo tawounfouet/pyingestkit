@@ -68,13 +68,9 @@ def test_file_connector_supports_relative_paths_under_one_root(
     source_file = tmp_path / "nested" / "customers.json"
     source_file.parent.mkdir()
     source_file.write_text('{"id": 1}', encoding="utf-8")
-    connector = FileSourceConnector(
-        policy=FileAccessPolicy(allowed_roots=(tmp_path,))
-    )
+    connector = FileSourceConnector(policy=FileAccessPolicy(allowed_roots=(tmp_path,)))
 
-    result = connector.acquire(
-        _request(Source.file(path="nested/customers.json"))
-    )
+    result = connector.acquire(_request(Source.file(path="nested/customers.json")))
 
     assert result.status is AcquisitionStatus.SUCCEEDED
     assert result.resource is not None
@@ -88,9 +84,7 @@ def test_file_connector_rejects_path_outside_allowed_root(
     allowed.mkdir()
     outside = tmp_path / "outside.csv"
     outside.write_text("id\n1\n", encoding="utf-8")
-    connector = FileSourceConnector(
-        policy=FileAccessPolicy(allowed_roots=(allowed,))
-    )
+    connector = FileSourceConnector(policy=FileAccessPolicy(allowed_roots=(allowed,)))
 
     result = connector.acquire(_request(Source.file(path=str(outside))))
 
@@ -104,9 +98,7 @@ def test_file_connector_rejects_path_outside_allowed_root(
 def test_file_connector_reports_missing_file_as_structured_failure(
     tmp_path: Path,
 ) -> None:
-    connector = FileSourceConnector(
-        policy=FileAccessPolicy(allowed_roots=(tmp_path,))
-    )
+    connector = FileSourceConnector(policy=FileAccessPolicy(allowed_roots=(tmp_path,)))
 
     result = connector.acquire(_request(Source.file(path="missing.csv")))
 
@@ -159,9 +151,7 @@ def test_file_connector_rejects_symlink_by_default(tmp_path: Path) -> None:
     except OSError:
         pytest.skip("Symlinks are not supported in this environment.")
 
-    connector = FileSourceConnector(
-        policy=FileAccessPolicy(allowed_roots=(tmp_path,))
-    )
+    connector = FileSourceConnector(policy=FileAccessPolicy(allowed_roots=(tmp_path,)))
     result = connector.acquire(_request(Source.file(path=str(link))))
 
     assert result.status is AcquisitionStatus.FAILED
@@ -210,9 +200,7 @@ class _SecondFileConnector:
 def test_source_registry_registration_is_explicit_and_deterministic(
     tmp_path: Path,
 ) -> None:
-    connector = FileSourceConnector(
-        policy=FileAccessPolicy(allowed_roots=(tmp_path,))
-    )
+    connector = FileSourceConnector(policy=FileAccessPolicy(allowed_roots=(tmp_path,)))
     registry = SourceRegistry()
 
     registry.register(connector)
@@ -224,9 +212,7 @@ def test_source_registry_registration_is_explicit_and_deterministic(
 
 
 def test_source_registry_rejects_duplicate_registration(tmp_path: Path) -> None:
-    connector = FileSourceConnector(
-        policy=FileAccessPolicy(allowed_roots=(tmp_path,))
-    )
+    connector = FileSourceConnector(policy=FileAccessPolicy(allowed_roots=(tmp_path,)))
     registry = SourceRegistry()
     registry.register(connector)
 
@@ -238,11 +224,7 @@ def test_source_registry_rejects_ambiguous_kind_resolution(
     tmp_path: Path,
 ) -> None:
     registry = SourceRegistry()
-    registry.register(
-        FileSourceConnector(
-            policy=FileAccessPolicy(allowed_roots=(tmp_path,))
-        )
-    )
+    registry.register(FileSourceConnector(policy=FileAccessPolicy(allowed_roots=(tmp_path,))))
     registry.register(_SecondFileConnector())
 
     with pytest.raises(LookupError):
@@ -252,9 +234,7 @@ def test_source_registry_rejects_ambiguous_kind_resolution(
 def test_acquisition_result_timestamp_is_timezone_aware(tmp_path: Path) -> None:
     source_file = tmp_path / "one.txt"
     source_file.write_text("one", encoding="utf-8")
-    connector = FileSourceConnector(
-        policy=FileAccessPolicy(allowed_roots=(tmp_path,))
-    )
+    connector = FileSourceConnector(policy=FileAccessPolicy(allowed_roots=(tmp_path,)))
 
     result = connector.acquire(_request(Source.file(path=str(source_file))))
 
