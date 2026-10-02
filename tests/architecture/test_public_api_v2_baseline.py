@@ -44,7 +44,7 @@ def test_lot01_boundary_values_remain_implemented() -> None:
 
 
 def test_completed_lots_are_cumulative_and_ordered() -> None:
-    assert V2_COMPLETED_LOTS == (
+    historical_prefix = (
         "LOT-00",
         "LOT-01",
         "LOT-02",
@@ -52,3 +52,7 @@ def test_completed_lots_are_cumulative_and_ordered() -> None:
         "LOT-04",
         "LOT-05",
     )
+
+    assert V2_COMPLETED_LOTS[: len(historical_prefix)] == historical_prefix
+    assert "LOT-06" in V2_COMPLETED_LOTS
+    assert V2_COMPLETED_LOTS.index("LOT-05") < V2_COMPLETED_LOTS.index("LOT-06")

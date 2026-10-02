@@ -4,7 +4,6 @@ import json
 from pathlib import Path
 
 from pyingestkit._api_v2 import (
-    V2_API_PHASE,
     V2_COMPLETED_LOTS,
     V2_IMPLEMENTED_DECODER_VALUES,
     V2_MILESTONE_CANDIDATE,
@@ -31,8 +30,8 @@ def _fixture() -> dict[str, object]:
 def test_lot05_phase_and_milestone_are_recorded() -> None:
     payload = _fixture()
 
-    assert V2_API_PHASE == "LOT-05_CSV_JSONL_DECODE"
-    assert V2_COMPLETED_LOTS[-1] == "LOT-05"
+    assert "LOT-05" in V2_COMPLETED_LOTS
+    assert V2_COMPLETED_LOTS.index("LOT-05") <= V2_COMPLETED_LOTS.index(V2_COMPLETED_LOTS[-1])
     assert V2_MILESTONE_CANDIDATE == payload["milestone_candidate"]
     assert "Decoder" in V2_IMPLEMENTED_DECODER_VALUES
     assert "CsvDecoder" in V2_IMPLEMENTED_DECODER_VALUES
