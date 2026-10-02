@@ -11,10 +11,10 @@ from pyingestkit._api_v2 import (
 )
 from pyingestkit.decoders import (
     CsvDecoder,
-    DecodeStatus,
     DecodedType,
     Decoder,
     DecoderCapability,
+    DecodeStatus,
     JsonDecoder,
     JsonDecoderConfig,
     JsonMode,
