@@ -89,6 +89,8 @@ class FileDatasetVersionStore:
         snapshot_path = target / "snapshot.json"
         if not metadata_path.is_file() or not snapshot_path.is_file():
             raise KeyError((dataset_id, version_id))
+        if metadata_path.is_symlink() or snapshot_path.is_symlink():
+            raise ValueError("Dataset version files must not be symbolic links.")
 
         payload = _read_json(metadata_path)
         if payload.get("dataset_id") != dataset_id or payload.get("version_id") != version_id:
@@ -189,6 +191,8 @@ class FileDatasetVersionStore:
         pointer = self._current_path(dataset_id)
         if not pointer.is_file():
             return None
+        if pointer.is_symlink():
+            raise ValueError("Published dataset pointer must not be a symbolic link.")
         payload = _read_json(pointer)
         if payload.get("dataset_id") != dataset_id:
             raise ValueError("Published dataset pointer identity mismatch.")
@@ -213,7 +217,11 @@ class FileDatasetVersionStore:
         if not snapshot_path.is_relative_to(root):
             raise ValueError("Dataset version snapshot resolves outside store root.")
         content = snapshot_path.read_bytes()
-        schema, representation = decode_dataset_snapshot(content)
+        schema, representation = decode_dataset_snapshot(
+            content,
+            expected_dataset_id=reference.dataset_id,
+            expected_version_id=reference.version_id,
+        )
         if schema.fingerprint != reference.schema_fingerprint:
             raise ValueError("Stored dataset version schema fingerprint mismatch.")
         if dataset_content_fingerprint(representation) != reference.version_id:
