@@ -16,9 +16,7 @@ V2_ARCHITECTURE_LAYERS: tuple[str, ...] = (
 
 # Existing V1 implementations remain temporarily present while the V2 branch is
 # migrated lot by lot. New V2 code must not depend on their legacy execution model.
-V2_TRANSITIONAL_LEGACY_PACKAGES: frozenset[str] = frozenset(
-    {"cli", "config", "plugins", "runtime"}
-)
+V2_TRANSITIONAL_LEGACY_PACKAGES: frozenset[str] = frozenset({"cli", "config", "plugins", "runtime"})
 
 V2_SUPPORTED_PYTHON: tuple[str, ...] = ("3.11", "3.12", "3.13", "3.14")
 
