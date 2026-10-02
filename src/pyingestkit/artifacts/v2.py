@@ -1,23 +1,26 @@
-"""PyIngestKit V2 artifact boundary values."""
+"""Clean-slate V2 artifact API during the maintained V1 transition."""
 
-from pyingestkit.domain.artifacts.errors import ArtifactIntegrityError
-from pyingestkit.domain.artifacts.models import (
+from pyingestkit.domain.artifacts import (
+    ArtifactIntegrityError,
     ArtifactKind,
     ArtifactPutStatus,
+    ArtifactReference,
     ArtifactRetention,
     PutArtifactRequest,
     PutArtifactResult,
     RawArtifactEvidence,
+    RawPolicy,
 )
-from pyingestkit.domain.artifacts.policy import RawPolicy
-from pyingestkit.domain.artifacts.references import ArtifactReference
+from pyingestkit.ports.artifacts import ArtifactReader, ArtifactStore
 
 __all__ = [
     "ArtifactIntegrityError",
     "ArtifactKind",
     "ArtifactPutStatus",
+    "ArtifactReader",
     "ArtifactReference",
     "ArtifactRetention",
+    "ArtifactStore",
     "PutArtifactRequest",
     "PutArtifactResult",
     "RawArtifactEvidence",

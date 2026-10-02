@@ -44,4 +44,4 @@ def test_lot01_boundary_values_remain_implemented() -> None:
 
 
 def test_completed_lots_are_cumulative_and_ordered() -> None:
-    assert V2_COMPLETED_LOTS == ("LOT-00", "LOT-01", "LOT-02", "LOT-03")
+    assert V2_COMPLETED_LOTS == ("LOT-00", "LOT-01", "LOT-02", "LOT-03", "LOT-04")

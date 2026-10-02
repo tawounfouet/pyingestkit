@@ -83,6 +83,7 @@ jobs:
 
           import pyingestkit
           from pyingestkit import IngestionDefinition, Source
+          from pyingestkit.artifacts.v2 import ArtifactPutStatus, PutArtifactRequest
           from pyingestkit.domain.resources import ResourceReference
           from pyingestkit.domain.runtime import CorrelationContext
           from pyingestkit.domain.shared import IngestionRunId
@@ -92,6 +93,7 @@ jobs:
               SourceRegistry,
           )
           from pyingestkit.sources.v2 import AcquisitionRequest, AcquisitionStatus
+          from pyingestkit.stores import FileArtifactStore
 
           print("pyingestkit", pyingestkit.__version__)
           run_id = IngestionRunId.new()
@@ -133,6 +135,19 @@ jobs:
               assert result.status is AcquisitionStatus.SUCCEEDED
               assert result.content == content
               assert result.checksum == hashlib.sha256(content).hexdigest()
+
+              artifact_store = FileArtifactStore(root=root / "artifacts")
+              persisted = artifact_store.put(
+                  PutArtifactRequest.from_acquisition(
+                      result,
+                      name="customers.csv",
+                  )
+              )
+              assert persisted.status is ArtifactPutStatus.SUCCEEDED
+              assert persisted.reference is not None
+              assert persisted.reference.checksum == result.checksum
+              assert artifact_store.exists(persisted.reference)
+              assert artifact_store.open(persisted.reference).read() == content
 
           optional = ("boto3", "openpyxl", "psycopg", "pyarrow", "pytransformkit")
           leaked = [name for name in optional if importlib.util.find_spec(name) is not None]

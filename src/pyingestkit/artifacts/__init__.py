@@ -1,4 +1,13 @@
-from pyingestkit.domain.artifacts import ArtifactReference, RawPolicy
+from pyingestkit.domain.artifacts import (
+    ArtifactKind,
+    ArtifactPutStatus,
+    ArtifactReference,
+    ArtifactRetention,
+    PutArtifactRequest,
+    PutArtifactResult,
+    RawArtifactEvidence,
+    RawPolicy,
+)
 
 from .base import ArtifactStore
 from .factory import create_artifact_store
@@ -21,6 +30,12 @@ __all__ = [
 # V2 transition: explicit imports are available while the exact V1 __all__
 # contract remains unchanged until the 2.0 alpha package line is cut.
 _V2_PROVISIONAL = {
+    "ArtifactKind": ArtifactKind,
+    "ArtifactPutStatus": ArtifactPutStatus,
     "ArtifactReference": ArtifactReference,
+    "ArtifactRetention": ArtifactRetention,
+    "PutArtifactRequest": PutArtifactRequest,
+    "PutArtifactResult": PutArtifactResult,
+    "RawArtifactEvidence": RawArtifactEvidence,
     "RawPolicy": RawPolicy,
 }
