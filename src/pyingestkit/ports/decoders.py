@@ -44,9 +44,7 @@ class DecoderDescriptor:
         if not isinstance(self.capabilities, tuple):
             raise TypeError("DecoderDescriptor capabilities must be a tuple.")
         if any(not isinstance(value, DecoderCapability) for value in self.capabilities):
-            raise TypeError(
-                "DecoderDescriptor capabilities must contain DecoderCapability values."
-            )
+            raise TypeError("DecoderDescriptor capabilities must contain DecoderCapability values.")
         if len(set(self.capabilities)) != len(self.capabilities):
             raise ValueError("DecoderDescriptor capabilities must be unique.")
         required = {DecoderCapability.ROW_COUNT, DecoderCapability.SCHEMA_EVIDENCE}
