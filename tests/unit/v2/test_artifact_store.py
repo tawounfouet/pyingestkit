@@ -139,9 +139,7 @@ def test_file_artifact_store_constructor_performs_no_io(tmp_path: Path) -> None:
 def test_raw_artifact_evidence_is_immutable(tmp_path: Path) -> None:
     acquisition = _acquire(tmp_path)
     store = FileArtifactStore(root=tmp_path / "artifacts")
-    result = store.put(
-        PutArtifactRequest.from_acquisition(acquisition, name="customers.csv")
-    )
+    result = store.put(PutArtifactRequest.from_acquisition(acquisition, name="customers.csv"))
     assert result.raw_evidence is not None
 
     with pytest.raises(FrozenInstanceError):
