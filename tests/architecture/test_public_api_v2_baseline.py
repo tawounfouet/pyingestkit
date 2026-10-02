@@ -39,3 +39,4 @@ def test_lot01_boundary_values_remain_implemented() -> None:
     assert "IngestionRunId" in V2_IMPLEMENTED_BOUNDARY_VALUES
     assert "ResourceReference" in V2_IMPLEMENTED_BOUNDARY_VALUES
     assert "IngestionDefinition" not in V2_IMPLEMENTED_BOUNDARY_VALUES
+    assert "IngestionDefinition" in V2_IMPLEMENTED_AUTHORING_VALUES
