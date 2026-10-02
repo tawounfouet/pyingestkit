@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import builtins
 from dataclasses import dataclass
 from enum import StrEnum
 from urllib.parse import urlsplit
@@ -158,7 +159,7 @@ class Source:
             metadata=metadata,
         )
 
-    def fingerprint_payload(self) -> dict[str, object]:
+    def fingerprint_payload(self) -> dict[str, builtins.object]:
         """Return dependency-neutral semantic material for definition hashing."""
         return {
             "kind": self.kind.value,
