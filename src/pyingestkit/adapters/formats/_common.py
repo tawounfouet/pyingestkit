@@ -6,15 +6,15 @@ import hashlib
 from collections.abc import Mapping, Sequence
 
 from pyingestkit.domain.decoding.models import (
-    DecodeRequest,
-    DecodeResult,
-    DecodeStatus,
     DecodedArray,
     DecodedObject,
     DecodedRecord,
     DecodedRepresentation,
     DecodedType,
     DecodedValue,
+    DecodeRequest,
+    DecodeResult,
+    DecodeStatus,
     SchemaEvidence,
     SchemaFieldEvidence,
 )
