@@ -22,6 +22,7 @@ from pyingestkit.domain.shared.validation import (
 from .references import ArtifactReference
 
 
+
 class ArtifactKind(StrEnum):
     """Portable artifact categories owned by PyIngestKit."""
 
