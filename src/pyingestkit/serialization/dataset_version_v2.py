@@ -51,7 +51,12 @@ def encode_dataset_snapshot(version: DatasetVersion) -> bytes:
     ).encode("utf-8")
 
 
-def decode_dataset_snapshot(content: bytes) -> tuple[SchemaEvidence, DecodedRepresentation]:
+def decode_dataset_snapshot(
+    content: bytes,
+    *,
+    expected_dataset_id: str | None = None,
+    expected_version_id: str | None = None,
+) -> tuple[SchemaEvidence, DecodedRepresentation]:
     """Decode portable snapshot bytes back into framework-owned immutable values."""
     if not isinstance(content, bytes):
         raise TypeError("decode_dataset_snapshot content must be bytes.")
@@ -61,6 +66,14 @@ def decode_dataset_snapshot(content: bytes) -> tuple[SchemaEvidence, DecodedRepr
         raise ValueError("Dataset snapshot is not valid UTF-8 JSON.") from exc
     if not isinstance(payload, dict) or payload.get("snapshot_version") != "1":
         raise ValueError("Unsupported dataset snapshot contract.")
+    dataset_id = payload.get("dataset_id")
+    version_id = payload.get("version_id")
+    if not isinstance(dataset_id, str) or not isinstance(version_id, str):
+        raise ValueError("Dataset snapshot identity must be text.")
+    if expected_dataset_id is not None and dataset_id != expected_dataset_id:
+        raise ValueError("Dataset snapshot dataset_id mismatch.")
+    if expected_version_id is not None and version_id != expected_version_id:
+        raise ValueError("Dataset snapshot version_id mismatch.")
 
     raw_schema = payload.get("schema")
     raw_records = payload.get("records")
@@ -78,11 +91,15 @@ def decode_dataset_snapshot(content: bytes) -> tuple[SchemaEvidence, DecodedRepr
         raw_types = raw_field.get("observed_types")
         if not isinstance(raw_types, list):
             raise ValueError("Dataset snapshot observed_types must be a list.")
+        name = raw_field.get("name")
+        nullable = raw_field.get("nullable")
+        if not isinstance(name, str) or not isinstance(nullable, bool):
+            raise ValueError("Dataset snapshot schema field metadata is invalid.")
         fields.append(
             SchemaFieldEvidence(
-                name=str(raw_field["name"]),
+                name=name,
                 observed_types=tuple(DecodedType(str(item)) for item in raw_types),
-                nullable=bool(raw_field["nullable"]),
+                nullable=nullable,
             )
         )
     schema = SchemaEvidence(fields=tuple(fields))
