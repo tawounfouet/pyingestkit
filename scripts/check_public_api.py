@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -12,7 +13,7 @@ sys.path.insert(0, str(ROOT / "src"))
 import pyingestkit
 
 MANIFEST_PATH = ROOT / "tests" / "contract" / "fixtures" / "public_api_v1.json"
-EXPECTED_PACKAGE_VERSION = "1.0.0"
+STABLE_MAINTENANCE_VERSION = re.compile(r"^1\\.0\\.\\d+$")
 
 
 def _manifest() -> dict[str, Any]:
@@ -34,15 +35,15 @@ def main() -> None:
             if not hasattr(module, attribute):
                 raise SystemExit(f"Missing public attribute: {module_name}.{attribute}")
 
-    if pyingestkit.__version__ != EXPECTED_PACKAGE_VERSION:
+    if STABLE_MAINTENANCE_VERSION.fullmatch(pyingestkit.__version__) is None:
         raise SystemExit(
-            "Unexpected package version during V1 stable qualification: "
+            "Unexpected package version outside the governed V1.0 maintenance line: "
             f"{pyingestkit.__version__}"
         )
 
     print(
         "OK: V1 public API inventory matches the governed manifest "
-        f"for PyIngestKit {EXPECTED_PACKAGE_VERSION}"
+        f"for PyIngestKit maintenance version {pyingestkit.__version__}"
     )
 
 
