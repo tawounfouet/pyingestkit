@@ -1,12 +1,20 @@
-"""Portable V2 dataset references.
+"""Portable V2 dataset references and immutable logical versions.
 
-The V1 versioning package remains unchanged during the V2 transition. These
-reference DTOs are the clean-slate boundary values used by later V2 lots.
+The V1 versioning package remains unchanged during the V2 transition.
 """
 
-from pyingestkit.domain.datasets import DatasetReference, DatasetVersionReference
+from pyingestkit.domain.datasets import (
+    DatasetReference,
+    DatasetVersion,
+    DatasetVersionReference,
+    build_dataset_version,
+    dataset_content_fingerprint,
+)
 
 __all__ = [
     "DatasetReference",
+    "DatasetVersion",
     "DatasetVersionReference",
+    "build_dataset_version",
+    "dataset_content_fingerprint",
 ]
