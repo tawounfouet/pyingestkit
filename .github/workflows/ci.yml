@@ -28,6 +28,55 @@ jobs:
       - run: make check
       - run: make quality
 
+  v2-architecture-baseline:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e .
+      - run: python -m pip install "pytest>=8"
+      - name: V2 architecture contracts
+        run: python -m pytest -q tests/architecture
+      - name: V2 public API target contracts
+        run: python -m pytest -q tests/contract/public_api
+      - name: Compile V2 baseline
+        run: python -m compileall -q src/pyingestkit tests/architecture tests/contract/public_api
+
+  v2-package-baseline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install "build>=1.2"
+      - name: Build PyIngestKit distribution
+        run: python -m build
+      - name: Clean wheel install and optional-provider isolation
+        shell: bash
+        run: |
+          python -m venv /tmp/pyingestkit-v2-wheel
+          /tmp/pyingestkit-v2-wheel/bin/python -m pip install --upgrade pip
+          wheel="$(ls dist/pyingestkit-*.whl | head -n 1)"
+          /tmp/pyingestkit-v2-wheel/bin/python -m pip install "$wheel"
+          /tmp/pyingestkit-v2-wheel/bin/python - <<'PY'
+          import importlib.util
+          import pyingestkit
+
+          print("pyingestkit", pyingestkit.__version__)
+          optional = ("boto3", "openpyxl", "psycopg", "pyarrow", "pytransformkit")
+          leaked = [name for name in optional if importlib.util.find_spec(name) is not None]
+          if leaked:
+              raise SystemExit(f"optional provider dependencies leaked into base install: {leaked}")
+          PY
+
   postgres-e2e:
     runs-on: ubuntu-latest
     services:
@@ -266,6 +315,8 @@ jobs:
       - foundation-verify
       - v1-pilot-gate
       - v1-rc-history-gate
+      - v2-architecture-baseline
+      - v2-package-baseline
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
