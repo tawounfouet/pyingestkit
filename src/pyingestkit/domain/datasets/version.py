@@ -6,8 +6,6 @@ import hashlib
 import json
 from dataclasses import dataclass
 from datetime import datetime
-from typing import cast
-
 from pyingestkit.domain.artifacts import ArtifactReference
 from pyingestkit.domain.decoding import (
     DecodedArray,
@@ -76,6 +74,8 @@ def build_dataset_version(
     """Promote successful decode evidence into a deterministic logical version."""
 
     require_non_blank(dataset_id, "DatasetVersion dataset_id")
+    if not isinstance(created_at, datetime):
+        raise TypeError("DatasetVersion created_at must be a datetime.")
     validate_aware_datetime(created_at, "DatasetVersion created_at")
     if result.status is not DecodeStatus.SUCCEEDED:
         raise ValueError("DatasetVersion requires a successful DecodeResult.")
@@ -144,4 +144,4 @@ def _canonical_value(value: DecodedValue) -> object:
         }
     if isinstance(value, DecodedArray):
         return {"type": "array", "items": [_canonical_value(item) for item in value.items]}
-    return cast(object, value)
+    raise TypeError(f"Unsupported decoded value type: {type(value).__name__}.")
