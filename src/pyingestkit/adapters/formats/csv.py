@@ -8,9 +8,9 @@ from dataclasses import dataclass, field
 from itertools import chain
 
 from pyingestkit.domain.decoding.models import (
+    DecodedRecord,
     DecodeRequest,
     DecodeResult,
-    DecodedRecord,
 )
 from pyingestkit.domain.decoding.policy import DecoderLimits, EncodingPolicy
 from pyingestkit.domain.runtime.failure import FailureCategory
