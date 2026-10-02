@@ -97,12 +97,8 @@ def test_csv_malformed_structure_returns_failure(content: bytes) -> None:
 
 
 def test_csv_row_limit_is_structured_failure() -> None:
-    decoder = CsvDecoder(
-        CsvDecoderConfig(limits=DecoderLimits(max_rows=1))
-    )
-    result = decoder.decode(
-        _request(b"id\n1\n2\n", media_type="text/csv")
-    )
+    decoder = CsvDecoder(CsvDecoderConfig(limits=DecoderLimits(max_rows=1)))
+    result = decoder.decode(_request(b"id\n1\n2\n", media_type="text/csv"))
 
     assert result.status is DecodeStatus.FAILED
     assert result.failure is not None
@@ -151,7 +147,7 @@ def test_jsonl_decoder_uses_stable_jsonl_id() -> None:
     "content",
     [
         b'{"id":1,"id":2}',
-        b'[1,2,3]',
+        b"[1,2,3]",
         b'{"score":NaN}',
         b'{"broken":',
     ],
@@ -165,12 +161,8 @@ def test_json_malformed_inputs_return_failure(content: bytes) -> None:
 
 
 def test_json_nesting_limit_is_structured_failure() -> None:
-    decoder = JsonDecoder(
-        JsonDecoderConfig(limits=DecoderLimits(max_nesting_depth=2))
-    )
-    result = decoder.decode(
-        _request(b'{"a":{"b":{"c":1}}}', media_type="application/json")
-    )
+    decoder = JsonDecoder(JsonDecoderConfig(limits=DecoderLimits(max_nesting_depth=2)))
+    result = decoder.decode(_request(b'{"a":{"b":{"c":1}}}', media_type="application/json"))
 
     assert result.status is DecodeStatus.FAILED
     assert result.failure is not None
