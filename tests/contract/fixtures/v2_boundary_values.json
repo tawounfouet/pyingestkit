@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "milestone": "LOT-01",
+  "contracts": {
+    "pykit.resource_reference": "1",
+    "pykit.artifact_reference": "1",
+    "pykit.dataset_reference": "1",
+    "pykit.dataset_version_reference": "1",
+    "pykit.credential_reference": "1",
+    "pykit.idempotency_reference": "1",
+    "pykit.correlation_context": "1",
+    "pykit.failure_evidence": "1",
+    "pykit.diagnostic": "1",
+    "pykit.ingestion_execution_reference": "1"
+  },
+  "native_identifiers": [
+    "IngestionRunId",
+    "CorrelationId"
+  ],
+  "terminal_statuses": [
+    "succeeded",
+    "failed",
+    "cancelled",
+    "timed_out",
+    "unknown_outcome",
+    "requires_reconciliation",
+    "partial"
+  ]
+}
