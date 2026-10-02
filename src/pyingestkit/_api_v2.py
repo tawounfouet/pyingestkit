@@ -132,6 +132,7 @@ V2_COMPLETED_LOTS: tuple[str, ...] = (
     "LOT-03",
     "LOT-04",
     "LOT-05",
+    "LOT-06",
 )
 
 V2_MILESTONE_CANDIDATE = "2.0.0a1"
