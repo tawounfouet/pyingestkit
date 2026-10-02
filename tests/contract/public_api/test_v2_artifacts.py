@@ -25,8 +25,9 @@ def _fixture() -> dict[str, object]:
 
 
 def test_lot04_phase_and_completed_lots_are_recorded() -> None:
-    assert V2_API_PHASE == "LOT-04_RAW_ARTIFACT_STORE"
-    assert V2_COMPLETED_LOTS[-1] == "LOT-04"
+    assert "LOT-04" in V2_COMPLETED_LOTS
+    assert V2_COMPLETED_LOTS.index("LOT-04") < V2_COMPLETED_LOTS.index("LOT-05")
+    assert V2_API_PHASE.startswith(V2_COMPLETED_LOTS[-1].replace("-", "_"))
     assert "FileArtifactStore" in V2_IMPLEMENTED_ARTIFACT_VALUES
 
 
