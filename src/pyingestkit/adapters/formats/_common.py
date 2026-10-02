@@ -66,9 +66,7 @@ def freeze_json_value(value: object, *, depth: int, limits: DecoderLimits) -> De
         )
     if value is None or isinstance(value, bool | int | float | str):
         if isinstance(value, str) and len(value) > limits.max_field_chars:
-            raise DecodeLimitError(
-                f"JSON string exceeds max_field_chars={limits.max_field_chars}."
-            )
+            raise DecodeLimitError(f"JSON string exceeds max_field_chars={limits.max_field_chars}.")
         return value
     if isinstance(value, Mapping):
         if len(value) > limits.max_keys_per_object:
