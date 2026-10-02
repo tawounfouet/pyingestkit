@@ -48,7 +48,9 @@ class DatasetVersion:
         if not isinstance(self.representation, DecodedRepresentation):
             raise TypeError("DatasetVersion representation must be DecodedRepresentation.")
         if self.reference.schema_fingerprint != self.schema.fingerprint:
-            raise ValueError("DatasetVersion reference schema fingerprint must match schema evidence.")
+            raise ValueError(
+                "DatasetVersion reference schema fingerprint must match schema evidence."
+            )
         if self.reference.content_fingerprint != self.reference.version_id:
             raise ValueError("DatasetVersion version_id must equal its content fingerprint.")
 
