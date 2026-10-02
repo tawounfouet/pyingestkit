@@ -73,6 +73,7 @@ jobs:
           /tmp/pyingestkit-v2-wheel/bin/python - <<'PY'
           import importlib.util
           import pyingestkit
+          from pyingestkit import IngestionDefinition, Source
           from pyingestkit.domain.resources import ResourceReference
           from pyingestkit.domain.shared import IngestionRunId
 
@@ -83,8 +84,17 @@ jobs:
               resource_id="clean-wheel-smoke",
               locator="file:///tmp/input.csv",
           )
+          definition = IngestionDefinition(
+              name="clean-wheel-smoke",
+              source=Source.file(path="/tmp/input.csv"),
+              decoder="csv",
+              dataset="clean-wheel-smoke",
+          )
           assert str(IngestionRunId.parse(str(run_id))) == str(run_id)
           assert resource.portable is True
+          assert definition.fingerprint.algorithm == "sha256"
+          assert len(definition.fingerprint.value) == 64
+          assert "IngestionDefinition" not in pyingestkit.__all__
           optional = ("boto3", "openpyxl", "psycopg", "pyarrow", "pytransformkit")
           leaked = [name for name in optional if importlib.util.find_spec(name) is not None]
           if leaked:
