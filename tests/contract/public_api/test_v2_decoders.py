@@ -4,7 +4,6 @@ import json
 from pathlib import Path
 
 from pyingestkit._api_v2 import (
-    V2_API_PHASE,
     V2_COMPLETED_LOTS,
     V2_IMPLEMENTED_DECODER_VALUES,
     V2_MILESTONE_CANDIDATE,
