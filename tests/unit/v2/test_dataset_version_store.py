@@ -7,13 +7,14 @@ from urllib.request import url2pathname
 
 import pytest
 
+from pyingestkit.domain.datasets import DatasetVersionReference
 from pyingestkit.domain.shared import IngestionRunId
 from pyingestkit.stores import FileDatasetVersionStore
 
 from .test_dataset_version import _version
 
 
-def _snapshot_path(reference) -> Path:
+def _snapshot_path(reference: DatasetVersionReference) -> Path:
     assert reference.locator is not None
     assert reference.locator.locator is not None
     parsed = urlsplit(reference.locator.locator)
