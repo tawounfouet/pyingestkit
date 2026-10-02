@@ -12,6 +12,7 @@ from pyingestkit.domain.decoding.models import (
     DecodedArray,
     DecodedObject,
     DecodedRecord,
+    DecodedRepresentation,
     DecodedType,
     DecodedValue,
     SchemaEvidence,
@@ -151,10 +152,7 @@ def success_result(
     records: tuple[DecodedRecord, ...],
     schema: SchemaEvidence,
 ) -> DecodeResult:
-    representation = __import__(
-        "pyingestkit.domain.decoding.models",
-        fromlist=["DecodedRepresentation"],
-    ).DecodedRepresentation(records)
+    representation = DecodedRepresentation(records)
     diagnostic = Diagnostic(
         code="decode.succeeded",
         severity=DiagnosticSeverity.INFO,

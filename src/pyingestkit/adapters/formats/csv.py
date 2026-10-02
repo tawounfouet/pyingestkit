@@ -5,6 +5,7 @@ from __future__ import annotations
 import csv
 import io
 from dataclasses import dataclass, field
+from itertools import chain
 
 from pyingestkit.domain.decoding.models import (
     DecodeRequest,
@@ -139,7 +140,7 @@ class CsvDecoder:
 
         rows: list[DecodedRecord] = []
         initial_rows = () if self._config.header else (first,)
-        for row in (*initial_rows, *reader):
+        for row in chain(initial_rows, reader):
             _validate_row(row, headers, self._config.limits)
             rows.append(
                 DecodedRecord(tuple((name, value) for name, value in zip(headers, row, strict=True)))
