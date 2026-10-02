@@ -18,7 +18,6 @@ from pyingestkit.domain.shared.validation import (
     validate_metadata,
     validate_optional_text,
 )
-
 from .references import ArtifactReference
 
 
