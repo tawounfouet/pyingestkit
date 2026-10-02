@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pyingestkit.validation import ValidationRuleV2
+from pyingestkit.validation.v2 import ValidationRuleV2
 
 from ._imports import imported_roots, matches_prefix, python_files
 
