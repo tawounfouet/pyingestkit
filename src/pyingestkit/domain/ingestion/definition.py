@@ -103,7 +103,6 @@ def _normalize(value: object) -> object:
         return [_normalize(item) for item in value]
     if isinstance(value, dict):
         return {
-            unicodedata.normalize("NFC", str(key)): _normalize(item)
-            for key, item in value.items()
+            unicodedata.normalize("NFC", str(key)): _normalize(item) for key, item in value.items()
         }
     return value

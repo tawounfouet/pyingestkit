@@ -188,9 +188,7 @@ class Source:
             if self.locator is None or self.query is None:
                 raise ValueError("database Source requires connection locator and query.")
             if "://" in self.locator:
-                raise ValueError(
-                    "database Source locator must be a logical connection identifier."
-                )
+                raise ValueError("database Source locator must be a logical connection identifier.")
 
         if self.kind is SourceKind.CUSTOM and self.connector_id is None:
             raise ValueError("custom Source requires connector_id.")
