@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import fields
 
-from pyingestkit.domain.decoding import DecodeResult, DecodedRepresentation
+from pyingestkit.domain.decoding import DecodedRepresentation, DecodeResult
 from pyingestkit.ports.decoders import Decoder
 
 from ._imports import imported_roots, matches_prefix, python_files
