@@ -111,6 +111,20 @@ V2_IMPLEMENTED_DECODER_VALUES: tuple[str, ...] = (
     "SchemaFieldEvidence",
 )
 
+V2_IMPLEMENTED_VALIDATION_VALUES: tuple[str, ...] = (
+    "MinimumRowsV2",
+    "QualityEvidence",
+    "RequiredFieldV2",
+    "UniqueFieldV2",
+    "ValidationIssue",
+    "ValidationLimits",
+    "ValidationRequest",
+    "ValidationResult",
+    "ValidationRuleV2",
+    "ValidationSeverity",
+    "validate_v2",
+)
+
 V2_COMPLETED_LOTS: tuple[str, ...] = (
     "LOT-00",
     "LOT-01",
@@ -162,4 +176,4 @@ V2_PUBLIC_NAMESPACE_BASELINE: tuple[str, ...] = (
     "pyingestkit.quality",
 )
 
-V2_API_PHASE = "LOT-05_CSV_JSONL_DECODE"
+V2_API_PHASE = "LOT-06_VALIDATION_QUALITY"
