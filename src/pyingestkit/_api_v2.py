@@ -1,10 +1,10 @@
 """Internal metadata describing the PyIngestKit V2 public API target.
 
 LOT-00 recorded the target contract. LOT-01 added portable boundary values.
-LOT-02 added Source/IngestionDefinition. LOT-03 added the acquisition port and
-local-file connector. LOT-04 adds durable RAW semantics and the ArtifactStore
-port while the V1 package keeps its exact star-import contract until the 2.0
-alpha cut.
+LOT-02 added Source/IngestionDefinition. LOT-03 added acquisition, LOT-04
+added durable RAW/ArtifactStore, and LOT-05 adds the dependency-neutral
+CSV/JSON(L) decode foundation while the V1 package keeps its exact star-import
+contract until the 2.0 alpha cut.
 """
 
 from __future__ import annotations
@@ -87,13 +87,40 @@ V2_IMPLEMENTED_ARTIFACT_VALUES: tuple[str, ...] = (
     "RawArtifactEvidence",
 )
 
+V2_IMPLEMENTED_DECODER_VALUES: tuple[str, ...] = (
+    "CsvDecoder",
+    "CsvDecoderConfig",
+    "DecodeRequest",
+    "DecodeResult",
+    "DecodeStatus",
+    "DecodedArray",
+    "DecodedObject",
+    "DecodedRecord",
+    "DecodedRepresentation",
+    "DecodedType",
+    "Decoder",
+    "DecoderCapability",
+    "DecoderDescriptor",
+    "DecoderLimits",
+    "DecoderRegistry",
+    "EncodingPolicy",
+    "JsonDecoder",
+    "JsonDecoderConfig",
+    "JsonMode",
+    "SchemaEvidence",
+    "SchemaFieldEvidence",
+)
+
 V2_COMPLETED_LOTS: tuple[str, ...] = (
     "LOT-00",
     "LOT-01",
     "LOT-02",
     "LOT-03",
     "LOT-04",
+    "LOT-05",
 )
+
+V2_MILESTONE_CANDIDATE = "2.0.0a1"
 
 V2_FORBIDDEN_LEGACY_ROOT_EXPORTS: frozenset[str] = frozenset(
     {
@@ -135,4 +162,4 @@ V2_PUBLIC_NAMESPACE_BASELINE: tuple[str, ...] = (
     "pyingestkit.quality",
 )
 
-V2_API_PHASE = "LOT-04_RAW_ARTIFACT_STORE"
+V2_API_PHASE = "LOT-05_CSV_JSONL_DECODE"
