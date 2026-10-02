@@ -9,12 +9,15 @@ import re
 import shutil
 from datetime import datetime
 from pathlib import Path
+from urllib.parse import unquote, urlsplit
+from urllib.request import url2pathname
 from uuid import uuid4
 
 from pyingestkit.domain.datasets.publication import PublishedDataset
 from pyingestkit.domain.datasets.references import DatasetVersionReference
 from pyingestkit.domain.datasets.version import DatasetVersion, dataset_content_fingerprint
-from pyingestkit.domain.resources.references import ResourceReference
+from pyingestkit.domain.decoding.models import DecodedRepresentation
+from pyingestkit.domain.resources.reference import ResourceReference
 from pyingestkit.domain.shared.identifiers import IngestionRunId
 from pyingestkit.domain.shared.validation import require_non_blank, validate_aware_datetime
 from pyingestkit.serialization.dataset_version_v2 import (
@@ -126,12 +129,15 @@ class FileDatasetVersionStore:
         return tuple(
             sorted(
                 values,
-                key=lambda item: (item.created_at or datetime.min.astimezone(), item.version_id),
+                key=lambda item: (
+                    item.created_at.timestamp() if item.created_at is not None else float("-inf"),
+                    item.version_id,
+                ),
                 reverse=True,
             )
         )
 
-    def read(self, reference: DatasetVersionReference):
+    def read(self, reference: DatasetVersionReference) -> DecodedRepresentation:
         if not isinstance(reference, DatasetVersionReference):
             raise TypeError("FileDatasetVersionStore.read expects DatasetVersionReference.")
         canonical = self.get(reference.dataset_id, reference.version_id)
@@ -196,10 +202,16 @@ class FileDatasetVersionStore:
             published_from_run_id=run_id,
         )
 
-    def _verify(self, reference: DatasetVersionReference):
+    def _verify(self, reference: DatasetVersionReference) -> DecodedRepresentation:
         if reference.locator is None or reference.locator.locator is None:
             raise ValueError("Stored DatasetVersionReference requires a snapshot locator.")
-        snapshot_path = Path(reference.locator.locator.removeprefix("file://"))
+        parsed = urlsplit(reference.locator.locator)
+        if parsed.scheme != "file" or parsed.netloc not in {"", "localhost"}:
+            raise ValueError("Stored DatasetVersionReference must use a local file:// locator.")
+        snapshot_path = Path(url2pathname(unquote(parsed.path))).resolve(strict=True)
+        root = self._root.resolve(strict=False)
+        if not snapshot_path.is_relative_to(root):
+            raise ValueError("Dataset version snapshot resolves outside store root.")
         content = snapshot_path.read_bytes()
         schema, representation = decode_dataset_snapshot(content)
         if schema.fingerprint != reference.schema_fingerprint:
