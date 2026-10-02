@@ -1,8 +1,8 @@
 """Internal metadata describing the PyIngestKit V2 public API target.
 
-LOT-00 deliberately records the target contract without creating fake public
-implementations. Symbols move from RESERVED to PROVISIONAL/STABLE only when the
-owning implementation lot delivers real behavior.
+LOT-00 recorded the target contract without fake implementations. LOT-01 adds
+real boundary values while keeping the governed V1 package root unchanged until
+the owning V2 API lots promote each symbol deliberately.
 """
 
 from __future__ import annotations
@@ -19,6 +19,26 @@ V2_TARGET_ROOT_EXPORTS: tuple[str, ...] = (
     "PublishedDataset",
     "ResourceReference",
     "Source",
+)
+
+V2_IMPLEMENTED_BOUNDARY_VALUES: tuple[str, ...] = (
+    "ArtifactReference",
+    "CorrelationContext",
+    "CorrelationId",
+    "CredentialReference",
+    "DatasetReference",
+    "DatasetVersionReference",
+    "Diagnostic",
+    "DiagnosticSeverity",
+    "FailureCategory",
+    "FailureEvidence",
+    "IdempotencyReference",
+    "IngestionExecutionReference",
+    "IngestionRunId",
+    "IngestionStatus",
+    "OutcomeUncertainty",
+    "ResourceReference",
+    "Retryability",
 )
 
 V2_FORBIDDEN_LEGACY_ROOT_EXPORTS: frozenset[str] = frozenset(
@@ -61,4 +81,4 @@ V2_PUBLIC_NAMESPACE_BASELINE: tuple[str, ...] = (
     "pyingestkit.quality",
 )
 
-V2_API_PHASE = "LOT-00_TARGET_RESERVED"
+V2_API_PHASE = "LOT-01_BOUNDARY_VALUES"
