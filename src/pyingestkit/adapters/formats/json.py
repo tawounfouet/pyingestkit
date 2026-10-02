@@ -130,9 +130,7 @@ class JsonDecoder:
                     )
                 value = _loads(line)
                 if not isinstance(value, dict):
-                    raise DecodeDataError(
-                        f"JSONL line {line_number} must decode to an object."
-                    )
+                    raise DecodeDataError(f"JSONL line {line_number} must decode to an object.")
                 records.append(value)
                 if len(records) > self._config.limits.max_rows:
                     raise DecodeLimitError(
