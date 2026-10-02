@@ -13,6 +13,12 @@ from .core.step import Step
 from .dataset import Dataset
 from .declarative import JobDefinition, StepDefinition, StepInvocation, job, step
 from .diff import DatasetDiff, DatasetDiffer, DiffEntry, DiffKind, DiffPolicy, SchemaDiff
+from .domain.artifacts import ArtifactReference as ArtifactReference
+from .domain.datasets import DatasetVersionReference as DatasetVersionReference
+from .domain.ingestion import IngestionDefinition as IngestionDefinition
+from .domain.resources import ResourceReference as ResourceReference
+from .domain.shared import IngestionRunId as IngestionRunId
+from .domain.sources import Source as Source
 from .parsers import CsvParser, ExcelParser, JsonParser, NdjsonParser, ParquetParser
 from .profiling import DatasetProfile, DatasetProfiler, FieldProfile
 from .quality import QualityReport
@@ -106,6 +112,17 @@ __all__ = [
     "job",
     "step",
 ]
+
+# During the 1.0.x -> 2.0 transition these real V2 target-root values support
+# explicit imports without changing the governed V1 star-import surface.
+_V2_PROVISIONAL_ROOT_EXPORTS = (
+    "ArtifactReference",
+    "DatasetVersionReference",
+    "IngestionDefinition",
+    "IngestionRunId",
+    "ResourceReference",
+    "Source",
+)
 
 # Library best practice: never configure application handlers at import time.
 _stdlib_logging.getLogger(__name__).addHandler(_stdlib_logging.NullHandler())

@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "milestone": "LOT-02",
+  "provisional_root_imports": [
+    "ArtifactReference",
+    "DatasetVersionReference",
+    "IngestionDefinition",
+    "IngestionRunId",
+    "ResourceReference",
+    "Source"
+  ],
+  "source_kinds": [
+    "file",
+    "http",
+    "object",
+    "database",
+    "custom"
+  ],
+  "definition_fields": [
+    "name",
+    "source",
+    "decoder",
+    "dataset",
+    "raw_policy",
+    "validation_policy",
+    "versioning_policy",
+    "publication_policy",
+    "options",
+    "metadata"
+  ],
+  "fingerprint_algorithm": "sha256"
+}

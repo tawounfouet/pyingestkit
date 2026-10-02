@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from pyingestkit._api_v2 import (
-    V2_API_PHASE,
     V2_FORBIDDEN_LEGACY_ROOT_EXPORTS,
+    V2_IMPLEMENTED_AUTHORING_VALUES,
     V2_IMPLEMENTED_BOUNDARY_VALUES,
     V2_PUBLIC_NAMESPACE_BASELINE,
     V2_TARGET_ROOT_EXPORTS,
@@ -35,7 +35,8 @@ def test_v2_public_namespace_baseline_is_unique() -> None:
     assert len(V2_PUBLIC_NAMESPACE_BASELINE) == len(set(V2_PUBLIC_NAMESPACE_BASELINE))
 
 
-def test_lot01_records_real_boundary_implementation_phase() -> None:
-    assert V2_API_PHASE == "LOT-01_BOUNDARY_VALUES"
+def test_lot01_boundary_values_remain_implemented() -> None:
     assert "IngestionRunId" in V2_IMPLEMENTED_BOUNDARY_VALUES
+    assert "ResourceReference" in V2_IMPLEMENTED_BOUNDARY_VALUES
     assert "IngestionDefinition" not in V2_IMPLEMENTED_BOUNDARY_VALUES
+    assert "IngestionDefinition" in V2_IMPLEMENTED_AUTHORING_VALUES
