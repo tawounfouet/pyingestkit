@@ -9,7 +9,9 @@ from enum import StrEnum
 from pyingestkit.domain.acquisition import AcquisitionResult, AcquisitionStatus
 from .references import ArtifactReference
 from pyingestkit.domain.resources import ResourceReference
-from pyingestkit.domain.runtime import CorrelationContext, Diagnostic, FailureEvidence
+from pyingestkit.domain.runtime.context import CorrelationContext
+from pyingestkit.domain.runtime.diagnostics import Diagnostic
+from pyingestkit.domain.runtime.failure import FailureEvidence
 from pyingestkit.domain.shared import IngestionRunId
 from pyingestkit.domain.shared.validation import (
     require_non_blank,

@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import ClassVar
 
-from pyingestkit.domain.artifacts import ArtifactReference
+from pyingestkit.domain.artifacts.references import ArtifactReference
 from pyingestkit.domain.resources import ResourceReference
 from pyingestkit.domain.shared.validation import (
     require_non_blank,
