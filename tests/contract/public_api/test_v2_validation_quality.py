@@ -18,8 +18,9 @@ from pyingestkit.validation.v2 import (
 
 
 def test_lot06_phase_and_completed_lot_are_recorded() -> None:
-    assert V2_API_PHASE == "LOT-06_VALIDATION_QUALITY"
-    assert V2_COMPLETED_LOTS[-1] == "LOT-06"
+    assert "LOT-06" in V2_COMPLETED_LOTS
+    assert V2_COMPLETED_LOTS.index("LOT-06") <= V2_COMPLETED_LOTS.index(V2_COMPLETED_LOTS[-1])
+    assert V2_API_PHASE.startswith("LOT-")
 
 
 def test_lot06_public_values_are_recorded() -> None:
