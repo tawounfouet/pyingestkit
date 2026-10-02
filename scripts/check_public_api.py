@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import importlib
 import json
-import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -13,7 +12,6 @@ sys.path.insert(0, str(ROOT / "src"))
 import pyingestkit
 
 MANIFEST_PATH = ROOT / "tests" / "contract" / "fixtures" / "public_api_v1.json"
-STABLE_MAINTENANCE_VERSION = re.compile(r"^1\\.0\\.\\d+$")
 
 
 def _manifest() -> dict[str, Any]:
@@ -35,7 +33,12 @@ def main() -> None:
             if not hasattr(module, attribute):
                 raise SystemExit(f"Missing public attribute: {module_name}.{attribute}")
 
-    if STABLE_MAINTENANCE_VERSION.fullmatch(pyingestkit.__version__) is None:
+    version_parts = pyingestkit.__version__.split(".")
+    if (
+        len(version_parts) != 3
+        or version_parts[:2] != ["1", "0"]
+        or not version_parts[2].isdigit()
+    ):
         raise SystemExit(
             "Unexpected package version outside the governed V1.0 maintenance line: "
             f"{pyingestkit.__version__}"

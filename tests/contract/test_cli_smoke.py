@@ -22,7 +22,9 @@ class CliSmokeTests(unittest.TestCase):
     def test_version(self) -> None:
         result = self.runner.invoke(app, ["--version"])
         self.assertEqual(result.exit_code, 0, result.output)
-        self.assertRegex(__version__, r"^1\\.0\\.\\d+$")
+        major, minor, patch_version = __version__.split(".")
+        self.assertEqual((major, minor), ("1", "0"))
+        self.assertTrue(patch_version.isdigit())
         self.assertIn(__version__, result.output)
         self.assertNotIn("1.0.0rc1", result.output)
         self.assertNotIn("0.6.0", result.output)
