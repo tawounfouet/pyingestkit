@@ -146,9 +146,7 @@ class CsvDecoder:
                 DecodedRecord(tuple((name, value) for name, value in zip(headers, row, strict=True)))
             )
             if len(rows) > self._config.limits.max_rows:
-                raise DecodeLimitError(
-                    f"CSV exceeds max_rows={self._config.limits.max_rows}."
-                )
+                raise DecodeLimitError(f"CSV exceeds max_rows={self._config.limits.max_rows}.")
         return tuple(rows), headers
 
 
@@ -167,16 +165,12 @@ def _validate_headers(headers: tuple[str, ...], limits: DecoderLimits) -> None:
         raise DecodeDataError("CSV header names must be unique.")
     for name in headers:
         if len(name) > limits.max_field_chars:
-            raise DecodeLimitError(
-                f"CSV header exceeds max_field_chars={limits.max_field_chars}."
-            )
+            raise DecodeLimitError(f"CSV header exceeds max_field_chars={limits.max_field_chars}.")
 
 
 def _validate_row_width(row: list[str] | tuple[str, ...], limits: DecoderLimits) -> None:
     if len(row) > limits.max_columns:
-        raise DecodeLimitError(
-            f"CSV exceeds max_columns={limits.max_columns}; actual={len(row)}."
-        )
+        raise DecodeLimitError(f"CSV exceeds max_columns={limits.max_columns}; actual={len(row)}.")
 
 
 def _validate_row(row: list[str], headers: tuple[str, ...], limits: DecoderLimits) -> None:
@@ -187,6 +181,4 @@ def _validate_row(row: list[str], headers: tuple[str, ...], limits: DecoderLimit
         )
     for value in row:
         if len(value) > limits.max_field_chars:
-            raise DecodeLimitError(
-                f"CSV field exceeds max_field_chars={limits.max_field_chars}."
-            )
+            raise DecodeLimitError(f"CSV field exceeds max_field_chars={limits.max_field_chars}.")
