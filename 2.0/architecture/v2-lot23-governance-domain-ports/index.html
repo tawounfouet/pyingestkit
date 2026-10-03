@@ -10,9 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://tawounfouet.github.io/pyingestkit/2.0/architecture/object-storage-b2/">
+        <link rel="canonical" href="https://tawounfouet.github.io/pyingestkit/2.0/architecture/v2-lot23-governance-domain-ports/">
       
       
+        <link rel="prev" href="../v2-lot20-customer360-beta-gate/">
+      
+      
+        <link rel="next" href="../../guides/v1-quickstart/">
       
       
         
@@ -23,7 +27,7 @@
     
     
       
-        <title>PyIngestKit V0.6.0-b2 — Remote DatasetVersion + Publication Object Storage - PyIngestKit</title>
+        <title>LOT-23 governance domain & ports - PyIngestKit</title>
       
     
     
@@ -66,7 +70,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#pyingestkit-v060-b2-remote-datasetversion-publication-object-storage" class="md-skip">
+        <a href="#pyingestkit-21-lot-23-governance-domain-ports" class="md-skip">
           Skip to content
         </a>
       
@@ -104,7 +108,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              PyIngestKit V0.6.0-b2 — Remote DatasetVersion + Publication Object Storage
+              LOT-23 governance domain & ports
             
           </span>
         </div>
@@ -274,10 +278,12 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
+      <li class="md-tabs__item md-tabs__item--active">
         <a href="../overview/" class="md-tabs__link">
           
   
@@ -938,8 +944,10 @@
       
   
   
+    
   
   
+  
     
     
       
@@ -973,19 +981,22 @@
     
     
       
+        
+        
+      
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
         
           
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
             
   
   
@@ -1003,7 +1014,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1354,10 +1365,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../v2-lot23-governance-domain-ports/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LOT-23 governance domain & ports
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1373,6 +1411,252 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Status
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#compatibility-baseline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compatibility baseline
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#qualified-namespace" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Qualified namespace
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#publication-operation-identity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Publication operation identity
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#publication-revision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Publication revision
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#publication-snapshot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Publication snapshot
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lifecycle-evidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lifecycle evidence
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conditional-publication-outcome" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conditional publication outcome
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#retention-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Retention contract
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#holds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Holds
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#garbage-collection-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Garbage-collection plan
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deletion-result-contracts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deletion result contracts
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#additive-ports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Additive ports
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Additive ports">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#publicationledger" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PublicationLedger
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#conditionaldatasetpublisher" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ConditionalDatasetPublisher
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#datasetversiongarbagecollector" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DatasetVersionGarbageCollector
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#provider-neutrality" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Provider neutrality
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#packagerelease-line-qualification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Package/release-line qualification
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#acceptance-evidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Acceptance evidence
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-lot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next lot
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -2398,10 +2682,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#durable-namespace" class="md-nav__link">
+  <a href="#status" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Durable namespace
+        Status
       
     </span>
   </a>
@@ -2409,10 +2693,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#semantics" class="md-nav__link">
+  <a href="#compatibility-baseline" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Semantics
+        Compatibility baseline
       
     </span>
   </a>
@@ -2420,10 +2704,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#runtime-and-cli" class="md-nav__link">
+  <a href="#qualified-namespace" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Runtime and CLI
+        Qualified namespace
       
     </span>
   </a>
@@ -2431,10 +2715,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#b2-qualification-target" class="md-nav__link">
+  <a href="#publication-operation-identity" class="md-nav__link">
     <span class="md-ellipsis">
       
-        B2 qualification target
+        Publication operation identity
       
     </span>
   </a>
@@ -2442,10 +2726,181 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#official-b2-artifact" class="md-nav__link">
+  <a href="#publication-revision" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Official B2 artifact
+        Publication revision
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#publication-snapshot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Publication snapshot
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lifecycle-evidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lifecycle evidence
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conditional-publication-outcome" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conditional publication outcome
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#retention-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Retention contract
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#holds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Holds
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#garbage-collection-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Garbage-collection plan
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deletion-result-contracts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deletion result contracts
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#additive-ports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Additive ports
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Additive ports">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#publicationledger" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PublicationLedger
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#conditionaldatasetpublisher" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ConditionalDatasetPublisher
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#datasetversiongarbagecollector" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DatasetVersionGarbageCollector
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#provider-neutrality" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Provider neutrality
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#packagerelease-line-qualification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Package/release-line qualification
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#acceptance-evidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Acceptance evidence
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-lot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next lot
       
     </span>
   </a>
@@ -2469,7 +2924,7 @@
 
 
   
-    <a href="https://github.com/tawounfouet/pyingestkit/edit/main/docs/architecture/object-storage-b2.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/tawounfouet/pyingestkit/edit/main/docs/architecture/v2-lot23-governance-domain-ports.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -2477,88 +2932,237 @@
   
 
 
-<h1 id="pyingestkit-v060-b2-remote-datasetversion-publication-object-storage">PyIngestKit V0.6.0-b2 — Remote DatasetVersion + Publication Object Storage</h1>
-<p>B2 closes the remaining filesystem dependency in the V0.4 Dataset versioning lifecycle.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Runner A / workspace A
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>        │
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        ├── Dataset ──► fingerprint ──► immutable snapshot ───────┐
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>        │                                                        │
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>        └── publish ───────────────► current.json                 │
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>                                                                 ▼
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>                                                   S3-compatible object storage
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>                                                                 │
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>Runner B / empty workspace B                                    │
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>        │                                                        │
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>        ├── get_published() ◄────────────────────────────────────┤
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>        ├── get_version()   ◄────────────────────────────────────┤
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>        ├── load_dataset()  ◄────────────────────────────────────┤
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>        └── create V2 + publish ─────────────────────────────────►│
+<h1 id="pyingestkit-21-lot-23-governance-domain-ports">PyIngestKit 2.1 — LOT-23 Governance Domain &amp; Ports</h1>
+<h2 id="status">Status</h2>
+<p><strong>Implemented candidate: 2.1.0a1.</strong></p>
+<p>LOT-23 opens the additive PyIngestKit 2.1 feature line established by the
+accepted RFC-001 roadmap.</p>
+<p>It introduces provider-neutral lifecycle-governance values and ports only.
+No PostgreSQL ledger, filesystem CAS, S3 CAS, retention execution, physical
+deletion or rollback side effect is implemented in this lot.</p>
+<h2 id="compatibility-baseline">Compatibility baseline</h2>
+<p>The PyIngestKit 2.0 contract remains frozen and executable.</p>
+<p>LOT-23 does not change:</p>
+<ul>
+<li>the 11-symbol <code>pyingestkit</code> package root;</li>
+<li><code>DatasetPublisher</code>;</li>
+<li><code>DatasetVersionStore</code>;</li>
+<li><code>PublishedDataset</code>;</li>
+<li><code>IngestionRuntime.run(...)</code>;</li>
+<li>existing version-1 portable wire contracts.</li>
+</ul>
+<p>The 2.0 compatibility baseline is checked independently from the current
+2.1 milestone version.</p>
+<h2 id="qualified-namespace">Qualified namespace</h2>
+<p>All new APIs are opt-in under:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">pyingestkit.governance</span>
 </code></pre></div>
-<h2 id="durable-namespace">Durable namespace</h2>
-<p>For <code>dataset_id=demo.cross_host</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>s3://&lt;bucket&gt;/&lt;prefix&gt;/datasets/versions/demo/cross_host/&lt;version_id&gt;/dataset.snapshot.json
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>s3://&lt;bucket&gt;/&lt;prefix&gt;/datasets/versions/demo/cross_host/&lt;version_id&gt;/version.json
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>s3://&lt;bucket&gt;/&lt;prefix&gt;/datasets/published/demo/cross_host/current.json
+<p>Nothing from LOT-23 is promoted to the package root.</p>
+<p>The qualified namespace exposes:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>PublicationOperationId
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>PublicationRevision
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>PublicationSnapshot
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>PublicationIntent
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>PublicationLifecycleEventType
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>PublicationLifecycleEvent
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>ConditionalPublicationStatus
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>ConditionalPublicationOutcome
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>RetentionPolicy
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>VersionHold
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>GarbageCollectionPlanId
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>GarbageCollectionPlan
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>DatasetVersionDeletionStatus
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>DatasetVersionDeletionResult
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>DatasetVersionDeletionReconciliationStatus
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>DatasetVersionDeletionReconciliationResult
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>PublicationLedger
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>ConditionalDatasetPublisher
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>DatasetVersionGarbageCollector
 </code></pre></div>
-<p>The dataset ID and version ID are validated before becoming object-key components.</p>
-<h2 id="semantics">Semantics</h2>
-<p><code>S3DatasetVersionStore</code> implements the existing <code>DatasetVersionStore</code> contract. It does not alter
-<code>DatasetVersion</code>, <code>PublishedDataset</code>, Dataset fingerprinting, or <code>SnapshotCodec</code> version <code>1</code>.</p>
-<table>
-<thead>
-<tr>
-<th>Object</th>
-<th>Lifecycle</th>
-<th>Integrity</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>dataset.snapshot.json</code></td>
-<td>immutable / create-once</td>
-<td>SHA-256 metadata + fingerprint verification</td>
-</tr>
-<tr>
-<td><code>version.json</code></td>
-<td>immutable / create-once</td>
-<td>SHA-256 metadata</td>
-</tr>
-<tr>
-<td><code>current.json</code></td>
-<td>mutable publication pointer</td>
-<td>SHA-256 metadata + referenced-version verification</td>
-</tr>
-</tbody>
-</table>
-<p>A retry that finds a previously created snapshot verifies that the stored snapshot still resolves
-to the same content-addressed version before completing missing version metadata.</p>
-<h2 id="runtime-and-cli">Runtime and CLI</h2>
-<p><code>demo.versioned_ndjson</code> selects the S3-backed version store automatically when its run uses an
-<code>S3ArtifactStore</code>; local runs continue to use <code>FilesystemDatasetVersionStore</code>.</p>
-<p><code>pyingest versions</code> and <code>pyingest published</code> now accept <code>--config</code>. With an S3 artifact backend
-they inspect the remote version store and therefore do not require a pre-existing local workspace.</p>
-<h2 id="b2-qualification-target">B2 qualification target</h2>
-<p>The MinIO-backed qualification proves:</p>
-<ol>
-<li>Runner A creates and publishes V1.</li>
-<li>Workspace A disappears.</li>
-<li>Runner B starts with an empty workspace, discovers V1 and loads its Dataset remotely.</li>
-<li>Runner B creates/publishes V2 and lists V1 + V2.</li>
-<li>CLI <code>versions</code> and <code>published</code> read the same remote state.</li>
-<li>Runner C, again with an empty workspace, resolves and loads V2.</li>
-<li>Strict replay from remote RAW remains acquisition-free and verifies
-   <code>actual_fingerprint == expected_fingerprint</code>.</li>
-<li>Filesystem and S3 implementations execute the same <code>DatasetVersionStore</code> behavioral contract,
-   including immutable content-addressed versions and idempotent republication.</li>
-<li>Missing or corrupt remote snapshots fail explicitly instead of being silently recreated.</li>
-</ol>
-<p>This is the first V0.6 milestone where Dataset version state is portable across runner-local
-filesystems. The complete Runner A → destroyed workspace → Runner B replay flow combined with
-PostgreSQL loading remains the purpose of V0.6.0-rc1.</p>
-<h2 id="official-b2-artifact">Official B2 artifact</h2>
-<p>GitHub Actions publishes the source artifact under the canonical milestone name:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>pyingestkit-v0.6.0-b2-remote-versioning-publish.zip
+<p>The exact export set is frozen in
+<code>tests/contract/fixtures/governance_v2_1_alpha1.json</code>.</p>
+<h2 id="publication-operation-identity">Publication operation identity</h2>
+<p><code>PublicationOperationId</code> is UUID-backed and distinct from
+<code>IngestionRunId</code>, provider request IDs and correlation IDs.</p>
+<p><code>PublicationIntent</code> carries:</p>
+<ul>
+<li>operation identity;</li>
+<li>immutable target DatasetVersionReference;</li>
+<li>expected PublicationRevision;</li>
+<li>ingestion run identity;</li>
+<li>CorrelationContext;</li>
+<li>requested timestamp.</li>
+</ul>
+<p>Its deterministic <code>intent_fingerprint</code> excludes retry-local time while
+including the semantic target, expected revision and execution/correlation
+identity.</p>
+<p>The invariant is executable:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>same operation_id + same intent
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    -&gt; compatible/idempotent
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>same operation_id + different intent
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    -&gt; fail closed
 </code></pre></div>
+<p>LOT-24 will persist that rule; LOT-23 owns its domain semantics.</p>
+<h2 id="publication-revision">Publication revision</h2>
+<p><code>PublicationRevision</code> is framework-owned and provider-neutral.</p>
+<p>Two forms exist:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>initial
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>rev-&lt;uuid-hex&gt;
+</code></pre></div>
+<p>The revision is intentionally not an S3 ETag, filesystem inode or SQL
+transaction identifier.</p>
+<p>Every future governed publication will advance to a new framework revision,
+which prevents ABA confusion even when content returns to a previously
+published DatasetVersion.</p>
+<h2 id="publication-snapshot">Publication snapshot</h2>
+<p><code>PublicationSnapshot</code> couples:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>dataset_id
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>publication revision
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>PublishedDataset | None
+</code></pre></div>
+<p>An unpublished snapshot must use the explicit <code>initial</code> revision.
+A published snapshot must use a non-initial revision and the dataset identity
+must match.</p>
+<h2 id="lifecycle-evidence">Lifecycle evidence</h2>
+<p><code>PublicationLifecycleEvent</code> is portable, append-only evidence input for the
+future ledger.</p>
+<p>The event vocabulary includes:</p>
+<ul>
+<li>version observed;</li>
+<li>publication requested/committed/conflict/unknown outcome;</li>
+<li>publication reconciliation outcomes;</li>
+<li>rollback requested/committed;</li>
+<li>hold placed/released;</li>
+<li>retention plan created;</li>
+<li>GC delete requested/committed/failed/unknown outcome.</li>
+</ul>
+<p>Metadata uses the existing credential-safe validation rules. Credentials,
+tokens and secret-like fields fail closed.</p>
+<p>No persistence backend is introduced by LOT-23.</p>
+<h2 id="conditional-publication-outcome">Conditional publication outcome</h2>
+<p><code>ConditionalPublicationOutcome</code> models:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>SUCCEEDED
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>CONFLICT
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>FAILED
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>UNKNOWN_OUTCOME
+</code></pre></div>
+<p>Non-success outcomes require structured <code>FailureEvidence</code>.</p>
+<p>An unknown outcome must use:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>FailureCategory.UNKNOWN_OUTCOME
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>OutcomeUncertainty.REQUIRES_RECONCILIATION
+</code></pre></div>
+<p>This extends the existing PyIngestKit 2.0 uncertainty vocabulary rather than
+creating a competing model.</p>
+<h2 id="retention-contract">Retention contract</h2>
+<p>The first 2.1 retention policy is deliberately small:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">RetentionPolicy</span><span class="p">(</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    <span class="n">keep_last</span><span class="p">:</span> <span class="nb">int</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">,</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="n">min_age_seconds</span><span class="p">:</span> <span class="nb">int</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="p">)</span>
+</code></pre></div>
+<p>There is no expression language, tag DSL, scheduling model or provider storage
+class policy.</p>
+<p>Mandatory protections such as current/held/unresolved versions remain lifecycle
+invariants and are not represented as user-disableable switches.</p>
+<h2 id="holds">Holds</h2>
+<p><code>VersionHold</code> represents explicit protection of an immutable
+DatasetVersionReference.</p>
+<p>LOT-23 only defines the value. Durable hold events and GC enforcement begin in
+later lots.</p>
+<h2 id="garbage-collection-plan">Garbage-collection plan</h2>
+<p><code>GarbageCollectionPlan</code> is immutable plan evidence containing:</p>
+<ul>
+<li>plan identity;</li>
+<li>dataset identity;</li>
+<li>aware creation time;</li>
+<li>retention policy;</li>
+<li>protected versions;</li>
+<li>candidate versions;</li>
+<li>deterministic evidence fingerprint.</li>
+</ul>
+<p>Protected and candidate sets must be disjoint and belong to the same dataset.</p>
+<p>Planning and deletion are intentionally separate.</p>
+<h2 id="deletion-result-contracts">Deletion result contracts</h2>
+<p>LOT-23 defines operation-specific deletion result types without implementing
+deletion.</p>
+<p>Deletion reuses shared failure/uncertainty primitives while keeping domain
+results distinct from publication results.</p>
+<p>This preserves:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>shared uncertainty vocabulary
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>!=
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>generic side-effect result model
+</code></pre></div>
+<h2 id="additive-ports">Additive ports</h2>
+<h3 id="publicationledger">PublicationLedger</h3>
+<p>Exact LOT-23 methods:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>register(intent)
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>append(event)
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>get_operation(operation_id)
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>list_operations(dataset_id)
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>list_unresolved(dataset_id=None)
+</code></pre></div>
+<p>LOT-24 implements Memory and PostgreSQL adapters.</p>
+<h3 id="conditionaldatasetpublisher">ConditionalDatasetPublisher</h3>
+<p>Exact LOT-23 methods:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>inspect(dataset_id)
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>compare_and_publish(intent)
+</code></pre></div>
+<p>LOT-25 and LOT-26 implement provider semantics.</p>
+<h3 id="datasetversiongarbagecollector">DatasetVersionGarbageCollector</h3>
+<p>Exact LOT-23 methods:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>delete(reference, *, plan_id, expected_evidence, requested_at)
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>reconcile_delete(reference, *, plan_id, reconciled_at)
+</code></pre></div>
+<p>No implementation exists in LOT-23. Physical deletion begins in LOT-27.</p>
+<h2 id="provider-neutrality">Provider neutrality</h2>
+<p>The governance domain and ports must not import:</p>
+<ul>
+<li>boto3 / botocore;</li>
+<li>SQLAlchemy / psycopg;</li>
+<li>HTTP/provider SDKs;</li>
+<li>Pandas/Polars/PyArrow;</li>
+<li>provider adapters.</li>
+</ul>
+<p>The architecture suite enforces this boundary.</p>
+<h2 id="packagerelease-line-qualification">Package/release-line qualification</h2>
+<p>The repository package version becomes:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>2.1.0a1
+</code></pre></div>
+<p>The published stable release remains <code>v2.0.0</code>.</p>
+<p>CI therefore has two independent checks:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>Frozen 2.0 compatibility
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>        +
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>Current LOT-23 milestone contract
+</code></pre></div>
+<p>A 2.1 alpha build must never weaken the 2.0 compatibility proof merely because
+the current package version is newer.</p>
+<h2 id="acceptance-evidence">Acceptance evidence</h2>
+<p>LOT-23 is complete when:</p>
+<ul>
+<li>governance namespace export fixture passes;</li>
+<li>exact new Protocol signatures pass;</li>
+<li>package root remains exact 2.0 root;</li>
+<li>existing frozen Protocols/runtime/wire contracts remain exact;</li>
+<li>domain invariants and malformed-input negatives pass;</li>
+<li>operation intent reuse fails closed;</li>
+<li>retention policy validation is deterministic;</li>
+<li>governance domain/ports have no provider imports;</li>
+<li>no governance provider adapter exists;</li>
+<li>Python 3.11–3.14 matrices pass;</li>
+<li>Ruff/format/mypy pass;</li>
+<li>Bandit/pip-audit pass;</li>
+<li>clean wheel/sdist install works without optional providers;</li>
+<li>CI, Security and Docs pass on exact LOT-23 head.</li>
+</ul>
+<h2 id="next-lot">Next lot</h2>
+<p>LOT-24 / <code>2.1.0a2</code> will implement the durable lifecycle ledger:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>PublicationLedger
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>    ├── Memory reference adapter
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>    └── PostgreSQL durable adapter
+</code></pre></div>
+<p>It must preserve the exact domain and Protocol baseline frozen by LOT-23.</p>
 
 
 
