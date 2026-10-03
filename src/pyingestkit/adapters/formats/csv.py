@@ -160,13 +160,12 @@ def _parse_csv_text(
     for row in chain(initial_rows, reader):
         _validate_row(row, headers, config.limits)
         rows.append(
-            DecodedRecord(
-                tuple((name, value) for name, value in zip(headers, row, strict=True))
-            )
+            DecodedRecord(tuple((name, value) for name, value in zip(headers, row, strict=True)))
         )
         if len(rows) > config.limits.max_rows:
             raise DecodeLimitError(f"CSV exceeds max_rows={config.limits.max_rows}.")
     return tuple(rows), headers
+
 
 def _one_character(value: str, name: str) -> None:
     if not isinstance(value, str) or len(value) != 1:
