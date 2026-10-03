@@ -48,6 +48,7 @@ dev = [
   "psycopg[binary]>=3.2,<4",
   "boto3>=1.35,<2",
 ]
+http = ["httpx>=0.28.1,<1"]
 postgres = ["psycopg[binary]>=3.2,<4"]
 s3 = ["boto3>=1.35,<2"]
 excel = ["openpyxl>=3.1,<4"]
