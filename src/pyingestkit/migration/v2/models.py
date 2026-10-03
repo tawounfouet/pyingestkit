@@ -6,7 +6,8 @@ from dataclasses import dataclass
 from enum import StrEnum
 
 from pyingestkit.domain.artifacts import ArtifactReference
-from pyingestkit.domain.datasets import DatasetVersionReference, PublishedDataset
+from pyingestkit.domain.datasets import DatasetVersionReference
+from pyingestkit.domain.datasets.publication import PublishedDataset
 from pyingestkit.domain.ingestion import IngestionDefinition
 
 
