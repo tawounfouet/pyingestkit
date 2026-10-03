@@ -42,16 +42,14 @@ _SHIM_DECISIONS = (
         shim="V2 Pipeline alias",
         decision="rejected",
         reason=(
-            "Scheduling/orchestration and transformation DAGs are not "
-            "PyIngestKit V2 core concepts."
+            "Scheduling/orchestration and transformation DAGs are not PyIngestKit V2 core concepts."
         ),
     ),
     CompatibilityShimDecision(
         shim="V2 Step alias",
         decision="rejected",
         reason=(
-            "Arbitrary Python Step execution cannot be migrated without "
-            "ownership classification."
+            "Arbitrary Python Step execution cannot be migrated without ownership classification."
         ),
     ),
     CompatibilityShimDecision(
