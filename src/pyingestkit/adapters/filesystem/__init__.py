@@ -4,7 +4,11 @@ from pyingestkit.adapters.filesystem.artifact_store import (
     FileArtifactReader,
     FileArtifactStore,
 )
-from pyingestkit.adapters.filesystem.dataset_version_materializer import (\n    FileCsvDatasetVersionMaterializerV2,\n)\nfrom pyingestkit.adapters.filesystem.dataset_version_store import FileDatasetVersionStore\nfrom pyingestkit.adapters.filesystem.source import (
+from pyingestkit.adapters.filesystem.dataset_version_materializer import (
+    FileCsvDatasetVersionMaterializerV2,
+)
+from pyingestkit.adapters.filesystem.dataset_version_store import FileDatasetVersionStore
+from pyingestkit.adapters.filesystem.source import (
     FileAccessPolicy,
     FileSourceConnector,
 )
