@@ -113,8 +113,7 @@ class ReplayServiceV2:
         if request.expected_dataset_version is not None:
             if ingestion.dataset_version is not None:
                 matched = (
-                    ingestion.dataset_version.identity
-                    == request.expected_dataset_version.identity
+                    ingestion.dataset_version.identity == request.expected_dataset_version.identity
                 )
             elif ingestion.failure is not None and ingestion.failure.error_code == (
                 "runtime.version_mismatch"
