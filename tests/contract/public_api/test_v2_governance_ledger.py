@@ -11,9 +11,7 @@ def test_lot24_adapters_implement_frozen_publication_ledger_port() -> None:
 
 
 def test_lot24_adapters_live_in_explicit_provider_namespaces() -> None:
-    assert MemoryPublicationLedger.__module__ == (
-        "pyingestkit.adapters.memory.publication_ledger"
-    )
+    assert MemoryPublicationLedger.__module__ == ("pyingestkit.adapters.memory.publication_ledger")
     assert PostgresPublicationLedger.__module__ == (
         "pyingestkit.adapters.postgres.publication_ledger"
     )
