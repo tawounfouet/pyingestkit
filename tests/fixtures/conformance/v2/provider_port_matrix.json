@@ -1,0 +1,91 @@
+{
+  "schema": "pyingestkit.v2-provider-port-conformance",
+  "schema_version": "1",
+  "lot": "LOT-19",
+  "providers": [
+    {
+      "provider_id": "pyingestkit.file",
+      "provider_class": "pyingestkit.adapters.filesystem.source.FileSourceConnector",
+      "ports": ["SourceConnector"],
+      "qualification": "offline",
+      "conformance_evidence": ["tests/conformance/v2/test_provider_port_matrix.py"],
+      "service_evidence": []
+    },
+    {
+      "provider_id": "pyingestkit.http",
+      "provider_class": "pyingestkit.adapters.http.source.HttpSourceConnector",
+      "ports": ["SourceConnector"],
+      "qualification": "offline",
+      "conformance_evidence": ["tests/conformance/v2/test_provider_port_matrix.py"],
+      "service_evidence": ["tests/integration/v2/test_http_runtime.py"]
+    },
+    {
+      "provider_id": "pyingestkit.artifact.file",
+      "provider_class": "pyingestkit.adapters.filesystem.artifact_store.FileArtifactStore",
+      "ports": ["ArtifactStore"],
+      "qualification": "offline",
+      "conformance_evidence": ["tests/conformance/v2/test_provider_port_matrix.py"],
+      "service_evidence": []
+    },
+    {
+      "provider_id": "pyingestkit.artifact.s3",
+      "provider_class": "pyingestkit.adapters.s3.artifact_store.S3ArtifactStoreV2",
+      "ports": ["ArtifactStore"],
+      "qualification": "offline+service",
+      "conformance_evidence": ["tests/conformance/v2/test_provider_port_matrix.py"],
+      "service_evidence": [
+        "tests/integration/test_s3_remote_raw.py",
+        "tests/integration/v2/test_s3_cross_host_replay_v2.py"
+      ]
+    },
+    {
+      "provider_id": "pyingestkit.dataset-version.file",
+      "provider_class": "pyingestkit.adapters.filesystem.dataset_version_store.FileDatasetVersionStore",
+      "ports": ["DatasetVersionStore", "DatasetPublisher"],
+      "qualification": "offline",
+      "conformance_evidence": ["tests/conformance/v2/test_provider_port_matrix.py"],
+      "service_evidence": []
+    },
+    {
+      "provider_id": "pyingestkit.dataset-version.s3",
+      "provider_class": "pyingestkit.adapters.s3.dataset_version_store.S3DatasetVersionStoreV2",
+      "ports": ["DatasetVersionStore", "DatasetPublisher"],
+      "qualification": "offline+service",
+      "conformance_evidence": ["tests/conformance/v2/test_provider_port_matrix.py"],
+      "service_evidence": [
+        "tests/integration/test_s3_dataset_versions.py",
+        "tests/integration/v2/test_s3_cross_host_replay_v2.py"
+      ]
+    },
+    {
+      "provider_id": "pyingestkit.postgres",
+      "provider_class": "pyingestkit.adapters.postgres.target.PostgresTargetV2",
+      "ports": ["DatasetTargetV2"],
+      "qualification": "offline+service",
+      "conformance_evidence": ["tests/conformance/v2/test_provider_port_matrix.py"],
+      "service_evidence": ["tests/integration/v2/test_postgres_target_v2.py"]
+    },
+    {
+      "provider_id": "csv",
+      "provider_class": "pyingestkit.adapters.formats.csv.CsvDecoder",
+      "ports": ["Decoder"],
+      "qualification": "offline",
+      "conformance_evidence": [
+        "tests/conformance/v2/test_provider_port_matrix.py",
+        "tests/conformance/v2/test_decoders.py"
+      ],
+      "service_evidence": []
+    },
+    {
+      "provider_id": "json",
+      "provider_class": "pyingestkit.adapters.formats.json.JsonDecoder",
+      "ports": ["Decoder"],
+      "qualification": "offline",
+      "conformance_evidence": [
+        "tests/conformance/v2/test_provider_port_matrix.py",
+        "tests/conformance/v2/test_decoders.py"
+      ],
+      "service_evidence": []
+    }
+  ]
+}
