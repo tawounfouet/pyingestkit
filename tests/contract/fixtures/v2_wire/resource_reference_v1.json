@@ -1,0 +1,1 @@
+{"contract_id":"pykit.resource_reference","contract_version":"1","envelope_version":"1","payload":{"format":"csv","locator":"s3://demo/raw/customers.csv","media_type":"text/csv","metadata":[["source","crm"],["tenant","demo"]],"namespace":"pyingestkit.resource.s3","resource_id":"customers-2026-10-03","schema_fingerprint":"schema-abc"}}
