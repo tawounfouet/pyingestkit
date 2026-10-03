@@ -241,7 +241,7 @@ class HttpSourceConnector:
                 code="acquisition.http.dependency_missing",
                 category=FailureCategory.CAPABILITY,
                 retryability=Retryability.NON_RETRYABLE,
-                summary="HTTP acquisition requires the optional 'http' dependency.",
+                summary="HTTP acquisition requires the HTTPX transport dependency.",
             )
 
         requested_url, _ = _sanitize_url_for_persistence(request.source.locator)
