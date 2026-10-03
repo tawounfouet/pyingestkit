@@ -12,8 +12,9 @@ cut V2 runtime callers over to the qualified runtime surface, LOT-13 added
 secure HTTP acquisition/provenance, LOT-14 added transactional PostgreSQL
 materialization for immutable dataset versions, LOT-15 added S3-compatible V2 artifact/version storage, and LOT-16 adds
 canonical non-executable boundary serialization plus explicit migration
-infrastructure while the V1 package keeps its exact star-import contract until
-the 2.0 alpha cut.
+infrastructure, and LOT-17 adds the optional PyTransformKit anti-corruption
+boundary while the V1 package keeps its exact star-import contract until the
+2.0 alpha cut.
 """
 
 from __future__ import annotations
@@ -206,6 +207,20 @@ V2_IMPLEMENTED_SERIALIZATION_VALUES: tuple[str, ...] = (
     "SUPPORTED_BOUNDARY_CONTRACT_IDS",
 )
 
+V2_IMPLEMENTED_PYTRANSFORMKIT_VALUES: tuple[str, ...] = (
+    "DatasetVersionInputAdapter",
+    "PyTransformKitCompatibilityError",
+    "PyTransformKitIntegrationError",
+    "PyTransformKitMappingError",
+    "PyTransformKitUnavailableError",
+    "TransformationPublicationAdapter",
+    "TransformationPublicationInput",
+    "from_transform_correlation",
+    "from_transform_failure",
+    "pytransformkit_version",
+    "to_transform_correlation",
+)
+
 V2_COMPLETED_LOTS: tuple[str, ...] = (
     "LOT-00",
     "LOT-01",
@@ -224,6 +239,7 @@ V2_COMPLETED_LOTS: tuple[str, ...] = (
     "LOT-14",
     "LOT-15",
     "LOT-16",
+    "LOT-17",
 )
 
 V2_MILESTONE_CANDIDATE = "2.0.0a1"
@@ -268,4 +284,4 @@ V2_PUBLIC_NAMESPACE_BASELINE: tuple[str, ...] = (
     "pyingestkit.quality",
 )
 
-V2_API_PHASE = "LOT-16_CANONICAL_SERIALIZATION"
+V2_API_PHASE = "LOT-17_PYTRANSFORMKIT_INTEGRATION"
