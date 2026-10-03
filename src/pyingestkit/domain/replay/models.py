@@ -9,7 +9,6 @@ from pyingestkit.domain.datasets.references import DatasetVersionReference
 from pyingestkit.domain.ingestion import IngestionDefinition
 from pyingestkit.domain.runtime import IngestionResult
 from pyingestkit.domain.shared import IngestionRunId
-from pyingestkit.validation.v2 import ValidationRuleV2
 
 
 @dataclass(frozen=True, slots=True)
@@ -19,7 +18,6 @@ class ReplayRequest:
     source_run_id: IngestionRunId
     definition: IngestionDefinition
     origin_raw_artifact: ArtifactReference
-    validation_rules: tuple[ValidationRuleV2, ...] = ()
     expected_dataset_version: DatasetVersionReference | None = None
 
     def __post_init__(self) -> None:
@@ -36,10 +34,6 @@ class ReplayRequest:
             or self.origin_raw_artifact.checksum is None
         ):
             raise ValueError("ReplayRequest requires SHA-256 origin RAW integrity evidence.")
-        if not isinstance(self.validation_rules, tuple):
-            raise TypeError("ReplayRequest validation_rules must be a tuple.")
-        if any(not isinstance(rule, ValidationRuleV2) for rule in self.validation_rules):
-            raise TypeError("ReplayRequest validation_rules must implement ValidationRuleV2.")
         if self.expected_dataset_version is not None:
             if not isinstance(self.expected_dataset_version, DatasetVersionReference):
                 raise TypeError(
