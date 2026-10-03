@@ -26,6 +26,7 @@ Every post-2.0 RFC must:
 7. separate framework-owned state from provider-owned state;
 8. identify explicit non-goals.
 
-## Current proposals
+## Current RFCs
 
-- [RFC-001 — Publication & Lifecycle Governance](RFC-001-publication-lifecycle-governance.md) — **Proposed**
+- [RFC-001 — Publication & Lifecycle Governance](RFC-001-publication-lifecycle-governance.md) — **Accepted**
+  - [Formal architecture review](reviews/RFC-001-architecture-review.md)
