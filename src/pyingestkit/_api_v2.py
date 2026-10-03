@@ -236,6 +236,26 @@ V2_IMPLEMENTED_MIGRATION_VALUES: tuple[str, ...] = (
     "plan_v1_config_migration",
 )
 
+V2_IMPLEMENTED_QUALIFIED_MIGRATION_VALUES: tuple[str, ...] = (
+    "CompatibilityShimDecision",
+    "LegacyArtifactSnapshot",
+    "LegacyDatasetVersionSnapshot",
+    "LegacyJobMigrationHints",
+    "LegacyJobMigrationResult",
+    "LegacyPublishedDatasetSnapshot",
+    "LegacyReplayMigrationEvidence",
+    "LegacyReplaySnapshot",
+    "LegacyStepAssessment",
+    "MigrationDisposition",
+    "MigrationIssue",
+    "MigrationReport",
+    "StepOwnership",
+    "V1JobMigrator",
+    "V1MigrationResult",
+    "V1SemanticExport",
+    "V1SemanticImporter",
+)
+
 V2_COMPLETED_LOTS: tuple[str, ...] = (
     "LOT-00",
     "LOT-01",
