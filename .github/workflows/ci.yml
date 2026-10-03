@@ -117,7 +117,21 @@ jobs:
           assert resource.portable is True
           assert definition.fingerprint.algorithm == "sha256"
           assert len(definition.fingerprint.value) == 64
-          assert "IngestionDefinition" not in pyingestkit.__all__
+          assert tuple(pyingestkit.__all__) == (
+              "ArtifactReference",
+              "DatasetVersion",
+              "DatasetVersionReference",
+              "IngestionDefinition",
+              "IngestionResult",
+              "IngestionRun",
+              "IngestionRunId",
+              "IngestionRuntime",
+              "PublishedDataset",
+              "ResourceReference",
+              "Source",
+          )
+          assert pyingestkit.__version__ == "2.0.0rc1"
+          assert hasattr(pyingestkit.IngestionRuntime, "run")
 
           with tempfile.TemporaryDirectory() as directory:
               root = Path(directory)
