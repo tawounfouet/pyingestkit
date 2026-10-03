@@ -1,6 +1,7 @@
 # RFC-001 — Publication & Lifecycle Governance
 
-**Status:** Proposed  
+**Status:** Accepted  
+**Accepted:** 2026-10-03  
 **Date:** 2026-10-03  
 **Stable compatibility baseline:** PyIngestKit 2.0.0  
 **Baseline tag:** `v2.0.0`  
@@ -191,7 +192,7 @@ stable contracts.
                     lifecycle evidence
 ```
 
-The exact Python names are provisional until this RFC is accepted.
+The exact Python names remain subject to implementation-level naming review; the responsibilities and boundaries are accepted.
 
 ### 6.1 Publication ledger
 
@@ -948,31 +949,37 @@ Acceptance authorizes implementation planning, not implementation itself.
 
 ---
 
-## 30. Open questions
+## 30. Resolved review decisions
 
-The following remain intentionally open during review:
+The six architecture-review questions are resolved by the formal
+[RFC-001 architecture review](reviews/RFC-001-architecture-review.md):
 
-1. Should the first lifecycle ledger implementation support only PostgreSQL or
-   also a local development backend?
-2. What minimum S3 conditional-write profile can be qualified consistently
-   across AWS S3 and targeted S3-compatible providers?
-3. Should explicit version holds/pins be a first slice or deferred until the
-   initial retention implementation?
-4. What is the smallest stable retention policy schema that avoids becoming a
-   generic policy language?
-5. Should deletion reconciliation share one generic uncertainty abstraction
-   with publication or use a separate operation-specific result type?
-6. At what point, if any, should accepted governance types become top-level
-   exports in a later major version?
+1. **Lifecycle ledger:** provider-neutral Protocol + in-memory reference adapter
+   + PostgreSQL as the first durable production implementation. A second durable
+   local backend is deferred.
+2. **S3 CAS profile:** advertise conditional publication only when endpoint
+   conformance proves atomic create-if-absent and compare-and-replace semantics,
+   corresponding to `If-None-Match` / `If-Match` for AWS S3.
+3. **Holds/pins:** included in the first retention/GC slice and mandatory for
+   GC protection.
+4. **Retention policy:** first stable schema is limited to `keep_last` and
+   optional `min_age_seconds`; current/held/unresolved protections are
+   invariants rather than switches.
+5. **Deletion uncertainty:** reuse shared `FailureEvidence` /
+   `OutcomeUncertainty` primitives while exposing deletion-specific result and
+   reconciliation types.
+6. **Top-level exports:** governance types stay in qualified namespaces for the
+   full 2.x line; top-level promotion requires a future major-version API
+   review.
 
-These questions must be resolved before the corresponding implementation slice
-is committed.
+These decisions close the architecture-review blockers without assigning a
+release number or implementation LOT.
 
 ---
 
-## 31. Decision requested
+## 31. Accepted decision
 
-Reviewers are asked to accept or reject the following architectural direction:
+The following architectural direction is accepted:
 
 ```text
 keep 2.0 DatasetPublisher frozen
@@ -991,5 +998,5 @@ add governance contracts
 provider conformance before roadmap promotion
 ```
 
-If accepted, the next artifact should be an implementation roadmap derived from
-this RFC. Until then, no LOT number or 2.x release target is implied.
+The next artifact is an implementation roadmap derived from this accepted RFC.
+Acceptance still does not assign a LOT number or 2.x release target.
