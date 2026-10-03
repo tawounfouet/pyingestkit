@@ -1,3 +1,5 @@
-from .report import QualityReport
+"""PyIngestKit 2.0 quality evidence API."""
 
-__all__ = ["QualityReport"]
+from .v2 import QualityEvidence
+
+__all__ = ["QualityEvidence"]
