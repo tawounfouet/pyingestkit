@@ -124,17 +124,13 @@ class V1SemanticExport:
                     sha256=item.sha256,
                     created_at=_datetime_text(item.created_at),
                     resolved_url=(
-                        None
-                        if item.resolved_url is None
-                        else _safe_locator(item.resolved_url)
+                        None if item.resolved_url is None else _safe_locator(item.resolved_url)
                     ),
                     status_code=item.status_code,
                     etag=item.etag,
                     last_modified=item.last_modified,
                     storage_uri=(
-                        None
-                        if item.storage_uri is None
-                        else _safe_locator(item.storage_uri)
+                        None if item.storage_uri is None else _safe_locator(item.storage_uri)
                     ),
                 )
                 for item in artifacts
@@ -284,11 +280,7 @@ def _safe_locator(value: str) -> str:
         raise ValueError("V1 semantic export locator port is invalid.") from exc
     netloc = host if port is None else f"{host}:{port}"
     safe_query = urlencode(
-        [
-            (key, item)
-            for key, item in query_items
-            if key.lower() not in _SENSITIVE_QUERY_KEYS
-        ],
+        [(key, item) for key, item in query_items if key.lower() not in _SENSITIVE_QUERY_KEYS],
         doseq=True,
     )
     return urlunsplit(
