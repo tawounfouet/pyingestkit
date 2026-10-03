@@ -2,6 +2,20 @@
 
 All notable changes to PyIngestKit are documented here.
 
+## [2.0.0rc1] - 2026-10-03
+
+### Release Candidate — V2 Public Contract Freeze
+
+- promoted the clean-slate V2 architecture into the actual `pyingestkit` package root and removed V1 execution aliases from the 2.0 root contract;
+- froze the 11-symbol top-level API and made `IngestionRuntime.run(...)` the canonical synchronous execution entry point;
+- froze framework-owned source, decoder, artifact, dataset-version, publisher, materializer and target Protocols through a machine-readable RC fixture and checker;
+- moved HTTP and PostgreSQL implementation dependencies behind optional extras and qualified a provider-neutral base wheel/sdist;
+- made metadata and logging imports lazy so migration/model paths do not pull provider or Rich/CLI dependencies into the base installation;
+- preserved the immutable V1.0.0 line as historical evidence on its own tag rather than treating V1 compatibility as a 2.0 contract;
+- qualified Python 3.11/3.12/3.13/3.14, PostgreSQL, S3-compatible cross-host replay, clean wheel/sdist installs, PyTransformKit integration and Customer 360 built-artifact E2E;
+- added V1 → V2 migration guidance, 2.0 RC release notes and a LOT-21 qualification evidence record;
+- established the post-RC rule that only blocker fixes are allowed before `2.0.0`; public-contract redesign requires a new RC.
+
 ## [0.6.0] - 2026-09-05
 
 ### Object Storage Release
