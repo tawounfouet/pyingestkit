@@ -121,16 +121,13 @@ once the configured bound is exceeded.
 
 ## Dependency governance
 
-The V2 target dependency is declared as:
-
-```toml
-http = ["httpx>=0.28.1,<1"]
-```
-
 HTTPX remains temporarily present in the base dependency set during the 1.x
-maintenance transition because V1 clean-wheel qualification still executes
-historical HTTP jobs. Removing it from the base before the 2.0 cut would break
-the maintained V1 package contract.
+maintenance transition because the stable V1 contract freezes the optional-extra
+names and clean-wheel qualification still executes historical HTTP jobs.
+
+LOT-13 therefore isolates HTTPX **architecturally** inside the provider adapter,
+but does not alter the governed V1 packaging surface. Moving HTTPX behind a
+dedicated V2 extra is deferred to the 2.0 package cut.
 
 ## Compatibility
 
