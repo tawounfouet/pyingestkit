@@ -67,24 +67,15 @@ class MigrationReport:
 
     @property
     def lossy_count(self) -> int:
-        return sum(
-            item.disposition is MigrationDisposition.LOSSY
-            for item in self.issues
-        )
+        return sum(item.disposition is MigrationDisposition.LOSSY for item in self.issues)
 
     @property
     def manual_count(self) -> int:
-        return sum(
-            item.disposition is MigrationDisposition.MANUAL
-            for item in self.issues
-        )
+        return sum(item.disposition is MigrationDisposition.MANUAL for item in self.issues)
 
     @property
     def unsupported_count(self) -> int:
-        return sum(
-            item.disposition is MigrationDisposition.UNSUPPORTED
-            for item in self.issues
-        )
+        return sum(item.disposition is MigrationDisposition.UNSUPPORTED for item in self.issues)
 
     @property
     def safe_to_apply(self) -> bool:
