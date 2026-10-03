@@ -34,9 +34,7 @@ def _put_version(
     source = workspace / f"{name}.csv"
     source.write_text(f"id,value\n1,{value}\n", encoding="utf-8")
     run_id = IngestionRunId.new()
-    version = FileCsvDatasetVersionMaterializerV2(
-        allowed_roots=(workspace,)
-    ).materialize(
+    version = FileCsvDatasetVersionMaterializerV2(allowed_roots=(workspace,)).materialize(
         ResourceDatasetVersionRequestV2(
             dataset_id=_DATASET_ID,
             resource=ResourceReference(
