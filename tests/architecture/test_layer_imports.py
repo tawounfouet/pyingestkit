@@ -55,8 +55,7 @@ def test_ports_do_not_depend_on_adapters_or_runtime() -> None:
     )
 
 
-def test_new_v2_runtime_provider_rule_is_reserved_during_transition() -> None:
-    # The V1 runtime package still exists on the migration branch. This test
-    # prevents new V2 layers from depending on providers until LOT-12 replaces
-    # the legacy Runner surface.
+def test_v2_application_provider_neutrality_is_permanent_after_lot12() -> None:
+    # LOT-12 closes the runtime cutover: provider-specific behavior belongs to
+    # adapters, not application/runtime composition.
     _assert_no_imports("application", PROVIDER_MODULES)
