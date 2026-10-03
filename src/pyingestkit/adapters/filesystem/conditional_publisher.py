@@ -91,8 +91,7 @@ class FileConditionalDatasetPublisher(ConditionalDatasetPublisher):
     ) -> ConditionalPublicationOutcome:
         if not isinstance(intent, PublicationIntent):
             raise TypeError(
-                "FileConditionalDatasetPublisher.compare_and_publish requires "
-                "PublicationIntent."
+                "FileConditionalDatasetPublisher.compare_and_publish requires PublicationIntent."
             )
         self._ensure_registered(intent)
 
@@ -109,9 +108,7 @@ class FileConditionalDatasetPublisher(ConditionalDatasetPublisher):
                 code="governance.filesystem.lock_timeout",
                 category=FailureCategory.TIMEOUT,
                 retryability=Retryability.RETRYABLE,
-                summary=(
-                    "Filesystem publication lock could not be acquired before timeout."
-                ),
+                summary=("Filesystem publication lock could not be acquired before timeout."),
             )
 
     def reconcile(
@@ -120,9 +117,7 @@ class FileConditionalDatasetPublisher(ConditionalDatasetPublisher):
     ) -> ConditionalPublicationOutcome:
         """Reconcile provider truth for an uncertain operation without republishing."""
         if not isinstance(intent, PublicationIntent):
-            raise TypeError(
-                "FileConditionalDatasetPublisher.reconcile requires PublicationIntent."
-            )
+            raise TypeError("FileConditionalDatasetPublisher.reconcile requires PublicationIntent.")
         existing = self._ledger.get_operation(intent.operation_id)
         if existing is None:
             raise KeyError(str(intent.operation_id))
@@ -157,8 +152,7 @@ class FileConditionalDatasetPublisher(ConditionalDatasetPublisher):
                 category=FailureCategory.SIDE_EFFECT_FAILED,
                 retryability=Retryability.NON_RETRYABLE,
                 summary=(
-                    "Reconciliation confirmed that the conditional publication "
-                    "was not committed."
+                    "Reconciliation confirmed that the conditional publication was not committed."
                 ),
                 snapshot=snapshot,
             )
@@ -236,8 +230,7 @@ class FileConditionalDatasetPublisher(ConditionalDatasetPublisher):
                 category=FailureCategory.INTEGRITY,
                 retryability=Retryability.NON_RETRYABLE,
                 summary=(
-                    "Target dataset version cannot be safely published: "
-                    f"{type(exc).__name__}."
+                    f"Target dataset version cannot be safely published: {type(exc).__name__}."
                 ),
                 snapshot=current,
             )
@@ -252,9 +245,7 @@ class FileConditionalDatasetPublisher(ConditionalDatasetPublisher):
         )
         pointer = self._current_path(intent.dataset_id)
         pointer.parent.mkdir(parents=True, exist_ok=True)
-        temporary = pointer.with_name(
-            f".{pointer.name}.governed-{uuid4().hex}.tmp"
-        )
+        temporary = pointer.with_name(f".{pointer.name}.governed-{uuid4().hex}.tmp")
         payload = {
             "publication_schema": "1",
             "dataset_id": stored.dataset_id,
@@ -290,8 +281,7 @@ class FileConditionalDatasetPublisher(ConditionalDatasetPublisher):
                     retryability=Retryability.RETRYABLE_AFTER_RECONCILIATION,
                     uncertainty=OutcomeUncertainty.REQUIRES_RECONCILIATION,
                     summary=(
-                        "Filesystem pointer may have been replaced; "
-                        "reconciliation is required."
+                        "Filesystem pointer may have been replaced; reconciliation is required."
                     ),
                 )
             return self._failure_outcome(
@@ -332,10 +322,7 @@ class FileConditionalDatasetPublisher(ConditionalDatasetPublisher):
                 category=FailureCategory.UNKNOWN_OUTCOME,
                 retryability=Retryability.RETRYABLE_AFTER_RECONCILIATION,
                 uncertainty=OutcomeUncertainty.REQUIRES_RECONCILIATION,
-                summary=(
-                    "Pointer commit succeeded but durable outcome evidence "
-                    "is uncertain."
-                ),
+                summary=("Pointer commit succeeded but durable outcome evidence is uncertain."),
             )
 
         return ConditionalPublicationOutcome(
@@ -457,9 +444,7 @@ class FileConditionalDatasetPublisher(ConditionalDatasetPublisher):
     ) -> tuple[PublicationSnapshot, dict[str, object]]:
         pointer = self._current_path(dataset_id)
         if pointer.is_symlink():
-            raise ValueError(
-                "Published dataset pointer must be a regular non-symlink file."
-            )
+            raise ValueError("Published dataset pointer must be a regular non-symlink file.")
         if not pointer.exists():
             return (
                 PublicationSnapshot(
@@ -477,9 +462,7 @@ class FileConditionalDatasetPublisher(ConditionalDatasetPublisher):
             raw = pointer.read_bytes()
             payload = json.loads(raw)
         except (OSError, json.JSONDecodeError) as exc:
-            raise ValueError(
-                "Unable to inspect published dataset pointer."
-            ) from exc
+            raise ValueError("Unable to inspect published dataset pointer.") from exc
         if not isinstance(payload, dict):
             raise ValueError("Published dataset pointer must be a JSON object.")
         if payload.get("dataset_id") != dataset_id:
@@ -490,9 +473,7 @@ class FileConditionalDatasetPublisher(ConditionalDatasetPublisher):
             dataset_id=dataset_id,
             version=reference,
             published_at=datetime.fromisoformat(str(payload["published_at"])),
-            published_from_run_id=IngestionRunId.parse(
-                str(payload["published_from_run_id"])
-            ),
+            published_from_run_id=IngestionRunId.parse(str(payload["published_from_run_id"])),
         )
         revision_raw = payload.get(_GOVERNANCE_REVISION)
         revision = (
@@ -525,8 +506,7 @@ class FileConditionalDatasetPublisher(ConditionalDatasetPublisher):
             published is not None
             and published.version.identity == intent.dataset_version.identity
             and metadata.get(_GOVERNANCE_OPERATION_ID) == str(intent.operation_id)
-            and metadata.get(_GOVERNANCE_INTENT_FINGERPRINT)
-            == intent.intent_fingerprint
+            and metadata.get(_GOVERNANCE_INTENT_FINGERPRINT) == intent.intent_fingerprint
         )
 
     def _is_unresolved(self, intent: PublicationIntent) -> bool:
@@ -536,12 +516,7 @@ class FileConditionalDatasetPublisher(ConditionalDatasetPublisher):
         )
 
     def _current_path(self, dataset_id: str) -> Path:
-        return (
-            self._store.root
-            / "published"
-            / Path(*_dataset_parts(dataset_id))
-            / "current.json"
-        )
+        return self._store.root / "published" / Path(*_dataset_parts(dataset_id)) / "current.json"
 
     def _lock_path(self, dataset_id: str) -> Path:
         pointer = self._current_path(dataset_id)
@@ -557,14 +532,8 @@ class FileConditionalDatasetPublisher(ConditionalDatasetPublisher):
 
     def _now(self) -> datetime:
         value = self._clock()
-        if (
-            not isinstance(value, datetime)
-            or value.tzinfo is None
-            or value.utcoffset() is None
-        ):
-            raise ValueError(
-                "FileConditionalDatasetPublisher clock must return aware datetime."
-            )
+        if not isinstance(value, datetime) or value.tzinfo is None or value.utcoffset() is None:
+            raise ValueError("FileConditionalDatasetPublisher clock must return aware datetime.")
         return value
 
 
