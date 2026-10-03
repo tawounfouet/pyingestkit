@@ -32,6 +32,4 @@ def test_lot15_boto3_is_lazy_and_confined_to_object_client_factory() -> None:
 
 def test_lot15_s3_stores_are_v2_adapter_types() -> None:
     assert S3ArtifactStoreV2.__module__ == "pyingestkit.adapters.s3.artifact_store"
-    assert S3DatasetVersionStoreV2.__module__ == (
-        "pyingestkit.adapters.s3.dataset_version_store"
-    )
+    assert S3DatasetVersionStoreV2.__module__ == ("pyingestkit.adapters.s3.dataset_version_store")
