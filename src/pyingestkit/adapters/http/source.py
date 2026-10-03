@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import importlib.util
+import math
 import time
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
@@ -451,7 +452,7 @@ class HttpSourceConnector:
                 if parsed >= 0:
                     retry_cap: float = self._policy.max_retry_after_seconds
                     return parsed if parsed <= retry_cap else retry_cap
-        return float(self._policy.retry_backoff_seconds) * (2 ** (attempt - 1))
+        return math.ldexp(float(self._policy.retry_backoff_seconds), attempt - 1)
 
     def _validate_url(
         self,
