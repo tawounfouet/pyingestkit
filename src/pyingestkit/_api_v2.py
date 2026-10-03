@@ -4,9 +4,10 @@ LOT-00 recorded the target contract. LOT-01 added portable boundary values.
 LOT-02 added Source/IngestionDefinition. LOT-03 added acquisition, LOT-04
 added durable RAW/ArtifactStore, LOT-05 added dependency-neutral CSV/JSON(L)
 decoding, LOT-06 added bounded validation/quality evidence, LOT-07 added
-immutable content-addressed DatasetVersion semantics, and LOT-08 adds durable
-version storage plus atomic publication while the V1 package keeps its exact
-star-import contract until the 2.0 alpha cut.
+immutable content-addressed DatasetVersion semantics, LOT-08 added durable
+version storage plus atomic publication, and LOT-09 adds portable ingestion
+run/result lifecycle evidence while the V1 package keeps its exact star-import
+contract until the 2.0 alpha cut.
 """
 
 from __future__ import annotations
@@ -141,6 +142,11 @@ V2_IMPLEMENTED_VERSION_STORE_VALUES: tuple[str, ...] = (
     "PublishedDataset",
 )
 
+V2_IMPLEMENTED_RUNTIME_VALUES: tuple[str, ...] = (
+    "IngestionResult",
+    "IngestionRun",
+)
+
 V2_COMPLETED_LOTS: tuple[str, ...] = (
     "LOT-00",
     "LOT-01",
@@ -151,6 +157,7 @@ V2_COMPLETED_LOTS: tuple[str, ...] = (
     "LOT-06",
     "LOT-07",
     "LOT-08",
+    "LOT-09",
 )
 
 V2_MILESTONE_CANDIDATE = "2.0.0a1"
@@ -195,4 +202,4 @@ V2_PUBLIC_NAMESPACE_BASELINE: tuple[str, ...] = (
     "pyingestkit.quality",
 )
 
-V2_API_PHASE = "LOT-08_VERSION_STORE_PUBLICATION"
+V2_API_PHASE = "LOT-09_INGESTION_RUN_LIFECYCLE"
