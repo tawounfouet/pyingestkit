@@ -63,6 +63,7 @@ class DatasetVersionReference:
     content_fingerprint: str | None = None
     artifact_reference: ArtifactReference | None = None
     locator: ResourceReference | None = None
+    metadata: tuple[tuple[str, str], ...] = ()
     owner: str = "pyingestkit"
     namespace: str = "pyingestkit.dataset_version"
     contract_version: str = "1"
@@ -88,6 +89,7 @@ class DatasetVersionReference:
             )
         if self.locator is not None and not isinstance(self.locator, ResourceReference):
             raise TypeError("DatasetVersionReference locator must be a ResourceReference.")
+        validate_metadata(self.metadata, name="DatasetVersionReference metadata")
         validate_owner(self.owner)
         require_non_blank(self.namespace, "DatasetVersionReference namespace")
         validate_contract_version(self.contract_version)
