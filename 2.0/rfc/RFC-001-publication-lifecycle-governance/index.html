@@ -1,0 +1,4563 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Reliable, traceable batch ingestion for Python.">
+      
+      
+      
+        <link rel="canonical" href="https://tawounfouet.github.io/pyingestkit/2.0/rfc/RFC-001-publication-lifecycle-governance/">
+      
+      
+        <link rel="prev" href="../">
+      
+      
+        <link rel="next" href="../../architecture/overview/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>RFC-001 — Publication & Lifecycle Governance - PyIngestKit</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#rfc-001-publication-lifecycle-governance" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="PyIngestKit" class="md-header__button md-logo" aria-label="PyIngestKit" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PyIngestKit
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              RFC-001 — Publication & Lifecycle Governance
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tawounfouet/pyingestkit" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tawounfouet/pyingestkit
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../releases/v2.0.0/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  PyIngestKit 2.0
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Post-2.0 RFCs
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../architecture/overview/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../guides/v1-quickstart/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Historical V1.x
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../adr/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Decisions
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="PyIngestKit" class="md-nav__button md-logo" aria-label="PyIngestKit" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    PyIngestKit
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tawounfouet/pyingestkit" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tawounfouet/pyingestkit
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation 2.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quickstart 2.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/migrate-v1-to-v2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migrate V1 to V2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PyIngestKit 2.0
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    PyIngestKit 2.0
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releases/v2.0.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stable release 2.0.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/provider-compatibility-v2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Provider compatibility matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releases/v2.0.0-qualification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stable qualification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releases/v2.0.0-evidence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Qualification evidence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roadmap/post-2.0-scope-review/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Post-2.0 scope review
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Post-2.0 RFCs
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Post-2.0 RFCs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RFC-001 — Publication & Lifecycle Governance
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RFC-001 — Publication & Lifecycle Governance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Context
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-existing-20-invariants" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Existing 2.0 invariants
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-compatibility-constraint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Compatibility constraint
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-goals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Goals
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-non-goals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Non-goals
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-proposed-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Proposed architecture
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Proposed architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-publication-ledger" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 Publication ledger
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-conditional-publication-capability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 Conditional publication capability
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-retention-planner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 Retention planner
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64-garbage-collection-capability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.4 Garbage-collection capability
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-lifecycle-evidence-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Lifecycle evidence model
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-publication-operation-identity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Publication operation identity
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-compare-and-swap-semantics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Compare-and-swap semantics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Compare-and-swap semantics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91-why-version-id-alone-is-insufficient" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.1 Why version ID alone is insufficient
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#92-publication-snapshot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.2 Publication snapshot
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#93-cas-rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.3 CAS rule
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#94-initial-publication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.4 Initial publication
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-provider-implementation-semantics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Provider implementation semantics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. Provider implementation semantics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#101-filesystem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.1 Filesystem
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#102-s3-compatible-object-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.2 S3-compatible object storage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#103-sql-backed-pointer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.3 SQL-backed pointer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#104-distributed-locks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.4 Distributed locks
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-publication-state-machine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Publication state machine
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-no-distributed-transaction-requirement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. No distributed transaction requirement
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-relationship-with-current-outcome-uncertainty" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. Relationship with current outcome uncertainty
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14-durable-sql-lifecycle-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14. Durable SQL lifecycle metadata
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#15-retention-policy-semantics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15. Retention policy semantics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#16-gc-safety-invariants" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16. GC safety invariants
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#17-two-phase-garbage-collection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        17. Two-phase garbage collection
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="17. Two-phase garbage collection">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-a-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase A — plan
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-b-execute" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase B — execute
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#18-deletion-outcome-uncertainty" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        18. Deletion outcome uncertainty
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#19-governed-rollback" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        19. Governed rollback
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#20-replay-interaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        20. Replay interaction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#21-failure-taxonomy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        21. Failure taxonomy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#22-security-and-evidence-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        22. Security and evidence policy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#23-observability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        23. Observability
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#24-provider-conformance-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        24. Provider conformance requirements
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="24. Provider conformance requirements">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#publication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Publication
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filesystem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filesystem
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#s3-compatible" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        S3-compatible
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sql" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SQL
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#25-retentiongc-conformance-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        25. Retention/GC conformance requirements
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#26-rollback-conformance-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        26. Rollback conformance requirements
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#27-compatibility-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        27. Compatibility strategy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#28-candidate-implementation-sequence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        28. Candidate implementation sequence
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="28. Candidate implementation sequence">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#slice-a-domain-and-ports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Slice A — domain and ports
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#slice-b-durable-ledger" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Slice B — durable ledger
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#slice-c-conditional-filesystem-publication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Slice C — conditional filesystem publication
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#slice-d-conditional-s3-publication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Slice D — conditional S3 publication
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#slice-e-retention-and-gc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Slice E — retention and GC
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#slice-f-rollback" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Slice F — rollback
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#slice-g-full-conformance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Slice G — full conformance
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#29-acceptance-criteria-for-this-rfc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        29. Acceptance criteria for this RFC
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#30-open-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        30. Open questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#31-decision-requested" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        31. Decision requested
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/v2-lot00-baseline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    V2 baseline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/v2-lot10-ingestion-runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ingestion runtime
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/v2-lot11-strict-replay/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Strict replay
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/v2-lot13-http-acquisition/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HTTP acquisition
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/v2-lot14-postgres-target/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PostgreSQL target
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/v2-lot15-s3-object-storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    S3 object storage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/v2-lot16-canonical-serialization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Canonical serialization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/v2-lot17-pytransformkit-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PyTransformKit integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/v2-lot18-v1-semantic-migration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    V1 semantic migration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/v2-lot19-provider-port-conformance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Provider / port conformance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/v2-lot20-customer360-beta-gate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Customer 360 beta gate
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical V1.x
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Historical V1.x
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/v1-quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    V1 Quickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_2" id="__nav_6_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authoring
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Authoring
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/write-a-job-with-decorators/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decorator jobs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/write-a-job-imperative/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Imperative jobs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/package-a-job-plugin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Package a job plugin
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_3" id="__nav_6_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Operations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/v1-production-pilot/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Production-like PostgreSQL + S3 pilot
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/configure-postgres-metadata/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PostgreSQL metadata
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/configure-object-storage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    S3-compatible object storage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/configure-cloudflare-r2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cloudflare R2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/inspect-run-history/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run history
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/dataset-diff/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dataset diff
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/dataset-versioning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dataset versioning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/replay/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Replay
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_4" id="__nav_6_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/public-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    V1 public API contract
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/stable-contract-v1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stable 1.x contract
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/compatibility-v1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Compatibility contract
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/stability-v1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Operational stability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pilots-v1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Representative pilots
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/product-scope-v1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    V1 product scope
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_5" id="__nav_6_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Releases and migration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Releases and migration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releases/v1.0.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    V1.0.0 release
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/migrate-v0.6-to-v1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Migrate V0.6 to V1
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../adr/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decisions
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Decisions
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Context
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-existing-20-invariants" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Existing 2.0 invariants
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-compatibility-constraint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Compatibility constraint
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-goals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Goals
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-non-goals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Non-goals
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-proposed-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Proposed architecture
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Proposed architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-publication-ledger" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 Publication ledger
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-conditional-publication-capability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 Conditional publication capability
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-retention-planner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 Retention planner
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64-garbage-collection-capability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.4 Garbage-collection capability
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-lifecycle-evidence-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Lifecycle evidence model
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-publication-operation-identity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Publication operation identity
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-compare-and-swap-semantics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Compare-and-swap semantics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Compare-and-swap semantics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91-why-version-id-alone-is-insufficient" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.1 Why version ID alone is insufficient
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#92-publication-snapshot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.2 Publication snapshot
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#93-cas-rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.3 CAS rule
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#94-initial-publication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.4 Initial publication
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-provider-implementation-semantics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Provider implementation semantics
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. Provider implementation semantics">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#101-filesystem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.1 Filesystem
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#102-s3-compatible-object-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.2 S3-compatible object storage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#103-sql-backed-pointer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.3 SQL-backed pointer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#104-distributed-locks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.4 Distributed locks
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-publication-state-machine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Publication state machine
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-no-distributed-transaction-requirement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. No distributed transaction requirement
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-relationship-with-current-outcome-uncertainty" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. Relationship with current outcome uncertainty
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14-durable-sql-lifecycle-metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14. Durable SQL lifecycle metadata
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#15-retention-policy-semantics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15. Retention policy semantics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#16-gc-safety-invariants" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16. GC safety invariants
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#17-two-phase-garbage-collection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        17. Two-phase garbage collection
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="17. Two-phase garbage collection">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-a-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase A — plan
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-b-execute" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase B — execute
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#18-deletion-outcome-uncertainty" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        18. Deletion outcome uncertainty
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#19-governed-rollback" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        19. Governed rollback
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#20-replay-interaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        20. Replay interaction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#21-failure-taxonomy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        21. Failure taxonomy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#22-security-and-evidence-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        22. Security and evidence policy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#23-observability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        23. Observability
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#24-provider-conformance-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        24. Provider conformance requirements
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="24. Provider conformance requirements">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#publication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Publication
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filesystem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filesystem
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#s3-compatible" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        S3-compatible
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sql" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SQL
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#25-retentiongc-conformance-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        25. Retention/GC conformance requirements
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#26-rollback-conformance-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        26. Rollback conformance requirements
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#27-compatibility-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        27. Compatibility strategy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#28-candidate-implementation-sequence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        28. Candidate implementation sequence
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="28. Candidate implementation sequence">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#slice-a-domain-and-ports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Slice A — domain and ports
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#slice-b-durable-ledger" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Slice B — durable ledger
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#slice-c-conditional-filesystem-publication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Slice C — conditional filesystem publication
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#slice-d-conditional-s3-publication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Slice D — conditional S3 publication
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#slice-e-retention-and-gc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Slice E — retention and GC
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#slice-f-rollback" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Slice F — rollback
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#slice-g-full-conformance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Slice G — full conformance
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#29-acceptance-criteria-for-this-rfc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        29. Acceptance criteria for this RFC
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#30-open-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        30. Open questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#31-decision-requested" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        31. Decision requested
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/tawounfouet/pyingestkit/edit/main/docs/rfc/RFC-001-publication-lifecycle-governance.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="rfc-001-publication-lifecycle-governance">RFC-001 — Publication &amp; Lifecycle Governance</h1>
+<p><strong>Status:</strong> Proposed<br />
+<strong>Date:</strong> 2026-10-03<br />
+<strong>Stable compatibility baseline:</strong> PyIngestKit 2.0.0<br />
+<strong>Baseline tag:</strong> <code>v2.0.0</code><br />
+<strong>Qualified stable commit:</strong> <code>449ec4c7a92b7a946d63e167e20f3dab1bd5d21c</code><br />
+<strong>Post-2.0 scope baseline:</strong> <code>bc5a14e8abde4d057d71ce196dae4aca9ae08887</code></p>
+<blockquote>
+<p>This RFC is an architecture proposal, not a roadmap milestone. It does not
+create LOT-23, does not assign a 2.x release number and does not modify the
+frozen 2.0 contracts.</p>
+</blockquote>
+<hr />
+<h2 id="1-context">1. Context</h2>
+<p>PyIngestKit 2.0 already provides the core publication foundations:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>DatasetVersionStore
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>        |
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        +--&gt; immutable DatasetVersion history
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>        |
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>        v
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>DatasetPublisher
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>        |
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        +--&gt; publish(...)
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        +--&gt; get_published(...)
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>        |
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>        v
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>PublishedDataset
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>        |
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>        v
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>current publication pointer
+</code></pre></div>
+<p>LOT-08 established the separation between immutable version persistence and
+publication. LOT-15 extended the same model to S3-compatible object storage.
+The stable 2.0 publication service also models provider outcome uncertainty and
+requires reconciliation before an uncertain publication can be treated as
+committed or retried.</p>
+<p>The post-2.0 scope review identified five still-open lifecycle concerns:</p>
+<ul>
+<li>durable V2 lifecycle metadata;</li>
+<li>compare-and-swap publication;</li>
+<li>distributed publication coordination;</li>
+<li>retention and garbage collection;</li>
+<li>governed rollback.</li>
+</ul>
+<p>These concerns are cohesive because they all answer one production question:</p>
+<blockquote>
+<p>How can PyIngestKit safely govern a long-lived dataset publication lifecycle
+when several processes, hosts or operators may act on the same immutable
+version history?</p>
+</blockquote>
+<hr />
+<h2 id="2-existing-20-invariants">2. Existing 2.0 invariants</h2>
+<p>This RFC MUST preserve the following stable invariants.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>physical write != governed publication
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>DatasetVersion = immutable
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>PublishedDataset = explicit current pointer
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>Replay != live reacquisition
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>UNKNOWN_OUTCOME = reconciliation required
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>ArtifactStore != DatasetVersionStore
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>DatasetVersionStore != target materialization
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>PyIngestKit != orchestrator
+</code></pre></div>
+<p>A version may exist without being published.</p>
+<p>Publishing does not mutate the immutable DatasetVersion.</p>
+<p>Replay does not implicitly republish.</p>
+<p>Provider side effects with uncertain outcomes are never blindly retried.</p>
+<hr />
+<h2 id="3-compatibility-constraint">3. Compatibility constraint</h2>
+<p>The 2.0 <code>DatasetPublisher</code> Protocol is frozen:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">DatasetPublisher</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">publish</span><span class="p">(</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>        <span class="bp">self</span><span class="p">,</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>        <span class="n">reference</span><span class="p">:</span> <span class="n">DatasetVersionReference</span><span class="p">,</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>        <span class="o">*</span><span class="p">,</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>        <span class="n">ingestion_run_id</span><span class="p">:</span> <span class="n">IngestionRunId</span><span class="p">,</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>        <span class="n">published_at</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PublishedDataset</span><span class="p">:</span> <span class="o">...</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_published</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PublishedDataset</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
+</code></pre></div>
+<p>This RFC therefore MUST NOT add CAS tokens, locks, operation IDs or lifecycle
+arguments to those methods.</p>
+<p>The existing <code>PublishedDataset</code> root type also remains unchanged.</p>
+<p>Any future implementation of this RFC must be additive:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>2.0 stable contracts
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>        |
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>        +--&gt; remain valid and unchanged
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>        |
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>        v
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>new governance contracts
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>        |
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>        +--&gt; optional capability ports
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>        +--&gt; new governance service
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>        +--&gt; new durable lifecycle evidence
+</code></pre></div>
+<p>Existing 2.0 applications that only use <code>DatasetPublisher</code> must continue to
+work without adopting lifecycle governance.</p>
+<hr />
+<h2 id="4-goals">4. Goals</h2>
+<p>The proposal aims to provide:</p>
+<ol>
+<li>safe concurrent publication;</li>
+<li>durable publication intent and outcome evidence;</li>
+<li>compare-and-swap semantics over the authoritative current pointer;</li>
+<li>deterministic conflict detection;</li>
+<li>reconciliation after uncertain provider outcomes;</li>
+<li>retention planning over immutable version history;</li>
+<li>guarded garbage collection with durable deletion evidence;</li>
+<li>explicit rollback to a historical immutable version;</li>
+<li>provider-equivalent behavior across filesystem, S3-compatible and SQL-backed
+   implementations;</li>
+<li>a provider-neutral model that does not require distributed orchestration.</li>
+</ol>
+<hr />
+<h2 id="5-non-goals">5. Non-goals</h2>
+<p>This RFC does not introduce:</p>
+<ul>
+<li>a scheduler;</li>
+<li>a worker queue;</li>
+<li>a generic workflow/DAG engine;</li>
+<li>automatic source reacquisition;</li>
+<li>bucket lifecycle administration;</li>
+<li>S3 replication configuration;</li>
+<li>IAM/KMS orchestration;</li>
+<li>database schema migration as a general platform capability;</li>
+<li>organization-wide approval workflows;</li>
+<li>a GUI/control plane;</li>
+<li>automatic deletion through cloud-provider lifecycle rules;</li>
+<li>V1 Job/Pipeline/Step compatibility aliases.</li>
+</ul>
+<p>Retention and GC are PyIngestKit dataset-lifecycle semantics, not cloud
+infrastructure provisioning.</p>
+<hr />
+<h2 id="6-proposed-architecture">6. Proposed architecture</h2>
+<p>The proposal introduces four logical responsibilities around the existing
+stable contracts.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>                 immutable DatasetVersion
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>                          |
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>                          v
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>                 DatasetVersionStore
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>                          |
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>                          v
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>                Governance Service
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>             /          |           \
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>            /           |            \
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>           v            v             v
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a> Publication Ledger   CAS Publisher   Retention Planner
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>           |            |             |
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>           |            v             v
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>           |       current pointer   GC Plan
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>           |                          |
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>           +--------------------------+
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>                          |
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>                          v
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>                    lifecycle evidence
+</code></pre></div>
+<p>The exact Python names are provisional until this RFC is accepted.</p>
+<h3 id="61-publication-ledger">6.1 Publication ledger</h3>
+<p>A new provider-neutral ledger records append-only lifecycle evidence.</p>
+<p>Candidate responsibility:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>PublicationLedger
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>  append(event)
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>  get_operation(operation_id)
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>  list_operations(dataset_id, ...)
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>  list_unresolved(dataset_id)
+</code></pre></div>
+<p>The ledger is NOT the authoritative current publication pointer.</p>
+<p>Its purpose is durable intent, outcome, reconciliation and audit evidence.</p>
+<h3 id="62-conditional-publication-capability">6.2 Conditional publication capability</h3>
+<p>A new additive capability port provides compare-and-swap publication.</p>
+<p>Candidate responsibility:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>ConditionalDatasetPublisher
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>  inspect(dataset_id) -&gt; PublicationSnapshot
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>  compare_and_publish(
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>      reference,
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>      expected_revision,
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>      operation_id,
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>      ingestion_run_id,
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>      published_at,
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>  ) -&gt; ConditionalPublicationOutcome
+</code></pre></div>
+<p>An adapter may implement both the frozen <code>DatasetPublisher</code> and the new
+conditional capability.</p>
+<p>The old Protocol remains untouched.</p>
+<h3 id="63-retention-planner">6.3 Retention planner</h3>
+<p>Retention selection is pure policy evaluation.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>version inventory
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    +
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>published pointer
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    +
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>holds / unresolved operations
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>    +
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>retention policy
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>        |
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>        v
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>GarbageCollectionPlan
+</code></pre></div>
+<p>Planning performs no deletion.</p>
+<h3 id="64-garbage-collection-capability">6.4 Garbage-collection capability</h3>
+<p>Deletion requires a separate optional port because the stable
+<code>DatasetVersionStore</code> intentionally has no delete method.</p>
+<p>Candidate responsibility:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>DatasetVersionGarbageCollector
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>  delete(reference, expected_evidence) -&gt; DeletionEvidence
+</code></pre></div>
+<p>This prevents lifecycle deletion semantics from being retrofitted onto the
+frozen <code>DatasetVersionStore</code> Protocol.</p>
+<hr />
+<h2 id="7-lifecycle-evidence-model">7. Lifecycle evidence model</h2>
+<p>The durable evidence model should be append-only.</p>
+<p>Candidate event families:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>VERSION_OBSERVED
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>PUBLICATION_REQUESTED
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>PUBLICATION_COMMITTED
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>PUBLICATION_CONFLICT
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>PUBLICATION_OUTCOME_UNKNOWN
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>PUBLICATION_RECONCILED_COMMITTED
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>PUBLICATION_RECONCILED_NOT_COMMITTED
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>PUBLICATION_RECONCILED_CONFLICT
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>ROLLBACK_REQUESTED
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>ROLLBACK_COMMITTED
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>RETENTION_PLAN_CREATED
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>GC_DELETE_REQUESTED
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>GC_DELETE_COMMITTED
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>GC_DELETE_FAILED
+</code></pre></div>
+<p>Each event should carry only portable, non-secret evidence such as:</p>
+<ul>
+<li>event identifier;</li>
+<li>schema version;</li>
+<li>dataset identifier;</li>
+<li>optional dataset-version identity;</li>
+<li>optional publication operation identifier;</li>
+<li>ingestion run identifier where applicable;</li>
+<li>correlation identifier;</li>
+<li>timezone-aware occurrence timestamp;</li>
+<li>event type;</li>
+<li>provider operation reference when safe to persist;</li>
+<li>prior/next publication revision where applicable;</li>
+<li>failure category / uncertainty evidence where applicable.</li>
+</ul>
+<p>Credentials, bearer tokens, connection strings and provider client objects are
+forbidden.</p>
+<hr />
+<h2 id="8-publication-operation-identity">8. Publication operation identity</h2>
+<p>Every governed publication attempt requires a stable operation identifier.</p>
+<p>The operation identifier provides idempotency across process restarts:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>same operation_id + same intent
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    -&gt; return/reconcile same semantic operation
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>same operation_id + different intent
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>    -&gt; fail closed
+</code></pre></div>
+<p>The identifier is distinct from:</p>
+<ul>
+<li><code>IngestionRunId</code>;</li>
+<li>dataset version ID;</li>
+<li>provider request ID;</li>
+<li>correlation ID.</li>
+</ul>
+<p>One ingestion run may produce more than one explicit publication action over
+time, and one publication may need reconciliation after the originating process
+has terminated.</p>
+<hr />
+<h2 id="9-compare-and-swap-semantics">9. Compare-and-swap semantics</h2>
+<h3 id="91-why-version-id-alone-is-insufficient">9.1 Why version ID alone is insufficient</h3>
+<p>A comparison based only on the current version ID is vulnerable to ABA:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>A -&gt; B -&gt; A
+</code></pre></div>
+<p>A stale actor that only observed version A cannot distinguish the original A
+publication from a later return to A.</p>
+<p>The governance layer therefore needs an opaque publication revision.</p>
+<h3 id="92-publication-snapshot">9.2 Publication snapshot</h3>
+<p>A conditional read returns conceptually:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>PublicationSnapshot
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>  published_dataset: PublishedDataset | None
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>  revision: opaque PublicationRevision
+</code></pre></div>
+<p>The revision has comparison semantics but no cross-provider physical meaning.</p>
+<p>It must not expose an S3 ETag, SQL transaction ID or filesystem inode as a
+portable framework contract.</p>
+<h3 id="93-cas-rule">9.3 CAS rule</h3>
+<p>A publication succeeds only when the expected revision still matches provider
+truth.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>expected revision == current revision
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>        -&gt; attempt atomic pointer replacement
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>expected revision != current revision
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>        -&gt; CONFLICT
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>        -&gt; no publication side effect
+</code></pre></div>
+<p>Exactly one concurrent writer may win from the same expected revision.</p>
+<h3 id="94-initial-publication">9.4 Initial publication</h3>
+<p>An un-published dataset has an explicit initial revision state. Two concurrent
+first publishers using that same initial state must still produce one winner
+and one conflict.</p>
+<hr />
+<h2 id="10-provider-implementation-semantics">10. Provider implementation semantics</h2>
+<p>The provider-neutral contract defines observable behavior, not one locking
+mechanism.</p>
+<h3 id="101-filesystem">10.1 Filesystem</h3>
+<p>A filesystem implementation may use an inter-process lock around:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>lock
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>  -&gt; read current revision
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>  -&gt; compare
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>  -&gt; replace current.json atomically
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>  -&gt; release
+</code></pre></div>
+<p>The lock is an adapter mechanism, not a framework-wide public lock API.</p>
+<h3 id="102-s3-compatible-object-storage">10.2 S3-compatible object storage</h3>
+<p>An S3-compatible adapter should use a qualified conditional object-write
+mechanism where the endpoint supports it.</p>
+<p>The provider token used for the conditional request remains internal.</p>
+<p>If the configured S3-compatible endpoint cannot prove atomic conditional
+replacement, the CAS capability MUST NOT be advertised merely because ordinary
+<code>put_replace</code> works.</p>
+<h3 id="103-sql-backed-pointer">10.3 SQL-backed pointer</h3>
+<p>A SQL adapter may use a row revision:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">UPDATE</span><span class="w"> </span><span class="n">publication_state</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="k">SET</span><span class="w"> </span><span class="p">...</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="k">WHERE</span><span class="w"> </span><span class="n">dataset_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">?</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">revision</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">?</span>
+</code></pre></div>
+<p>Zero rows updated means conflict.</p>
+<h3 id="104-distributed-locks">10.4 Distributed locks</h3>
+<p>Distributed locks are not the primary portable correctness contract.</p>
+<p>They may be used internally by an adapter or deployment when a provider lacks a
+native conditional primitive, but:</p>
+<ul>
+<li>lock acquisition failure must be explicit;</li>
+<li>lease expiry or lock ownership uncertainty must never be reported as success;</li>
+<li>loss of a lock after a possible side effect may require reconciliation;</li>
+<li>a lock must not replace durable operation evidence.</li>
+</ul>
+<p>The portable guarantee is conditional publication, not a particular lock
+technology.</p>
+<hr />
+<h2 id="11-publication-state-machine">11. Publication state machine</h2>
+<p>A governed publication follows this conceptual state machine.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>REQUESTED
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>   |
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>   | durable intent
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>   v
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>READY
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>   |
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>   | CAS attempt
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>   +--------------------+
+<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>   |                    |
+<a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a>   v                    v
+<a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a>COMMITTED             CONFLICT
+<a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a>   |
+<a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a>   +------------------------------+
+<a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a>   |
+<a id="__codelineno-16-15" name="__codelineno-16-15" href="#__codelineno-16-15"></a>provider acknowledgement uncertain
+<a id="__codelineno-16-16" name="__codelineno-16-16" href="#__codelineno-16-16"></a>   |
+<a id="__codelineno-16-17" name="__codelineno-16-17" href="#__codelineno-16-17"></a>   v
+<a id="__codelineno-16-18" name="__codelineno-16-18" href="#__codelineno-16-18"></a>UNKNOWN_OUTCOME
+<a id="__codelineno-16-19" name="__codelineno-16-19" href="#__codelineno-16-19"></a>   |
+<a id="__codelineno-16-20" name="__codelineno-16-20" href="#__codelineno-16-20"></a>   | reconcile provider truth
+<a id="__codelineno-16-21" name="__codelineno-16-21" href="#__codelineno-16-21"></a>   +-------------------+-------------------+
+<a id="__codelineno-16-22" name="__codelineno-16-22" href="#__codelineno-16-22"></a>   |                   |                   |
+<a id="__codelineno-16-23" name="__codelineno-16-23" href="#__codelineno-16-23"></a>   v                   v                   v
+<a id="__codelineno-16-24" name="__codelineno-16-24" href="#__codelineno-16-24"></a>CONFIRMED_COMMITTED  NOT_COMMITTED       CONFLICT
+</code></pre></div>
+<p>No automatic publication retry is permitted from <code>UNKNOWN_OUTCOME</code> before
+reconciliation.</p>
+<hr />
+<h2 id="12-no-distributed-transaction-requirement">12. No distributed transaction requirement</h2>
+<p>The proposal deliberately does not require XA/two-phase commit across SQL
+metadata and object storage.</p>
+<p>Instead it uses durable intent plus reconciliation:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>1. append PUBLICATION_REQUESTED
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>2. attempt provider CAS
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>3. append observed outcome
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>crash between 2 and 3
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>    -&gt; operation remains unresolved
+<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>    -&gt; reconciliation inspects provider truth
+<a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>    -&gt; append reconciliation evidence
+</code></pre></div>
+<p>This model remains viable when the pointer lives in S3 and lifecycle evidence
+lives in PostgreSQL.</p>
+<p>The ledger must never fabricate provider success merely because the intent was
+persisted.</p>
+<hr />
+<h2 id="13-relationship-with-current-outcome-uncertainty">13. Relationship with current outcome uncertainty</h2>
+<p>The existing 2.0 publication model already defines:</p>
+<ul>
+<li><code>PublicationStatusV2.UNKNOWN_OUTCOME</code>;</li>
+<li><code>FailureCategory.UNKNOWN_OUTCOME</code>;</li>
+<li><code>OutcomeUncertainty.REQUIRES_RECONCILIATION</code>;</li>
+<li><code>PublicationServiceV2.reconcile(...)</code>.</li>
+</ul>
+<p>The governance design must extend these semantics rather than create a second
+incompatible uncertainty model.</p>
+<p>Future implementation may introduce a new governance service while preserving
+the existing 2.0 service unchanged for compatibility.</p>
+<hr />
+<h2 id="14-durable-sql-lifecycle-metadata">14. Durable SQL lifecycle metadata</h2>
+<p>The first durable metadata target should be PostgreSQL, but the logical port
+must remain provider-neutral.</p>
+<p>A SQL schema is expected to model at least:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>publication_operation
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>  operation_id
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>  dataset_id
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>  requested_version_id
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>  ingestion_run_id
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>  correlation_id
+<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a>  requested_at
+<a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a>  terminal_status / unresolved marker
+<a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a>
+<a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a>publication_event
+<a id="__codelineno-18-11" name="__codelineno-18-11" href="#__codelineno-18-11"></a>  event_id
+<a id="__codelineno-18-12" name="__codelineno-18-12" href="#__codelineno-18-12"></a>  operation_id
+<a id="__codelineno-18-13" name="__codelineno-18-13" href="#__codelineno-18-13"></a>  event_type
+<a id="__codelineno-18-14" name="__codelineno-18-14" href="#__codelineno-18-14"></a>  occurred_at
+<a id="__codelineno-18-15" name="__codelineno-18-15" href="#__codelineno-18-15"></a>  payload_schema
+<a id="__codelineno-18-16" name="__codelineno-18-16" href="#__codelineno-18-16"></a>  portable evidence
+<a id="__codelineno-18-17" name="__codelineno-18-17" href="#__codelineno-18-17"></a>
+<a id="__codelineno-18-18" name="__codelineno-18-18" href="#__codelineno-18-18"></a>version_lifecycle
+<a id="__codelineno-18-19" name="__codelineno-18-19" href="#__codelineno-18-19"></a>  dataset_id
+<a id="__codelineno-18-20" name="__codelineno-18-20" href="#__codelineno-18-20"></a>  version_id
+<a id="__codelineno-18-21" name="__codelineno-18-21" href="#__codelineno-18-21"></a>  optional hold/pin evidence
+<a id="__codelineno-18-22" name="__codelineno-18-22" href="#__codelineno-18-22"></a>  observed_at
+</code></pre></div>
+<p>Physical table names, indexes and SQLAlchemy mappings are adapter internals until
+an explicit persistence contract says otherwise.</p>
+<p>Lifecycle evidence must remain queryable after the original process exits.</p>
+<hr />
+<h2 id="15-retention-policy-semantics">15. Retention policy semantics</h2>
+<p>Retention applies only to immutable dataset versions.</p>
+<p>A policy may select candidates by portable criteria such as:</p>
+<ul>
+<li>minimum number of newest versions to retain;</li>
+<li>minimum age before eligibility;</li>
+<li>explicit hold/pin;</li>
+<li>publication history requirements.</li>
+</ul>
+<p>The first accepted policy model should stay deterministic and explainable.</p>
+<p>Provider-specific storage-class transitions are out of scope.</p>
+<hr />
+<h2 id="16-gc-safety-invariants">16. GC safety invariants</h2>
+<p>A version MUST NOT be deleted when any of these is true:</p>
+<ol>
+<li>it is the currently published version;</li>
+<li>it is protected by an explicit hold/pin;</li>
+<li>it is referenced by an unresolved publication operation;</li>
+<li>it is referenced by a rollback operation that has not reached a terminal
+   state;</li>
+<li>the GC plan was created against stale publication/lifecycle evidence;</li>
+<li>integrity or identity checks cannot be completed.</li>
+</ol>
+<p>Deletion is fail-closed.</p>
+<hr />
+<h2 id="17-two-phase-garbage-collection">17. Two-phase garbage collection</h2>
+<p>Garbage collection is intentionally split into planning and execution.</p>
+<h3 id="phase-a-plan">Phase A — plan</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>inventory + policy + lifecycle state
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>        |
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>        v
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>GarbageCollectionPlan
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>  plan_id
+<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a>  created_at
+<a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a>  dataset_id
+<a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a>  protected versions
+<a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a>  candidate versions
+<a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a>  evidence fingerprint
+</code></pre></div>
+<h3 id="phase-b-execute">Phase B — execute</h3>
+<p>Before each delete, execution revalidates the relevant current state.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>candidate
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>  -&gt; revalidate
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>  -&gt; delete physical immutable version
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>  -&gt; verify absence/provider result
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>  -&gt; append deletion evidence
+</code></pre></div>
+<p>A stale plan is rejected or partially blocked; it is never blindly executed.</p>
+<hr />
+<h2 id="18-deletion-outcome-uncertainty">18. Deletion outcome uncertainty</h2>
+<p>Object deletion can also be uncertain.</p>
+<p>If a provider may have deleted an object but acknowledgement was lost, the
+framework must record uncertainty and reconcile with provider truth.</p>
+<p>The same rule applies:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>UNKNOWN_OUTCOME
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>    -&gt; inspect
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>    -&gt; confirm deleted / confirm present / conflict / still unknown
+</code></pre></div>
+<p>Automatic repeated delete is only safe when the provider's delete semantics are
+proven idempotent for the exact operation.</p>
+<hr />
+<h2 id="19-governed-rollback">19. Governed rollback</h2>
+<p>Rollback does not mutate historical DatasetVersion objects and does not erase
+publication history.</p>
+<p>Rollback means:</p>
+<blockquote>
+<p>explicitly publish a previously created immutable DatasetVersion as the new
+current version, under the same CAS and lifecycle-evidence rules as any other
+governed publication.</p>
+</blockquote>
+<p>Therefore rollback is both:</p>
+<ul>
+<li>pointer movement; and</li>
+<li>a new durable publication event.</li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>current = V5
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>rollback target = V3
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>        |
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a>        v
+<a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a>new publication operation
+<a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a>expected_revision = R12
+<a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a>target = V3
+<a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a>        |
+<a id="__codelineno-22-9" name="__codelineno-22-9" href="#__codelineno-22-9"></a>        v
+<a id="__codelineno-22-10" name="__codelineno-22-10" href="#__codelineno-22-10"></a>current = V3
+<a id="__codelineno-22-11" name="__codelineno-22-11" href="#__codelineno-22-11"></a>revision = R13
+<a id="__codelineno-22-12" name="__codelineno-22-12" href="#__codelineno-22-12"></a>history preserved
+</code></pre></div>
+<p>A rollback to the same content-addressed version later is still a distinct
+publication operation and must receive a new publication revision.</p>
+<hr />
+<h2 id="20-replay-interaction">20. Replay interaction</h2>
+<p>Strict replay continues to default to <code>publish=False</code>.</p>
+<p>This RFC does not make replay publication implicit.</p>
+<p>A future explicit replay-publication feature may call the same governed
+publication capability only after replay has produced/verified the desired
+immutable version.</p>
+<p>This preserves:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>replay success != publication success
+</code></pre></div>
+<hr />
+<h2 id="21-failure-taxonomy">21. Failure taxonomy</h2>
+<p>At minimum, a future implementation must distinguish:</p>
+<table>
+<thead>
+<tr>
+<th>Condition</th>
+<th>Semantic result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>expected revision stale</td>
+<td>conflict</td>
+</tr>
+<tr>
+<td>lock/capability unavailable before side effect</td>
+<td>failed / retryable as explicitly classified</td>
+</tr>
+<tr>
+<td>provider may have committed</td>
+<td>unknown outcome / reconciliation required</td>
+</tr>
+<tr>
+<td>same operation ID, same intent</td>
+<td>idempotent resume/reconcile</td>
+</tr>
+<tr>
+<td>same operation ID, different intent</td>
+<td>fail closed</td>
+</tr>
+<tr>
+<td>current version selected for GC</td>
+<td>protected / rejected</td>
+</tr>
+<tr>
+<td>GC evidence stale</td>
+<td>stale-plan conflict</td>
+</tr>
+<tr>
+<td>provider may have deleted</td>
+<td>unknown deletion outcome</td>
+</tr>
+<tr>
+<td>integrity mismatch</td>
+<td>controlled failure, no publication/GC continuation</td>
+</tr>
+</tbody>
+</table>
+<p>Raw provider exceptions are not the portable public contract.</p>
+<hr />
+<h2 id="22-security-and-evidence-policy">22. Security and evidence policy</h2>
+<p>Lifecycle metadata may contain identifiers and operational references but no
+secrets.</p>
+<p>The implementation must:</p>
+<ul>
+<li>redact credentials and authorization headers;</li>
+<li>avoid persisting DSNs with passwords;</li>
+<li>avoid serializing SDK clients or sessions;</li>
+<li>validate provider locators before destructive actions;</li>
+<li>bind GC deletion to canonical stored references;</li>
+<li>preserve correlation/run IDs for audit;</li>
+<li>use timezone-aware timestamps;</li>
+<li>fail closed on malformed lifecycle records.</li>
+</ul>
+<p>Retention/GC must not accept arbitrary filesystem paths or object keys supplied
+directly by an untrusted caller when a canonical DatasetVersionReference exists.</p>
+<hr />
+<h2 id="23-observability">23. Observability</h2>
+<p>Human-readable logging should preserve PyIngestKit's established terminal
+format and add governance context through existing correlation fields.</p>
+<p>Structured evidence should carry full IDs.</p>
+<p>Recommended event dimensions include:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>dataset_id
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>version_id
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>publication_operation_id
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>publication_revision
+<a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>ingestion_run_id
+<a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a>correlation_id
+<a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a>gc_plan_id
+<a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a>provider kind
+<a id="__codelineno-24-9" name="__codelineno-24-9" href="#__codelineno-24-9"></a>outcome / uncertainty
+</code></pre></div>
+<p>DEBUG-only provider details must remain behind verbose/debug logging.</p>
+<hr />
+<h2 id="24-provider-conformance-requirements">24. Provider conformance requirements</h2>
+<p>A provider claiming governed publication support must pass behavioral
+conformance, not merely structural typing.</p>
+<h3 id="publication">Publication</h3>
+<ul>
+<li>two writers from the same expected revision -&gt; exactly one commit;</li>
+<li>loser observes conflict, not success;</li>
+<li>same operation ID + same intent is idempotent;</li>
+<li>same operation ID + changed intent fails closed;</li>
+<li>stale expected revision never overwrites newer truth;</li>
+<li>an acknowledged success can be read back;</li>
+<li>uncertain acknowledgement requires reconciliation;</li>
+<li>reconciliation never republishes as a side effect.</li>
+</ul>
+<h3 id="filesystem">Filesystem</h3>
+<ul>
+<li>cross-process contention is qualified;</li>
+<li>atomic pointer replacement remains intact;</li>
+<li>crash/temporary-file behavior is safe.</li>
+</ul>
+<h3 id="s3-compatible">S3-compatible</h3>
+<ul>
+<li>cross-host contention is qualified;</li>
+<li>conditional object replacement is proven on the supported endpoint profile;</li>
+<li>unsupported conditional semantics are detected rather than emulated
+  optimistically.</li>
+</ul>
+<h3 id="sql">SQL</h3>
+<ul>
+<li>row-revision CAS is atomic;</li>
+<li>transaction rollback cannot expose partial lifecycle records;</li>
+<li>concurrent updates produce deterministic conflict semantics.</li>
+</ul>
+<hr />
+<h2 id="25-retentiongc-conformance-requirements">25. Retention/GC conformance requirements</h2>
+<ul>
+<li>current published version is never deleted;</li>
+<li>held/pinned version is never deleted;</li>
+<li>unresolved publication reference blocks deletion;</li>
+<li>stale GC plan cannot delete a newly protected version;</li>
+<li>deletion evidence is durable;</li>
+<li>repeated execution of an already completed plan is safe;</li>
+<li>unknown delete outcome is reconcilable;</li>
+<li>integrity mismatch blocks destructive action;</li>
+<li>File and S3 implementations produce equivalent lifecycle semantics.</li>
+</ul>
+<hr />
+<h2 id="26-rollback-conformance-requirements">26. Rollback conformance requirements</h2>
+<ul>
+<li>rollback target must already exist as an immutable DatasetVersion;</li>
+<li>rollback uses CAS against the caller's observed revision;</li>
+<li>concurrent newer publication causes rollback conflict;</li>
+<li>rollback creates new durable operation evidence;</li>
+<li>rollback never rewrites DatasetVersion bytes;</li>
+<li>rollback to a previously published version still creates a new publication
+  revision;</li>
+<li>rollback outcome uncertainty follows the same reconciliation rules as normal
+  publication.</li>
+</ul>
+<hr />
+<h2 id="27-compatibility-strategy">27. Compatibility strategy</h2>
+<p>If accepted, implementation must preserve all of these 2.0 surfaces unchanged:</p>
+<ul>
+<li>the 11-symbol stable package root;</li>
+<li><code>DatasetPublisher</code>;</li>
+<li><code>DatasetVersionStore</code>;</li>
+<li><code>PublishedDataset</code>;</li>
+<li><code>IngestionRuntime.run(...)</code>;</li>
+<li>existing version-1 portable wire contracts.</li>
+</ul>
+<p>New governance APIs should initially live in explicit qualified namespaces and
+be promoted only after conformance and release-contract review.</p>
+<p>No provider may claim governance support merely because it already satisfies
+the 2.0 <code>DatasetPublisher</code> Protocol.</p>
+<hr />
+<h2 id="28-candidate-implementation-sequence">28. Candidate implementation sequence</h2>
+<p>This is a technical decomposition only, not an approved LOT roadmap.</p>
+<h3 id="slice-a-domain-and-ports">Slice A — domain and ports</h3>
+<ul>
+<li>operation identity;</li>
+<li>publication revision/snapshot;</li>
+<li>lifecycle event model;</li>
+<li>publication ledger Protocol;</li>
+<li>conditional publication Protocol;</li>
+<li>GC plan/evidence values;</li>
+<li>garbage-collection Protocol.</li>
+</ul>
+<h3 id="slice-b-durable-ledger">Slice B — durable ledger</h3>
+<ul>
+<li>provider-neutral repository contract;</li>
+<li>PostgreSQL lifecycle metadata adapter;</li>
+<li>atomic append/query tests;</li>
+<li>unresolved-operation recovery.</li>
+</ul>
+<h3 id="slice-c-conditional-filesystem-publication">Slice C — conditional filesystem publication</h3>
+<ul>
+<li>inter-process coordination;</li>
+<li>revision-aware compare-and-publish;</li>
+<li>crash safety;</li>
+<li>concurrency tests.</li>
+</ul>
+<h3 id="slice-d-conditional-s3-publication">Slice D — conditional S3 publication</h3>
+<ul>
+<li>conditional object replacement;</li>
+<li>cross-host races;</li>
+<li>unknown acknowledgement simulation;</li>
+<li>endpoint capability qualification.</li>
+</ul>
+<h3 id="slice-e-retention-and-gc">Slice E — retention and GC</h3>
+<ul>
+<li>deterministic policy;</li>
+<li>plan fingerprint;</li>
+<li>protected-version rules;</li>
+<li>filesystem and S3 destructive adapters;</li>
+<li>deletion reconciliation.</li>
+</ul>
+<h3 id="slice-f-rollback">Slice F — rollback</h3>
+<ul>
+<li>explicit rollback request;</li>
+<li>CAS publication to historical version;</li>
+<li>durable rollback evidence;</li>
+<li>race and reconciliation tests.</li>
+</ul>
+<h3 id="slice-g-full-conformance">Slice G — full conformance</h3>
+<ul>
+<li>File/S3/PostgreSQL semantic matrix;</li>
+<li>clean-wheel/provider-isolation checks;</li>
+<li>crash/restart scenarios;</li>
+<li>cross-host E2E;</li>
+<li>security and redaction checks.</li>
+</ul>
+<p>Only after these slices are accepted as roadmap work should they receive LOT
+numbers and release versioning.</p>
+<hr />
+<h2 id="29-acceptance-criteria-for-this-rfc">29. Acceptance criteria for this RFC</h2>
+<p>The RFC may move from <strong>Proposed</strong> to <strong>Accepted</strong> only when reviewers agree
+that:</p>
+<ul>
+<li>existing frozen 2.0 contracts remain unchanged;</li>
+<li>CAS, not blind overwrite, is the concurrency correctness primitive;</li>
+<li>publication operation identity is durable and idempotent;</li>
+<li>UNKNOWN_OUTCOME requires reconciliation before retry;</li>
+<li>no distributed transaction across SQL/object storage is required;</li>
+<li>rollback is a new governed publication to an existing immutable version;</li>
+<li>retention planning and deletion execution are separate;</li>
+<li>current/held/unresolved versions are protected from GC;</li>
+<li>deletion uncertainty is explicitly modeled;</li>
+<li>provider conformance proves equivalent observable semantics;</li>
+<li>infrastructure administration remains out of scope.</li>
+</ul>
+<p>Acceptance authorizes implementation planning, not implementation itself.</p>
+<hr />
+<h2 id="30-open-questions">30. Open questions</h2>
+<p>The following remain intentionally open during review:</p>
+<ol>
+<li>Should the first lifecycle ledger implementation support only PostgreSQL or
+   also a local development backend?</li>
+<li>What minimum S3 conditional-write profile can be qualified consistently
+   across AWS S3 and targeted S3-compatible providers?</li>
+<li>Should explicit version holds/pins be a first slice or deferred until the
+   initial retention implementation?</li>
+<li>What is the smallest stable retention policy schema that avoids becoming a
+   generic policy language?</li>
+<li>Should deletion reconciliation share one generic uncertainty abstraction
+   with publication or use a separate operation-specific result type?</li>
+<li>At what point, if any, should accepted governance types become top-level
+   exports in a later major version?</li>
+</ol>
+<p>These questions must be resolved before the corresponding implementation slice
+is committed.</p>
+<hr />
+<h2 id="31-decision-requested">31. Decision requested</h2>
+<p>Reviewers are asked to accept or reject the following architectural direction:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>keep 2.0 DatasetPublisher frozen
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>        |
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>        v
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a>add governance contracts
+<a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a>        |
+<a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a>        +--&gt; append-only lifecycle evidence
+<a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a>        +--&gt; CAS publication capability
+<a id="__codelineno-25-8" name="__codelineno-25-8" href="#__codelineno-25-8"></a>        +--&gt; provider-specific coordination
+<a id="__codelineno-25-9" name="__codelineno-25-9" href="#__codelineno-25-9"></a>        +--&gt; deterministic retention planning
+<a id="__codelineno-25-10" name="__codelineno-25-10" href="#__codelineno-25-10"></a>        +--&gt; guarded GC + deletion evidence
+<a id="__codelineno-25-11" name="__codelineno-25-11" href="#__codelineno-25-11"></a>        +--&gt; rollback as new publication
+<a id="__codelineno-25-12" name="__codelineno-25-12" href="#__codelineno-25-12"></a>        |
+<a id="__codelineno-25-13" name="__codelineno-25-13" href="#__codelineno-25-13"></a>        v
+<a id="__codelineno-25-14" name="__codelineno-25-14" href="#__codelineno-25-14"></a>provider conformance before roadmap promotion
+</code></pre></div>
+<p>If accepted, the next artifact should be an implementation roadmap derived from
+this RFC. Until then, no LOT number or 2.x release target is implied.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.action.edit"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
