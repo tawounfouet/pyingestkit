@@ -68,7 +68,9 @@ class S3ObjectIOV2:
         if any(char in normalized_bucket for char in ("/", "@", ":")):
             raise ValueError("S3 bucket contains invalid characters.")
         normalized_prefix = prefix.strip("/")
-        if any(part in {"", ".", ".."} for part in normalized_prefix.split("/") if normalized_prefix):
+        if normalized_prefix and any(
+            part in {"", ".", ".."} for part in normalized_prefix.split("/")
+        ):
             raise ValueError("S3 prefix contains an unsafe path component.")
         self.bucket = normalized_bucket
         self.prefix = normalized_prefix
