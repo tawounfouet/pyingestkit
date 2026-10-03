@@ -2,6 +2,20 @@
 
 All notable changes to PyIngestKit are documented here.
 
+## [2.1.0b1] - 2026-10-04
+
+### Beta 1 — Retention, Holds & Guarded Garbage Collection
+
+- added deterministic `RetentionState` capture and pure `RetentionPlanner` selection with `keep_last` and `min_age_seconds`;
+- protected current, held, unresolved-operation and integrity-unverified versions from GC unconditionally;
+- added durable Memory/PostgreSQL version holds with `HOLD_PLACED` / `HOLD_RELEASED` lifecycle evidence;
+- added plan evidence fingerprints and stale-plan rejection before destructive provider I/O;
+- added `FileDatasetVersionGarbageCollector` with canonical in-root binding, symlink/path-escape rejection, idempotent already-absent semantics and reconciliation;
+- added `S3DatasetVersionGarbageCollector` with canonical bucket/prefix key derivation, foreign-locator rejection and two-object reconciliation;
+- added durable GC requested/committed/failed/unknown lifecycle evidence using shared failure and uncertainty contracts;
+- added PostgreSQL hold restart qualification plus filesystem/S3 destructive E2E release gates;
+- promoted the 2.1 development line from Alpha to Beta while preserving the frozen 2.0 root and LOT-23 governance Protocols.
+
 ## [2.1.0a4] - 2026-10-04
 
 ### Alpha 4 — S3 Conditional Publication / Endpoint Conformance
