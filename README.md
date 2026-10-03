@@ -18,9 +18,9 @@ The V1 `Job / Pipeline / Step / Runner` execution model is **not** aliased into 
 
 ## 2.1 development line
 
-Repository `main` is now on **2.1.0a2 / LOT-24**. LOT-23 established the provider-neutral governance values and Protocols; LOT-24 adds the reference `MemoryPublicationLedger` and the durable `PostgresPublicationLedger`, including restart recovery and explicit transaction scopes, while preserving the exact 2.0 package root and LOT-23 contracts.
+Repository `main` is now on **2.1.0a3 / LOT-25**. LOT-23 established the provider-neutral governance contracts, LOT-24 added durable Memory/PostgreSQL lifecycle ledgers, and LOT-25 adds opt-in filesystem compare-and-swap publication with ABA-safe revisions, inter-process contention control and explicit reconciliation. The exact 2.0 package root and LOT-23 Protocols remain frozen.
 
-Filesystem/S3 CAS, physical GC and governed rollback remain sequenced in LOT-25 through LOT-30.
+S3 CAS, physical GC and governed rollback remain sequenced in LOT-26 through LOT-30.
 
 ## Product boundary
 

@@ -20,11 +20,11 @@ _PROVIDER_MODULES = {
 }
 
 
-def test_lot24_provider_inventory_is_explicit() -> None:
-    assert V2_IMPLEMENTED_GOVERNANCE_PROVIDER_VALUES == (
+def test_lot24_provider_inventory_remains_available() -> None:
+    assert {
         "MemoryPublicationLedger",
         "PostgresPublicationLedger",
-    )
+    }.issubset(V2_IMPLEMENTED_GOVERNANCE_PROVIDER_VALUES)
 
 
 def test_memory_publication_ledger_is_base_package_safe() -> None:
