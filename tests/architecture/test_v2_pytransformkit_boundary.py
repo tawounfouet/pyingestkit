@@ -14,8 +14,7 @@ def test_lot17_only_integration_boundary_may_reference_pytransformkit() -> None:
     violations: list[str] = []
     for path, modules in imported_roots(python_files(".")).items():
         if any(
-            module == "pytransformkit" or module.startswith("pytransformkit.")
-            for module in modules
+            module == "pytransformkit" or module.startswith("pytransformkit.") for module in modules
         ):
             relative = path.relative_to(PACKAGE_ROOT)
             if not str(relative).startswith("integrations/pytransformkit/"):
