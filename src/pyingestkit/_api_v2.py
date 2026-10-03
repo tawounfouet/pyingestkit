@@ -270,6 +270,7 @@ V2_IMPLEMENTED_GOVERNANCE_VALUES: tuple[str, ...] = (
 )
 
 V2_IMPLEMENTED_GOVERNANCE_PROVIDER_VALUES: tuple[str, ...] = (
+    "FileConditionalDatasetPublisher",
     "MemoryPublicationLedger",
     "PostgresPublicationLedger",
 )
