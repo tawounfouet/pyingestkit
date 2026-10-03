@@ -77,15 +77,24 @@ storage URI exists.
 
 ## Plugins
 
-LOT-18 does **not** load a V1 plugin to discover how to rewrite it.
+LOT-18 does **not** discover or load a V1 plugin merely to guess how to rewrite
+it.
 
-`assess_v1_plugin_entry_point(name, value)` inspects only the declared entry
-point strings and returns `REWRITE_REQUIRED`.
+The safe planner `assess_v1_plugin_entry_point(name, value)` inspects only the
+declared entry-point strings and returns `REWRITE_REQUIRED`.
 
-This is intentional. Stable V1 plugins expose executable
-`Job / JobDefinition / Pipeline / Step` behavior. Automatically invoking that
-code during migration would violate the V2 non-executable serialization
-boundary and could not infer a correct `IngestionDefinition`.
+A separate qualified anti-corruption layer,
+`pyingestkit.migration.v2.V1JobMigrator`, accepts an **already loaded** V1
+`Job` only when a caller explicitly opts in and supplies
+`LegacyJobMigrationHints`. It may inspect `job.pipeline()` and step
+definitions to classify ownership, but it never discovers plugins and never
+executes a step. Non-V2-owned semantics are reported as manual/unsupported
+migration issues rather than silently translated.
+
+This separation is intentional. Stable V1 plugins expose executable
+`Job / JobDefinition / Pipeline / Step` behavior. Automatically discovering
+or invoking that code during migration would violate the non-executable
+serialization boundary and could not infer a correct `IngestionDefinition`.
 
 Plugin authors must explicitly express:
 
@@ -130,11 +139,15 @@ them.
 
 LOT-18 migration tooling:
 
-- does not call `importlib`;
-- does not discover/load plugin entry points;
-- does not execute V1 Job/Pipeline code;
+- does not call `importlib` for migration discovery;
+- does not discover/load plugin entry points in the safe planner;
+- does not execute V1 pipeline steps;
+- confines the only V1 execution-model imports to the explicit
+  `migration.v2.V1JobMigrator` anti-corruption layer;
+- sanitizes semantic-export locators and does not promote historical source
+  URLs into portable V2 artifact metadata;
 - does not resolve secret environment variables;
-- does not deserialize Python objects;
+- does not deserialize executable Python objects;
 - does not mutate V1 persisted records;
 - fails closed where V2 requires UUID execution identity.
 
@@ -145,6 +158,7 @@ unchanged. LOT-18 is additive under:
 
 ```python
 from pyingestkit.migration import ...
+from pyingestkit.migration.v2 import V1JobMigrator, V1SemanticImporter
 ```
 
 The package-root 2.0 breaking cut remains a separate milestone.
