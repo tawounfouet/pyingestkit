@@ -27,10 +27,7 @@ pytestmark = pytest.mark.skipif(
 
 def _representation(*rows: tuple[str, str]) -> DecodedRepresentation:
     return DecodedRepresentation(
-        records=tuple(
-            DecodedRecord(fields=(("id", row[0]), ("name", row[1])))
-            for row in rows
-        )
+        records=tuple(DecodedRecord(fields=(("id", row[0]), ("name", row[1]))) for row in rows)
     )
 
 
