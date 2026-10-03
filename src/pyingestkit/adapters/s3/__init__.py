@@ -7,6 +7,7 @@ from pyingestkit.adapters.s3._objects import (
 from pyingestkit.adapters.s3.artifact_store import S3ArtifactReaderV2, S3ArtifactStoreV2
 from pyingestkit.adapters.s3.conditional_publisher import S3ConditionalDatasetPublisher
 from pyingestkit.adapters.s3.dataset_version_store import S3DatasetVersionStoreV2
+from pyingestkit.adapters.s3.garbage_collector import S3DatasetVersionGarbageCollector
 
 __all__ = [
     "S3ArtifactReaderV2",
@@ -14,5 +15,6 @@ __all__ = [
     "S3ClientV2",
     "S3ConditionalDatasetPublisher",
     "S3ConditionalWriteCapabilityErrorV2",
+    "S3DatasetVersionGarbageCollector",
     "S3DatasetVersionStoreV2",
 ]
