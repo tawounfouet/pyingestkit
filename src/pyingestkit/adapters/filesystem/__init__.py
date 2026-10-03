@@ -4,6 +4,9 @@ from pyingestkit.adapters.filesystem.artifact_store import (
     FileArtifactReader,
     FileArtifactStore,
 )
+from pyingestkit.adapters.filesystem.conditional_publisher import (
+    FileConditionalDatasetPublisher,
+)
 from pyingestkit.adapters.filesystem.dataset_version_materializer import (
     FileCsvDatasetVersionMaterializerV2,
 )
@@ -17,6 +20,7 @@ __all__ = [
     "FileAccessPolicy",
     "FileArtifactReader",
     "FileArtifactStore",
+    "FileConditionalDatasetPublisher",
     "FileCsvDatasetVersionMaterializerV2",
     "FileDatasetVersionStore",
     "FileSourceConnector",
