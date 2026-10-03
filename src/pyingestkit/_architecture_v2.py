@@ -39,5 +39,5 @@ V2_DEPENDENCY_DISPOSITION: dict[str, str] = {
     "boto3": "OPTIONAL_S3_LOT15",
     "openpyxl": "OPTIONAL_EXCEL",
     "pyarrow": "OPTIONAL_PARQUET",
-    "pytransformkit": "OPTIONAL_TRANSFORM_LOT17",
+    "pytransformkit": "OPTIONAL_TRANSFORM_LOT17_QUALIFIED",
 }
