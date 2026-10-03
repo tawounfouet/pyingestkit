@@ -62,9 +62,7 @@ class HttpxHttpClientV2:
         except httpx.TimeoutException as exc:
             raise HttpTimeoutErrorV2("HTTP acquisition timed out.") from exc
         except httpx.HTTPError as exc:
-            raise HttpTransportErrorV2(
-                f"HTTP transport failed with {type(exc).__name__}."
-            ) from exc
+            raise HttpTransportErrorV2(f"HTTP transport failed with {type(exc).__name__}.") from exc
 
     def close(self) -> None:
         if self._owns_client:
