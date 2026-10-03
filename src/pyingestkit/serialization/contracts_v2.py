@@ -215,7 +215,7 @@ def _encode_contract(value: object) -> tuple[str, str, dict[str, JsonValue]]:
                 "related_field": value.related_field,
                 "related_rule": value.related_rule,
                 "severity": value.severity.value,
-                "source_component": value.source_context,
+                "source_context": value.source_context,
                 "source_framework": value.source_framework,
                 "stage": value.stage,
                 "summary": value.summary,
@@ -464,7 +464,7 @@ def _decode_contract(envelope: ContractEnvelopeV2) -> object:
                 "occurred_at",
                 "provider_code",
                 "retryability",
-                "source_component",
+                "source_context",
                 "source_framework",
                 "uncertainty",
             },
@@ -489,8 +489,8 @@ def _decode_contract(envelope: ContractEnvelopeV2) -> object:
                 "source_framework",
             ),
             source_component=_optional_text(
-                payload["source_component"],
-                "source_component",
+                payload["source_context"],
+                "source_context",
             ),
             provider_code=_optional_text(payload["provider_code"], "provider_code"),
             message_summary=_optional_text(
