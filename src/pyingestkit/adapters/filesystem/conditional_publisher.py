@@ -399,7 +399,7 @@ class FileConditionalDatasetPublisher(ConditionalDatasetPublisher):
                 next_revision=next_revision,
             )
         except Exception:
-            pass
+            return
 
     def _event(
         self,
