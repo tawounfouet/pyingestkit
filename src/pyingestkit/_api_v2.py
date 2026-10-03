@@ -6,9 +6,9 @@ added durable RAW/ArtifactStore, LOT-05 added dependency-neutral CSV/JSON(L)
 decoding, LOT-06 added bounded validation/quality evidence, LOT-07 added
 immutable content-addressed DatasetVersion semantics, LOT-08 added durable
 version storage plus atomic publication, LOT-09 added portable ingestion
-run/result lifecycle evidence, and LOT-10 adds explicit V2 IngestionRuntime
-composition while the V1 package keeps its exact star-import contract until
-the 2.0 alpha cut.
+run/result lifecycle evidence, LOT-10 added explicit V2 IngestionRuntime
+composition, and LOT-11 adds strict replay from durable historical RAW while
+the V1 package keeps its exact star-import contract until the 2.0 alpha cut.
 """
 
 from __future__ import annotations
@@ -149,6 +149,12 @@ V2_IMPLEMENTED_RUNTIME_VALUES: tuple[str, ...] = (
     "IngestionRuntime",
 )
 
+V2_IMPLEMENTED_REPLAY_VALUES: tuple[str, ...] = (
+    "ReplayRequest",
+    "ReplayResult",
+    "ReplayServiceV2",
+)
+
 V2_COMPLETED_LOTS: tuple[str, ...] = (
     "LOT-00",
     "LOT-01",
@@ -161,6 +167,7 @@ V2_COMPLETED_LOTS: tuple[str, ...] = (
     "LOT-08",
     "LOT-09",
     "LOT-10",
+    "LOT-11",
 )
 
 V2_MILESTONE_CANDIDATE = "2.0.0a1"
@@ -205,4 +212,4 @@ V2_PUBLIC_NAMESPACE_BASELINE: tuple[str, ...] = (
     "pyingestkit.quality",
 )
 
-V2_API_PHASE = "LOT-10_INGESTION_RUNTIME"
+V2_API_PHASE = "LOT-11_STRICT_REPLAY"
