@@ -20,6 +20,8 @@ publication, provenance, reconciliation, replay and built-artifact evidence.
 LOT-21 cut the real 2.0 package root, froze the stable provider/runtime
 contracts and qualified the release-candidate artifacts. LOT-22 promotes the
 unchanged RC contract to the stable 2.0.0 release after full requalification.
+LOT-23 opens the additive 2.1 line with provider-neutral publication/lifecycle
+governance domain values and ports while preserving every frozen 2.0 surface.
 """
 
 from __future__ import annotations
@@ -244,6 +246,28 @@ V2_IMPLEMENTED_PUBLICATION_VALUES: tuple[str, ...] = (
     "PublicationStatusV2",
 )
 
+V2_IMPLEMENTED_GOVERNANCE_VALUES: tuple[str, ...] = (
+    "ConditionalDatasetPublisher",
+    "ConditionalPublicationOutcome",
+    "ConditionalPublicationStatus",
+    "DatasetVersionDeletionReconciliationResult",
+    "DatasetVersionDeletionReconciliationStatus",
+    "DatasetVersionDeletionResult",
+    "DatasetVersionDeletionStatus",
+    "DatasetVersionGarbageCollector",
+    "GarbageCollectionPlan",
+    "GarbageCollectionPlanId",
+    "PublicationIntent",
+    "PublicationLedger",
+    "PublicationLifecycleEvent",
+    "PublicationLifecycleEventType",
+    "PublicationOperationId",
+    "PublicationRevision",
+    "PublicationSnapshot",
+    "RetentionPolicy",
+    "VersionHold",
+)
+
 V2_IMPLEMENTED_MATERIALIZATION_VALUES: tuple[str, ...] = (
     "DatasetVersionMaterializerV2",
     "FileCsvDatasetVersionMaterializerV2",
@@ -308,9 +332,10 @@ V2_COMPLETED_LOTS: tuple[str, ...] = (
     "LOT-20",
     "LOT-21",
     "LOT-22",
+    "LOT-23",
 )
 
-V2_MILESTONE_CANDIDATE = "2.0.0"
+V2_MILESTONE_CANDIDATE = "2.1.0a1"
 
 V2_FORBIDDEN_LEGACY_ROOT_EXPORTS: frozenset[str] = frozenset(
     {
@@ -341,6 +366,7 @@ V2_PUBLIC_NAMESPACE_BASELINE: tuple[str, ...] = (
     "pyingestkit.decoders",
     "pyingestkit.diagnostics",
     "pyingestkit.ingestion",
+    "pyingestkit.governance",
     "pyingestkit.integrations.pytransformkit",
     "pyingestkit.migration",
     "pyingestkit.plugins",
@@ -357,4 +383,4 @@ V2_PUBLIC_NAMESPACE_BASELINE: tuple[str, ...] = (
     "pyingestkit.quality",
 )
 
-V2_API_PHASE = "LOT-22_STABLE"
+V2_API_PHASE = "LOT-23_ALPHA"
