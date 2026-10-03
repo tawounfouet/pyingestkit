@@ -28,7 +28,6 @@ from pyingestkit.runtime.v2 import IngestionRuntime
 from pyingestkit.stores import FileArtifactStore, FileDatasetVersionStore
 from pyingestkit.validation.v2 import RequiredFieldV2
 
-
 _NOW = datetime(2026, 10, 3, 10, 0, tzinfo=UTC)
 
 
