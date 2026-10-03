@@ -402,7 +402,7 @@ def _from_transform_resource(
             "PyTransformKit output ResourceReference scheme disagrees with its locator."
         )
     resource_id = hashlib.sha256(
-        f"{execution_id}\x00{output_name}\x00{locator}".encode("utf-8")
+        f"{execution_id}\x00{output_name}\x00{locator}".encode()
     ).hexdigest()
     suffix = parsed.path.rsplit("/", 1)[-1]
     inferred_format = (
