@@ -35,6 +35,4 @@ def test_lot18_migration_values_are_explicit() -> None:
 
 
 def test_lot18_qualified_migration_toolkit_is_explicit() -> None:
-    assert V2_IMPLEMENTED_QUALIFIED_MIGRATION_VALUES == tuple(
-        qualified_migration.__all__
-    )
+    assert V2_IMPLEMENTED_QUALIFIED_MIGRATION_VALUES == tuple(qualified_migration.__all__)
