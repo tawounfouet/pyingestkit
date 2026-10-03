@@ -12,7 +12,7 @@ from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from datetime import UTC, datetime
 from pathlib import Path
-from types import ModuleType
+from typing import BinaryIO, Protocol, cast
 from uuid import uuid4
 
 from pyingestkit.adapters.filesystem.dataset_version_store import FileDatasetVersionStore
@@ -579,6 +579,21 @@ def _dataset_parts(dataset_id: str) -> tuple[str, ...]:
     return parts
 
 
+class _WindowsLockModule(Protocol):
+    LK_NBLCK: int
+    LK_UNLCK: int
+
+    def locking(self, file_descriptor: int, mode: int, nbytes: int) -> None: ...
+
+
+class _PosixLockModule(Protocol):
+    LOCK_EX: int
+    LOCK_NB: int
+    LOCK_UN: int
+
+    def flock(self, file_descriptor: int, operation: int) -> None: ...
+
+
 @contextmanager
 def _interprocess_lock(
     path: Path,
@@ -595,9 +610,9 @@ def _interprocess_lock(
                 _lock_handle(handle)
                 locked = True
                 break
-            except (BlockingIOError, OSError):
+            except OSError:
                 if time.monotonic() >= deadline:
-                    raise _LockTimeoutError(str(path))
+                    raise _LockTimeoutError(str(path)) from None
                 time.sleep(0.01)
         yield
     finally:
@@ -606,33 +621,37 @@ def _interprocess_lock(
         handle.close()
 
 
-def _platform_lock_module() -> ModuleType:
-    return importlib.import_module("msvcrt" if os.name == "nt" else "fcntl")
+def _windows_lock_module() -> _WindowsLockModule:
+    return cast(_WindowsLockModule, importlib.import_module("msvcrt"))
 
 
-def _lock_handle(handle: object) -> None:
-    module = _platform_lock_module()
-    fileno = getattr(handle, "fileno")()
+def _posix_lock_module() -> _PosixLockModule:
+    return cast(_PosixLockModule, importlib.import_module("fcntl"))
+
+
+def _lock_handle(handle: BinaryIO) -> None:
+    file_descriptor = handle.fileno()
     if os.name == "nt":
-        handle_obj = handle
-        if getattr(handle_obj, "tell")() == 0:
-            getattr(handle_obj, "write")(b"\0")
-            getattr(handle_obj, "flush")()
-        getattr(handle_obj, "seek")(0)
-        getattr(module, "locking")(fileno, getattr(module, "LK_NBLCK"), 1)
+        module = _windows_lock_module()
+        if handle.tell() == 0:
+            handle.write(b"\0")
+            handle.flush()
+        handle.seek(0)
+        module.locking(file_descriptor, module.LK_NBLCK, 1)
         return
-    flags = getattr(module, "LOCK_EX") | getattr(module, "LOCK_NB")
-    getattr(module, "flock")(fileno, flags)
+    module = _posix_lock_module()
+    module.flock(file_descriptor, module.LOCK_EX | module.LOCK_NB)
 
 
-def _unlock_handle(handle: object) -> None:
-    module = _platform_lock_module()
-    fileno = getattr(handle, "fileno")()
+def _unlock_handle(handle: BinaryIO) -> None:
+    file_descriptor = handle.fileno()
     if os.name == "nt":
-        getattr(handle, "seek")(0)
-        getattr(module, "locking")(fileno, getattr(module, "LK_UNLCK"), 1)
+        module = _windows_lock_module()
+        handle.seek(0)
+        module.locking(file_descriptor, module.LK_UNLCK, 1)
         return
-    getattr(module, "flock")(fileno, getattr(module, "LOCK_UN"))
+    module = _posix_lock_module()
+    module.flock(file_descriptor, module.LOCK_UN)
 
 
 def _write_json(path: Path, payload: object) -> None:
