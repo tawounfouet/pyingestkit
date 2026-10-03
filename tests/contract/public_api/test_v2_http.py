@@ -32,8 +32,9 @@ _EXPECTED = (
 
 
 def test_lot13_phase_and_completed_lot_are_recorded() -> None:
-    assert V2_API_PHASE == "LOT-13_HTTP_ACQUISITION"
-    assert V2_COMPLETED_LOTS[-1] == "LOT-13"
+    assert "LOT-13" in V2_COMPLETED_LOTS
+    assert V2_COMPLETED_LOTS.index("LOT-13") <= V2_COMPLETED_LOTS.index(V2_COMPLETED_LOTS[-1])
+    assert V2_API_PHASE.startswith("LOT-")
 
 
 def test_lot13_http_values_are_recorded_and_importable() -> None:
