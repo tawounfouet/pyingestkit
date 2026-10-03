@@ -9,10 +9,12 @@ from pyingestkit._architecture_v2 import V2_SUPPORTED_PYTHON
 ROOT = Path(__file__).resolve().parents[2]
 OPTIONAL_PROVIDER_DISTRIBUTIONS = {
     "boto3",
+    "httpx",
     "openpyxl",
     "psycopg",
     "pyarrow",
     "pytransformkit",
+    "sqlalchemy",
 }
 
 
