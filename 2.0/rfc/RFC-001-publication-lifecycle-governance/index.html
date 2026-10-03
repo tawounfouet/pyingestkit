@@ -16,7 +16,7 @@
         <link rel="prev" href="../">
       
       
-        <link rel="next" href="../../architecture/overview/">
+        <link rel="next" href="../reviews/RFC-001-architecture-review/">
       
       
         
@@ -793,6 +793,8 @@
       
         
       
+        
+      
     
     
     
@@ -1547,10 +1549,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#30-open-questions" class="md-nav__link">
+  <a href="#30-resolved-review-decisions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        30. Open questions
+        30. Resolved review decisions
       
     </span>
   </a>
@@ -1558,10 +1560,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#31-decision-requested" class="md-nav__link">
+  <a href="#31-accepted-decision" class="md-nav__link">
     <span class="md-ellipsis">
       
-        31. Decision requested
+        31. Accepted decision
       
     </span>
   </a>
@@ -1572,6 +1574,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reviews/RFC-001-architecture-review/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RFC-001 — Architecture Review
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -3648,10 +3678,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#30-open-questions" class="md-nav__link">
+  <a href="#30-resolved-review-decisions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        30. Open questions
+        30. Resolved review decisions
       
     </span>
   </a>
@@ -3659,10 +3689,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#31-decision-requested" class="md-nav__link">
+  <a href="#31-accepted-decision" class="md-nav__link">
     <span class="md-ellipsis">
       
-        31. Decision requested
+        31. Accepted decision
       
     </span>
   </a>
@@ -3695,7 +3725,8 @@
 
 
 <h1 id="rfc-001-publication-lifecycle-governance">RFC-001 — Publication &amp; Lifecycle Governance</h1>
-<p><strong>Status:</strong> Proposed<br />
+<p><strong>Status:</strong> Accepted<br />
+<strong>Accepted:</strong> 2026-10-03<br />
 <strong>Date:</strong> 2026-10-03<br />
 <strong>Stable compatibility baseline:</strong> PyIngestKit 2.0.0<br />
 <strong>Baseline tag:</strong> <code>v2.0.0</code><br />
@@ -3850,7 +3881,7 @@ stable contracts.</p>
 <a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>                          v
 <a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>                    lifecycle evidence
 </code></pre></div>
-<p>The exact Python names are provisional until this RFC is accepted.</p>
+<p>The exact Python names remain subject to implementation-level naming review; the responsibilities and boundaries are accepted.</p>
 <h3 id="61-publication-ledger">6.1 Publication ledger</h3>
 <p>A new provider-neutral ledger records append-only lifecycle evidence.</p>
 <p>Candidate responsibility:</p>
@@ -4460,27 +4491,33 @@ that:</p>
 </ul>
 <p>Acceptance authorizes implementation planning, not implementation itself.</p>
 <hr />
-<h2 id="30-open-questions">30. Open questions</h2>
-<p>The following remain intentionally open during review:</p>
+<h2 id="30-resolved-review-decisions">30. Resolved review decisions</h2>
+<p>The six architecture-review questions are resolved by the formal
+<a href="../reviews/RFC-001-architecture-review/">RFC-001 architecture review</a>:</p>
 <ol>
-<li>Should the first lifecycle ledger implementation support only PostgreSQL or
-   also a local development backend?</li>
-<li>What minimum S3 conditional-write profile can be qualified consistently
-   across AWS S3 and targeted S3-compatible providers?</li>
-<li>Should explicit version holds/pins be a first slice or deferred until the
-   initial retention implementation?</li>
-<li>What is the smallest stable retention policy schema that avoids becoming a
-   generic policy language?</li>
-<li>Should deletion reconciliation share one generic uncertainty abstraction
-   with publication or use a separate operation-specific result type?</li>
-<li>At what point, if any, should accepted governance types become top-level
-   exports in a later major version?</li>
+<li><strong>Lifecycle ledger:</strong> provider-neutral Protocol + in-memory reference adapter</li>
+<li>PostgreSQL as the first durable production implementation. A second durable
+   local backend is deferred.</li>
+<li><strong>S3 CAS profile:</strong> advertise conditional publication only when endpoint
+   conformance proves atomic create-if-absent and compare-and-replace semantics,
+   corresponding to <code>If-None-Match</code> / <code>If-Match</code> for AWS S3.</li>
+<li><strong>Holds/pins:</strong> included in the first retention/GC slice and mandatory for
+   GC protection.</li>
+<li><strong>Retention policy:</strong> first stable schema is limited to <code>keep_last</code> and
+   optional <code>min_age_seconds</code>; current/held/unresolved protections are
+   invariants rather than switches.</li>
+<li><strong>Deletion uncertainty:</strong> reuse shared <code>FailureEvidence</code> /
+   <code>OutcomeUncertainty</code> primitives while exposing deletion-specific result and
+   reconciliation types.</li>
+<li><strong>Top-level exports:</strong> governance types stay in qualified namespaces for the
+   full 2.x line; top-level promotion requires a future major-version API
+   review.</li>
 </ol>
-<p>These questions must be resolved before the corresponding implementation slice
-is committed.</p>
+<p>These decisions close the architecture-review blockers without assigning a
+release number or implementation LOT.</p>
 <hr />
-<h2 id="31-decision-requested">31. Decision requested</h2>
-<p>Reviewers are asked to accept or reject the following architectural direction:</p>
+<h2 id="31-accepted-decision">31. Accepted decision</h2>
+<p>The following architectural direction is accepted:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>keep 2.0 DatasetPublisher frozen
 <a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>        |
 <a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>        v
@@ -4496,8 +4533,8 @@ is committed.</p>
 <a id="__codelineno-25-13" name="__codelineno-25-13" href="#__codelineno-25-13"></a>        v
 <a id="__codelineno-25-14" name="__codelineno-25-14" href="#__codelineno-25-14"></a>provider conformance before roadmap promotion
 </code></pre></div>
-<p>If accepted, the next artifact should be an implementation roadmap derived from
-this RFC. Until then, no LOT number or 2.x release target is implied.</p>
+<p>The next artifact is an implementation roadmap derived from this accepted RFC.
+Acceptance still does not assign a LOT number or 2.x release target.</p>
 
 
 
