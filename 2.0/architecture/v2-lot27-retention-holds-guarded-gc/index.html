@@ -10,9 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://tawounfouet.github.io/pyingestkit/2.0/adr/ADR-054-s3-dataset-version-publication/">
+        <link rel="canonical" href="https://tawounfouet.github.io/pyingestkit/2.0/architecture/v2-lot27-retention-holds-guarded-gc/">
       
       
+        <link rel="prev" href="../v2-lot26-s3-conditional-publication/">
+      
+      
+        <link rel="next" href="../../guides/v1-quickstart/">
       
       
         
@@ -23,7 +27,7 @@
     
     
       
-        <title>ADR-054 — S3 DatasetVersion storage is immutable; publication is one mutable pointer - PyIngestKit</title>
+        <title>LOT-27 retention, holds & guarded GC - PyIngestKit</title>
       
     
     
@@ -66,7 +70,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#adr-054-s3-datasetversion-storage-is-immutable-publication-is-one-mutable-pointer" class="md-skip">
+        <a href="#pyingestkit-21-lot-27-retention-holds-guarded-garbage-collection" class="md-skip">
           Skip to content
         </a>
       
@@ -104,7 +108,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              ADR-054 — S3 DatasetVersion storage is immutable; publication is one mutable pointer
+              LOT-27 retention, holds & guarded GC
             
           </span>
         </div>
@@ -274,11 +278,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../architecture/overview/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../overview/" class="md-tabs__link">
           
   
   
@@ -322,7 +328,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../" class="md-tabs__link">
+        <a href="../../adr/" class="md-tabs__link">
           
   
   
@@ -938,8 +944,10 @@
       
   
   
+    
   
   
+  
     
     
       
@@ -981,19 +989,22 @@
     
     
       
+        
+        
+      
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
         
           
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
             
   
   
@@ -1011,7 +1022,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1029,7 +1040,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/overview/" class="md-nav__link">
+      <a href="../overview/" class="md-nav__link">
         
   
   
@@ -1057,7 +1068,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/v2-lot00-baseline/" class="md-nav__link">
+      <a href="../v2-lot00-baseline/" class="md-nav__link">
         
   
   
@@ -1085,7 +1096,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/v2-lot10-ingestion-runtime/" class="md-nav__link">
+      <a href="../v2-lot10-ingestion-runtime/" class="md-nav__link">
         
   
   
@@ -1113,7 +1124,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/v2-lot11-strict-replay/" class="md-nav__link">
+      <a href="../v2-lot11-strict-replay/" class="md-nav__link">
         
   
   
@@ -1141,7 +1152,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/v2-lot13-http-acquisition/" class="md-nav__link">
+      <a href="../v2-lot13-http-acquisition/" class="md-nav__link">
         
   
   
@@ -1169,7 +1180,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/v2-lot14-postgres-target/" class="md-nav__link">
+      <a href="../v2-lot14-postgres-target/" class="md-nav__link">
         
   
   
@@ -1197,7 +1208,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/v2-lot15-s3-object-storage/" class="md-nav__link">
+      <a href="../v2-lot15-s3-object-storage/" class="md-nav__link">
         
   
   
@@ -1225,7 +1236,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/v2-lot16-canonical-serialization/" class="md-nav__link">
+      <a href="../v2-lot16-canonical-serialization/" class="md-nav__link">
         
   
   
@@ -1253,7 +1264,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/v2-lot17-pytransformkit-integration/" class="md-nav__link">
+      <a href="../v2-lot17-pytransformkit-integration/" class="md-nav__link">
         
   
   
@@ -1281,7 +1292,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/v2-lot18-v1-semantic-migration/" class="md-nav__link">
+      <a href="../v2-lot18-v1-semantic-migration/" class="md-nav__link">
         
   
   
@@ -1309,7 +1320,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/v2-lot19-provider-port-conformance/" class="md-nav__link">
+      <a href="../v2-lot19-provider-port-conformance/" class="md-nav__link">
         
   
   
@@ -1337,7 +1348,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/v2-lot20-customer360-beta-gate/" class="md-nav__link">
+      <a href="../v2-lot20-customer360-beta-gate/" class="md-nav__link">
         
   
   
@@ -1365,7 +1376,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/v2-lot23-governance-domain-ports/" class="md-nav__link">
+      <a href="../v2-lot23-governance-domain-ports/" class="md-nav__link">
         
   
   
@@ -1393,7 +1404,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/v2-lot24-lifecycle-ledger-postgres/" class="md-nav__link">
+      <a href="../v2-lot24-lifecycle-ledger-postgres/" class="md-nav__link">
         
   
   
@@ -1421,7 +1432,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/v2-lot25-filesystem-conditional-publication/" class="md-nav__link">
+      <a href="../v2-lot25-filesystem-conditional-publication/" class="md-nav__link">
         
   
   
@@ -1449,7 +1460,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/v2-lot26-s3-conditional-publication/" class="md-nav__link">
+      <a href="../v2-lot26-s3-conditional-publication/" class="md-nav__link">
         
   
   
@@ -1474,10 +1485,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../architecture/v2-lot27-retention-holds-guarded-gc/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LOT-27 retention, holds & guarded GC
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1493,6 +1531,180 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scope
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#read-only-lifecycle-capture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Read-only lifecycle capture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pure-deterministic-planning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pure deterministic planning
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#evidence-fingerprint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Evidence fingerprint
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#stale-plan-guard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stale-plan guard
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#durable-holds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Durable holds
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#filesystem-deletion-binding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filesystem deletion binding
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#s3-deletion-binding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        S3 deletion binding
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deletion-lifecycle-evidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deletion lifecycle evidence
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unknown-outcomes-and-reconciliation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unknown outcomes and reconciliation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#postgresql-hold-restart-proof" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PostgreSQL hold restart proof
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-properties" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security properties
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#executable-evidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Executable evidence
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-lot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next lot
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -2264,7 +2476,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/product-scope-v1/" class="md-nav__link">
+      <a href="../product-scope-v1/" class="md-nav__link">
         
   
   
@@ -2452,7 +2664,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../" class="md-nav__link ">
+            <a href="../../adr/" class="md-nav__link ">
               
   
   
@@ -2518,10 +2730,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#context" class="md-nav__link">
+  <a href="#scope" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Context
+        Scope
       
     </span>
   </a>
@@ -2529,10 +2741,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#decision" class="md-nav__link">
+  <a href="#read-only-lifecycle-capture" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Decision
+        Read-only lifecycle capture
       
     </span>
   </a>
@@ -2540,10 +2752,131 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#consequences" class="md-nav__link">
+  <a href="#pure-deterministic-planning" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Consequences
+        Pure deterministic planning
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#evidence-fingerprint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Evidence fingerprint
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#stale-plan-guard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stale-plan guard
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#durable-holds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Durable holds
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#filesystem-deletion-binding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filesystem deletion binding
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#s3-deletion-binding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        S3 deletion binding
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deletion-lifecycle-evidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deletion lifecycle evidence
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unknown-outcomes-and-reconciliation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unknown outcomes and reconciliation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#postgresql-hold-restart-proof" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PostgreSQL hold restart proof
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-properties" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security properties
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#executable-evidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Executable evidence
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-lot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next lot
       
     </span>
   </a>
@@ -2567,7 +2900,7 @@
 
 
   
-    <a href="https://github.com/tawounfouet/pyingestkit/edit/main/docs/adr/ADR-054-s3-dataset-version-publication.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/tawounfouet/pyingestkit/edit/main/docs/architecture/v2-lot27-retention-holds-guarded-gc.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -2575,42 +2908,244 @@
   
 
 
-<h1 id="adr-054-s3-datasetversion-storage-is-immutable-publication-is-one-mutable-pointer">ADR-054 — S3 DatasetVersion storage is immutable; publication is one mutable pointer</h1>
-<p>Status: Accepted for V0.6.0-b2.</p>
-<h2 id="context">Context</h2>
-<p>V0.6.0-b1 made RAW, reports and run manifests durable in S3-compatible object storage, but
-<code>DatasetVersion</code> snapshots and <code>PublishedDataset</code> pointers still depended on a local filesystem.
-That prevented a second runner with an empty workspace from discovering and loading the version
-published by a first runner.</p>
-<h2 id="decision">Decision</h2>
-<p>PyIngestKit provides <code>S3DatasetVersionStore</code>, implementing the existing <code>DatasetVersionStore</code>
-contract by composing the configured <code>S3ArtifactStore</code>.</p>
-<p>The object namespace is deterministic:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>&lt;prefix&gt;/datasets/versions/&lt;dataset path&gt;/&lt;version_id&gt;/dataset.snapshot.json
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>&lt;prefix&gt;/datasets/versions/&lt;dataset path&gt;/&lt;version_id&gt;/version.json
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>&lt;prefix&gt;/datasets/published/&lt;dataset path&gt;/current.json
-</code></pre></div>
-<p>Dataset snapshots and version metadata are immutable create-once objects. Their identity remains
-the V0.4 content-addressed Dataset fingerprint, and the V0.4 typed snapshot codec remains version
-<code>1</code> unchanged.</p>
-<p><code>current.json</code> is the only mutable object in this version-store lifecycle. Publishing replaces that
-single key. S3 PutObject replacement is atomic at the object-key boundary, so readers observe an
-old or new complete pointer, never a partially written local file.</p>
-<p>All B2 objects carry <code>pyingestkit-sha256</code> metadata. Reads verify the object bytes against that
-metadata before decoding JSON or Dataset snapshots.</p>
-<h2 id="consequences">Consequences</h2>
+<h1 id="pyingestkit-21-lot-27-retention-holds-guarded-garbage-collection">PyIngestKit 2.1 — LOT-27 Retention, Holds &amp; Guarded Garbage Collection</h1>
+<p><strong>Implemented candidate: 2.1.0b1.</strong></p>
+<p>LOT-27 introduces deterministic retention planning and explicit destructive
+DatasetVersion lifecycle execution while preserving the immutable-history
+safety model established by PyIngestKit 2.0 and the governance contracts frozen
+in LOT-23.</p>
+<h2 id="scope">Scope</h2>
+<p>LOT-27 adds:</p>
 <ul>
-<li>Dataset versions and publication no longer require a shared local filesystem.</li>
-<li>A runner with an empty workspace can discover the current publication, list versions and load a
-  snapshot directly from object storage.</li>
-<li>Existing <code>FilesystemDatasetVersionStore</code> semantics and the abstract <code>DatasetVersionStore</code>
-  surface remain unchanged.</li>
-<li><code>S3ArtifactStore</code> remains responsible for transport/configuration; B2 does not add methods to the
-  abstract <code>ArtifactStore</code> contract.</li>
-<li>MetadataStore remains optional and independent from the durable version store.</li>
-<li>Multi-object distributed transactions, locking and compare-and-swap publication are not claimed
-  by B2. Those concerns require a later coordination design if concurrent publishers demand them.</li>
+<li>qualified <code>RetentionState</code>, <code>RetentionStateLoader</code> and <code>RetentionPlanner</code>;</li>
+<li>additive <code>VersionHoldRepository</code> behavior on Memory/PostgreSQL lifecycle ledgers;</li>
+<li>durable <code>HOLD_PLACED</code> and <code>HOLD_RELEASED</code> evidence;</li>
+<li>durable <code>RETENTION_PLAN_CREATED</code> evidence;</li>
+<li><code>FileDatasetVersionGarbageCollector</code>;</li>
+<li><code>S3DatasetVersionGarbageCollector</code>;</li>
+<li>stale-plan detection before destructive I/O;</li>
+<li>canonical provider binding before deletion;</li>
+<li>deletion uncertainty and provider-truth reconciliation;</li>
+<li>repeat-safe already-absent semantics.</li>
 </ul>
+<p>LOT-27 does not modify:</p>
+<ul>
+<li>the exact PyIngestKit 2.0 package root;</li>
+<li><code>DatasetVersionStore</code>;</li>
+<li><code>DatasetPublisher</code>;</li>
+<li><code>PublishedDataset</code>;</li>
+<li>the LOT-23 governance root export set;</li>
+<li>the LOT-23 <code>PublicationLedger</code>, <code>ConditionalDatasetPublisher</code> or
+  <code>DatasetVersionGarbageCollector</code> signatures;</li>
+<li>existing contract-version 1 portable meanings.</li>
+</ul>
+<h2 id="read-only-lifecycle-capture">Read-only lifecycle capture</h2>
+<p>Destructive planning starts by capturing one immutable <code>RetentionState</code>:</p>
+<div class="highlight"><pre><span></span><code>DatasetVersion inventory
+  + governed current publication
+  + active version holds
+  + unresolved publication/rollback intents
+  + integrity-verification outcome
+</code></pre></div>
+<p><code>RetentionStateLoader</code> may read provider truth, but it performs no destructive
+operation.</p>
+<p>Every inventoried version is verified through the frozen
+<code>DatasetVersionStore.read(...)</code> contract. If verification fails, that version
+is not marked verified and therefore becomes protected by the planner.</p>
+<h2 id="pure-deterministic-planning">Pure deterministic planning</h2>
+<p><code>RetentionPlanner.plan(...)</code> is pure with respect to the captured state.</p>
+<p>It applies the following mandatory protections:</p>
+<ol>
+<li>the current published DatasetVersion;</li>
+<li>every active <code>VersionHold</code>;</li>
+<li>every version referenced by an unresolved lifecycle operation;</li>
+<li>every inventoried version whose integrity was not verified;</li>
+<li>the newest <code>keep_last</code> versions;</li>
+<li>versions younger than <code>min_age_seconds</code>;</li>
+<li>versions without a usable creation timestamp when an age policy is active.</li>
+</ol>
+<p>Only versions outside all protection sets become candidates.</p>
+<p>The ordering is deterministic:</p>
+<div class="highlight"><pre><span></span><code>created_at DESC
+version_id DESC
+</code></pre></div>
+<p>A missing creation time sorts behind timestamped versions but is protected when
+<code>min_age_seconds</code> is enabled because age cannot be proven safely.</p>
+<h2 id="evidence-fingerprint">Evidence fingerprint</h2>
+<p>Every plan contains a deterministic SHA-256 evidence fingerprint over:</p>
+<ul>
+<li>dataset identity;</li>
+<li>plan evaluation timestamp;</li>
+<li>retention policy;</li>
+<li>inventory identities and creation timestamps;</li>
+<li>current publication revision and version;</li>
+<li>active hold identities/timestamps/reasons;</li>
+<li>unresolved operation identities, targets and expected revisions;</li>
+<li>verified version identities.</li>
+</ul>
+<p>The fingerprint intentionally excludes provider paths, S3 ETags, credentials
+and client details.</p>
+<p>The evaluation timestamp is part of the fingerprint so age-policy eligibility
+is bound to the instant at which the plan was produced.</p>
+<h2 id="stale-plan-guard">Stale-plan guard</h2>
+<p>Both physical collectors are bound to one immutable
+<code>GarbageCollectionPlan</code>.</p>
+<p>Before deleting a present candidate they prove:</p>
+<div class="highlight"><pre><span></span><code>request plan_id == bound plan_id
+expected_evidence == plan evidence
+reference is an original plan candidate
+current lifecycle fingerprint == plan evidence
+</code></pre></div>
+<p>If any protection state changes after planning, including:</p>
+<ul>
+<li>a new hold;</li>
+<li>publication of the candidate;</li>
+<li>a new unresolved operation;</li>
+<li>inventory change;</li>
+<li>integrity-state change;</li>
+</ul>
+<p>the current fingerprint differs and deletion fails closed with:</p>
+<div class="highlight"><pre><span></span><code>governance.gc.stale_plan
+</code></pre></div>
+<p>No provider delete is issued.</p>
+<p>Repeat execution after a successful deletion is handled separately: if the
+canonical version is already absent and the caller still presents the exact
+original plan/evidence/candidate identity, the result is
+<code>ALREADY_ABSENT</code>. This keeps completed plan replay safe without treating the
+expected inventory change caused by the previous deletion as a destructive
+authorization bypass.</p>
+<h2 id="durable-holds">Durable holds</h2>
+<p>Memory and PostgreSQL ledgers implement the additive qualified
+<code>VersionHoldRepository</code> behavior:</p>
+<div class="highlight"><pre><span></span><code>place_hold(VersionHold)
+release_hold(DatasetVersionReference, released_at=...)
+list_active_holds(dataset_id)
+</code></pre></div>
+<p>This does not change the frozen <code>PublicationLedger</code> Protocol.</p>
+<p>PostgreSQL uses the reserved LOT-24
+<code>pyingestkit_v2_version_hold</code> table. The physical row stores dataset/version
+identity, held/released timestamps and reason.</p>
+<p>The portable hold value remains provider-neutral.</p>
+<p>A hold is lifecycle evidence; it is not S3 Object Lock, a filesystem ACL or a
+cloud retention policy.</p>
+<h2 id="filesystem-deletion-binding">Filesystem deletion binding</h2>
+<p><code>FileDatasetVersionGarbageCollector</code> derives the deletion target only from the
+canonical <code>FileDatasetVersionStore</code> dataset/version identity.</p>
+<p>It rejects:</p>
+<ul>
+<li>foreign DatasetVersionReference locators;</li>
+<li>symlink version directories;</li>
+<li>version directories resolving outside the store root;</li>
+<li>incomplete/corrupt version state;</li>
+<li>stale plans.</li>
+</ul>
+<p>The caller never supplies an arbitrary filesystem path to the destructive
+operation.</p>
+<p>After all checks, the canonical version directory is removed.</p>
+<h2 id="s3-deletion-binding">S3 deletion binding</h2>
+<p><code>S3DatasetVersionGarbageCollector</code> derives exactly two canonical keys from the
+bound <code>S3DatasetVersionStoreV2</code>:</p>
+<div class="highlight"><pre><span></span><code>datasets/versions/&lt;dataset&gt;/&lt;version&gt;/version.json
+datasets/versions/&lt;dataset&gt;/&lt;version&gt;/snapshot.json
+</code></pre></div>
+<p>The caller never supplies bucket or key values.</p>
+<p>Before deletion, both objects must be either:</p>
+<ul>
+<li>present and integrity-verifiable; or</li>
+<li>both absent for idempotent replay.</li>
+</ul>
+<p>A partial pre-existing pair fails closed.</p>
+<p>A DatasetVersionReference carrying a foreign locator is rejected even when its
+dataset/version identity matches a real stored version.</p>
+<h2 id="deletion-lifecycle-evidence">Deletion lifecycle evidence</h2>
+<p>Execution emits append-only lifecycle evidence:</p>
+<div class="highlight"><pre><span></span><code>GC_DELETE_REQUESTED
+  -&gt; GC_DELETE_COMMITTED
+  -&gt; or GC_DELETE_FAILED
+  -&gt; or GC_DELETE_OUTCOME_UNKNOWN
+</code></pre></div>
+<p>The event metadata binds:</p>
+<ul>
+<li>plan ID;</li>
+<li>expected evidence fingerprint;</li>
+<li>execution/reconciliation phase.</li>
+</ul>
+<p>Failure values reuse the shared <code>FailureEvidence</code>, <code>Retryability</code> and
+<code>OutcomeUncertainty</code> contracts.</p>
+<p>No publication result type is reused for deletion.</p>
+<h2 id="unknown-outcomes-and-reconciliation">Unknown outcomes and reconciliation</h2>
+<p>Any exception after provider deletion may have begun is treated conservatively
+as:</p>
+<div class="highlight"><pre><span></span><code>DatasetVersionDeletionStatus.UNKNOWN_OUTCOME
+Retryability.RETRYABLE_AFTER_RECONCILIATION
+OutcomeUncertainty.REQUIRES_RECONCILIATION
+</code></pre></div>
+<p>The caller must invoke <code>reconcile_delete(...)</code>.</p>
+<p>Filesystem reconciliation observes the canonical version directory.</p>
+<p>S3 reconciliation observes both canonical version objects.</p>
+<p>Possible results are:</p>
+<div class="highlight"><pre><span></span><code>CONFIRMED_DELETED
+CONFIRMED_PRESENT
+UNKNOWN
+CONFLICT
+</code></pre></div>
+<p>Reconciliation never blindly executes the delete again.</p>
+<h2 id="postgresql-hold-restart-proof">PostgreSQL hold restart proof</h2>
+<p>LOT-27 extends the real PostgreSQL 16 qualification:</p>
+<div class="highlight"><pre><span></span><code>place hold
+  -&gt; close ledger
+  -&gt; reopen ledger
+  -&gt; active hold recovered
+  -&gt; release hold
+  -&gt; active set empty
+  -&gt; HOLD_PLACED / HOLD_RELEASED history preserved
+</code></pre></div>
+<p>The existing publication-operation and publication-event contracts remain
+unchanged.</p>
+<h2 id="security-properties">Security properties</h2>
+<p>LOT-27 makes destructive capability narrower than storage capability:</p>
+<div class="highlight"><pre><span></span><code>DatasetVersionStore
+    != deletion capability
+
+DatasetVersionGarbageCollector
+    = explicit destructive capability
+    + immutable plan binding
+    + current evidence guard
+    + canonical provider target derivation
+    + reconciliation
+</code></pre></div>
+<p>Filesystem paths and S3 keys are never accepted directly through the frozen
+garbage-collector port.</p>
+<h2 id="executable-evidence">Executable evidence</h2>
+<p>LOT-27 includes:</p>
+<ul>
+<li>pure planner tests for <code>keep_last</code> and <code>min_age_seconds</code>;</li>
+<li>current/hold/unresolved/unverified protections;</li>
+<li>plan-fingerprint drift tests;</li>
+<li>Memory hold lifecycle tests;</li>
+<li>PostgreSQL hold restart/release E2E;</li>
+<li>filesystem delete/idempotence E2E;</li>
+<li>filesystem stale-current protection;</li>
+<li>filesystem symlink/path-escape rejection;</li>
+<li>filesystem unknown-outcome reconciliation;</li>
+<li>S3 delete/idempotence E2E;</li>
+<li>S3 newly-held stale-plan rejection;</li>
+<li>S3 foreign-locator rejection;</li>
+<li>S3 unknown-outcome reconciliation;</li>
+<li>provider/public-contract regression;</li>
+<li>release-blocking filesystem and S3 GC CI gates.</li>
+</ul>
+<p>Machine fixture:</p>
+<div class="highlight"><pre><span></span><code>tests/contract/fixtures/governance_v2_1_beta1.json
+</code></pre></div>
+<p>Milestone checker:</p>
+<div class="highlight"><pre><span></span><code>scripts/check_v2_1_beta1.py
+</code></pre></div>
+<h2 id="next-lot">Next lot</h2>
+<p>LOT-28 / <code>2.1.0b2</code> introduces governed rollback.</p>
+<p>Rollback remains a new CAS publication operation targeting an existing immutable
+historical DatasetVersion. It does not mutate version bytes and does not delete
+history.</p>
 
 
 
