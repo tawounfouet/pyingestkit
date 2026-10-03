@@ -6,8 +6,10 @@ import hashlib
 import importlib
 from collections.abc import Callable
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, cast
-from urllib.parse import urlsplit
+from urllib.parse import unquote, urlsplit
+from urllib.request import url2pathname
 
 from pyingestkit.domain.datasets import DatasetVersionReference
 from pyingestkit.domain.resources import ResourceReference
@@ -360,9 +362,16 @@ def _to_transform_resource(
     ]
     if dataset_version.schema_fingerprint is not None:
         metadata.append(("pyingestkit.schema_fingerprint", dataset_version.schema_fingerprint))
+    locator = resource.locator
+    if parsed.scheme == "file":
+        if parsed.netloc not in {"", "localhost"}:
+            raise PyTransformKitMappingError(
+                "File ResourceReference must not target a remote host."
+            )
+        locator = str(Path(url2pathname(unquote(parsed.path))).resolve(strict=False))
     return api.resource_reference(
         scheme=parsed.scheme,
-        locator=resource.locator,
+        locator=locator,
         media_type=resource.media_type,
         metadata=tuple(metadata),
     )
@@ -378,20 +387,31 @@ def _from_transform_resource(
     if not isinstance(resource, api.resource_reference):
         raise TypeError("resource must be PyTransformKit ResourceReference.")
     provider_resource = cast(Any, resource)
-    locator = provider_resource.locator
-    parsed = urlsplit(locator)
-    if not parsed.scheme:
+    provider_locator = provider_resource.locator
+    parsed = urlsplit(provider_locator)
+    if parsed.scheme:
+        if parsed.scheme != provider_resource.scheme:
+            raise PyTransformKitMappingError(
+                "PyTransformKit output ResourceReference scheme disagrees with its locator."
+            )
+        locator = provider_locator
+        canonical = parsed
+    elif provider_resource.scheme == "file":
+        path = Path(provider_locator).expanduser()
+        if not path.is_absolute():
+            raise PyTransformKitMappingError(
+                "PyTransformKit local output must expose an absolute path for publication."
+            )
+        locator = path.resolve(strict=False).as_uri()
+        canonical = urlsplit(locator)
+    else:
         raise PyTransformKitMappingError(
             "PyTransformKit output ResourceReference requires an explicit URI scheme."
-        )
-    if parsed.scheme != provider_resource.scheme:
-        raise PyTransformKitMappingError(
-            "PyTransformKit output ResourceReference scheme disagrees with its locator."
         )
     resource_id = hashlib.sha256(
         f"{execution_id}\x00{output_name}\x00{locator}".encode()
     ).hexdigest()
-    suffix = parsed.path.rsplit("/", 1)[-1]
+    suffix = canonical.path.rsplit("/", 1)[-1]
     inferred_format = (
         suffix.rsplit(".", 1)[-1].lower() if "." in suffix and not suffix.endswith(".") else None
     )
