@@ -45,9 +45,7 @@ def main() -> int:
 
     expected_version = str(contract["version"])
     if pyingestkit.__version__ != expected_version:
-        raise SystemExit(
-            f"Expected PyIngestKit {expected_version}, got {pyingestkit.__version__}"
-        )
+        raise SystemExit(f"Expected PyIngestKit {expected_version}, got {pyingestkit.__version__}")
 
     root_exports = tuple(str(item) for item in contract["root_exports"])
     if tuple(pyingestkit.__all__) != root_exports:
