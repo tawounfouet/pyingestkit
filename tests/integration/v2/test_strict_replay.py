@@ -133,9 +133,9 @@ def test_strict_replay_uses_historical_raw_without_live_source(tmp_path: Path) -
             source_run_id=source_run_id,
             definition=definition,
             origin_raw_artifact=origin_raw,
-            validation_rules=(RequiredFieldV2("id"),),
             expected_dataset_version=expected,
-        )
+        ),
+        validation_rules=(RequiredFieldV2("id"),),
     )
 
     assert replay.succeeded is True
