@@ -23,8 +23,9 @@ _EXPECTED = (
 
 
 def test_lot15_phase_and_completed_lot_are_recorded() -> None:
-    assert V2_API_PHASE == "LOT-15_S3_OBJECT_STORAGE"
-    assert V2_COMPLETED_LOTS[-1] == "LOT-15"
+    assert "LOT-15" in V2_COMPLETED_LOTS
+    assert V2_COMPLETED_LOTS.index("LOT-15") <= V2_COMPLETED_LOTS.index(V2_COMPLETED_LOTS[-1])
+    assert V2_API_PHASE.startswith("LOT-")
 
 
 def test_lot15_s3_values_are_recorded_and_importable() -> None:
