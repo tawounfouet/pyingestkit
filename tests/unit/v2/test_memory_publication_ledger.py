@@ -4,7 +4,6 @@ import pytest
 
 from pyingestkit.adapters.memory import MemoryPublicationLedger
 from pyingestkit.domain.governance import PublicationLifecycleEventType
-
 from tests.conformance.v2._governance_ledger_contract import (
     exercise_publication_ledger,
     make_event,
