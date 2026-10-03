@@ -6,7 +6,7 @@ import hashlib
 import importlib
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, cast
 from urllib.parse import urlsplit
 
 from pyingestkit.domain.datasets import DatasetVersionReference
@@ -158,12 +158,13 @@ class TransformationPublicationAdapter:
                 "TransformationPublicationAdapter requires PyTransformKit "
                 "TransformationResult."
             )
+        provider_result = cast(Any, result)
         if not isinstance(output_name, str) or not output_name.strip():
             raise ValueError("output_name must be non-blank.")
 
-        output_resource = _output_resource(result, output_name)
+        output_resource = _output_resource(provider_result, output_name)
         execution_reference = api.execution_reference.from_execution(
-            result.execution,
+            provider_result.execution,
             output_reference=output_resource,
         )
         resource = _from_transform_resource(
@@ -172,7 +173,7 @@ class TransformationPublicationAdapter:
             output_name=output_name,
         )
         correlation = from_transform_correlation(
-            result.correlation,
+            provider_result.correlation,
             transformation_execution_id=str(
                 execution_reference.transformation_execution_id
             ),
@@ -237,17 +238,18 @@ def from_transform_correlation(
     api = _pytransformkit_api()
     if not isinstance(context, api.correlation_context):
         raise TypeError("context must be PyTransformKit CorrelationContext.")
+    provider_context = cast(Any, context)
     return CorrelationContext(
-        correlation_id=CorrelationId.parse(str(context.correlation_id)),
-        causation_id=context.causation_id,
-        parent_execution_id=context.parent_execution_id,
-        workflow_run_id=context.workflow_run_id,
-        task_run_id=context.task_run_id,
-        task_attempt_id=context.task_attempt_id,
-        ingestion_run_id=context.ingestion_run_id,
+        correlation_id=CorrelationId.parse(str(provider_context.correlation_id)),
+        causation_id=provider_context.causation_id,
+        parent_execution_id=provider_context.parent_execution_id,
+        workflow_run_id=provider_context.workflow_run_id,
+        task_run_id=provider_context.task_run_id,
+        task_attempt_id=provider_context.task_attempt_id,
+        ingestion_run_id=provider_context.ingestion_run_id,
         transformation_execution_id=transformation_execution_id,
-        trace_id=context.trace_id,
-        span_id=context.span_id,
+        trace_id=provider_context.trace_id,
+        span_id=provider_context.span_id,
     )
 
 
@@ -262,35 +264,36 @@ def from_transform_failure(
     api = _pytransformkit_api()
     if not isinstance(failure, api.failure_evidence):
         raise TypeError("failure must be PyTransformKit FailureEvidence.")
+    provider_failure = cast(Any, failure)
 
-    details = list(failure.details)
+    details = list(provider_failure.details)
     if "transformation_execution_id" not in {key for key, _ in details}:
         details.append(
-            ("transformation_execution_id", str(failure.execution_id))
+            ("transformation_execution_id", str(provider_failure.execution_id))
         )
     try:
-        category = FailureCategory(failure.category.value)
-        retryability = Retryability(failure.retryability.value)
-        uncertainty = OutcomeUncertainty(failure.uncertainty.value)
+        category = FailureCategory(provider_failure.category.value)
+        retryability = Retryability(provider_failure.retryability.value)
+        uncertainty = OutcomeUncertainty(provider_failure.uncertainty.value)
     except ValueError as exc:
         raise PyTransformKitMappingError(
             "PyTransformKit failure contains a semantic value unsupported by PyIngestKit."
         ) from exc
 
     return FailureEvidence(
-        error_code=failure.error_code,
+        error_code=provider_failure.error_code,
         category=category,
         retryability=retryability,
         uncertainty=uncertainty,
         ingestion_run_id=ingestion_run_id,
-        correlation_id=CorrelationId.parse(str(failure.correlation_id)),
-        source_framework=failure.source_framework,
-        source_component=failure.source_component,
-        provider_code=failure.provider_code,
-        message_summary=failure.message_summary,
-        occurred_at=failure.occurred_at,
+        correlation_id=CorrelationId.parse(str(provider_failure.correlation_id)),
+        source_framework=provider_failure.source_framework,
+        source_component=provider_failure.source_component,
+        provider_code=provider_failure.provider_code,
+        message_summary=provider_failure.message_summary,
+        occurred_at=provider_failure.occurred_at,
         details=tuple(details),
-        contract_version=failure.contract_version,
+        contract_version=provider_failure.contract_version,
     )
 
 
@@ -373,7 +376,7 @@ def _to_transform_resource(
     return api.resource_reference(
         scheme=parsed.scheme,
         locator=resource.locator,
-        media_type=resource.media_type,
+        media_type=provider_resource.media_type,
         metadata=tuple(metadata),
     )
 
@@ -387,7 +390,8 @@ def _from_transform_resource(
     api = _pytransformkit_api()
     if not isinstance(resource, api.resource_reference):
         raise TypeError("resource must be PyTransformKit ResourceReference.")
-    locator = resource.locator
+    provider_resource = cast(Any, resource)
+    locator = provider_resource.locator
     resource_id = hashlib.sha256(
         f"{execution_id}\x00{output_name}\x00{locator}".encode("utf-8")
     ).hexdigest()
@@ -412,7 +416,7 @@ def _from_transform_resource(
     )
 
 
-def _output_resource(result: object, output_name: str) -> object:
+def _output_resource(result: Any, output_name: str) -> object:
     links = getattr(result.lineage, "resources", ())
     for link in links:
         role = getattr(getattr(link, "role", None), "value", None)
