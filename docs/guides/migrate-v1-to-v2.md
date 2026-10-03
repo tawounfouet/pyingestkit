@@ -79,4 +79,4 @@ A DataFrame or provider client is not a durable inter-framework contract.
 5. Rebuild ingestion with `IngestionRuntime.run`.
 6. Verify RAW integrity, DatasetVersion identity and publication behavior.
 7. Exercise strict replay.
-8. Run the application against the 2.0 RC before adopting 2.0.0 stable.
+8. Validate the migrated application against PyIngestKit 2.0.0 in a non-production environment before production rollout.
