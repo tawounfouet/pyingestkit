@@ -376,7 +376,7 @@ def _to_transform_resource(
     return api.resource_reference(
         scheme=parsed.scheme,
         locator=resource.locator,
-        media_type=provider_resource.media_type,
+        media_type=resource.media_type,
         metadata=tuple(metadata),
     )
 
@@ -406,7 +406,7 @@ def _from_transform_resource(
         namespace="pyingestkit.integration.pytransformkit.resource",
         resource_id=f"transform_{resource_id}",
         locator=locator,
-        media_type=resource.media_type,
+        media_type=provider_resource.media_type,
         format=inferred_format,
         metadata=(
             ("source_framework", "pytransformkit"),
