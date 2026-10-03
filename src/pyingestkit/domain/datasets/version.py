@@ -73,6 +73,7 @@ def build_dataset_version(
     request: DecodeRequest,
     result: DecodeResult,
     created_at: datetime,
+    metadata: tuple[tuple[str, str], ...] = (),
 ) -> DatasetVersion:
     """Promote successful decode evidence into a deterministic logical version."""
 
@@ -96,6 +97,7 @@ def build_dataset_version(
         created_at=created_at,
         schema_fingerprint=result.schema.fingerprint,
         content_fingerprint=content_fingerprint,
+        metadata=metadata,
     )
     return DatasetVersion(
         reference=reference,
