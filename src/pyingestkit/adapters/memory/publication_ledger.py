@@ -93,9 +93,7 @@ class MemoryPublicationLedger(PublicationLedger):
         self,
         dataset_id: str | None = None,
     ) -> tuple[PublicationIntent, ...]:
-        if dataset_id is not None and (
-            not isinstance(dataset_id, str) or not dataset_id.strip()
-        ):
+        if dataset_id is not None and (not isinstance(dataset_id, str) or not dataset_id.strip()):
             raise ValueError("MemoryPublicationLedger dataset_id must be non-blank or None.")
         with self._lock:
             values = (
@@ -120,9 +118,7 @@ class MemoryPublicationLedger(PublicationLedger):
                 "MemoryPublicationLedger.list_events operation_id must be "
                 "PublicationOperationId or None."
             )
-        if dataset_id is not None and (
-            not isinstance(dataset_id, str) or not dataset_id.strip()
-        ):
+        if dataset_id is not None and (not isinstance(dataset_id, str) or not dataset_id.strip()):
             raise ValueError("MemoryPublicationLedger dataset_id must be non-blank or None.")
         with self._lock:
             return tuple(
