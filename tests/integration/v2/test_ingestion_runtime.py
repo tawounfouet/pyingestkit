@@ -6,13 +6,12 @@ from pathlib import Path
 from pyingestkit.adapters.filesystem import FileAccessPolicy, FileSourceConnector
 from pyingestkit.application.decoders import DecoderRegistry
 from pyingestkit.application.sources import SourceRegistry
-from pyingestkit.artifacts import FileArtifactStore
 from pyingestkit.decoders import CsvDecoder
 from pyingestkit.domain.ingestion import IngestionDefinition
 from pyingestkit.domain.runtime import IngestionStatus
 from pyingestkit.domain.sources import Source
 from pyingestkit.runtime.v2 import IngestionRuntime
-from pyingestkit.stores import FileDatasetVersionStore
+from pyingestkit.stores import FileArtifactStore, FileDatasetVersionStore
 from pyingestkit.validation.v2 import RequiredFieldV2
 
 
