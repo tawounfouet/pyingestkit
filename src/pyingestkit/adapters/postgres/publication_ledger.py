@@ -33,6 +33,7 @@ from pyingestkit.domain.governance import (
     PublicationOperationId,
     VersionHold,
 )
+from pyingestkit.domain.shared.validation import validate_aware_datetime
 from pyingestkit.governance._ledger_codec import (
     decode_event,
     decode_intent,
@@ -40,7 +41,6 @@ from pyingestkit.governance._ledger_codec import (
     encode_intent,
     is_terminal_event,
 )
-from pyingestkit.domain.shared.validation import validate_aware_datetime
 from pyingestkit.ports.governance import PublicationLedger
 
 _METADATA = MetaData()
@@ -384,7 +384,7 @@ def _hold_id(reference: DatasetVersionReference, held_at: datetime) -> str:
             f"{reference.dataset_id}\0"
             f"{reference.version_id}\0"
             f"{held_at.isoformat()}"
-        ).encode("utf-8")
+        ).encode()
     ).hexdigest()
     return f"hold:{digest}"
 
@@ -400,7 +400,7 @@ def _hold_event(
             f"{hold.dataset_version.version_id}\0"
             f"{event_type.value}\0"
             f"{occurred_at.isoformat()}"
-        ).encode("utf-8")
+        ).encode()
     ).hexdigest()
     metadata: tuple[tuple[str, str], ...] = ()
     if hold.reason is not None:
