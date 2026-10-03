@@ -52,15 +52,9 @@ def test_raw_evidence_does_not_own_dataset_or_transformation_state() -> None:
     )
 
 
-def test_v1_artifacts_star_import_contract_is_unchanged() -> None:
-    assert public_artifacts.__all__ == [
-        "ArtifactStore",
-        "ArtifactURI",
-        "LocalArtifactStore",
-        "RawArtifact",
-        "S3ArtifactStore",
-        "StoredArtifact",
-        "create_artifact_store",
-    ]
-    assert hasattr(public_artifacts, "ArtifactReference")
-    assert hasattr(public_artifacts, "PutArtifactRequest")
+def test_v2_artifacts_namespace_is_promoted_at_rc() -> None:
+    assert "ArtifactStore" in public_artifacts.__all__
+    assert "ArtifactReference" in public_artifacts.__all__
+    assert "PutArtifactRequest" in public_artifacts.__all__
+    assert "ArtifactURI" not in public_artifacts.__all__
+    assert "RawArtifact" not in public_artifacts.__all__
