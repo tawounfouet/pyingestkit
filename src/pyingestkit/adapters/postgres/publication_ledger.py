@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from collections.abc import Iterator
 from contextlib import contextmanager
-from datetime import datetime
 from typing import cast
 
 from sqlalchemy import (
@@ -21,7 +20,7 @@ from sqlalchemy import (
     update,
 )
 from sqlalchemy.dialects.postgresql import insert as postgres_insert
-from sqlalchemy.engine import Connection, Engine, RowMapping, make_url
+from sqlalchemy.engine import Connection, Engine, make_url
 from sqlalchemy.exc import ArgumentError, NoSuchModuleError, SQLAlchemyError
 
 from pyingestkit.domain.governance import (
