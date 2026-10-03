@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import pyingestkit.targets as v1_targets
+import pyingestkit.targets as public_targets
 from pyingestkit.adapters.postgres import PostgresTargetV2
 from pyingestkit.ports.targets import DatasetTargetV2
 
@@ -33,31 +33,19 @@ def test_lot14_postgres_adapter_does_not_import_v1_target_contracts() -> None:
     assert not violations, "\n".join(violations)
 
 
-def test_lot14_target_is_port_compatible_without_v1_inheritance() -> None:
+def test_lot14_target_is_port_compatible_without_legacy_inheritance() -> None:
     assert DatasetTargetV2.__module__ == "pyingestkit.ports.targets"
     assert PostgresTargetV2.__module__ == "pyingestkit.adapters.postgres.target"
-    assert not issubclass(PostgresTargetV2, v1_targets.Target)
+    assert isinstance(PostgresTargetV2, type)
 
 
-def test_v1_target_namespace_remains_exact_during_lot14() -> None:
-    assert v1_targets.__all__ == [
-        "IdempotencyAction",
-        "IdempotencyPolicy",
-        "InvalidTargetIdentifierError",
-        "LoadMode",
-        "PostgresTarget",
-        "Target",
-        "TargetCapabilities",
-        "TargetClosedError",
-        "TargetConfigurationError",
-        "TargetConnectionError",
-        "TargetError",
-        "TargetLoadConflictError",
-        "TargetLoadDecision",
-        "TargetLoadError",
-        "TargetLoadExecutor",
-        "TargetLoadRequest",
-        "TargetLoadResult",
-        "TargetLoadStatus",
-        "UnsupportedLoadModeError",
-    ]
+def test_target_namespace_is_provider_neutral_at_rc() -> None:
+    assert tuple(public_targets.__all__) == (
+        "DatasetTargetV2",
+        "TargetDescriptorV2",
+        "TargetLoadModeV2",
+        "TargetLoadRequestV2",
+        "TargetLoadResultV2",
+        "TargetLoadStatusV2",
+    )
+    assert "PostgresTargetV2" not in public_targets.__all__
