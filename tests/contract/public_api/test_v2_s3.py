@@ -28,8 +28,8 @@ def test_lot15_phase_and_completed_lot_are_recorded() -> None:
     assert V2_API_PHASE.startswith("LOT-")
 
 
-def test_lot15_s3_values_are_recorded_and_importable() -> None:
-    assert V2_IMPLEMENTED_S3_VALUES == _EXPECTED
+def test_lot15_s3_values_remain_recorded_and_importable() -> None:
+    assert set(_EXPECTED).issubset(V2_IMPLEMENTED_S3_VALUES)
     values = (
         S3ArtifactReaderV2,
         S3ArtifactStoreV2,

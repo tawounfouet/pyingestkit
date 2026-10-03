@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 from collections.abc import Mapping
+from contextlib import suppress
 from typing import Any, Protocol, cast
 from urllib.parse import urlsplit
 
@@ -20,6 +21,8 @@ class S3ClientV2(Protocol):
     def get_object(self, *, Bucket: str, Key: str) -> Mapping[str, Any]: ...
 
     def list_objects_v2(self, **kwargs: Any) -> Mapping[str, Any]: ...
+
+    def delete_object(self, *, Bucket: str, Key: str) -> Mapping[str, Any]: ...
 
 
 def validate_s3_endpoint_v2(endpoint_url: str | None) -> None:
@@ -50,6 +53,14 @@ def create_s3_client_v2(
         S3ClientV2,
         boto3.client("s3", region_name=region_name, endpoint_url=endpoint_url),
     )
+
+
+class S3ConditionalWriteConflictV2(RuntimeError):
+    """Provider rejected a stale/duplicate conditional object write."""
+
+
+class S3ConditionalWriteCapabilityErrorV2(RuntimeError):
+    """Endpoint did not prove the conditional-write profile required by LOT-26."""
 
 
 class S3ObjectIOV2:
@@ -161,21 +172,184 @@ class S3ObjectIOV2:
             if _error_code(exc) in {"404", "NoSuchKey", "NotFound"}:
                 raise KeyError(key) from exc
             raise RuntimeError("Unable to read S3 object.") from exc
-        body = response.get("Body")
-        if body is None or not hasattr(body, "read"):
-            raise RuntimeError("S3 object response does not contain a readable body.")
-        content = cast(S3BodyV2, body).read()
-        if not isinstance(content, bytes):
-            raise RuntimeError("S3 object body did not return bytes.")
+        return _validated_body(response)
 
-        metadata = response.get("Metadata")
-        if not isinstance(metadata, Mapping):
-            raise RuntimeError("S3 object is missing integrity metadata.")
-        expected = metadata.get("pyingestkit-sha256")
-        actual = hashlib.sha256(content).hexdigest()
-        if expected != actual:
-            raise ValueError("S3 object SHA-256 metadata does not match stored bytes.")
-        return content
+    def read_with_etag(self, key: str) -> tuple[bytes, str]:
+        """Read one object together with its provider token for internal CAS use."""
+        try:
+            response = self.client.get_object(Bucket=self.bucket, Key=key)
+        except Exception as exc:  # noqa: BLE001 - optional provider boundary
+            if _error_code(exc) in {"404", "NoSuchKey", "NotFound"}:
+                raise KeyError(key) from exc
+            raise RuntimeError("Unable to read S3 object for conditional publication.") from exc
+        content = _validated_body(response)
+        etag = response.get("ETag")
+        if not isinstance(etag, str) or not etag.strip():
+            raise RuntimeError("S3 object response is missing a usable ETag.")
+        return content, etag
+
+    def put_if_absent(
+        self,
+        key: str,
+        content: bytes,
+        *,
+        kind: str,
+        content_type: str | None = None,
+    ) -> str:
+        return self._put_conditional(
+            key,
+            content,
+            kind=kind,
+            content_type=content_type,
+            if_none_match="*",
+        )
+
+    def put_if_match(
+        self,
+        key: str,
+        content: bytes,
+        *,
+        expected_etag: str,
+        kind: str,
+        content_type: str | None = None,
+    ) -> str:
+        if not isinstance(expected_etag, str) or not expected_etag.strip():
+            raise ValueError("expected_etag must be non-blank.")
+        return self._put_conditional(
+            key,
+            content,
+            kind=kind,
+            content_type=content_type,
+            if_match=expected_etag,
+        )
+
+    def delete(self, key: str) -> None:
+        try:
+            self.client.delete_object(Bucket=self.bucket, Key=key)
+        except Exception as exc:  # noqa: BLE001 - optional provider boundary
+            raise RuntimeError("Unable to delete S3 object.") from exc
+
+    def qualify_conditional_writes(self, *, probe_key: str) -> None:
+        """Prove the endpoint's create-if-absent and compare-and-replace semantics."""
+        first = b"pyingestkit-cas-probe-v1"
+        second = b"pyingestkit-cas-probe-v2"
+        third = b"pyingestkit-cas-probe-stale"
+        try:
+            initial_etag = self.put_if_absent(
+                probe_key,
+                first,
+                kind="conditional-publication-probe",
+                content_type="application/octet-stream",
+            )
+            try:
+                self.put_if_absent(
+                    probe_key,
+                    second,
+                    kind="conditional-publication-probe",
+                    content_type="application/octet-stream",
+                )
+            except S3ConditionalWriteConflictV2:
+                pass
+            else:
+                raise S3ConditionalWriteCapabilityErrorV2(
+                    "Endpoint did not enforce atomic create-if-absent."
+                )
+
+            observed, observed_etag = self.read_with_etag(probe_key)
+            if observed != first:
+                raise S3ConditionalWriteCapabilityErrorV2(
+                    "Endpoint changed probe bytes after rejected create-if-absent."
+                )
+            if observed_etag != initial_etag:
+                initial_etag = observed_etag
+
+            replacement_etag = self.put_if_match(
+                probe_key,
+                second,
+                expected_etag=initial_etag,
+                kind="conditional-publication-probe",
+                content_type="application/octet-stream",
+            )
+            try:
+                self.put_if_match(
+                    probe_key,
+                    third,
+                    expected_etag=initial_etag,
+                    kind="conditional-publication-probe",
+                    content_type="application/octet-stream",
+                )
+            except S3ConditionalWriteConflictV2:
+                pass
+            else:
+                raise S3ConditionalWriteCapabilityErrorV2(
+                    "Endpoint did not reject a stale compare-and-replace token."
+                )
+
+            final, final_etag = self.read_with_etag(probe_key)
+            if final != second or final_etag != replacement_etag:
+                raise S3ConditionalWriteCapabilityErrorV2(
+                    "Endpoint conditional replacement could not be reconciled from provider truth."
+                )
+        except S3ConditionalWriteConflictV2 as exc:
+            raise S3ConditionalWriteCapabilityErrorV2(
+                "Endpoint probe key unexpectedly conflicted during first creation."
+            ) from exc
+        except S3ConditionalWriteCapabilityErrorV2:
+            raise
+        except (RuntimeError, ValueError) as exc:
+            raise S3ConditionalWriteCapabilityErrorV2(
+                "Endpoint failed the conditional-write capability probe."
+            ) from exc
+        finally:
+            with suppress(RuntimeError):
+                self.delete(probe_key)
+
+    def _put_conditional(
+        self,
+        key: str,
+        content: bytes,
+        *,
+        kind: str,
+        content_type: str | None,
+        if_none_match: str | None = None,
+        if_match: str | None = None,
+    ) -> str:
+        if (if_none_match is None) == (if_match is None):
+            raise ValueError("Exactly one S3 conditional write precondition is required.")
+        digest = hashlib.sha256(content).hexdigest()
+        request: dict[str, Any] = {
+            "Bucket": self.bucket,
+            "Key": key,
+            "Body": content,
+            "Metadata": {
+                "pyingestkit-sha256": digest,
+                "pyingestkit-kind": kind,
+            },
+        }
+        if content_type is not None:
+            request["ContentType"] = content_type
+        if if_none_match is not None:
+            request["IfNoneMatch"] = if_none_match
+        if if_match is not None:
+            request["IfMatch"] = if_match
+        try:
+            response = self.client.put_object(**request)
+        except Exception as exc:  # noqa: BLE001 - optional provider boundary
+            if _error_code(exc) in {
+                "409",
+                "412",
+                "ConditionalRequestConflict",
+                "PreconditionFailed",
+            }:
+                raise S3ConditionalWriteConflictV2("S3 conditional write conflicted.") from exc
+            raise RuntimeError("Unable to perform conditional S3 object write.") from exc
+        etag = response.get("ETag")
+        if not isinstance(etag, str) or not etag.strip():
+            head = self.head(key)
+            etag = None if head is None else head.get("ETag")
+        if not isinstance(etag, str) or not etag.strip():
+            raise RuntimeError("Conditional S3 write did not return a usable ETag.")
+        return etag
 
     def list_keys(self, prefix: str) -> tuple[str, ...]:
         values: list[str] = []
@@ -215,3 +389,20 @@ def _error_code(exc: BaseException) -> str | None:
         return None
     code = error.get("Code")
     return None if code is None else str(code)
+
+
+def _validated_body(response: Mapping[str, Any]) -> bytes:
+    body = response.get("Body")
+    if body is None or not hasattr(body, "read"):
+        raise RuntimeError("S3 object response does not contain a readable body.")
+    content = cast(S3BodyV2, body).read()
+    if not isinstance(content, bytes):
+        raise RuntimeError("S3 object body did not return bytes.")
+    metadata = response.get("Metadata")
+    if not isinstance(metadata, Mapping):
+        raise RuntimeError("S3 object is missing integrity metadata.")
+    expected = metadata.get("pyingestkit-sha256")
+    actual = hashlib.sha256(content).hexdigest()
+    if expected != actual:
+        raise ValueError("S3 object SHA-256 metadata does not match stored bytes.")
+    return content

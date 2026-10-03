@@ -27,7 +27,7 @@ jobs:
       - name: Frozen PyIngestKit 2.0 compatibility
         run: python scripts/check_v2_compatibility.py
       - name: Current PyIngestKit V2 milestone contract
-        run: python scripts/check_v2_1_alpha3.py
+        run: python scripts/check_v2_1_alpha4.py
 
   v2-architecture-baseline:
     runs-on: ubuntu-latest
@@ -135,7 +135,7 @@ jobs:
               "ResourceReference",
               "Source",
           )
-          assert pyingestkit.__version__ == "2.1.0a3"
+          assert pyingestkit.__version__ == "2.1.0a4"
           assert hasattr(pyingestkit.IngestionRuntime, "run")
           import pyingestkit.governance as governance
           assert "PublicationLedger" in governance.__all__
@@ -223,7 +223,7 @@ jobs:
           /tmp/pyingestkit-v2-sdist/bin/python - <<'PY'
           import pyingestkit
 
-          assert pyingestkit.__version__ == "2.1.0a3"
+          assert pyingestkit.__version__ == "2.1.0a4"
           assert tuple(pyingestkit.__all__) == (
               "ArtifactReference",
               "DatasetVersion",
@@ -371,6 +371,45 @@ jobs:
       - name: V2 S3 cross-host replay qualification
         run: python -m pytest -q tests/integration/v2/test_s3_cross_host_replay_v2.py
 
+  s3-cas-e2e:
+    runs-on: ubuntu-latest
+    env:
+      AWS_DEFAULT_REGION: us-east-1
+      PYINGEST_TEST_S3_ENDPOINT_URL: http://127.0.0.1:9000
+      PYINGEST_TEST_S3_BUCKET: pyingestkit
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Generate ephemeral S3 test credentials
+        shell: bash
+        run: |
+          user="ci$(python -c 'import secrets; print(secrets.token_hex(8))')"
+          password="$(python -c 'import secrets; print(secrets.token_urlsafe(32))')"
+          echo "AWS_ACCESS_KEY_ID=$user" >> "$GITHUB_ENV"
+          echo "AWS_SECRET_ACCESS_KEY=$password" >> "$GITHUB_ENV"
+      - name: Start qualifying S3-compatible endpoint
+        shell: bash
+        run: |
+          python -m pip install "moto[server]>=5.1,<6"
+          moto_server -H 127.0.0.1 -p 9000 >/tmp/pyingestkit-moto-s3-cas.log 2>&1 &
+          for attempt in {1..30}; do
+            if curl -fsS http://127.0.0.1:9000/ >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/pyingestkit-moto-s3-cas.log
+          exit 1
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e ".[dev,s3]"
+      - name: LOT-26 S3 conditional publication qualification
+        run: >-
+          python -m pytest -q
+          tests/conformance/v2/test_s3_conditional_publication_capability.py
+          tests/integration/v2/test_s3_conditional_publication.py
+
   object-storage-e2e:
     runs-on: ubuntu-latest
     services:
@@ -441,8 +480,8 @@ jobs:
         run: make release-check
       - name: Validate frozen 2.0 compatibility baseline
         run: python scripts/check_v2_compatibility.py
-      - name: Validate LOT-25 milestone contract
-        run: python scripts/check_v2_1_alpha3.py
+      - name: Validate LOT-26 milestone contract
+        run: python scripts/check_v2_1_alpha4.py
       - name: Build SHA-256 manifest
         shell: bash
         run: |
@@ -452,19 +491,19 @@ jobs:
 
           paths = sorted(Path("dist").glob("*"))
           lines = [f"{sha256(path.read_bytes()).hexdigest()}  {path.as_posix()}" for path in paths]
-          Path("SHA256SUMS-v2.1.0a3").write_text(
+          Path("SHA256SUMS-v2.1.0a4").write_text(
               "\n".join(lines) + "\n",
               encoding="utf-8",
           )
-          print(Path("SHA256SUMS-v2.1.0a3").read_text(encoding="utf-8"), end="")
+          print(Path("SHA256SUMS-v2.1.0a4").read_text(encoding="utf-8"), end="")
           PY
       - name: Upload V2 stable distribution evidence
         uses: actions/upload-artifact@v7
         with:
-          name: pyingestkit-v2.1.0a3-dist
+          name: pyingestkit-v2.1.0a4-dist
           path: |
             dist/*
-            SHA256SUMS-v2.1.0a3
+            SHA256SUMS-v2.1.0a4
           if-no-files-found: error
 
   v1-history-gate:
@@ -489,6 +528,7 @@ jobs:
       - postgres-e2e
       - filesystem-cas-e2e
       - s3-e2e
+      - s3-cas-e2e
       - object-storage-e2e
       - stable-artifact-verify
       - v1-history-gate
@@ -505,6 +545,6 @@ jobs:
       - run: python -m pip install -e ".[postgres]"
       - name: Validate frozen PyIngestKit 2.0 compatibility
         run: python scripts/check_v2_compatibility.py
-      - name: Validate current LOT-25 milestone
-        run: python scripts/check_v2_1_alpha3.py
-      - run: echo "PyIngestKit 2.1.0a3 LOT-25 qualification passed with frozen 2.0 compatibility."
+      - name: Validate current LOT-26 milestone
+        run: python scripts/check_v2_1_alpha4.py
+      - run: echo "PyIngestKit 2.1.0a4 LOT-26 qualification passed with frozen 2.0 compatibility."

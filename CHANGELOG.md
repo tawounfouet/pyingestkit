@@ -2,6 +2,19 @@
 
 All notable changes to PyIngestKit are documented here.
 
+## [2.1.0a4] - 2026-10-04
+
+### Alpha 4 — S3 Conditional Publication / Endpoint Conformance
+
+- added `S3ConditionalDatasetPublisher` as an endpoint-qualified implementation of the frozen LOT-23 `ConditionalDatasetPublisher` port;
+- added internal S3 create-if-absent and compare-and-replace writes using `If-None-Match: *` and `If-Match` without exposing provider ETags through portable revisions;
+- added construction-time capability qualification that fails closed when an S3-compatible endpoint ignores or cannot prove conditional-write semantics;
+- mapped provider precondition failures to explicit framework conflicts while treating ambiguous write failures as `UNKNOWN_OUTCOME` requiring reconciliation;
+- preserved framework-owned ABA-safe `PublicationRevision` progression independently from S3 ETags;
+- proved initial and existing-revision races with two independent S3 clients synchronized after inspection so provider preconditions arbitrate the winner;
+- proved acknowledgement-loss reconciliation without blind republish and retained compatibility with the frozen `S3DatasetVersionStoreV2.get_published(...)` reader;
+- preserved optional boto3 loading behind the existing `[s3]` extra and all frozen 2.0 / LOT-23 contracts.
+
 ## [2.1.0a3] - 2026-10-03
 
 ### Alpha 3 — Filesystem Conditional Publication / CAS
