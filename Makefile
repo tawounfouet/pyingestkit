@@ -1,4 +1,4 @@
-.PHONY: bootstrap install install-dev install-demo docs-install docs-build docs-serve docs-deploy test test-v2 test-demo compatibility stability pilots rc stable check check-v2 format quality security build wheel-smoke upgrade-smoke demo verify release-check stable-v2 architecture-v2 contract-v2 v2-core v2-baseline clean
+.PHONY: bootstrap install install-dev install-demo docs-install docs-build docs-serve docs-deploy test test-v2 test-demo compatibility stability pilots rc stable check check-v2 format quality security build wheel-smoke upgrade-smoke demo verify release-check stable-v2 compatibility-v2 milestone-v2 architecture-v2 contract-v2 v2-core v2-baseline clean
 
 DOCS_VERSION ?= 2.0
 DOCS_ALIAS ?= latest
@@ -77,9 +77,9 @@ format:
 	ruff format src tests examples/plugin_package/src examples/plugin_package/tests
 
 quality:
-	ruff check src/pyingestkit tests/architecture tests/contract/public_api tests/unit/v2 tests/conformance/v2 tests/integration/v2 tests/migration/v2 scripts/check_v2_stable.py
-	ruff format --check src/pyingestkit tests/architecture tests/contract/public_api tests/unit/v2 tests/conformance/v2 tests/integration/v2 tests/migration/v2 scripts/check_v2_stable.py
-	mypy src/pyingestkit/__init__.py src/pyingestkit/_api_v2.py src/pyingestkit/_architecture_v2.py src/pyingestkit/domain src/pyingestkit/application src/pyingestkit/ports src/pyingestkit/adapters/filesystem src/pyingestkit/adapters/formats src/pyingestkit/adapters/http src/pyingestkit/adapters/postgres src/pyingestkit/adapters/s3 src/pyingestkit/serialization src/pyingestkit/integrations src/pyingestkit/migration
+	ruff check src/pyingestkit tests/architecture tests/contract/public_api tests/unit/v2 tests/conformance/v2 tests/integration/v2 tests/migration/v2 scripts/check_v2*.py
+	ruff format --check src/pyingestkit tests/architecture tests/contract/public_api tests/unit/v2 tests/conformance/v2 tests/integration/v2 tests/migration/v2 scripts/check_v2*.py
+	mypy src/pyingestkit/__init__.py src/pyingestkit/_api_v2.py src/pyingestkit/_architecture_v2.py src/pyingestkit/domain src/pyingestkit/application src/pyingestkit/ports src/pyingestkit/governance src/pyingestkit/adapters/filesystem src/pyingestkit/adapters/formats src/pyingestkit/adapters/http src/pyingestkit/adapters/postgres src/pyingestkit/adapters/s3 src/pyingestkit/serialization src/pyingestkit/integrations src/pyingestkit/migration
 
 security: bootstrap
 	bandit -q -r src/pyingestkit
@@ -96,10 +96,15 @@ upgrade-smoke:
 
 verify: check-v2 quality security build
 
-stable-v2:
-	PYTHONPATH=src python scripts/check_v2_stable.py
+compatibility-v2:
+	PYTHONPATH=src python scripts/check_v2_compatibility.py
 
-release-check: verify stable-v2
+milestone-v2:
+	PYTHONPATH=src python scripts/check_v2_1_alpha1.py
+
+stable-v2: compatibility-v2
+
+release-check: verify compatibility-v2 milestone-v2
 
 demo: install-demo
 	pyingest jobs

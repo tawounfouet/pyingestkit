@@ -16,6 +16,12 @@
 
 The V1 `Job / Pipeline / Step / Runner` execution model is **not** aliased into the 2.0 root. Existing V1 workloads should remain pinned to the 1.x line until they are migrated semantically.
 
+## 2.1 development line
+
+Repository `main` is now on **2.1.0a1 / LOT-23**. The first 2.1 milestone adds provider-neutral publication/lifecycle governance values and Protocols under the qualified `pyingestkit.governance` namespace while preserving the exact 2.0 package root and frozen contracts.
+
+No PostgreSQL lifecycle ledger, filesystem/S3 CAS, physical GC or rollback side effect is implemented in LOT-23. Those capabilities are sequenced in LOT-24 through LOT-30.
+
 ## Product boundary
 
 PyIngestKit owns **HOW TO INGEST**. External orchestrators own **WHEN TO RUN**.

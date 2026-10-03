@@ -24,8 +24,10 @@ jobs:
         run: make check-v2
       - name: V2 stable quality
         run: make quality
-      - name: V2 stable frozen contract
-        run: python scripts/check_v2_stable.py
+      - name: Frozen PyIngestKit 2.0 compatibility
+        run: python scripts/check_v2_compatibility.py
+      - name: Current PyIngestKit V2 milestone contract
+        run: python scripts/check_v2_1_alpha1.py
 
   v2-architecture-baseline:
     runs-on: ubuntu-latest
@@ -132,8 +134,11 @@ jobs:
               "ResourceReference",
               "Source",
           )
-          assert pyingestkit.__version__ == "2.0.0"
+          assert pyingestkit.__version__ == "2.1.0a1"
           assert hasattr(pyingestkit.IngestionRuntime, "run")
+          import pyingestkit.governance as governance
+          assert "PublicationLedger" in governance.__all__
+          assert "ConditionalDatasetPublisher" in governance.__all__
 
           with tempfile.TemporaryDirectory() as directory:
               root = Path(directory)
@@ -216,7 +221,7 @@ jobs:
           /tmp/pyingestkit-v2-sdist/bin/python - <<'PY'
           import pyingestkit
 
-          assert pyingestkit.__version__ == "2.0.0"
+          assert pyingestkit.__version__ == "2.1.0a1"
           assert tuple(pyingestkit.__all__) == (
               "ArtifactReference",
               "DatasetVersion",
@@ -412,10 +417,12 @@ jobs:
           python-version: "3.12"
       - run: python -m pip install --upgrade pip
       - run: python -m pip install -e ".[dev]"
-      - name: V2 stable release check
+      - name: V2 current release-line check
         run: make release-check
-      - name: Validate frozen stable contract
-        run: python scripts/check_v2_stable.py
+      - name: Validate frozen 2.0 compatibility baseline
+        run: python scripts/check_v2_compatibility.py
+      - name: Validate LOT-23 milestone contract
+        run: python scripts/check_v2_1_alpha1.py
       - name: Build SHA-256 manifest
         shell: bash
         run: |
@@ -425,19 +432,19 @@ jobs:
 
           paths = sorted(Path("dist").glob("*"))
           lines = [f"{sha256(path.read_bytes()).hexdigest()}  {path.as_posix()}" for path in paths]
-          Path("SHA256SUMS-v2.0.0").write_text(
+          Path("SHA256SUMS-v2.1.0a1").write_text(
               "\n".join(lines) + "\n",
               encoding="utf-8",
           )
-          print(Path("SHA256SUMS-v2.0.0").read_text(encoding="utf-8"), end="")
+          print(Path("SHA256SUMS-v2.1.0a1").read_text(encoding="utf-8"), end="")
           PY
       - name: Upload V2 stable distribution evidence
         uses: actions/upload-artifact@v7
         with:
-          name: pyingestkit-v2.0.0-dist
+          name: pyingestkit-v2.1.0a1-dist
           path: |
             dist/*
-            SHA256SUMS-v2.0.0
+            SHA256SUMS-v2.1.0a1
           if-no-files-found: error
 
   v1-history-gate:
@@ -475,6 +482,8 @@ jobs:
           python-version: "3.12"
       - run: python -m pip install --upgrade pip
       - run: python -m pip install -e .
-      - name: Validate PyIngestKit 2.0.0 stable contract
-        run: python scripts/check_v2_stable.py
-      - run: echo "All PyIngestKit 2.0.0 stable qualification tiers passed."
+      - name: Validate frozen PyIngestKit 2.0 compatibility
+        run: python scripts/check_v2_compatibility.py
+      - name: Validate current LOT-23 milestone
+        run: python scripts/check_v2_1_alpha1.py
+      - run: echo "PyIngestKit 2.1.0a1 LOT-23 qualification passed with frozen 2.0 compatibility."

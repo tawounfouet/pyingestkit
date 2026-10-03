@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "milestone": "LOT-23",
+  "version": "2.1.0a1",
+  "baseline": {
+    "roadmap_merge_sha": "28f788505b8bd21b5b2d389f697230c8418ee5bf",
+    "stable_2_0_fixture": "tests/contract/fixtures/stable_release_v2.json"
+  },
+  "qualified_namespace": "pyingestkit.governance",
+  "namespace_exports": [
+    "ConditionalDatasetPublisher",
+    "ConditionalPublicationOutcome",
+    "ConditionalPublicationStatus",
+    "DatasetVersionDeletionReconciliationResult",
+    "DatasetVersionDeletionReconciliationStatus",
+    "DatasetVersionDeletionResult",
+    "DatasetVersionDeletionStatus",
+    "DatasetVersionGarbageCollector",
+    "GarbageCollectionPlan",
+    "GarbageCollectionPlanId",
+    "PublicationIntent",
+    "PublicationLedger",
+    "PublicationLifecycleEvent",
+    "PublicationLifecycleEventType",
+    "PublicationOperationId",
+    "PublicationRevision",
+    "PublicationSnapshot",
+    "RetentionPolicy",
+    "VersionHold"
+  ],
+  "protocols": {
+    "pyingestkit.ports.governance.PublicationLedger": [
+      "register",
+      "append",
+      "get_operation",
+      "list_operations",
+      "list_unresolved"
+    ],
+    "pyingestkit.ports.governance.ConditionalDatasetPublisher": [
+      "inspect",
+      "compare_and_publish"
+    ],
+    "pyingestkit.ports.governance.DatasetVersionGarbageCollector": [
+      "delete",
+      "reconcile_delete"
+    ]
+  },
+  "required_docs": [
+    "docs/architecture/v2-lot23-governance-domain-ports.md",
+    "docs/roadmap/rfc001-publication-lifecycle-implementation-roadmap.md",
+    "docs/rfc/RFC-001-publication-lifecycle-governance.md"
+  ],
+  "protocol_signatures": {
+    "pyingestkit.ports.governance.PublicationLedger": {
+      "register": [
+        "self",
+        "intent"
+      ],
+      "append": [
+        "self",
+        "event"
+      ],
+      "get_operation": [
+        "self",
+        "operation_id"
+      ],
+      "list_operations": [
+        "self",
+        "dataset_id"
+      ],
+      "list_unresolved": [
+        "self",
+        "dataset_id"
+      ]
+    },
+    "pyingestkit.ports.governance.ConditionalDatasetPublisher": {
+      "inspect": [
+        "self",
+        "dataset_id"
+      ],
+      "compare_and_publish": [
+        "self",
+        "intent"
+      ]
+    },
+    "pyingestkit.ports.governance.DatasetVersionGarbageCollector": {
+      "delete": [
+        "self",
+        "reference",
+        "plan_id",
+        "expected_evidence",
+        "requested_at"
+      ],
+      "reconcile_delete": [
+        "self",
+        "reference",
+        "plan_id",
+        "reconciled_at"
+      ]
+    }
+  }
+}
