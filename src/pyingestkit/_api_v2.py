@@ -8,9 +8,10 @@ immutable content-addressed DatasetVersion semantics, LOT-08 added durable
 version storage plus atomic publication, LOT-09 added portable ingestion
 run/result lifecycle evidence, LOT-10 added explicit V2 IngestionRuntime
 composition, LOT-11 added strict replay from durable historical RAW, LOT-12
-cut V2 runtime callers over to the qualified runtime surface, and LOT-13 adds
-secure HTTP acquisition/provenance while the V1 package keeps its exact
-star-import contract until the 2.0 alpha cut.
+cut V2 runtime callers over to the qualified runtime surface, LOT-13 added
+secure HTTP acquisition/provenance, and LOT-14 adds transactional PostgreSQL
+materialization for immutable dataset versions while the V1 package keeps its
+exact star-import contract until the 2.0 alpha cut.
 """
 
 from __future__ import annotations
@@ -88,6 +89,16 @@ V2_IMPLEMENTED_HTTP_VALUES: tuple[str, ...] = (
     "HttpSourceConnector",
     "HttpTimeoutErrorV2",
     "HttpTransportErrorV2",
+)
+
+V2_IMPLEMENTED_TARGET_VALUES: tuple[str, ...] = (
+    "DatasetTargetV2",
+    "PostgresTargetV2",
+    "TargetDescriptorV2",
+    "TargetLoadModeV2",
+    "TargetLoadRequestV2",
+    "TargetLoadResultV2",
+    "TargetLoadStatusV2",
 )
 
 V2_IMPLEMENTED_ARTIFACT_VALUES: tuple[str, ...] = (
@@ -191,6 +202,7 @@ V2_COMPLETED_LOTS: tuple[str, ...] = (
     "LOT-11",
     "LOT-12",
     "LOT-13",
+    "LOT-14",
 )
 
 V2_MILESTONE_CANDIDATE = "2.0.0a1"
@@ -235,4 +247,4 @@ V2_PUBLIC_NAMESPACE_BASELINE: tuple[str, ...] = (
     "pyingestkit.quality",
 )
 
-V2_API_PHASE = "LOT-13_HTTP_ACQUISITION"
+V2_API_PHASE = "LOT-14_POSTGRES_TARGET"
