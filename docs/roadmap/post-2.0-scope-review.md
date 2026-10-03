@@ -217,8 +217,9 @@ The candidate is now materialized as
 [RFC-001 — Publication & Lifecycle Governance](../rfc/RFC-001-publication-lifecycle-governance.md)
 with status **Accepted** after the
 [formal architecture review](../rfc/reviews/RFC-001-architecture-review.md).
-Acceptance authorizes implementation planning only; it does not create a LOT or
-release commitment.
+Acceptance authorized implementation planning. The derived
+[PyIngestKit 2.1.0 implementation roadmap](rfc001-publication-lifecycle-implementation-roadmap.md)
+now assigns LOT-23 through LOT-30 and the additive 2.1.0 release line.
 
 The first post-2.0 RFC evaluates a cohesive lifecycle-governance slice:
 

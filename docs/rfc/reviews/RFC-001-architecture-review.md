@@ -310,7 +310,8 @@ unassigned.
 
 **RFC-001 is ACCEPTED.**
 
-The next artifact is an implementation roadmap derived from the accepted RFC.
+The derived implementation roadmap is
+[PyIngestKit 2.1.0 — Publication & Lifecycle Governance Implementation Roadmap](../../roadmap/rfc001-publication-lifecycle-implementation-roadmap.md).
 
-That roadmap must remain additive to PyIngestKit 2.0 and must provide executable
-acceptance gates before code implementation begins.
+It remains additive to PyIngestKit 2.0 and defines executable acceptance gates
+before code implementation begins.

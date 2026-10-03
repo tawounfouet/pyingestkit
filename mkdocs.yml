@@ -71,6 +71,7 @@ nav:
       - RFC process: rfc/README.md
       - "RFC-001 — Publication & Lifecycle Governance": rfc/RFC-001-publication-lifecycle-governance.md
       - "RFC-001 — Architecture Review": rfc/reviews/RFC-001-architecture-review.md
+      - "RFC-001 — Implementation Roadmap": roadmap/rfc001-publication-lifecycle-implementation-roadmap.md
   - Architecture:
       - Overview: architecture/overview.md
       - V2 baseline: architecture/v2-lot00-baseline.md
