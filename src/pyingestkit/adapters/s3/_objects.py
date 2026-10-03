@@ -22,18 +22,24 @@ class S3ClientV2(Protocol):
     def list_objects_v2(self, **kwargs: Any) -> Mapping[str, Any]: ...
 
 
+def validate_s3_endpoint_v2(endpoint_url: str | None) -> None:
+    """Validate an optional S3-compatible endpoint without performing I/O."""
+    if endpoint_url is None:
+        return
+    parsed = urlsplit(endpoint_url)
+    if parsed.username is not None or parsed.password is not None:
+        raise ValueError("S3 endpoint URL must not embed credentials.")
+    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+        raise ValueError("S3 endpoint URL must be absolute HTTP(S).")
+
+
 def create_s3_client_v2(
     *,
     region_name: str | None,
     endpoint_url: str | None,
 ) -> S3ClientV2:
     """Create the optional boto3 client only when a caller actually needs it."""
-    if endpoint_url is not None:
-        parsed = urlsplit(endpoint_url)
-        if parsed.username is not None or parsed.password is not None:
-            raise ValueError("S3 endpoint URL must not embed credentials.")
-        if parsed.scheme not in {"http", "https"} or not parsed.netloc:
-            raise ValueError("S3 endpoint URL must be absolute HTTP(S).")
+    validate_s3_endpoint_v2(endpoint_url)
     try:
         import boto3  # type: ignore[import-untyped]
     except ModuleNotFoundError as exc:
