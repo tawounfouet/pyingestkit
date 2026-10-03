@@ -274,7 +274,7 @@ class FileConditionalDatasetPublisher(ConditionalDatasetPublisher):
             replaced = True
             _fsync_directory(pointer.parent)
             self._inject("after_replace")
-        except Exception as exc:
+        except OSError as exc:
             temporary.unlink(missing_ok=True)
             if replaced:
                 self._append_unknown_best_effort(
@@ -319,7 +319,7 @@ class FileConditionalDatasetPublisher(ConditionalDatasetPublisher):
                 previous_revision=current.revision,
                 next_revision=next_revision,
             )
-        except Exception:
+        except Exception:  # noqa: BLE001 - backend failure after provider commit is uncertain
             self._append_unknown_best_effort(
                 intent,
                 current.revision,
@@ -398,7 +398,7 @@ class FileConditionalDatasetPublisher(ConditionalDatasetPublisher):
                 previous_revision=previous_revision,
                 next_revision=next_revision,
             )
-        except Exception:
+        except Exception:  # noqa: BLE001 - uncertainty evidence is deliberately best effort
             return
 
     def _event(
