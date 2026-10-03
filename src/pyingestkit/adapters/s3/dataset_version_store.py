@@ -7,7 +7,12 @@ import json
 import re
 from datetime import datetime
 
-from pyingestkit.adapters.s3._objects import S3ClientV2, S3ObjectIOV2, create_s3_client_v2
+from pyingestkit.adapters.s3._objects import (
+    S3ClientV2,
+    S3ObjectIOV2,
+    create_s3_client_v2,
+    validate_s3_endpoint_v2,
+)
 from pyingestkit.domain.datasets.publication import PublishedDataset
 from pyingestkit.domain.datasets.references import DatasetVersionReference
 from pyingestkit.domain.datasets.version import DatasetVersion, dataset_content_fingerprint
@@ -36,6 +41,7 @@ class S3DatasetVersionStoreV2:
         endpoint_url: str | None = None,
         client: S3ClientV2 | None = None,
     ) -> None:
+        validate_s3_endpoint_v2(endpoint_url)
         resolved_client = client or create_s3_client_v2(
             region_name=region_name,
             endpoint_url=endpoint_url,
@@ -65,12 +71,14 @@ class S3DatasetVersionStoreV2:
 
         snapshot = encode_dataset_snapshot(version)
         snapshot_key = self._snapshot_key(version.dataset_id, version.version_id)
-        self._objects.put_create_once(
+        created_snapshot = self._objects.put_create_once(
             snapshot_key,
             snapshot,
             kind="dataset-snapshot",
             content_type="application/json",
         )
+        if not created_snapshot and self._objects.read(snapshot_key) != snapshot:
+            raise ValueError("Existing S3 dataset snapshot conflicts with version identity.")
         locator = self._objects.uri(snapshot_key)
         payload = {
             "version_schema": "1",
@@ -112,6 +120,8 @@ class S3DatasetVersionStoreV2:
             raise ValueError("Unsupported S3 dataset-version metadata schema.")
         if payload.get("dataset_id") != dataset_id or payload.get("version_id") != version_id:
             raise ValueError("S3 dataset-version metadata identity mismatch.")
+        if payload.get("content_fingerprint") != version_id:
+            raise ValueError("S3 dataset-version content fingerprint metadata mismatch.")
 
         snapshot_key = self._snapshot_key(dataset_id, version_id)
         locator = self._objects.uri(snapshot_key)
@@ -242,8 +252,12 @@ class S3DatasetVersionStoreV2:
         expected_locator = self._objects.uri(
             self._snapshot_key(reference.dataset_id, reference.version_id)
         )
+        if reference.locator.namespace != "pyingestkit.dataset_version.s3":
+            raise ValueError("DatasetVersionReference is not owned by S3DatasetVersionStoreV2.")
         if reference.locator.locator != expected_locator:
             raise ValueError("S3 dataset-version locator disagrees with canonical storage key.")
+        if reference.locator.resource_id != _resource_id(expected_locator):
+            raise ValueError("S3 dataset-version resource identity mismatch.")
         content = self._objects.read(
             self._snapshot_key(reference.dataset_id, reference.version_id)
         )
