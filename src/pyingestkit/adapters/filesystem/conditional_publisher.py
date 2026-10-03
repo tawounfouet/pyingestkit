@@ -454,9 +454,7 @@ class FileConditionalDatasetPublisher(ConditionalDatasetPublisher):
                 {},
             )
         if not pointer.is_file():
-            raise ValueError(
-                "Published dataset pointer must be a regular non-symlink file."
-            )
+            raise ValueError("Published dataset pointer must be a regular non-symlink file.")
 
         try:
             raw = pointer.read_bytes()
