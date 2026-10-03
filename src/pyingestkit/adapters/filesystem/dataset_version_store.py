@@ -157,7 +157,9 @@ class FileDatasetVersionStore:
         if not isinstance(reference, DatasetVersionReference):
             raise TypeError("FileDatasetVersionStore.publish expects DatasetVersionReference.")
         if not isinstance(ingestion_run_id, IngestionRunId):
-            raise TypeError("FileDatasetVersionStore.publish ingestion_run_id must be IngestionRunId.")
+            raise TypeError(
+                "FileDatasetVersionStore.publish ingestion_run_id must be IngestionRunId."
+            )
         if not isinstance(published_at, datetime):
             raise TypeError("FileDatasetVersionStore.publish published_at must be datetime.")
         validate_aware_datetime(published_at, "FileDatasetVersionStore published_at")
