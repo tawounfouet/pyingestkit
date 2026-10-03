@@ -172,7 +172,7 @@ def append_gc_event(
             f"{event_type.value}\0"
             f"{phase}\0"
             f"{occurred_at.isoformat()}"
-        ).encode("utf-8")
+        ).encode()
     ).hexdigest()
     ledger.append(
         PublicationLifecycleEvent(
