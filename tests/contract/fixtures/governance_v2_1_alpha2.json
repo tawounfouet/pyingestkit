@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "milestone": "LOT-24",
+  "version": "2.1.0a2",
+  "baseline": {
+    "lot23_merge_sha": "74a54ace34caf7ea7a5ffcc5a65a6ac2753aaff1",
+    "lot23_fixture": "tests/contract/fixtures/governance_v2_1_alpha1.json",
+    "stable_2_0_fixture": "tests/contract/fixtures/stable_release_v2.json"
+  },
+  "adapters": {
+    "memory": "pyingestkit.adapters.memory.MemoryPublicationLedger",
+    "postgres": "pyingestkit.adapters.postgres.PostgresPublicationLedger"
+  },
+  "postgres_tables": [
+    "pyingestkit_v2_publication_operation",
+    "pyingestkit_v2_publication_event",
+    "pyingestkit_v2_version_hold"
+  ],
+  "required_evidence": [
+    "tests/conformance/v2/_governance_ledger_contract.py",
+    "tests/unit/v2/test_memory_publication_ledger.py",
+    "tests/integration/v2/test_postgres_publication_ledger.py"
+  ],
+  "required_docs": [
+    "docs/architecture/v2-lot24-lifecycle-ledger-postgres.md",
+    "docs/architecture/v2-lot23-governance-domain-ports.md",
+    "docs/roadmap/rfc001-publication-lifecycle-implementation-roadmap.md"
+  ]
+}
