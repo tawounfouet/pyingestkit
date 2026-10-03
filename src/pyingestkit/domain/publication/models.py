@@ -51,9 +51,7 @@ class PublicationRequestV2:
 
     def __post_init__(self) -> None:
         if not isinstance(self.dataset_version, DatasetVersionReference):
-            raise TypeError(
-                "PublicationRequestV2 dataset_version must be DatasetVersionReference."
-            )
+            raise TypeError("PublicationRequestV2 dataset_version must be DatasetVersionReference.")
         if not isinstance(self.ingestion_run_id, IngestionRunId):
             raise TypeError("PublicationRequestV2 ingestion_run_id must be IngestionRunId.")
         if not isinstance(self.correlation, CorrelationContext):
@@ -105,10 +103,7 @@ class PublicationResultV2:
                 raise ValueError("Non-successful PublicationResultV2 requires FailureEvidence.")
 
         if self.published_dataset is not None:
-            if (
-                self.published_dataset.version.identity
-                != self.request.dataset_version.identity
-            ):
+            if self.published_dataset.version.identity != self.request.dataset_version.identity:
                 raise ValueError("PublicationResultV2 published version identity mismatch.")
 
         if self.failure is not None:
@@ -125,9 +120,7 @@ class PublicationResultV2:
                     "UNKNOWN_OUTCOME PublicationResultV2 requires UNKNOWN_OUTCOME failure."
                 )
             if self.failure.uncertainty is not OutcomeUncertainty.REQUIRES_RECONCILIATION:
-                raise ValueError(
-                    "UNKNOWN_OUTCOME publication must require reconciliation."
-                )
+                raise ValueError("UNKNOWN_OUTCOME publication must require reconciliation.")
 
     @property
     def succeeded(self) -> bool:
@@ -166,8 +159,7 @@ class PublicationReconciliationResultV2:
             PublishedDataset,
         ):
             raise TypeError(
-                "PublicationReconciliationResultV2 published_dataset "
-                "must be PublishedDataset."
+                "PublicationReconciliationResultV2 published_dataset must be PublishedDataset."
             )
         if (
             self.status is PublicationReconciliationStatusV2.CONFIRMED_COMMITTED
