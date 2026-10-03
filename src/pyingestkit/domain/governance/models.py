@@ -326,9 +326,7 @@ class RetentionPolicy:
         if self.keep_last < 1:
             raise ValueError("RetentionPolicy keep_last must be >= 1.")
         if self.min_age_seconds is not None:
-            if isinstance(self.min_age_seconds, bool) or not isinstance(
-                self.min_age_seconds, int
-            ):
+            if isinstance(self.min_age_seconds, bool) or not isinstance(self.min_age_seconds, int):
                 raise TypeError("RetentionPolicy min_age_seconds must be an int or None.")
             if self.min_age_seconds < 0:
                 raise ValueError("RetentionPolicy min_age_seconds must be >= 0.")
