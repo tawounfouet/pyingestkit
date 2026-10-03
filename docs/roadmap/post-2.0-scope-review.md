@@ -213,7 +213,12 @@ They may evolve behind stable contracts when evidence justifies them.
 
 **Recommendation only — not yet a milestone.**
 
-The first post-2.0 RFC should evaluate a cohesive lifecycle-governance slice:
+The candidate is now materialized as
+[RFC-001 — Publication & Lifecycle Governance](../rfc/RFC-001-publication-lifecycle-governance.md)
+with status **Proposed**. The RFC remains subject to architecture review and
+does not create a LOT or release commitment.
+
+The first post-2.0 RFC evaluates a cohesive lifecycle-governance slice:
 
 ```text
 DatasetVersion
