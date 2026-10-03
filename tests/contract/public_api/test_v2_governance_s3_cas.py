@@ -19,6 +19,4 @@ def test_lot26_s3_adapter_stays_in_explicit_provider_namespace() -> None:
 
 def test_lot26_capability_failure_is_provider_specific_not_domain_surface() -> None:
     assert issubclass(S3ConditionalWriteCapabilityErrorV2, RuntimeError)
-    assert S3ConditionalWriteCapabilityErrorV2.__module__ == (
-        "pyingestkit.adapters.s3._objects"
-    )
+    assert S3ConditionalWriteCapabilityErrorV2.__module__ == ("pyingestkit.adapters.s3._objects")
