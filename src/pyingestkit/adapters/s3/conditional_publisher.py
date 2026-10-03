@@ -49,13 +49,9 @@ class S3ConditionalDatasetPublisher(ConditionalDatasetPublisher):
         fault_injector: Callable[[str], None] | None = None,
     ) -> None:
         if not isinstance(store, S3DatasetVersionStoreV2):
-            raise TypeError(
-                "S3ConditionalDatasetPublisher store must be S3DatasetVersionStoreV2."
-            )
+            raise TypeError("S3ConditionalDatasetPublisher store must be S3DatasetVersionStoreV2.")
         if not isinstance(ledger, PublicationLedger):
-            raise TypeError(
-                "S3ConditionalDatasetPublisher ledger must satisfy PublicationLedger."
-            )
+            raise TypeError("S3ConditionalDatasetPublisher ledger must satisfy PublicationLedger.")
         self._store = store
         self._ledger = ledger
         self._clock = clock or (lambda: datetime.now(UTC))
