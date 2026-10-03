@@ -2,7 +2,9 @@
 
 ## Status
 
-**Proposed implementation roadmap derived from accepted RFC-001.**
+**Accepted implementation roadmap derived from accepted RFC-001.**
+
+**Accepted:** 2026-10-03
 
 Architecture source:
 
