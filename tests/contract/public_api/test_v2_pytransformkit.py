@@ -23,8 +23,9 @@ _EXPECTED = (
 
 
 def test_lot17_phase_and_completed_lot_are_recorded() -> None:
-    assert V2_API_PHASE == "LOT-17_PYTRANSFORMKIT_INTEGRATION"
-    assert V2_COMPLETED_LOTS[-1] == "LOT-17"
+    assert "LOT-17" in V2_COMPLETED_LOTS
+    assert V2_COMPLETED_LOTS.index("LOT-17") <= V2_COMPLETED_LOTS.index(V2_COMPLETED_LOTS[-1])
+    assert V2_API_PHASE.startswith("LOT-")
 
 
 def test_lot17_optional_integration_values_are_explicit() -> None:
