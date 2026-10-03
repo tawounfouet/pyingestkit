@@ -142,11 +142,6 @@ def test_httpx_runtime_acquires_safe_provenance_before_decode_and_version(
     assert "Set-Cookie" not in persisted_evidence
 
     raw_path = (
-        tmp_path
-        / "artifact-store"
-        / "runs"
-        / str(result.ingestion_run_id)
-        / "raw"
-        / "source.raw"
+        tmp_path / "artifact-store" / "runs" / str(result.ingestion_run_id) / "raw" / "source.raw"
     )
     assert raw_path.read_bytes() == b"id,name\n1,Ada\n"
