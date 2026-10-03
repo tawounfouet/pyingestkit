@@ -18,9 +18,9 @@ The V1 `Job / Pipeline / Step / Runner` execution model is **not** aliased into 
 
 ## 2.1 development line
 
-Repository `main` is now on **2.1.0a1 / LOT-23**. The first 2.1 milestone adds provider-neutral publication/lifecycle governance values and Protocols under the qualified `pyingestkit.governance` namespace while preserving the exact 2.0 package root and frozen contracts.
+Repository `main` is now on **2.1.0a2 / LOT-24**. LOT-23 established the provider-neutral governance values and Protocols; LOT-24 adds the reference `MemoryPublicationLedger` and the durable `PostgresPublicationLedger`, including restart recovery and explicit transaction scopes, while preserving the exact 2.0 package root and LOT-23 contracts.
 
-No PostgreSQL lifecycle ledger, filesystem/S3 CAS, physical GC or rollback side effect is implemented in LOT-23. Those capabilities are sequenced in LOT-24 through LOT-30.
+Filesystem/S3 CAS, physical GC and governed rollback remain sequenced in LOT-25 through LOT-30.
 
 ## Product boundary
 
