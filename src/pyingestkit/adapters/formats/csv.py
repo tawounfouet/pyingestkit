@@ -120,8 +120,6 @@ class CsvDecoder:
             )
 
 
-
-
 def _decode_csv_bytes(
     content: bytes,
     config: CsvDecoderConfig,
