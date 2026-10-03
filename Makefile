@@ -77,17 +77,16 @@ format:
 	ruff format src tests examples/plugin_package/src examples/plugin_package/tests
 
 quality:
-	ruff check src tests examples/plugin_package/src examples/plugin_package/tests
-	ruff format --check src tests examples/plugin_package/src examples/plugin_package/tests
-	mypy src/pyingestkit
+	ruff check src/pyingestkit tests/architecture tests/contract/public_api tests/unit/v2 tests/conformance/v2 tests/integration/v2 tests/migration/v2 scripts
+	ruff format --check src/pyingestkit tests/architecture tests/contract/public_api tests/unit/v2 tests/conformance/v2 tests/integration/v2 tests/migration/v2 scripts
+	mypy src/pyingestkit/__init__.py src/pyingestkit/_api_v2.py src/pyingestkit/_architecture_v2.py src/pyingestkit/domain src/pyingestkit/application src/pyingestkit/ports src/pyingestkit/adapters/filesystem src/pyingestkit/adapters/formats src/pyingestkit/adapters/http src/pyingestkit/adapters/postgres src/pyingestkit/adapters/s3 src/pyingestkit/serialization src/pyingestkit/integrations src/pyingestkit/migration
 
 security: bootstrap
-	bandit -q -r src/pyingestkit examples/plugin_package/src
+	bandit -q -r src/pyingestkit
 	pip-audit
 
 build:
 	python -m build
-	python -m build examples/plugin_package
 
 wheel-smoke:
 	python scripts/wheel_smoke_test.py
