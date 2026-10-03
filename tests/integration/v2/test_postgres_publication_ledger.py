@@ -146,7 +146,6 @@ def test_postgres_lifecycle_schema_is_additive_and_dsn_is_redacted() -> None:
         ledger.close()
 
 
-
 def test_postgres_version_hold_survives_restart_and_releases_durably() -> None:
     assert POSTGRES_DSN is not None
     dataset_id = f"hold.dataset.{uuid4().hex}"
