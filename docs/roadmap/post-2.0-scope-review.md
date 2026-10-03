@@ -215,8 +215,10 @@ They may evolve behind stable contracts when evidence justifies them.
 
 The candidate is now materialized as
 [RFC-001 — Publication & Lifecycle Governance](../rfc/RFC-001-publication-lifecycle-governance.md)
-with status **Proposed**. The RFC remains subject to architecture review and
-does not create a LOT or release commitment.
+with status **Accepted** after the
+[formal architecture review](../rfc/reviews/RFC-001-architecture-review.md).
+Acceptance authorizes implementation planning only; it does not create a LOT or
+release commitment.
 
 The first post-2.0 RFC evaluates a cohesive lifecycle-governance slice:
 
