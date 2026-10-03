@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "milestone": "LOT-27",
+  "version": "2.1.0b1",
+  "baseline": {
+    "lot26_merge_sha": "ece890f89168dd143162049500683c1dcf69f353",
+    "lot26_fixture": "tests/contract/fixtures/governance_v2_1_alpha4.json",
+    "lot23_fixture": "tests/contract/fixtures/governance_v2_1_alpha1.json",
+    "stable_2_0_fixture": "tests/contract/fixtures/stable_release_v2.json"
+  },
+  "providers": {
+    "filesystem_conditional": "pyingestkit.adapters.filesystem.FileConditionalDatasetPublisher",
+    "filesystem_gc": "pyingestkit.adapters.filesystem.FileDatasetVersionGarbageCollector",
+    "s3_conditional": "pyingestkit.adapters.s3.S3ConditionalDatasetPublisher",
+    "s3_gc": "pyingestkit.adapters.s3.S3DatasetVersionGarbageCollector",
+    "memory_ledger": "pyingestkit.adapters.memory.MemoryPublicationLedger",
+    "postgres_ledger": "pyingestkit.adapters.postgres.PostgresPublicationLedger"
+  },
+  "retention_exports": [
+    "RetentionPlanner",
+    "RetentionState",
+    "RetentionStateLoader",
+    "VersionHoldRepository",
+    "record_retention_plan"
+  ],
+  "s3_namespace_exports": [
+    "S3ArtifactReaderV2",
+    "S3ArtifactStoreV2",
+    "S3ClientV2",
+    "S3ConditionalDatasetPublisher",
+    "S3ConditionalWriteCapabilityErrorV2",
+    "S3DatasetVersionGarbageCollector",
+    "S3DatasetVersionStoreV2"
+  ],
+  "required_evidence": [
+    "tests/contract/public_api/test_v2_governance_retention_gc.py",
+    "tests/conformance/v2/test_retention_planning.py",
+    "tests/integration/v2/test_filesystem_guarded_gc.py",
+    "tests/integration/v2/test_s3_guarded_gc.py",
+    "tests/integration/v2/test_postgres_publication_ledger.py"
+  ],
+  "required_docs": [
+    "docs/architecture/v2-lot27-retention-holds-guarded-gc.md",
+    "docs/architecture/v2-lot26-s3-conditional-publication.md",
+    "docs/roadmap/rfc001-publication-lifecycle-implementation-roadmap.md"
+  ]
+}
