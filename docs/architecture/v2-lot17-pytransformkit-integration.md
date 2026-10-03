@@ -31,11 +31,24 @@ TransformationPublicationInput
 
 ## Installation and activation
 
-The integration is optional:
+The integration is optional. During the maintained PyIngestKit 1.0.x
+transition, the governed V1 optional-extra set remains frozen, so LOT-17 does
+**not** add a new packaging extra to the 1.0.1 wheel.
+
+The sibling can be installed explicitly:
+
+```bash
+pip install "pytransformkit>=1.1,<2"
+```
+
+The target 2.0 packaging contract reserves the convenience form:
 
 ```bash
 pip install "pyingestkit[transform]"
 ```
+
+That extra is activated at the 2.0 package cut, when changing the V1 packaging
+surface is allowed.
 
 Importing `pyingestkit` or
 `pyingestkit.integrations.pytransformkit` does not import PyTransformKit.
