@@ -6,6 +6,7 @@ import json
 from dataclasses import asdict, dataclass
 from datetime import datetime
 from typing import Any, Self
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 from pyingestkit.metadata.models import (
     ArtifactRecord,
@@ -16,6 +17,20 @@ from pyingestkit.metadata.models import (
 
 _EXPORT_SCHEMA = "pyingestkit.v1-semantic-export"
 _EXPORT_VERSION = "1"
+_SENSITIVE_QUERY_KEYS = frozenset(
+    {
+        "access_token",
+        "api_key",
+        "apikey",
+        "password",
+        "sig",
+        "signature",
+        "token",
+        "x-amz-credential",
+        "x-amz-security-token",
+        "x-amz-signature",
+    }
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -103,16 +118,24 @@ class V1SemanticExport:
                     run_id=item.run_id,
                     kind=item.kind,
                     path=item.path,
-                    source_uri=item.source_uri,
+                    source_uri=_safe_locator(item.source_uri),
                     content_type=item.content_type,
                     size_bytes=item.size_bytes,
                     sha256=item.sha256,
                     created_at=_datetime_text(item.created_at),
-                    resolved_url=item.resolved_url,
+                    resolved_url=(
+                        None
+                        if item.resolved_url is None
+                        else _safe_locator(item.resolved_url)
+                    ),
                     status_code=item.status_code,
                     etag=item.etag,
                     last_modified=item.last_modified,
-                    storage_uri=item.storage_uri,
+                    storage_uri=(
+                        None
+                        if item.storage_uri is None
+                        else _safe_locator(item.storage_uri)
+                    ),
                 )
                 for item in artifacts
             ),
@@ -232,3 +255,48 @@ def _items(value: object, cls: type[Any]) -> tuple[Any, ...]:
             raise ValueError(f"Invalid {cls.__name__} payload.")
         result.append(cls(**item))
     return tuple(result)
+
+
+def _safe_locator(value: str) -> str:
+    """Return credential-safe locator text for semantic migration exports."""
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError("V1 semantic export locator must be non-blank.")
+    try:
+        parsed = urlsplit(value)
+        query_items = parse_qsl(parsed.query, keep_blank_values=True)
+    except ValueError as exc:
+        raise ValueError("V1 semantic export locator is invalid.") from exc
+
+    sensitive_query = any(key.lower() in _SENSITIVE_QUERY_KEYS for key, _ in query_items)
+    has_userinfo = parsed.username is not None or parsed.password is not None
+    if not sensitive_query and not has_userinfo:
+        return value
+
+    if parsed.hostname is None:
+        return parsed.path
+
+    host = parsed.hostname
+    if ":" in host and not host.startswith("["):
+        host = f"[{host}]"
+    try:
+        port = parsed.port
+    except ValueError as exc:
+        raise ValueError("V1 semantic export locator port is invalid.") from exc
+    netloc = host if port is None else f"{host}:{port}"
+    safe_query = urlencode(
+        [
+            (key, item)
+            for key, item in query_items
+            if key.lower() not in _SENSITIVE_QUERY_KEYS
+        ],
+        doseq=True,
+    )
+    return urlunsplit(
+        (
+            parsed.scheme,
+            netloc,
+            parsed.path,
+            safe_query,
+            parsed.fragment,
+        )
+    )
