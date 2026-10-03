@@ -31,7 +31,7 @@ class _IgnoringConditionalClient:
         key = str(kwargs["Key"])
         body = bytes(kwargs["Body"])
         metadata = dict(kwargs.get("Metadata", {}))
-        etag = f'"{hashlib.md5(body, usedforsecurity=False).hexdigest()}"'  # noqa: S324
+        etag = f'"{hashlib.sha256(body).hexdigest()}"'
         self.objects[(bucket, key)] = (body, metadata, etag)
         return {"ETag": etag}
 
