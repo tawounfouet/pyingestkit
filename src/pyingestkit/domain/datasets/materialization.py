@@ -27,9 +27,7 @@ class ResourceDatasetVersionRequestV2:
     def __post_init__(self) -> None:
         require_non_blank(self.dataset_id, "ResourceDatasetVersionRequestV2 dataset_id")
         if not isinstance(self.resource, ResourceReference):
-            raise TypeError(
-                "ResourceDatasetVersionRequestV2 resource must be ResourceReference."
-            )
+            raise TypeError("ResourceDatasetVersionRequestV2 resource must be ResourceReference.")
         if self.resource.locator is None:
             raise ValueError(
                 "ResourceDatasetVersionRequestV2 requires a concrete resource locator."
