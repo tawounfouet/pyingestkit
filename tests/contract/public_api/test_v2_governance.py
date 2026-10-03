@@ -12,11 +12,7 @@ from pyingestkit.ports.governance import (
     PublicationLedger,
 )
 
-_FIXTURE = (
-    Path(__file__).resolve().parents[1]
-    / "fixtures"
-    / "governance_v2_1_alpha1.json"
-)
+_FIXTURE = Path(__file__).resolve().parents[1] / "fixtures" / "governance_v2_1_alpha1.json"
 
 
 def _method_names(protocol: type[object]) -> set[str]:
@@ -34,11 +30,9 @@ def test_governance_namespace_matches_lot23_fixture() -> None:
 
 def test_lot23_does_not_widen_frozen_package_root() -> None:
     stable = json.loads(
-        (
-            Path(__file__).resolve().parents[1]
-            / "fixtures"
-            / "stable_release_v2.json"
-        ).read_text(encoding="utf-8")
+        (Path(__file__).resolve().parents[1] / "fixtures" / "stable_release_v2.json").read_text(
+            encoding="utf-8"
+        )
     )
     assert tuple(pyingestkit.__all__) == tuple(stable["root_exports"])
     assert "PublicationLedger" not in pyingestkit.__all__
