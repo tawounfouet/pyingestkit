@@ -65,10 +65,6 @@ class MaterializationRequest:
             raise ValueError(
                 "MaterializationRequest correlation ingestion_run_id must match native run id."
             )
-        if self.dataset_version.ingestion_run_id != self.ingestion_run_id:
-            raise ValueError(
-                "MaterializationRequest dataset version must belong to the materializing run."
-            )
 
 
 @dataclass(frozen=True, slots=True)
