@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+from contextlib import suppress
 from collections.abc import Callable
 from datetime import datetime
 
@@ -405,7 +406,7 @@ class S3DatasetVersionGarbageCollector(DatasetVersionGarbageCollector):
             occurred_at=completed_at,
         )
         if append_event:
-            try:
+            with suppress(Exception):
                 append_gc_event(
                     self._ledger,
                     event_type=PublicationLifecycleEventType.GC_DELETE_OUTCOME_UNKNOWN,
@@ -415,8 +416,6 @@ class S3DatasetVersionGarbageCollector(DatasetVersionGarbageCollector):
                     expected_evidence=expected_evidence,
                     failure=failure,
                 )
-            except Exception:  # noqa: BLE001 - uncertainty evidence is best effort
-                pass
         return DatasetVersionDeletionResult(
             dataset_version=reference,
             status=DatasetVersionDeletionStatus.UNKNOWN_OUTCOME,
