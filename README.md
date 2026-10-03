@@ -18,9 +18,9 @@ The V1 `Job / Pipeline / Step / Runner` execution model is **not** aliased into 
 
 ## 2.1 development line
 
-Repository `main` is now on **2.1.0a4 / LOT-26**. LOT-23 established provider-neutral governance contracts, LOT-24 added durable Memory/PostgreSQL lifecycle ledgers, LOT-25 added filesystem CAS, and LOT-26 adds endpoint-qualified S3 conditional publication with provider-enforced cross-client compare-and-swap. The exact 2.0 package root and LOT-23 Protocols remain frozen.
+Repository `main` is now on **2.1.0b1 / LOT-27**. LOT-23 established provider-neutral governance contracts, LOT-24 added durable lifecycle ledgers, LOT-25/26 added governed filesystem and S3 CAS, and LOT-27 adds deterministic retention, durable holds and guarded filesystem/S3 garbage collection. The exact 2.0 package root and LOT-23 Protocols remain frozen.
 
-Retention/holds/guarded GC, governed rollback and full RC conformance remain sequenced in LOT-27 through LOT-30.
+Governed rollback, full RC conformance and stable promotion remain sequenced in LOT-28 through LOT-30.
 
 ## Product boundary
 
