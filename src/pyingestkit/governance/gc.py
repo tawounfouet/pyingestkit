@@ -45,9 +45,7 @@ class GarbageCollectionPlanGuard:
         if not isinstance(plan, GarbageCollectionPlan):
             raise TypeError("GarbageCollectionPlanGuard plan must be GarbageCollectionPlan.")
         if not isinstance(state_loader, RetentionStateLoader):
-            raise TypeError(
-                "GarbageCollectionPlanGuard state_loader must be RetentionStateLoader."
-            )
+            raise TypeError("GarbageCollectionPlanGuard state_loader must be RetentionStateLoader.")
         self._plan = plan
         self._state_loader = state_loader
         self._candidate_ids = {reference.identity for reference in plan.candidate_versions}
