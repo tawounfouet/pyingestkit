@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import pyingestkit.migration as migration
+import pyingestkit.migration.v2 as qualified_migration
 from pyingestkit._api_v2 import (
     V2_API_PHASE,
     V2_COMPLETED_LOTS,
     V2_IMPLEMENTED_MIGRATION_VALUES,
+    V2_IMPLEMENTED_QUALIFIED_MIGRATION_VALUES,
 )
 
 _EXPECTED = (
@@ -30,3 +32,9 @@ def test_lot18_phase_and_completed_lot_are_recorded() -> None:
 def test_lot18_migration_values_are_explicit() -> None:
     assert V2_IMPLEMENTED_MIGRATION_VALUES == _EXPECTED
     assert tuple(migration.__all__) == _EXPECTED
+
+
+def test_lot18_qualified_migration_toolkit_is_explicit() -> None:
+    assert V2_IMPLEMENTED_QUALIFIED_MIGRATION_VALUES == tuple(
+        qualified_migration.__all__
+    )
