@@ -9,7 +9,8 @@ from urllib.parse import urlsplit
 from pyingestkit.core.job import Job
 from pyingestkit.declarative.step_definition import FunctionStep
 from pyingestkit.domain.artifacts import ArtifactReference
-from pyingestkit.domain.datasets import DatasetVersionReference, PublishedDataset
+from pyingestkit.domain.datasets import DatasetVersionReference
+from pyingestkit.domain.datasets.publication import PublishedDataset
 from pyingestkit.domain.ingestion import IngestionDefinition
 from pyingestkit.domain.resources import ResourceReference
 from pyingestkit.domain.shared import IngestionRunId
