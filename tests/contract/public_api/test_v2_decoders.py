@@ -30,9 +30,7 @@ def test_lot05_phase_and_milestone_are_recorded() -> None:
     payload = _fixture()
 
     assert "LOT-05" in V2_COMPLETED_LOTS
-    assert V2_COMPLETED_LOTS.index("LOT-05") <= V2_COMPLETED_LOTS.index(
-        V2_COMPLETED_LOTS[-1]
-    )
+    assert V2_COMPLETED_LOTS.index("LOT-05") <= V2_COMPLETED_LOTS.index(V2_COMPLETED_LOTS[-1])
     assert payload["milestone_candidate"] == "2.0.0a1"
     assert "Decoder" in V2_IMPLEMENTED_DECODER_VALUES
     assert "CsvDecoder" in V2_IMPLEMENTED_DECODER_VALUES
