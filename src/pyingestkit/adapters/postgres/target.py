@@ -278,9 +278,7 @@ class PostgresTargetV2:
             if table.schema is not None
             else sql.Identifier(table.name)
         )
-        columns = sql.SQL(", ").join(
-            sql.Identifier(column) for column in request.resolved_columns
-        )
+        columns = sql.SQL(", ").join(sql.Identifier(column) for column in request.resolved_columns)
         statement = sql.SQL("COPY {} ({}) FROM STDIN").format(
             qualified,
             columns,
@@ -292,8 +290,7 @@ class PostgresTargetV2:
                 with cursor.copy(statement) as copy:
                     for record in request.representation.records:
                         values = tuple(
-                            _scalar_value(record, column)
-                            for column in request.resolved_columns
+                            _scalar_value(record, column) for column in request.resolved_columns
                         )
                         copy.write_row(values)
                         rows_loaded += 1
@@ -359,6 +356,7 @@ class PostgresTargetV2:
             diagnostics=(diagnostic,),
             failure=failure,
         )
+
 
 def _scalar_value(record: Any, column: str) -> None | bool | int | float | str:
     try:
