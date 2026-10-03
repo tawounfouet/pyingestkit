@@ -94,7 +94,13 @@ class IngestionResult:
             raise TypeError("IngestionResult run must be IngestionRun.")
         if not self.run.terminal:
             raise ValueError("IngestionResult requires a terminal IngestionRun.")
-        if self.raw_artifact is not None and not isinstance(\n            self.raw_artifact,\n            ArtifactReference,\n        ):\n            raise TypeError("IngestionResult raw_artifact must be ArtifactReference.")\n        if self.dataset_version is not None and not isinstance(\n            self.dataset_version,
+        if self.raw_artifact is not None and not isinstance(
+            self.raw_artifact,
+            ArtifactReference,
+        ):
+            raise TypeError("IngestionResult raw_artifact must be ArtifactReference.")
+        if self.dataset_version is not None and not isinstance(
+            self.dataset_version,
             DatasetVersionReference,
         ):
             raise TypeError("IngestionResult dataset_version must be DatasetVersionReference.")
