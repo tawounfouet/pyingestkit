@@ -53,15 +53,9 @@ def test_customer360_happy_path_preserves_versions_provenance_and_replay(
     assert provenance["source.customers.version_id"] == (
         evidence.customers.dataset_version.version_id
     )
-    assert provenance["source.orders.artifact_id"] == (
-        evidence.orders.raw_artifact.artifact_id
-    )
-    assert provenance["source.orders.version_id"] == (
-        evidence.orders.dataset_version.version_id
-    )
-    assert provenance["transformation.execution_id"] == (
-        evidence.transformation_execution_id
-    )
+    assert provenance["source.orders.artifact_id"] == (evidence.orders.raw_artifact.artifact_id)
+    assert provenance["source.orders.version_id"] == (evidence.orders.dataset_version.version_id)
+    assert provenance["transformation.execution_id"] == (evidence.transformation_execution_id)
     assert provenance["transformation.plan_fingerprint"] == (
         evidence.transformation_plan_fingerprint
     )
