@@ -138,9 +138,7 @@ class IngestionResult:
                     "IngestionResult published_dataset requires dataset_version evidence."
                 )
             if self.published_dataset.version.identity != self.dataset_version.identity:
-                raise ValueError(
-                    "IngestionResult published dataset/version identity mismatch."
-                )
+                raise ValueError("IngestionResult published dataset/version identity mismatch.")
 
     @property
     def status(self) -> IngestionStatus:
