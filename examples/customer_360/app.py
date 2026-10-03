@@ -31,13 +31,12 @@ from pyingestkit.publication.v2 import (
 )
 from pyingestkit.replay.v2 import ReplayRequest, ReplayResult, ReplayServiceV2
 from pyingestkit.resources import ResourceReference
-from pyingestkit.runtime.v2 import (
+from pyingestkit.boundaries.v2 import (
     CorrelationContext,
     CorrelationId,
-    IngestionResult,
     IngestionRunId,
-    IngestionRuntime,
 )
+from pyingestkit.runtime.v2 import IngestionResult, IngestionRuntime
 from pyingestkit.sources.v2 import Source, SourceRegistry
 from pyingestkit.validation.v2 import RequiredFieldV2
 
