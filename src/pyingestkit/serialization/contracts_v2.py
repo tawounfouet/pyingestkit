@@ -152,20 +152,23 @@ def _encode_contract(value: object) -> tuple[str, str, dict[str, JsonValue]]:
             },
         )
     if isinstance(value, DatasetVersionReference):
+        payload: dict[str, JsonValue] = {
+            "artifact_reference": _nested_out(value.artifact_reference),
+            "content_fingerprint": value.content_fingerprint,
+            "created_at": _datetime_out(value.created_at),
+            "dataset_id": value.dataset_id,
+            "locator": _nested_out(value.locator),
+            "namespace": value.namespace,
+            "owner": value.owner,
+            "schema_fingerprint": value.schema_fingerprint,
+            "version_id": value.version_id,
+        }
+        if value.metadata:
+            payload["metadata"] = _pairs_out(value.metadata)
         return (
             value.CONTRACT_ID,
             value.contract_version,
-            {
-                "artifact_reference": _nested_out(value.artifact_reference),
-                "content_fingerprint": value.content_fingerprint,
-                "created_at": _datetime_out(value.created_at),
-                "dataset_id": value.dataset_id,
-                "locator": _nested_out(value.locator),
-                "namespace": value.namespace,
-                "owner": value.owner,
-                "schema_fingerprint": value.schema_fingerprint,
-                "version_id": value.version_id,
-            },
+            payload,
         )
     if isinstance(value, IngestionExecutionReference):
         return (
@@ -380,20 +383,21 @@ def _decode_contract(envelope: ContractEnvelopeV2) -> object:
         )
 
     if envelope.contract_id == DatasetVersionReference.CONTRACT_ID:
-        _exact_keys(
-            payload,
-            {
-                "artifact_reference",
-                "content_fingerprint",
-                "created_at",
-                "dataset_id",
-                "locator",
-                "namespace",
-                "owner",
-                "schema_fingerprint",
-                "version_id",
-            },
-        )
+        required_keys = {
+            "artifact_reference",
+            "content_fingerprint",
+            "created_at",
+            "dataset_id",
+            "locator",
+            "namespace",
+            "owner",
+            "schema_fingerprint",
+            "version_id",
+        }
+        if "metadata" in payload:
+            _exact_keys(payload, required_keys | {"metadata"})
+        else:
+            _exact_keys(payload, required_keys)
         artifact = _nested_in(payload["artifact_reference"], ArtifactReference.CONTRACT_ID)
         locator = _nested_in(payload["locator"], ResourceReference.CONTRACT_ID)
         if artifact is not None and not isinstance(artifact, ArtifactReference):
@@ -416,6 +420,7 @@ def _decode_contract(envelope: ContractEnvelopeV2) -> object:
             ),
             artifact_reference=artifact,
             locator=locator,
+            metadata=_pairs_in(payload.get("metadata", [])),
             owner=_required_text(payload["owner"], "owner"),
             namespace=_required_text(payload["namespace"], "namespace"),
             contract_version=version,
