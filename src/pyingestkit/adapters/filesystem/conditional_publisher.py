@@ -599,26 +599,29 @@ def _posix_lock_module() -> _PosixLockModule:
 def _lock_handle(handle: BinaryIO) -> None:
     file_descriptor = handle.fileno()
     if os.name == "nt":
-        module = _windows_lock_module()
+        windows_module = _windows_lock_module()
         if handle.tell() == 0:
             handle.write(b"\0")
             handle.flush()
         handle.seek(0)
-        module.locking(file_descriptor, module.LK_NBLCK, 1)
+        windows_module.locking(file_descriptor, windows_module.LK_NBLCK, 1)
         return
-    module = _posix_lock_module()
-    module.flock(file_descriptor, module.LOCK_EX | module.LOCK_NB)
+    posix_module = _posix_lock_module()
+    posix_module.flock(
+        file_descriptor,
+        posix_module.LOCK_EX | posix_module.LOCK_NB,
+    )
 
 
 def _unlock_handle(handle: BinaryIO) -> None:
     file_descriptor = handle.fileno()
     if os.name == "nt":
-        module = _windows_lock_module()
+        windows_module = _windows_lock_module()
         handle.seek(0)
-        module.locking(file_descriptor, module.LK_UNLCK, 1)
+        windows_module.locking(file_descriptor, windows_module.LK_UNLCK, 1)
         return
-    module = _posix_lock_module()
-    module.flock(file_descriptor, module.LOCK_UN)
+    posix_module = _posix_lock_module()
+    posix_module.flock(file_descriptor, posix_module.LOCK_UN)
 
 
 def _write_json(path: Path, payload: object) -> None:
