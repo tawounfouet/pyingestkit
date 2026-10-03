@@ -1,3 +1,27 @@
-from .atomic import AtomicPublisher
+"""PyIngestKit 2.0 publication API."""
 
-__all__ = ["AtomicPublisher"]
+from pyingestkit.application.publication import (
+    PublicationOutcomeUnknownError,
+    PublicationServiceV2,
+)
+from pyingestkit.domain.datasets.publication import PublishedDataset
+from pyingestkit.domain.publication import (
+    PublicationReconciliationResultV2,
+    PublicationReconciliationStatusV2,
+    PublicationRequestV2,
+    PublicationResultV2,
+    PublicationStatusV2,
+)
+from pyingestkit.ports.dataset_versions import DatasetPublisher
+
+__all__ = [
+    "DatasetPublisher",
+    "PublicationOutcomeUnknownError",
+    "PublicationReconciliationResultV2",
+    "PublicationReconciliationStatusV2",
+    "PublicationRequestV2",
+    "PublicationResultV2",
+    "PublicationServiceV2",
+    "PublicationStatusV2",
+    "PublishedDataset",
+]
