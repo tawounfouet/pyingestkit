@@ -60,7 +60,8 @@ def test_source_registry_is_explicit_not_global() -> None:
     assert len(second) == 0
 
 
-def test_v1_sources_star_import_contract_is_unchanged() -> None:
-    assert public_sources.__all__ == ["LocalSource", "Source"]
-    assert hasattr(public_sources, "SourceRegistry")
-    assert hasattr(public_sources, "FileSourceConnector")
+def test_v2_sources_namespace_is_promoted_at_rc() -> None:
+    assert "Source" in public_sources.__all__
+    assert "SourceRegistry" in public_sources.__all__
+    assert "FileSourceConnector" in public_sources.__all__
+    assert "LocalSource" not in public_sources.__all__
