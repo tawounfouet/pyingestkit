@@ -106,7 +106,10 @@ class HttpAccessPolicy:
             raise ValueError("HttpAccessPolicy max_retry_after_seconds must be >= 0.")
         if not isinstance(self.retry_statuses, tuple):
             raise TypeError("HttpAccessPolicy retry_statuses must be a tuple.")
-        if any(not isinstance(status, int) or not 100 <= status <= 599 for status in self.retry_statuses):
+        if any(
+            not isinstance(status, int) or not 100 <= status <= 599
+            for status in self.retry_statuses
+        ):
             raise ValueError("HttpAccessPolicy retry_statuses must contain valid HTTP statuses.")
         if len(set(self.retry_statuses)) != len(self.retry_statuses):
             raise ValueError("HttpAccessPolicy retry_statuses must be unique.")
@@ -245,6 +248,7 @@ class HttpSourceConnector:
         current_url = request.source.locator
         redirect_count = 0
         total_attempts = 0
+        response: HttpResponseV2 | None = None
         try:
             while True:
                 response, attempts = self._send_with_retry(client, current_url, headers)
@@ -276,7 +280,9 @@ class HttpSourceConnector:
                             code="acquisition.http.redirect_forbidden",
                             category=FailureCategory.AUTHORIZATION,
                             retryability=Retryability.NON_RETRYABLE,
-                            summary="HTTP redirect target is outside the configured network policy.",
+                            summary=(
+                                "HTTP redirect target is outside the configured network policy."
+                            ),
                         )
                     current_url = next_url
                     redirect_count += 1
@@ -315,7 +321,9 @@ class HttpSourceConnector:
                 if callable(close):
                     close()
 
-        final_url = response.url or current_url
+        if response is None:
+            raise AssertionError("HTTP acquisition ended without a terminal response.")
+        final_url = response.url
         final_validation = self._validate_url(final_url)
         if final_validation is not None:
             return self._failed(
