@@ -49,13 +49,8 @@ def test_lot20_publication_values_are_explicit() -> None:
     assert PublicationRequestV2.__name__ == "PublicationRequestV2"
     assert PublicationResultV2.__name__ == "PublicationResultV2"
     assert PublicationStatusV2.UNKNOWN_OUTCOME.value == "unknown_outcome"
-    assert (
-        PublicationReconciliationStatusV2.CONFIRMED_COMMITTED.value
-        == "confirmed_committed"
-    )
-    assert PublicationReconciliationResultV2.__name__ == (
-        "PublicationReconciliationResultV2"
-    )
+    assert PublicationReconciliationStatusV2.CONFIRMED_COMMITTED.value == "confirmed_committed"
+    assert PublicationReconciliationResultV2.__name__ == ("PublicationReconciliationResultV2")
     assert issubclass(PublicationOutcomeUnknownError, RuntimeError)
 
 
@@ -65,6 +60,4 @@ def test_lot20_materialization_values_are_explicit() -> None:
         FileCsvDatasetVersionMaterializerV2(allowed_roots=(".",)),
         DatasetVersionMaterializerV2,
     )
-    assert ResourceDatasetVersionRequestV2.__name__ == (
-        "ResourceDatasetVersionRequestV2"
-    )
+    assert ResourceDatasetVersionRequestV2.__name__ == ("ResourceDatasetVersionRequestV2")
