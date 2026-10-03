@@ -27,7 +27,7 @@ jobs:
       - name: Frozen PyIngestKit 2.0 compatibility
         run: python scripts/check_v2_compatibility.py
       - name: Current PyIngestKit V2 milestone contract
-        run: python scripts/check_v2_1_alpha1.py
+        run: python scripts/check_v2_1_alpha2.py
 
   v2-architecture-baseline:
     runs-on: ubuntu-latest
@@ -87,6 +87,7 @@ jobs:
 
           import pyingestkit
           from pyingestkit import IngestionDefinition, Source
+          from pyingestkit.adapters.memory import MemoryPublicationLedger
           from pyingestkit.artifacts.v2 import ArtifactPutStatus, PutArtifactRequest
           from pyingestkit.decoders import CsvDecoder, DecodeRequest, DecodeStatus
           from pyingestkit.domain.resources import ResourceReference
@@ -134,11 +135,12 @@ jobs:
               "ResourceReference",
               "Source",
           )
-          assert pyingestkit.__version__ == "2.1.0a1"
+          assert pyingestkit.__version__ == "2.1.0a2"
           assert hasattr(pyingestkit.IngestionRuntime, "run")
           import pyingestkit.governance as governance
           assert "PublicationLedger" in governance.__all__
           assert "ConditionalDatasetPublisher" in governance.__all__
+          assert MemoryPublicationLedger().__class__.__name__ == "MemoryPublicationLedger"
 
           with tempfile.TemporaryDirectory() as directory:
               root = Path(directory)
@@ -221,7 +223,7 @@ jobs:
           /tmp/pyingestkit-v2-sdist/bin/python - <<'PY'
           import pyingestkit
 
-          assert pyingestkit.__version__ == "2.1.0a1"
+          assert pyingestkit.__version__ == "2.1.0a2"
           assert tuple(pyingestkit.__all__) == (
               "ArtifactReference",
               "DatasetVersion",
@@ -312,7 +314,10 @@ jobs:
       - run: python -m pip install --upgrade pip
       - run: python -m pip install -e ".[dev,postgres]"
       - name: V2 PostgreSQL provider qualification
-        run: python -m pytest -q tests/integration/v2/test_postgres_target_v2.py
+        run: >-
+          python -m pytest -q
+          tests/integration/v2/test_postgres_target_v2.py
+          tests/integration/v2/test_postgres_publication_ledger.py
 
   s3-e2e:
     runs-on: ubuntu-latest
@@ -422,7 +427,7 @@ jobs:
       - name: Validate frozen 2.0 compatibility baseline
         run: python scripts/check_v2_compatibility.py
       - name: Validate LOT-23 milestone contract
-        run: python scripts/check_v2_1_alpha1.py
+        run: python scripts/check_v2_1_alpha2.py
       - name: Build SHA-256 manifest
         shell: bash
         run: |
@@ -432,19 +437,19 @@ jobs:
 
           paths = sorted(Path("dist").glob("*"))
           lines = [f"{sha256(path.read_bytes()).hexdigest()}  {path.as_posix()}" for path in paths]
-          Path("SHA256SUMS-v2.1.0a1").write_text(
+          Path("SHA256SUMS-v2.1.0a2").write_text(
               "\n".join(lines) + "\n",
               encoding="utf-8",
           )
-          print(Path("SHA256SUMS-v2.1.0a1").read_text(encoding="utf-8"), end="")
+          print(Path("SHA256SUMS-v2.1.0a2").read_text(encoding="utf-8"), end="")
           PY
       - name: Upload V2 stable distribution evidence
         uses: actions/upload-artifact@v7
         with:
-          name: pyingestkit-v2.1.0a1-dist
+          name: pyingestkit-v2.1.0a2-dist
           path: |
             dist/*
-            SHA256SUMS-v2.1.0a1
+            SHA256SUMS-v2.1.0a2
           if-no-files-found: error
 
   v1-history-gate:
@@ -481,9 +486,9 @@ jobs:
         with:
           python-version: "3.12"
       - run: python -m pip install --upgrade pip
-      - run: python -m pip install -e .
+      - run: python -m pip install -e ".[postgres]"
       - name: Validate frozen PyIngestKit 2.0 compatibility
         run: python scripts/check_v2_compatibility.py
       - name: Validate current LOT-23 milestone
-        run: python scripts/check_v2_1_alpha1.py
-      - run: echo "PyIngestKit 2.1.0a1 LOT-23 qualification passed with frozen 2.0 compatibility."
+        run: python scripts/check_v2_1_alpha2.py
+      - run: echo "PyIngestKit 2.1.0a2 LOT-24 qualification passed with frozen 2.0 compatibility."
