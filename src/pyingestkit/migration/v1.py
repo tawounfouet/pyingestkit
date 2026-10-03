@@ -7,11 +7,10 @@ and never loads plugin entry points or resolves secret environment variables.
 
 from __future__ import annotations
 
+import hashlib
 from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
-import hashlib
-
 
 from pyingestkit.config import (
     ArtifactBackend,
