@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 
-from pyingestkit.domain.artifacts import ArtifactReference
+from pyingestkit.domain.artifacts.references import ArtifactReference
 from pyingestkit.domain.datasets.publication import PublishedDataset
 from pyingestkit.domain.datasets.references import DatasetVersionReference
 from pyingestkit.domain.runtime.context import CorrelationContext
