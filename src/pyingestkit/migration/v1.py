@@ -10,6 +10,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
+import hashlib
+
 
 from pyingestkit.config import (
     ArtifactBackend,
@@ -17,8 +19,18 @@ from pyingestkit.config import (
     PostgresTargetConfig,
     PyIngestKitConfig,
 )
+from pyingestkit.domain.artifacts import ArtifactReference
+from pyingestkit.domain.datasets import DatasetVersionReference
+from pyingestkit.domain.datasets.publication import PublishedDataset
+from pyingestkit.domain.resources import ResourceReference
+from pyingestkit.domain.shared import IngestionRunId
 from pyingestkit.domain.shared.validation import require_non_blank, validate_metadata
 from pyingestkit.domain.targets import TargetLoadModeV2
+from pyingestkit.metadata.models import (
+    ArtifactRecord,
+    DatasetVersionRecord,
+    PublishedDatasetRecord,
+)
 
 
 class MigrationDispositionV2(StrEnum):
@@ -165,6 +177,99 @@ class V1ProjectMigrationPlan:
     def can_materialize_supported_backends(self) -> bool:
         """Whether currently supported V2 backend/target semantics are unblocked."""
         return not self.blocked
+
+
+def migrate_v1_artifact_record(record: ArtifactRecord) -> ArtifactReference:
+    """Convert one stable V1 artifact metadata row into a portable V2 reference."""
+    if not isinstance(record, ArtifactRecord):
+        raise TypeError("migrate_v1_artifact_record expects ArtifactRecord.")
+
+    locator = record.storage_uri
+    if locator is None:
+        locator = Path(record.path).resolve().as_uri()
+
+    resource = ResourceReference(
+        namespace="pyingestkit.v1.artifact",
+        resource_id=record.artifact_id,
+        locator=locator,
+        media_type=record.content_type,
+        format=_format_from_locator(locator),
+        metadata=(("legacy_run_id", record.run_id),),
+    )
+    return ArtifactReference(
+        artifact_id=record.artifact_id,
+        kind=record.kind,
+        resource=resource,
+        checksum=record.sha256,
+        checksum_algorithm="sha256",
+        media_type=record.content_type,
+        size_bytes=record.size_bytes,
+        created_at=record.created_at,
+        metadata=(("legacy_run_id", record.run_id),),
+    )
+
+
+def migrate_v1_dataset_version_record(
+    record: DatasetVersionRecord,
+) -> DatasetVersionReference:
+    """Convert one stable V1 dataset-version metadata row into a V2 reference."""
+    if not isinstance(record, DatasetVersionRecord):
+        raise TypeError(
+            "migrate_v1_dataset_version_record expects DatasetVersionRecord."
+        )
+
+    locator = ResourceReference(
+        namespace="pyingestkit.v1.dataset_version_snapshot",
+        resource_id=f"v1_snapshot_{hashlib.sha256(record.snapshot_uri.encode()).hexdigest()}",
+        locator=record.snapshot_uri,
+        format="json",
+        metadata=(
+            ("legacy_created_from_run_id", record.created_from_run_id),
+            ("legacy_job_id", record.job_id),
+            ("legacy_job_version", record.job_version),
+            ("legacy_source_artifact_id", record.source_artifact_id or ""),
+            ("legacy_source_raw_sha256", record.source_raw_sha256 or ""),
+        ),
+    )
+    return DatasetVersionReference(
+        dataset_id=record.dataset_id,
+        version_id=record.version_id,
+        created_at=record.created_at,
+        content_fingerprint=record.fingerprint,
+        locator=locator,
+    )
+
+
+def migrate_v1_published_dataset_record(
+    record: PublishedDatasetRecord,
+    *,
+    version: DatasetVersionReference,
+) -> PublishedDataset:
+    """Convert one V1 publication pointer after its version reference is migrated."""
+    if not isinstance(record, PublishedDatasetRecord):
+        raise TypeError(
+            "migrate_v1_published_dataset_record expects PublishedDatasetRecord."
+        )
+    if not isinstance(version, DatasetVersionReference):
+        raise TypeError(
+            "migrate_v1_published_dataset_record version must be DatasetVersionReference."
+        )
+    if version.identity != (record.dataset_id, record.version_id):
+        raise ValueError(
+            "PublishedDatasetRecord identity must match the supplied migrated version."
+        )
+    try:
+        run_id = IngestionRunId.parse(record.published_from_run_id)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(
+            "PublishedDatasetRecord published_from_run_id must be a UUID for V2 migration."
+        ) from exc
+    return PublishedDataset(
+        dataset_id=record.dataset_id,
+        version=version,
+        published_at=record.published_at,
+        published_from_run_id=run_id,
+    )
 
 
 def migrate_v1_postgres_target_config(
@@ -382,3 +487,12 @@ def _artifact_backend_decision(config: PyIngestKitConfig) -> MigrationDecisionV2
             ("endpoint_url_env", s3.endpoint_url_env or ""),
         ),
     )
+
+
+def _format_from_locator(locator: str) -> str | None:
+    path = locator.split("?", 1)[0].rstrip("/")
+    name = path.rsplit("/", 1)[-1]
+    if "." not in name:
+        return None
+    suffix = name.rsplit(".", 1)[-1].strip().lower()
+    return suffix or None
