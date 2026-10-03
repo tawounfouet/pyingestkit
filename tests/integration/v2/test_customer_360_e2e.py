@@ -13,7 +13,7 @@ pytest.importorskip("pyarrow")
 from examples.customer_360.app import read_customer_mart, run_customer_360
 from pyingestkit.datasets import ResourceDatasetVersionRequestV2
 from pyingestkit.resources import ResourceReference
-from pyingestkit.runtime.v2 import IngestionRunId
+from pyingestkit.boundaries.v2 import IngestionRunId
 
 _NOW = datetime(2026, 10, 3, 16, 0, tzinfo=UTC)
 
