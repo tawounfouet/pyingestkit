@@ -204,6 +204,7 @@ jobs:
           tests/integration/test_postgres_metadata_target_loads.py
           tests/integration/test_postgres_load_modes_idempotency.py
           tests/integration/test_versioned_postgres_e2e.py
+          tests/integration/v2/test_postgres_target_v2.py
 
   s3-e2e:
     runs-on: ubuntu-latest
