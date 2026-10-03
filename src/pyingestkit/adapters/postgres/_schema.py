@@ -62,9 +62,7 @@ class PostgresSchemaMapperV2:
         missing = set(plan.names).difference(destination)
         if missing:
             names = ", ".join(sorted(missing))
-            raise ValueError(
-                f"Decoded fields are absent from PostgreSQL destination: {names}"
-            )
+            raise ValueError(f"Decoded fields are absent from PostgreSQL destination: {names}")
 
         mismatches: list[str] = []
         for column in plan.columns:
@@ -77,9 +75,7 @@ class PostgresSchemaMapperV2:
                     f"destination={sql_column.type}"
                 )
         if mismatches:
-            raise ValueError(
-                "PostgreSQL destination schema mismatch: " + "; ".join(mismatches)
-            )
+            raise ValueError("PostgreSQL destination schema mismatch: " + "; ".join(mismatches))
 
     def _plan_column(
         self,
