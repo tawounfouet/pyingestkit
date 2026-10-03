@@ -36,7 +36,7 @@ V2_DEPENDENCY_DISPOSITION: dict[str, str] = {
     "tenacity": "BASE_CANDIDATE",
     "python-dotenv": "BASE_CANDIDATE",
     "psycopg": "OPTIONAL_POSTGRES",
-    "boto3": "OPTIONAL_S3",
+    "boto3": "OPTIONAL_S3_LOT15",
     "openpyxl": "OPTIONAL_EXCEL",
     "pyarrow": "OPTIONAL_PARQUET",
     "pytransformkit": "OPTIONAL_TRANSFORM_LOT17",

@@ -9,9 +9,10 @@ version storage plus atomic publication, LOT-09 added portable ingestion
 run/result lifecycle evidence, LOT-10 added explicit V2 IngestionRuntime
 composition, LOT-11 added strict replay from durable historical RAW, LOT-12
 cut V2 runtime callers over to the qualified runtime surface, LOT-13 added
-secure HTTP acquisition/provenance, and LOT-14 adds transactional PostgreSQL
-materialization for immutable dataset versions while the V1 package keeps its
-exact star-import contract until the 2.0 alpha cut.
+secure HTTP acquisition/provenance, LOT-14 added transactional PostgreSQL
+materialization for immutable dataset versions, and LOT-15 adds S3-compatible
+V2 artifact/version storage while the V1 package keeps its exact star-import
+contract until the 2.0 alpha cut.
 """
 
 from __future__ import annotations
@@ -111,9 +112,18 @@ V2_IMPLEMENTED_ARTIFACT_VALUES: tuple[str, ...] = (
     "ArtifactStore",
     "FileArtifactReader",
     "FileArtifactStore",
+    "S3ArtifactReaderV2",
+    "S3ArtifactStoreV2",
     "PutArtifactRequest",
     "PutArtifactResult",
     "RawArtifactEvidence",
+)
+
+V2_IMPLEMENTED_S3_VALUES: tuple[str, ...] = (
+    "S3ArtifactReaderV2",
+    "S3ArtifactStoreV2",
+    "S3ClientV2",
+    "S3DatasetVersionStoreV2",
 )
 
 V2_IMPLEMENTED_DECODER_VALUES: tuple[str, ...] = (
@@ -166,6 +176,7 @@ V2_IMPLEMENTED_VERSION_STORE_VALUES: tuple[str, ...] = (
     "DatasetVersionStore",
     "FileDatasetVersionStore",
     "PublishedDataset",
+    "S3DatasetVersionStoreV2",
 )
 
 V2_RUNTIME_SURFACE = "pyingestkit.runtime.v2"
@@ -203,6 +214,7 @@ V2_COMPLETED_LOTS: tuple[str, ...] = (
     "LOT-12",
     "LOT-13",
     "LOT-14",
+    "LOT-15",
 )
 
 V2_MILESTONE_CANDIDATE = "2.0.0a1"
@@ -247,4 +259,4 @@ V2_PUBLIC_NAMESPACE_BASELINE: tuple[str, ...] = (
     "pyingestkit.quality",
 )
 
-V2_API_PHASE = "LOT-14_POSTGRES_TARGET"
+V2_API_PHASE = "LOT-15_S3_OBJECT_STORAGE"

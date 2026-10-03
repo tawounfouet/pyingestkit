@@ -245,6 +245,7 @@ jobs:
           python -m pytest -q
           tests/integration/test_s3_remote_raw.py
           tests/integration/test_s3_dataset_versions.py
+          tests/integration/v2/test_s3_cross_host_replay_v2.py
 
   object-storage-e2e:
     runs-on: ubuntu-latest
