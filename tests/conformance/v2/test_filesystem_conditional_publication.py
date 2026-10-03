@@ -11,7 +11,7 @@ from pyingestkit.adapters.filesystem import (
 from pyingestkit.adapters.memory import MemoryPublicationLedger
 from pyingestkit.datasets import ResourceDatasetVersionRequestV2
 from pyingestkit.domain.resources import ResourceReference
-from pyingestkit.domain.runtime import CorrelationContext
+from pyingestkit.domain.runtime import CorrelationContext, OutcomeUncertainty
 from pyingestkit.domain.shared import IngestionRunId
 from pyingestkit.governance import (
     ConditionalPublicationStatus,
@@ -232,7 +232,7 @@ def test_unknown_after_replace_requires_reconciliation_and_never_republishes(
 
     assert outcome.status is ConditionalPublicationStatus.UNKNOWN_OUTCOME
     assert outcome.failure is not None
-    assert outcome.failure.reconciliation_required is True
+    assert outcome.failure.uncertainty is OutcomeUncertainty.REQUIRES_RECONCILIATION
     assert ledger.list_unresolved(_DATASET_ID) == (intent,)
 
     reconciler = FileConditionalDatasetPublisher(
