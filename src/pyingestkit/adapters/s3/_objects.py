@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 from collections.abc import Mapping
+from contextlib import suppress
 from typing import Any, Protocol, cast
 from urllib.parse import urlsplit
 
@@ -300,10 +301,8 @@ class S3ObjectIOV2:
                 "Endpoint failed the conditional-write capability probe."
             ) from exc
         finally:
-            try:
+            with suppress(RuntimeError):
                 self.delete(probe_key)
-            except RuntimeError:
-                pass
 
     def _put_conditional(
         self,
