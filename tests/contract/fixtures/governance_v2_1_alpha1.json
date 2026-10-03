@@ -49,5 +49,54 @@
     "docs/architecture/v2-lot23-governance-domain-ports.md",
     "docs/roadmap/rfc001-publication-lifecycle-implementation-roadmap.md",
     "docs/rfc/RFC-001-publication-lifecycle-governance.md"
-  ]
+  ],
+  "protocol_signatures": {
+    "pyingestkit.ports.governance.PublicationLedger": {
+      "register": [
+        "self",
+        "intent"
+      ],
+      "append": [
+        "self",
+        "event"
+      ],
+      "get_operation": [
+        "self",
+        "operation_id"
+      ],
+      "list_operations": [
+        "self",
+        "dataset_id"
+      ],
+      "list_unresolved": [
+        "self",
+        "dataset_id"
+      ]
+    },
+    "pyingestkit.ports.governance.ConditionalDatasetPublisher": {
+      "inspect": [
+        "self",
+        "dataset_id"
+      ],
+      "compare_and_publish": [
+        "self",
+        "intent"
+      ]
+    },
+    "pyingestkit.ports.governance.DatasetVersionGarbageCollector": {
+      "delete": [
+        "self",
+        "reference",
+        "plan_id",
+        "expected_evidence",
+        "requested_at"
+      ],
+      "reconcile_delete": [
+        "self",
+        "reference",
+        "plan_id",
+        "reconciled_at"
+      ]
+    }
+  }
 }
