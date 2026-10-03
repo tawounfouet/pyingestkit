@@ -112,7 +112,7 @@ def main() -> int:
     postgres_module = importlib.import_module(
         "pyingestkit.adapters.postgres.publication_ledger"
     )
-    metadata = getattr(postgres_module, "_METADATA")
+    metadata = postgres_module._METADATA
     expected_tables = {str(item) for item in lot24["postgres_tables"]}
     if set(metadata.tables) != expected_tables:
         raise SystemExit(
