@@ -53,10 +53,7 @@ class PublicationServiceV2:
             raise TypeError("PublicationServiceV2.publish requires PublicationRequestV2.")
 
         current = self._publisher.get_published(request.dataset_version.dataset_id)
-        if (
-            current is not None
-            and current.version.identity == request.dataset_version.identity
-        ):
+        if current is not None and current.version.identity == request.dataset_version.identity:
             return PublicationResultV2(
                 request=request,
                 status=PublicationStatusV2.SUCCEEDED,
