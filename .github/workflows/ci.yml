@@ -288,6 +288,21 @@ jobs:
       - name: Customer 360 installed runner smoke
         run: .venv-customer360/bin/python examples/customer_360/run_local.py
 
+  filesystem-cas-e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e ".[dev]"
+      - name: LOT-25 filesystem conditional publication qualification
+        run: >-
+          python -m pytest -q
+          tests/conformance/v2/test_filesystem_conditional_publication.py
+          tests/integration/v2/test_filesystem_conditional_publication_processes.py
+
   postgres-e2e:
     runs-on: ubuntu-latest
     services:
@@ -472,6 +487,7 @@ jobs:
     needs:
       - test
       - postgres-e2e
+      - filesystem-cas-e2e
       - s3-e2e
       - object-storage-e2e
       - stable-artifact-verify
@@ -489,6 +505,6 @@ jobs:
       - run: python -m pip install -e ".[postgres]"
       - name: Validate frozen PyIngestKit 2.0 compatibility
         run: python scripts/check_v2_compatibility.py
-      - name: Validate current LOT-23 milestone
+      - name: Validate current LOT-25 milestone
         run: python scripts/check_v2_1_alpha3.py
       - run: echo "PyIngestKit 2.1.0a3 LOT-25 qualification passed with frozen 2.0 compatibility."
