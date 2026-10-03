@@ -2,7 +2,20 @@
 
 All notable changes to PyIngestKit are documented here.
 
-## [2.1.0a3] - 2026-10-03\n\n### Alpha 3 — Filesystem Conditional Publication / CAS\n\n- added `FileConditionalDatasetPublisher` as an opt-in provider implementing the frozen LOT-23 `ConditionalDatasetPublisher` port;\n- added framework-owned opaque publication revisions persisted additively in the filesystem current pointer without changing the frozen 2.0 `PublishedDataset` shape;\n- added dataset-scoped inter-process locking and compare-and-swap semantics so concurrent writers from one revision yield exactly one commit and conflicts fail closed;\n- made every governed publication advance revision even when content returns to a historical version, preventing ABA;\n- added deterministic bootstrap revisions for controlled migration from legacy 2.0 pointers while documenting the requirement to quiesce legacy writers before governance enablement;\n- added durable operation registration, idempotent resume, provider-truth reconciliation and explicit UNKNOWN_OUTCOME handling after possible pointer replacement;\n- proved crash-before-replace safety, acknowledgement-loss reconciliation, frozen 2.0 pointer readability and two-process initial/existing-revision races;\n- preserved the exact PyIngestKit 2.0 root, DatasetPublisher, DatasetVersionStore, PublishedDataset and LOT-23 governance Protocol signatures.\n\n## [2.1.0a2] - 2026-10-03
+## [2.1.0a3] - 2026-10-03
+
+### Alpha 3 — Filesystem Conditional Publication / CAS
+
+- added `FileConditionalDatasetPublisher` as an opt-in provider implementing the frozen LOT-23 `ConditionalDatasetPublisher` port;
+- added framework-owned opaque publication revisions persisted additively in the filesystem current pointer without changing the frozen 2.0 `PublishedDataset` shape;
+- added dataset-scoped inter-process locking and compare-and-swap semantics so concurrent writers from one revision yield exactly one commit and conflicts fail closed;
+- made every governed publication advance revision even when content returns to a historical version, preventing ABA;
+- added deterministic bootstrap revisions for controlled migration from legacy 2.0 pointers while documenting the requirement to quiesce legacy writers before governance enablement;
+- added durable operation registration, idempotent resume, provider-truth reconciliation and explicit UNKNOWN_OUTCOME handling after possible pointer replacement;
+- proved crash-before-replace safety, acknowledgement-loss reconciliation, frozen 2.0 pointer readability and two-process initial/existing-revision races;
+- preserved the exact PyIngestKit 2.0 root, DatasetPublisher, DatasetVersionStore, PublishedDataset and LOT-23 governance Protocol signatures.
+
+## [2.1.0a2] - 2026-10-03
 
 ### Alpha 2 — Durable Lifecycle Ledger + PostgreSQL
 
