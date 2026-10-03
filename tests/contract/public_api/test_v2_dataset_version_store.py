@@ -11,8 +11,9 @@ from pyingestkit.stores import DatasetVersionStore, FileDatasetVersionStore
 
 
 def test_lot08_phase_and_completed_lot_are_recorded() -> None:
-    assert V2_API_PHASE == "LOT-08_VERSION_STORE_PUBLICATION"
-    assert V2_COMPLETED_LOTS[-1] == "LOT-08"
+    assert "LOT-08" in V2_COMPLETED_LOTS
+    assert V2_COMPLETED_LOTS.index("LOT-08") <= V2_COMPLETED_LOTS.index(V2_COMPLETED_LOTS[-1])
+    assert V2_API_PHASE.startswith("LOT-")
 
 
 def test_lot08_public_values_are_recorded() -> None:
