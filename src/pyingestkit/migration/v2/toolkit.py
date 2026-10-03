@@ -312,7 +312,7 @@ class V1SemanticImporter:
 
         publications: list[PublishedDataset] = []
         for publication_item in export.publications:
-            version = version_by_identity.get((publication_item.dataset_id, publication_item.version_id))
+            version = version_by_identity.get(\n                (publication_item.dataset_id, publication_item.version_id)\n            )
             if version is None:
                 issues.append(
                     MigrationIssue(
