@@ -22,6 +22,8 @@ contracts and qualified the release-candidate artifacts. LOT-22 promotes the
 unchanged RC contract to the stable 2.0.0 release after full requalification.
 LOT-23 opens the additive 2.1 line with provider-neutral publication/lifecycle
 governance domain values and ports while preserving every frozen 2.0 surface.
+LOT-24 adds the durable lifecycle ledger with in-memory reference semantics and
+PostgreSQL persistence/restart recovery without changing the LOT-23 contracts.
 """
 
 from __future__ import annotations
@@ -268,6 +270,11 @@ V2_IMPLEMENTED_GOVERNANCE_VALUES: tuple[str, ...] = (
     "VersionHold",
 )
 
+V2_IMPLEMENTED_GOVERNANCE_PROVIDER_VALUES: tuple[str, ...] = (
+    "MemoryPublicationLedger",
+    "PostgresPublicationLedger",
+)
+
 V2_IMPLEMENTED_MATERIALIZATION_VALUES: tuple[str, ...] = (
     "DatasetVersionMaterializerV2",
     "FileCsvDatasetVersionMaterializerV2",
@@ -333,9 +340,10 @@ V2_COMPLETED_LOTS: tuple[str, ...] = (
     "LOT-21",
     "LOT-22",
     "LOT-23",
+    "LOT-24",
 )
 
-V2_MILESTONE_CANDIDATE = "2.1.0a1"
+V2_MILESTONE_CANDIDATE = "2.1.0a2"
 
 V2_FORBIDDEN_LEGACY_ROOT_EXPORTS: frozenset[str] = frozenset(
     {
@@ -383,4 +391,4 @@ V2_PUBLIC_NAMESPACE_BASELINE: tuple[str, ...] = (
     "pyingestkit.quality",
 )
 
-V2_API_PHASE = "LOT-23_ALPHA"
+V2_API_PHASE = "LOT-24_ALPHA"
