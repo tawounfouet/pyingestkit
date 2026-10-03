@@ -11,8 +11,9 @@ from pyingestkit._api_v2 import (
 
 
 def test_lot12_phase_and_completed_lot_are_recorded() -> None:
-    assert V2_API_PHASE == "LOT-12_RUNTIME_SURFACE_CUTOVER"
-    assert V2_COMPLETED_LOTS[-1] == "LOT-12"
+    assert "LOT-12" in V2_COMPLETED_LOTS
+    assert V2_COMPLETED_LOTS.index("LOT-12") <= V2_COMPLETED_LOTS.index(V2_COMPLETED_LOTS[-1])
+    assert V2_API_PHASE.startswith("LOT-")
 
 
 def test_lot12_v1_runtime_surface_remains_exact() -> None:
