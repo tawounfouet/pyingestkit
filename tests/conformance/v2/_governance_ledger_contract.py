@@ -126,9 +126,7 @@ def exercise_publication_ledger(ledger: InspectablePublicationLedger) -> None:
         ledger.register(changed)
 
     duplicate_id = f"event-{uuid4().hex}"
-    duplicate_intent = make_intent(
-        dataset_id=f"conformance.dataset.{uuid4().hex}"
-    )
+    duplicate_intent = make_intent(dataset_id=f"conformance.dataset.{uuid4().hex}")
     ledger.register(duplicate_intent)
     first = make_event(
         duplicate_intent,
