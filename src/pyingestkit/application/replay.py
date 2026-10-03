@@ -15,12 +15,7 @@ from pyingestkit.domain.artifacts import (
     PutArtifactRequest,
 )
 from pyingestkit.domain.replay import ReplayRequest, ReplayResult
-from pyingestkit.domain.runtime import (
-    CorrelationContext,
-    IngestionResult,
-    IngestionRun,
-    IngestionStatus,
-)
+from pyingestkit.domain.runtime import CorrelationContext
 from pyingestkit.domain.shared import IngestionRunId
 
 
@@ -86,12 +81,6 @@ class ReplayServiceV2:
         if raw_put.status is not ArtifactPutStatus.SUCCEEDED:
             if raw_put.failure is None:
                 raise AssertionError("Replay RAW persistence failure invariant was not preserved.")
-            ingestion = self._failed_ingestion(
-                request=request,
-                run_id=run_id,
-                correlation=context,
-                failure=raw_put.failure,
-            )
             if raw_put.reference is not None:
                 raise AssertionError("Failed replay RAW persistence exposed a reference.")
             raise ArtifactIntegrityError(
@@ -153,29 +142,6 @@ class ReplayServiceV2:
         if correlation.ingestion_run_id is None:
             return replace(correlation, ingestion_run_id=str(run_id))
         return correlation
-
-    def _failed_ingestion(
-        self,
-        *,
-        request: ReplayRequest,
-        run_id: IngestionRunId,
-        correlation: CorrelationContext,
-        failure,
-    ) -> IngestionResult:
-        now = self._now()
-        return IngestionResult(
-            run=IngestionRun(
-                ingestion_run_id=run_id,
-                ingestion_definition_name=request.definition.name,
-                definition_fingerprint=str(request.definition.fingerprint),
-                correlation=correlation,
-                status=IngestionStatus.FAILED,
-                created_at=now,
-                started_at=now,
-                ended_at=now,
-            ),
-            failure=failure,
-        )
 
     def _now(self) -> datetime:
         value = self._clock()
