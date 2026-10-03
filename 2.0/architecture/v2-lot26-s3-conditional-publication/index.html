@@ -10,9 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://tawounfouet.github.io/pyingestkit/2.0/architecture/object-storage-a2/">
+        <link rel="canonical" href="https://tawounfouet.github.io/pyingestkit/2.0/architecture/v2-lot26-s3-conditional-publication/">
       
       
+        <link rel="prev" href="../v2-lot25-filesystem-conditional-publication/">
+      
+      
+        <link rel="next" href="../../guides/v1-quickstart/">
       
       
         
@@ -23,7 +27,7 @@
     
     
       
-        <title>PyIngestKit V0.6.0-a2 — S3ArtifactStore + Remote RAW - PyIngestKit</title>
+        <title>LOT-26 S3 conditional publication - PyIngestKit</title>
       
     
     
@@ -66,7 +70,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#pyingestkit-v060-a2-s3artifactstore-remote-raw" class="md-skip">
+        <a href="#pyingestkit-21-lot-26-s3-conditional-publication" class="md-skip">
           Skip to content
         </a>
       
@@ -104,7 +108,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              PyIngestKit V0.6.0-a2 — S3ArtifactStore + Remote RAW
+              LOT-26 S3 conditional publication
             
           </span>
         </div>
@@ -274,10 +278,12 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
+      <li class="md-tabs__item md-tabs__item--active">
         <a href="../overview/" class="md-tabs__link">
           
   
@@ -938,8 +944,10 @@
       
   
   
+    
   
   
+  
     
     
       
@@ -979,19 +987,22 @@
     
     
       
+        
+        
+      
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
         
           
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
             
   
   
@@ -1009,7 +1020,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1444,10 +1455,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../v2-lot26-s3-conditional-publication/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LOT-26 S3 conditional publication
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1463,6 +1501,158 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scope
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#provider-boundary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Provider boundary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#endpoint-qualification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Endpoint qualification
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cas-algorithm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CAS algorithm
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#aba-safety" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ABA safety
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pointer-compatibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pointer compatibility
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#legacy-pointer-bootstrap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Legacy pointer bootstrap
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#failure-semantics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Failure semantics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cross-client-qualification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-client qualification
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#optional-dependency-boundary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Optional dependency boundary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#executable-evidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Executable evidence
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-lot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next lot
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -2488,10 +2678,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#runtime-configuration" class="md-nav__link">
+  <a href="#scope" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Runtime configuration
+        Scope
       
     </span>
   </a>
@@ -2499,10 +2689,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#replay" class="md-nav__link">
+  <a href="#provider-boundary" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Replay
+        Provider boundary
       
     </span>
   </a>
@@ -2510,10 +2700,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#a2-qualification" class="md-nav__link">
+  <a href="#endpoint-qualification" class="md-nav__link">
     <span class="md-ellipsis">
       
-        A2 qualification
+        Endpoint qualification
       
     </span>
   </a>
@@ -2521,10 +2711,98 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#still-out-of-scope" class="md-nav__link">
+  <a href="#cas-algorithm" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Still out of scope
+        CAS algorithm
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#aba-safety" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ABA safety
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pointer-compatibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pointer compatibility
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#legacy-pointer-bootstrap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Legacy pointer bootstrap
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#failure-semantics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Failure semantics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cross-client-qualification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-client qualification
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#optional-dependency-boundary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Optional dependency boundary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#executable-evidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Executable evidence
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-lot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next lot
       
     </span>
   </a>
@@ -2548,7 +2826,7 @@
 
 
   
-    <a href="https://github.com/tawounfouet/pyingestkit/edit/main/docs/architecture/object-storage-a2.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/tawounfouet/pyingestkit/edit/main/docs/architecture/v2-lot26-s3-conditional-publication.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -2556,50 +2834,173 @@
   
 
 
-<h1 id="pyingestkit-v060-a2-s3artifactstore-remote-raw">PyIngestKit V0.6.0-a2 — S3ArtifactStore + Remote RAW</h1>
-<p>A2 turns the URI contract from A1 into a real remote storage backend.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Source / Fixture
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>      ↓
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>   RAW bytes
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>      ↓
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>S3ArtifactStore
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>  ├── s3://bucket/prefix/runs/.../raw/file   ← durable immutable RAW
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>  └── .pyingest/runs/.../raw/file            ← local parser cache
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>      ↓
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>Parser → Dataset → existing V0.5/V0.6 pipeline
-</code></pre></div>
-<h2 id="runtime-configuration">Runtime configuration</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nt">artifacts</span><span class="p">:</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nt">backend</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">s3</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="nt">s3</span><span class="p">:</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="nt">bucket</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-pyingest-raw</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="nt">prefix</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pyingest</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="nt">region_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">eu-west-3</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="nt">endpoint_url_env</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PYINGEST_S3_ENDPOINT_URL</span>
-</code></pre></div>
-<p>AWS credentials are obtained from the boto3 provider chain (<code>AWS_ACCESS_KEY_ID</code>, workload identity, instance/task role, profile, etc.). They are not fields in PyIngestKit YAML.</p>
-<h2 id="replay">Replay</h2>
-<p>Built-in SQL metadata stores persist <code>storage_uri</code> additively in <code>artifact_locations</code>. During strict replay, <code>storage_uri</code> wins over the historical local path. If the source-run cache is gone, the runner downloads the historical S3 RAW, verifies its SHA-256, materializes it locally, and writes the replay run's own immutable RAW object.</p>
-<h2 id="a2-qualification">A2 qualification</h2>
-<p>A real MinIO service in CI proves:</p>
+<h1 id="pyingestkit-21-lot-26-s3-conditional-publication">PyIngestKit 2.1 — LOT-26 S3 Conditional Publication</h1>
+<p><strong>Implemented candidate: 2.1.0a4.</strong></p>
+<p>LOT-26 adds provider-enforced conditional publication for S3 endpoints that
+prove the required compare-and-swap profile. It preserves the frozen PyIngestKit
+2.0 root, the LOT-23 governance Protocols and the historical
+<code>S3DatasetVersionStoreV2.publish(...)</code> blind-replace behavior.</p>
+<h2 id="scope">Scope</h2>
+<p>LOT-26 adds:</p>
 <ul>
-<li>remote object creation;</li>
-<li><code>s3://</code> metadata persistence;</li>
-<li>object SHA metadata;</li>
-<li>local cache deletion;</li>
-<li>remote recovery;</li>
-<li>strict replay with matching Dataset fingerprint;</li>
-<li>a distinct immutable RAW object for the replay run.</li>
+<li><code>S3ConditionalDatasetPublisher</code>;</li>
+<li>endpoint capability qualification before governed publication is exposed;</li>
+<li>atomic create-if-absent with <code>If-None-Match: *</code>;</li>
+<li>atomic compare-and-replace with <code>If-Match: &lt;ETag&gt;</code>;</li>
+<li>provider-precondition conflict mapping;</li>
+<li>framework-owned ABA-safe <code>PublicationRevision</code> values;</li>
+<li>acknowledgement-loss <code>UNKNOWN_OUTCOME</code>;</li>
+<li>provider-truth reconciliation without republishing;</li>
+<li>cross-client concurrent race qualification.</li>
 </ul>
-<h2 id="still-out-of-scope">Still out of scope</h2>
+<p>LOT-26 does not change:</p>
 <ul>
-<li>remote reports/manifests;</li>
-<li>remote DatasetVersion snapshots;</li>
-<li>remote <code>PublishedDataset</code> pointers;</li>
-<li>advanced MinIO/AWS addressing and endpoint hardening;</li>
-<li>multipart/large-object transfer tuning.</li>
+<li><code>DatasetPublisher</code>;</li>
+<li><code>DatasetVersionStore</code>;</li>
+<li><code>PublishedDataset</code>;</li>
+<li>the exact 2.0 package root;</li>
+<li>the LOT-23 governance namespace or Protocol signatures;</li>
+<li>portable contract-version 1 meanings.</li>
 </ul>
-<p>Those belong to later V0.6 milestones.</p>
+<h2 id="provider-boundary">Provider boundary</h2>
+<p>The existing store remains valid for ordinary S3 publication:</p>
+<div class="highlight"><pre><span></span><code>S3DatasetVersionStoreV2.publish(...)
+    -&gt; unconditional current.json replacement
+</code></pre></div>
+<p>Governed publication is a separate capability:</p>
+<div class="highlight"><pre><span></span><code>S3ConditionalDatasetPublisher
+    -&gt; inspect current pointer
+    -&gt; framework PublicationRevision
+    -&gt; internal provider ETag
+    -&gt; conditional PutObject
+</code></pre></div>
+<p>The provider ETag never becomes a <code>PublicationRevision</code>, lifecycle event field
+or portable provider operation reference.</p>
+<h2 id="endpoint-qualification">Endpoint qualification</h2>
+<p>Construction of <code>S3ConditionalDatasetPublisher</code> performs a destructive but
+self-cleaning capability probe under a unique governance probe key.</p>
+<p>The probe proves:</p>
+<ol>
+<li>first <code>If-None-Match: *</code> creation succeeds;</li>
+<li>a second create-if-absent on the same key is rejected;</li>
+<li>the accepted object is readable together with a provider ETag;</li>
+<li><code>If-Match</code> replacement using the observed ETag succeeds;</li>
+<li>repeating replacement with the stale ETag is rejected;</li>
+<li>provider truth after replacement matches the acknowledged result.</li>
+</ol>
+<p>The probe object is deleted in a finally path.</p>
+<p>An endpoint that ignores the conditional headers, cannot expose a usable ETag,
+or cannot distinguish conditional failure is rejected with
+<code>S3ConditionalWriteCapabilityErrorV2</code>.</p>
+<p>There is no optimistic read-then-write emulation.</p>
+<h2 id="cas-algorithm">CAS algorithm</h2>
+<p>For an unpublished dataset:</p>
+<div class="highlight"><pre><span></span><code>inspect -&gt; no pointer
+  -&gt; verify expected revision == initial
+  -&gt; PutObject If-None-Match: *
+  -&gt; exactly one writer can create current.json
+</code></pre></div>
+<p>For an existing publication:</p>
+<div class="highlight"><pre><span></span><code>GET current.json
+  -&gt; read portable framework revision
+  -&gt; retain provider ETag internally
+  -&gt; verify expected framework revision
+  -&gt; PutObject If-Match: observed ETag
+</code></pre></div>
+<p>Two independent clients that inspect the same provider token can both reach the
+write boundary, but the endpoint decides the winner. The loser is mapped to:</p>
+<div class="highlight"><pre><span></span><code>ConditionalPublicationStatus.CONFLICT
+</code></pre></div>
+<p>with failure code:</p>
+<div class="highlight"><pre><span></span><code>governance.s3.provider_precondition_conflict
+</code></pre></div>
+<h2 id="aba-safety">ABA safety</h2>
+<p>The pointer stores an additive framework-owned field:</p>
+<div class="highlight"><pre><span></span><code>governance_revision = rev-&lt;uuid&gt;
+</code></pre></div>
+<p>A new revision is generated for every governed commit, even when the target
+DatasetVersion returns to an older content identity.</p>
+<p>Provider ETags are only transport-level CAS tokens. Portable ABA safety is
+owned by <code>PublicationRevision</code>.</p>
+<h2 id="pointer-compatibility">Pointer compatibility</h2>
+<p>Governed S3 pointers retain all existing 2.0 fields:</p>
+<div class="highlight"><pre><span></span><code>publication_schema
+dataset_id
+version_id
+published_at
+published_from_run_id
+</code></pre></div>
+<p>and add:</p>
+<div class="highlight"><pre><span></span><code>governance_revision
+governance_operation_id
+governance_intent_fingerprint
+</code></pre></div>
+<p><code>S3DatasetVersionStoreV2.get_published(...)</code> ignores the additive fields and
+continues to read the pointer unchanged.</p>
+<h2 id="legacy-pointer-bootstrap">Legacy pointer bootstrap</h2>
+<p>An existing 2.0 S3 pointer has no framework governance revision.</p>
+<p>The governed publisher derives a deterministic bootstrap revision from the exact
+pointer bytes while retaining the observed ETag internally for the first
+conditional replacement.</p>
+<p>As with filesystem governance, operators must quiesce legacy blind writers
+before enabling the governed path.</p>
+<h2 id="failure-semantics">Failure semantics</h2>
+<p>A provider precondition failure is a known conflict.</p>
+<p>A non-precondition failure while issuing a conditional write is treated
+conservatively as:</p>
+<div class="highlight"><pre><span></span><code>UNKNOWN_OUTCOME
+  -&gt; RETRYABLE_AFTER_RECONCILIATION
+  -&gt; provider truth must be inspected before retry
+</code></pre></div>
+<p>An injected acknowledgement loss after a successful provider write follows the
+same rule.</p>
+<p>Reconciliation never republishes. It only observes current provider truth and
+closes the durable lifecycle operation as committed, not committed or conflict.</p>
+<h2 id="cross-client-qualification">Cross-client qualification</h2>
+<p>The CI proof uses two independently constructed S3 clients against the same
+remote endpoint.</p>
+<p>A synchronization barrier pauses both governed publishers immediately before
+their conditional write. This guarantees that both have already inspected the
+same pointer state.</p>
+<p>The required outcomes are:</p>
+<div class="highlight"><pre><span></span><code>initial race:
+  succeeded = 1
+  conflict  = 1
+
+existing-revision race:
+  succeeded = 1
+  conflict  = 1
+</code></pre></div>
+<p>The loser must carry the provider-precondition conflict failure code, proving
+that the endpoint conditional write rather than a local pre-check arbitrated the
+race.</p>
+<h2 id="optional-dependency-boundary">Optional dependency boundary</h2>
+<p>The base package still does not import boto3.</p>
+<p><code>create_s3_client_v2(...)</code> keeps boto3 lazy behind the existing <code>[s3]</code> extra.
+The provider Protocol itself remains dependency-neutral.</p>
+<h2 id="executable-evidence">Executable evidence</h2>
+<p>LOT-26 adds:</p>
+<ul>
+<li>provider contract regression;</li>
+<li>fail-closed unsupported-endpoint qualification;</li>
+<li>initial cross-client race;</li>
+<li>existing-revision cross-client race;</li>
+<li>provider-precondition conflict mapping;</li>
+<li>acknowledgement-loss and reconciliation proof;</li>
+<li>ETag non-leakage assertion;</li>
+<li>governed-pointer compatibility with the frozen S3 reader;</li>
+<li>dedicated release-blocking S3 CAS CI gate.</li>
+</ul>
+<p>Machine fixture:</p>
+<div class="highlight"><pre><span></span><code>tests/contract/fixtures/governance_v2_1_alpha4.json
+</code></pre></div>
+<p>Milestone checker:</p>
+<div class="highlight"><pre><span></span><code>scripts/check_v2_1_alpha4.py
+</code></pre></div>
+<h2 id="next-lot">Next lot</h2>
+<p>LOT-27 / 2.1.0b1 introduces retention, holds and guarded garbage collection.
+Destructive deletion capability remains separate from both the frozen
+DatasetVersionStore and the conditional publication ports.</p>
 
 
 
