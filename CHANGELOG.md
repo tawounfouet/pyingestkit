@@ -2,6 +2,20 @@
 
 All notable changes to PyIngestKit are documented here.
 
+## [2.1.0a1] - 2026-10-03
+
+### Alpha 1 — Publication & Lifecycle Governance Foundations
+
+- opened the additive PyIngestKit 2.1 release line from the accepted RFC-001 roadmap;
+- added the qualified `pyingestkit.governance` namespace without widening the frozen 2.0 package root;
+- introduced provider-neutral `PublicationOperationId`, `PublicationRevision`, `PublicationSnapshot` and idempotent `PublicationIntent` semantics;
+- added append-only lifecycle event values, the minimal deterministic `RetentionPolicy`, explicit `VersionHold` and immutable `GarbageCollectionPlan` evidence;
+- added operation-specific dataset-version deletion/reconciliation result contracts that reuse the existing `FailureEvidence` / `OutcomeUncertainty` vocabulary;
+- froze the additive `PublicationLedger`, `ConditionalDatasetPublisher` and `DatasetVersionGarbageCollector` Protocol signatures for the 2.1 line;
+- added machine-readable LOT-23 namespace/signature fixtures plus domain, contract and architecture tests;
+- split CI qualification into the immutable PyIngestKit 2.0 compatibility baseline and the current 2.1 milestone contract;
+- kept all provider behavior deferred: no PostgreSQL ledger, filesystem/S3 CAS, physical GC or governed rollback side effect is included in this alpha.
+
 ## [2.0.0] - 2026-10-03
 
 ### Stable — Clean-Slate V2 Contract
