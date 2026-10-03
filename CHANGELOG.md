@@ -2,6 +2,21 @@
 
 All notable changes to PyIngestKit are documented here.
 
+## [2.1.0a2] - 2026-10-03
+
+### Alpha 2 — Durable Lifecycle Ledger + PostgreSQL
+
+- added `MemoryPublicationLedger` as the deterministic reference/conformance implementation of the frozen LOT-23 `PublicationLedger` contract;
+- added `PostgresPublicationLedger` behind the existing `postgres` extra with isolated V2 lifecycle tables, append-only event history and durable unresolved/resolved operation state;
+- persisted exact portable intent/event evidence through the existing canonical V2 boundary codecs and revalidated intent fingerprints on reload;
+- made duplicate operation registration idempotent only for the same semantic intent and fail-closed for operation-ID reuse with different intent;
+- added explicit adapter-level transaction scopes so operation registration and the first event can commit or roll back atomically without changing the frozen Protocol;
+- added PostgreSQL restart recovery, row-locked event append ordering and exact duplicate-event idempotence;
+- added pre-persistence rejection of obvious URI credentials, password/secret/token assignments and bearer-token material in lifecycle evidence;
+- created the reserved V2 version-hold table while deferring hold mutation behavior to LOT-27;
+- extended real PostgreSQL CI to qualify the lifecycle ledger and preserved clean base-wheel operation without SQLAlchemy/psycopg;
+- preserved the exact PyIngestKit 2.0 root and the exact LOT-23 governance namespace/Protocol signatures.
+
 ## [2.1.0a1] - 2026-10-03
 
 ### Alpha 1 — Publication & Lifecycle Governance Foundations
