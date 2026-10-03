@@ -194,9 +194,7 @@ class TransformationPublicationAdapter:
         return TransformationPublicationInput(
             output_name=output_name,
             resource=resource,
-            transformation_execution_id=str(
-                execution_reference.transformation_execution_id
-            ),
+            transformation_execution_id=str(execution_reference.transformation_execution_id),
             transformation_plan_fingerprint=fingerprint_text,
             engine_id=engine_id,
             correlation=correlation,
