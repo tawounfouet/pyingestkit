@@ -3,7 +3,8 @@ from __future__ import annotations
 from datetime import UTC, datetime, timedelta
 
 from pyingestkit.adapters.memory import MemoryPublicationLedger
-from pyingestkit.domain.datasets import DatasetVersionReference, PublishedDataset
+from pyingestkit.domain.datasets import DatasetVersionReference
+from pyingestkit.domain.datasets.publication import PublishedDataset
 from pyingestkit.domain.governance import (
     PublicationIntent,
     PublicationOperationId,
