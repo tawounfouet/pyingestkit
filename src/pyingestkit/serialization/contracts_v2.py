@@ -472,12 +472,8 @@ def _decode_contract(envelope: ContractEnvelopeV2) -> object:
         return FailureEvidence(
             error_code=_required_text(payload["error_code"], "error_code"),
             category=FailureCategory(_required_text(payload["category"], "category")),
-            retryability=Retryability(
-                _required_text(payload["retryability"], "retryability")
-            ),
-            uncertainty=OutcomeUncertainty(
-                _required_text(payload["uncertainty"], "uncertainty")
-            ),
+            retryability=Retryability(_required_text(payload["retryability"], "retryability")),
+            uncertainty=OutcomeUncertainty(_required_text(payload["uncertainty"], "uncertainty")),
             ingestion_run_id=IngestionRunId.parse(
                 _required_text(payload["ingestion_run_id"], "ingestion_run_id")
             ),
@@ -524,9 +520,7 @@ def _decode_contract(envelope: ContractEnvelopeV2) -> object:
         correlation_raw = _optional_text(payload["correlation_id"], "correlation_id")
         return Diagnostic(
             code=_required_text(payload["code"], "code"),
-            severity=DiagnosticSeverity(
-                _required_text(payload["severity"], "severity")
-            ),
+            severity=DiagnosticSeverity(_required_text(payload["severity"], "severity")),
             summary=_required_text(payload["summary"], "summary"),
             stage=_optional_text(payload["stage"], "stage"),
             source_context=_optional_text(
