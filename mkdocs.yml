@@ -86,7 +86,7 @@ nav:
       - Provider / port conformance: architecture/v2-lot19-provider-port-conformance.md
       - Customer 360 beta gate: architecture/v2-lot20-customer360-beta-gate.md
       - LOT-23 governance domain & ports: architecture/v2-lot23-governance-domain-ports.md
-      - LOT-24 lifecycle ledger + PostgreSQL: architecture/v2-lot24-lifecycle-ledger-postgres.md
+      - LOT-24 lifecycle ledger + PostgreSQL: architecture/v2-lot24-lifecycle-ledger-postgres.md\n      - LOT-25 filesystem conditional publication: architecture/v2-lot25-filesystem-conditional-publication.md
   - Historical V1.x:
       - V1 Quickstart: guides/v1-quickstart.md
       - Authoring:
