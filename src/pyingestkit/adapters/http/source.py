@@ -449,7 +449,8 @@ class HttpSourceConnector:
                 except ValueError:
                     parsed = -1.0
                 if parsed >= 0:
-                    return float(min(parsed, self._policy.max_retry_after_seconds))
+                    retry_cap: float = self._policy.max_retry_after_seconds
+                    return parsed if parsed <= retry_cap else retry_cap
         return float(self._policy.retry_backoff_seconds) * (2 ** (attempt - 1))
 
     def _validate_url(
