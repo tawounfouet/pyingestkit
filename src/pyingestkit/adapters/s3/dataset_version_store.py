@@ -258,9 +258,7 @@ class S3DatasetVersionStoreV2:
             raise ValueError("S3 dataset-version locator disagrees with canonical storage key.")
         if reference.locator.resource_id != _resource_id(expected_locator):
             raise ValueError("S3 dataset-version resource identity mismatch.")
-        content = self._objects.read(
-            self._snapshot_key(reference.dataset_id, reference.version_id)
-        )
+        content = self._objects.read(self._snapshot_key(reference.dataset_id, reference.version_id))
         schema, representation = decode_dataset_snapshot(
             content,
             expected_dataset_id=reference.dataset_id,
