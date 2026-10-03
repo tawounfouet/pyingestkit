@@ -32,17 +32,26 @@ _SHIM_DECISIONS = (
     CompatibilityShimDecision(
         shim="V2 Job alias",
         decision="rejected",
-        reason="V2 authoring root is IngestionDefinition; generic Job alias would preserve wrong semantics.",
+        reason=(
+            "V2 authoring root is IngestionDefinition; generic Job alias would "
+            "preserve wrong semantics."
+        ),
     ),
     CompatibilityShimDecision(
         shim="V2 Pipeline alias",
         decision="rejected",
-        reason="Scheduling/orchestration and transformation DAGs are not PyIngestKit V2 core concepts.",
+        reason=(
+            "Scheduling/orchestration and transformation DAGs are not "
+            "PyIngestKit V2 core concepts."
+        ),
     ),
     CompatibilityShimDecision(
         shim="V2 Step alias",
         decision="rejected",
-        reason="Arbitrary Python Step execution cannot be migrated without ownership classification.",
+        reason=(
+            "Arbitrary Python Step execution cannot be migrated without "
+            "ownership classification."
+        ),
     ),
     CompatibilityShimDecision(
         shim="V1 private metadata table reader",
