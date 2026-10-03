@@ -302,7 +302,6 @@ def _execute_transform(
     correlation: object,
     output_path: Path,
 ):
-    import pytransformkit
     from pytransformkit import (
         DataType,
         EngineRegistry,
