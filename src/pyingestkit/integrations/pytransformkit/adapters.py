@@ -392,10 +392,18 @@ def _from_transform_resource(
         raise TypeError("resource must be PyTransformKit ResourceReference.")
     provider_resource = cast(Any, resource)
     locator = provider_resource.locator
+    parsed = urlsplit(locator)
+    if not parsed.scheme:
+        raise PyTransformKitMappingError(
+            "PyTransformKit output ResourceReference requires an explicit URI scheme."
+        )
+    if parsed.scheme != provider_resource.scheme:
+        raise PyTransformKitMappingError(
+            "PyTransformKit output ResourceReference scheme disagrees with its locator."
+        )
     resource_id = hashlib.sha256(
         f"{execution_id}\x00{output_name}\x00{locator}".encode("utf-8")
     ).hexdigest()
-    parsed = urlsplit(locator)
     suffix = parsed.path.rsplit("/", 1)[-1]
     inferred_format = (
         suffix.rsplit(".", 1)[-1].lower()
