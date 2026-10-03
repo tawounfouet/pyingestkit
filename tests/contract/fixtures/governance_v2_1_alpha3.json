@@ -1,1 +1,26 @@
-{\n  "schema_version": 1,\n  "milestone": "LOT-25",\n  "version": "2.1.0a3",\n  "baseline": {\n    "lot24_merge_sha": "3f1119060158bb5991c21be41e7e35f4b9596350",\n    "lot24_fixture": "tests/contract/fixtures/governance_v2_1_alpha2.json",\n    "lot23_fixture": "tests/contract/fixtures/governance_v2_1_alpha1.json",\n    "stable_2_0_fixture": "tests/contract/fixtures/stable_release_v2.json"\n  },\n  "providers": {\n    "filesystem_conditional": "pyingestkit.adapters.filesystem.FileConditionalDatasetPublisher",\n    "memory_ledger": "pyingestkit.adapters.memory.MemoryPublicationLedger",\n    "postgres_ledger": "pyingestkit.adapters.postgres.PostgresPublicationLedger"\n  },\n  "required_evidence": [\n    "tests/contract/public_api/test_v2_governance_filesystem_cas.py",\n    "tests/conformance/v2/test_filesystem_conditional_publication.py",\n    "tests/integration/v2/test_filesystem_conditional_publication_processes.py"\n  ],\n  "required_docs": [\n    "docs/architecture/v2-lot25-filesystem-conditional-publication.md",\n    "docs/architecture/v2-lot24-lifecycle-ledger-postgres.md",\n    "docs/roadmap/rfc001-publication-lifecycle-implementation-roadmap.md"\n  ]\n}\n
+{
+  "schema_version": 1,
+  "milestone": "LOT-25",
+  "version": "2.1.0a3",
+  "baseline": {
+    "lot24_merge_sha": "3f1119060158bb5991c21be41e7e35f4b9596350",
+    "lot24_fixture": "tests/contract/fixtures/governance_v2_1_alpha2.json",
+    "lot23_fixture": "tests/contract/fixtures/governance_v2_1_alpha1.json",
+    "stable_2_0_fixture": "tests/contract/fixtures/stable_release_v2.json"
+  },
+  "providers": {
+    "filesystem_conditional": "pyingestkit.adapters.filesystem.FileConditionalDatasetPublisher",
+    "memory_ledger": "pyingestkit.adapters.memory.MemoryPublicationLedger",
+    "postgres_ledger": "pyingestkit.adapters.postgres.PostgresPublicationLedger"
+  },
+  "required_evidence": [
+    "tests/contract/public_api/test_v2_governance_filesystem_cas.py",
+    "tests/conformance/v2/test_filesystem_conditional_publication.py",
+    "tests/integration/v2/test_filesystem_conditional_publication_processes.py"
+  ],
+  "required_docs": [
+    "docs/architecture/v2-lot25-filesystem-conditional-publication.md",
+    "docs/architecture/v2-lot24-lifecycle-ledger-postgres.md",
+    "docs/roadmap/rfc001-publication-lifecycle-implementation-roadmap.md"
+  ]
+}
