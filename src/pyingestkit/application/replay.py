@@ -17,6 +17,7 @@ from pyingestkit.domain.artifacts import (
 from pyingestkit.domain.replay import ReplayRequest, ReplayResult
 from pyingestkit.domain.runtime import CorrelationContext
 from pyingestkit.domain.shared import IngestionRunId
+from pyingestkit.validation.v2 import ValidationRuleV2
 
 
 class ReplayServiceV2:
@@ -37,6 +38,7 @@ class ReplayServiceV2:
         self,
         request: ReplayRequest,
         *,
+        validation_rules: tuple[ValidationRuleV2, ...] = (),
         ingestion_run_id: IngestionRunId | None = None,
         correlation: CorrelationContext | None = None,
     ) -> ReplayResult:
@@ -100,7 +102,7 @@ class ReplayServiceV2:
             request.definition,
             raw_artifact=raw_put.reference,
             raw_content=content,
-            validation_rules=request.validation_rules,
+            validation_rules=validation_rules,
             publish=False,
             expected_version_id=expected_version_id,
             ingestion_run_id=run_id,
