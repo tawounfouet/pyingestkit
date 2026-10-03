@@ -203,7 +203,9 @@ def test_lot26_initial_cross_client_race_has_exactly_one_provider_winner() -> No
     )
 
     assert sorted(outcome.status.value for outcome in outcomes) == ["conflict", "succeeded"]
-    loser = next(outcome for outcome in outcomes if outcome.status is ConditionalPublicationStatus.CONFLICT)
+    loser = next(
+        outcome for outcome in outcomes if outcome.status is ConditionalPublicationStatus.CONFLICT
+    )
     assert loser.failure is not None
     assert loser.failure.error_code == "governance.s3.provider_precondition_conflict"
 
@@ -247,7 +249,9 @@ def test_lot26_existing_revision_cross_client_race_has_exactly_one_provider_winn
     )
 
     assert sorted(outcome.status.value for outcome in outcomes) == ["conflict", "succeeded"]
-    loser = next(outcome for outcome in outcomes if outcome.status is ConditionalPublicationStatus.CONFLICT)
+    loser = next(
+        outcome for outcome in outcomes if outcome.status is ConditionalPublicationStatus.CONFLICT
+    )
     assert loser.failure is not None
     assert loser.failure.error_code == "governance.s3.provider_precondition_conflict"
 
