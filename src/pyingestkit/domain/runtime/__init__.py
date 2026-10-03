@@ -5,6 +5,7 @@ from pyingestkit.domain.runtime.diagnostics import (
     Diagnostic,
     DiagnosticSeverity,
 )
+from pyingestkit.domain.runtime.execution import IngestionResult, IngestionRun
 from pyingestkit.domain.runtime.failure import (
     FailureCategory,
     FailureEvidence,
@@ -25,6 +26,8 @@ __all__ = [
     "FailureEvidence",
     "IdempotencyReference",
     "IngestionExecutionReference",
+    "IngestionResult",
+    "IngestionRun",
     "IngestionRunId",
     "IngestionStatus",
     "OutcomeUncertainty",
