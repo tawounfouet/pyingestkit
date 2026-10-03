@@ -274,7 +274,7 @@ class FileConditionalDatasetPublisher(ConditionalDatasetPublisher):
             replaced = True
             _fsync_directory(pointer.parent)
             self._inject("after_replace")
-        except BaseException as exc:
+        except Exception as exc:
             temporary.unlink(missing_ok=True)
             if replaced:
                 self._append_unknown_best_effort(
@@ -319,7 +319,7 @@ class FileConditionalDatasetPublisher(ConditionalDatasetPublisher):
                 previous_revision=current.revision,
                 next_revision=next_revision,
             )
-        except BaseException:
+        except Exception:
             self._append_unknown_best_effort(
                 intent,
                 current.revision,
@@ -398,7 +398,7 @@ class FileConditionalDatasetPublisher(ConditionalDatasetPublisher):
                 previous_revision=previous_revision,
                 next_revision=next_revision,
             )
-        except BaseException:
+        except Exception:
             pass
 
     def _event(
@@ -456,6 +456,10 @@ class FileConditionalDatasetPublisher(ConditionalDatasetPublisher):
         dataset_id: str,
     ) -> tuple[PublicationSnapshot, dict[str, object]]:
         pointer = self._current_path(dataset_id)
+        if pointer.is_symlink():
+            raise ValueError(
+                "Published dataset pointer must be a regular non-symlink file."
+            )
         if not pointer.exists():
             return (
                 PublicationSnapshot(
@@ -464,7 +468,7 @@ class FileConditionalDatasetPublisher(ConditionalDatasetPublisher):
                 ),
                 {},
             )
-        if not pointer.is_file() or pointer.is_symlink():
+        if not pointer.is_file():
             raise ValueError(
                 "Published dataset pointer must be a regular non-symlink file."
             )
