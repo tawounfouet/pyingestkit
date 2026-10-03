@@ -20,7 +20,9 @@ def test_v1_semantic_export_sanitizes_locator_secrets_before_bytes() -> None:
         run_id=run_id,
         kind="raw",
         path="/tmp/raw.csv",
-        source_uri=("https://user:password-secret@api.example.test/data.csv?token=query-secret&page=2"),
+        source_uri=(
+            "https://user:password-secret@api.example.test/data.csv?token=query-secret&page=2"
+        ),
         content_type="text/csv",
         size_bytes=12,
         sha256="a" * 64,
