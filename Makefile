@@ -77,8 +77,8 @@ format:
 	ruff format src tests examples/plugin_package/src examples/plugin_package/tests
 
 quality:
-	ruff check src/pyingestkit tests/architecture tests/contract/public_api tests/unit/v2 tests/conformance/v2 tests/integration/v2 tests/migration/v2 scripts
-	ruff format --check src/pyingestkit tests/architecture tests/contract/public_api tests/unit/v2 tests/conformance/v2 tests/integration/v2 tests/migration/v2 scripts
+	ruff check src/pyingestkit tests/architecture tests/contract/public_api tests/unit/v2 tests/conformance/v2 tests/integration/v2 tests/migration/v2 scripts/check_v2_rc.py
+	ruff format --check src/pyingestkit tests/architecture tests/contract/public_api tests/unit/v2 tests/conformance/v2 tests/integration/v2 tests/migration/v2 scripts/check_v2_rc.py
 	mypy src/pyingestkit/__init__.py src/pyingestkit/_api_v2.py src/pyingestkit/_architecture_v2.py src/pyingestkit/domain src/pyingestkit/application src/pyingestkit/ports src/pyingestkit/adapters/filesystem src/pyingestkit/adapters/formats src/pyingestkit/adapters/http src/pyingestkit/adapters/postgres src/pyingestkit/adapters/s3 src/pyingestkit/serialization src/pyingestkit/integrations src/pyingestkit/migration
 
 security: bootstrap
