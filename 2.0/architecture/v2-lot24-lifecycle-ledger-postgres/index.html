@@ -10,9 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://tawounfouet.github.io/pyingestkit/2.0/adr/ADR-054-s3-dataset-version-publication/">
+        <link rel="canonical" href="https://tawounfouet.github.io/pyingestkit/2.0/architecture/v2-lot24-lifecycle-ledger-postgres/">
       
       
+        <link rel="prev" href="../v2-lot23-governance-domain-ports/">
+      
+      
+        <link rel="next" href="../../guides/v1-quickstart/">
       
       
         
@@ -23,7 +27,7 @@
     
     
       
-        <title>ADR-054 — S3 DatasetVersion storage is immutable; publication is one mutable pointer - PyIngestKit</title>
+        <title>LOT-24 lifecycle ledger + PostgreSQL - PyIngestKit</title>
       
     
     
@@ -66,7 +70,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#adr-054-s3-datasetversion-storage-is-immutable-publication-is-one-mutable-pointer" class="md-skip">
+        <a href="#pyingestkit-21-lot-24-durable-lifecycle-ledger-postgresql" class="md-skip">
           Skip to content
         </a>
       
@@ -104,7 +108,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              ADR-054 — S3 DatasetVersion storage is immutable; publication is one mutable pointer
+              LOT-24 lifecycle ledger + PostgreSQL
             
           </span>
         </div>
@@ -274,11 +278,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../architecture/overview/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../overview/" class="md-tabs__link">
           
   
   
@@ -322,7 +328,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../" class="md-tabs__link">
+        <a href="../../adr/" class="md-tabs__link">
           
   
   
@@ -938,8 +944,10 @@
       
   
   
+    
   
   
+  
     
     
       
@@ -975,19 +983,22 @@
     
     
       
+        
+        
+      
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
         
           
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
             
   
   
@@ -1005,7 +1016,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1023,7 +1034,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/overview/" class="md-nav__link">
+      <a href="../overview/" class="md-nav__link">
         
   
   
@@ -1051,7 +1062,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/v2-lot00-baseline/" class="md-nav__link">
+      <a href="../v2-lot00-baseline/" class="md-nav__link">
         
   
   
@@ -1079,7 +1090,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/v2-lot10-ingestion-runtime/" class="md-nav__link">
+      <a href="../v2-lot10-ingestion-runtime/" class="md-nav__link">
         
   
   
@@ -1107,7 +1118,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/v2-lot11-strict-replay/" class="md-nav__link">
+      <a href="../v2-lot11-strict-replay/" class="md-nav__link">
         
   
   
@@ -1135,7 +1146,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/v2-lot13-http-acquisition/" class="md-nav__link">
+      <a href="../v2-lot13-http-acquisition/" class="md-nav__link">
         
   
   
@@ -1163,7 +1174,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/v2-lot14-postgres-target/" class="md-nav__link">
+      <a href="../v2-lot14-postgres-target/" class="md-nav__link">
         
   
   
@@ -1191,7 +1202,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/v2-lot15-s3-object-storage/" class="md-nav__link">
+      <a href="../v2-lot15-s3-object-storage/" class="md-nav__link">
         
   
   
@@ -1219,7 +1230,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/v2-lot16-canonical-serialization/" class="md-nav__link">
+      <a href="../v2-lot16-canonical-serialization/" class="md-nav__link">
         
   
   
@@ -1247,7 +1258,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/v2-lot17-pytransformkit-integration/" class="md-nav__link">
+      <a href="../v2-lot17-pytransformkit-integration/" class="md-nav__link">
         
   
   
@@ -1275,7 +1286,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/v2-lot18-v1-semantic-migration/" class="md-nav__link">
+      <a href="../v2-lot18-v1-semantic-migration/" class="md-nav__link">
         
   
   
@@ -1303,7 +1314,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/v2-lot19-provider-port-conformance/" class="md-nav__link">
+      <a href="../v2-lot19-provider-port-conformance/" class="md-nav__link">
         
   
   
@@ -1331,7 +1342,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/v2-lot20-customer360-beta-gate/" class="md-nav__link">
+      <a href="../v2-lot20-customer360-beta-gate/" class="md-nav__link">
         
   
   
@@ -1359,7 +1370,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/v2-lot23-governance-domain-ports/" class="md-nav__link">
+      <a href="../v2-lot23-governance-domain-ports/" class="md-nav__link">
         
   
   
@@ -1384,10 +1395,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../architecture/v2-lot24-lifecycle-ledger-postgres/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LOT-24 lifecycle ledger + PostgreSQL
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1403,6 +1441,191 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Status
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scope
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#frozen-lot-23-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Frozen LOT-23 contract
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#durable-logical-records" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Durable logical records
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#portable-persistence-codec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Portable persistence codec
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#idempotence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Idempotence
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#append-only-lifecycle-semantics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Append-only lifecycle semantics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#transaction-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Transaction model
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#restart-recovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Restart recovery
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#concurrent-event-ordering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Concurrent event ordering
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#secret-safety" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Secret safety
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#optional-dependency-isolation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Optional dependency isolation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conformance-evidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conformance evidence
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ci-gates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CI gates
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-lot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next lot
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -2174,7 +2397,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../architecture/product-scope-v1/" class="md-nav__link">
+      <a href="../product-scope-v1/" class="md-nav__link">
         
   
   
@@ -2362,7 +2585,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../" class="md-nav__link ">
+            <a href="../../adr/" class="md-nav__link ">
               
   
   
@@ -2428,10 +2651,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#context" class="md-nav__link">
+  <a href="#status" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Context
+        Status
       
     </span>
   </a>
@@ -2439,10 +2662,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#decision" class="md-nav__link">
+  <a href="#scope" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Decision
+        Scope
       
     </span>
   </a>
@@ -2450,10 +2673,142 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#consequences" class="md-nav__link">
+  <a href="#frozen-lot-23-contract" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Consequences
+        Frozen LOT-23 contract
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#durable-logical-records" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Durable logical records
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#portable-persistence-codec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Portable persistence codec
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#idempotence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Idempotence
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#append-only-lifecycle-semantics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Append-only lifecycle semantics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#transaction-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Transaction model
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#restart-recovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Restart recovery
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#concurrent-event-ordering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Concurrent event ordering
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#secret-safety" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Secret safety
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#optional-dependency-isolation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Optional dependency isolation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conformance-evidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conformance evidence
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ci-gates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CI gates
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-lot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next lot
       
     </span>
   </a>
@@ -2477,7 +2832,7 @@
 
 
   
-    <a href="https://github.com/tawounfouet/pyingestkit/edit/main/docs/adr/ADR-054-s3-dataset-version-publication.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/tawounfouet/pyingestkit/edit/main/docs/architecture/v2-lot24-lifecycle-ledger-postgres.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -2485,42 +2840,165 @@
   
 
 
-<h1 id="adr-054-s3-datasetversion-storage-is-immutable-publication-is-one-mutable-pointer">ADR-054 — S3 DatasetVersion storage is immutable; publication is one mutable pointer</h1>
-<p>Status: Accepted for V0.6.0-b2.</p>
-<h2 id="context">Context</h2>
-<p>V0.6.0-b1 made RAW, reports and run manifests durable in S3-compatible object storage, but
-<code>DatasetVersion</code> snapshots and <code>PublishedDataset</code> pointers still depended on a local filesystem.
-That prevented a second runner with an empty workspace from discovering and loading the version
-published by a first runner.</p>
-<h2 id="decision">Decision</h2>
-<p>PyIngestKit provides <code>S3DatasetVersionStore</code>, implementing the existing <code>DatasetVersionStore</code>
-contract by composing the configured <code>S3ArtifactStore</code>.</p>
-<p>The object namespace is deterministic:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>&lt;prefix&gt;/datasets/versions/&lt;dataset path&gt;/&lt;version_id&gt;/dataset.snapshot.json
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>&lt;prefix&gt;/datasets/versions/&lt;dataset path&gt;/&lt;version_id&gt;/version.json
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>&lt;prefix&gt;/datasets/published/&lt;dataset path&gt;/current.json
-</code></pre></div>
-<p>Dataset snapshots and version metadata are immutable create-once objects. Their identity remains
-the V0.4 content-addressed Dataset fingerprint, and the V0.4 typed snapshot codec remains version
-<code>1</code> unchanged.</p>
-<p><code>current.json</code> is the only mutable object in this version-store lifecycle. Publishing replaces that
-single key. S3 PutObject replacement is atomic at the object-key boundary, so readers observe an
-old or new complete pointer, never a partially written local file.</p>
-<p>All B2 objects carry <code>pyingestkit-sha256</code> metadata. Reads verify the object bytes against that
-metadata before decoding JSON or Dataset snapshots.</p>
-<h2 id="consequences">Consequences</h2>
+<h1 id="pyingestkit-21-lot-24-durable-lifecycle-ledger-postgresql">PyIngestKit 2.1 — LOT-24 Durable Lifecycle Ledger + PostgreSQL</h1>
+<h2 id="status">Status</h2>
+<p><strong>Implemented candidate: 2.1.0a2.</strong></p>
+<p>LOT-24 implements the durable lifecycle ledger defined by RFC-001 while
+preserving the exact LOT-23 governance domain and Protocol contracts.</p>
+<h2 id="scope">Scope</h2>
+<p>LOT-24 adds:</p>
 <ul>
-<li>Dataset versions and publication no longer require a shared local filesystem.</li>
-<li>A runner with an empty workspace can discover the current publication, list versions and load a
-  snapshot directly from object storage.</li>
-<li>Existing <code>FilesystemDatasetVersionStore</code> semantics and the abstract <code>DatasetVersionStore</code>
-  surface remain unchanged.</li>
-<li><code>S3ArtifactStore</code> remains responsible for transport/configuration; B2 does not add methods to the
-  abstract <code>ArtifactStore</code> contract.</li>
-<li>MetadataStore remains optional and independent from the durable version store.</li>
-<li>Multi-object distributed transactions, locking and compare-and-swap publication are not claimed
-  by B2. Those concerns require a later coordination design if concurrent publishers demand them.</li>
+<li><strong>MemoryPublicationLedger</strong> as deterministic reference/conformance adapter;</li>
+<li><strong>PostgresPublicationLedger</strong> as the first durable production ledger;</li>
+<li>canonical persistence of PublicationIntent and lifecycle events;</li>
+<li>append-only event history;</li>
+<li>durable unresolved/resolved operation state;</li>
+<li>restart recovery;</li>
+<li>explicit transaction scopes for atomic register + append;</li>
+<li>secret-bearing evidence rejection before persistence.</li>
 </ul>
+<p>LOT-24 does <strong>not</strong> add filesystem CAS, S3 CAS, physical garbage collection,
+rollback side effects, scheduler behavior, or modifications to the historical
+V1 MetadataStore.</p>
+<h2 id="frozen-lot-23-contract">Frozen LOT-23 contract</h2>
+<p>LOT-24 does not change the qualified governance namespace or the exact
+signatures of:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>PublicationLedger
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>ConditionalDatasetPublisher
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>DatasetVersionGarbageCollector
+</code></pre></div>
+<p>The package root remains the exact frozen 2.0 root.</p>
+<p>Provider implementations are exposed from explicit adapter namespaces:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pyingestkit.adapters.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">MemoryPublicationLedger</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pyingestkit.adapters.postgres</span><span class="w"> </span><span class="kn">import</span> <span class="n">PostgresPublicationLedger</span>
+</code></pre></div>
+<h2 id="durable-logical-records">Durable logical records</h2>
+<p>The PostgreSQL adapter owns three isolated additive V2 tables:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>pyingestkit_v2_publication_operation
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>pyingestkit_v2_publication_event
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>pyingestkit_v2_version_hold
+</code></pre></div>
+<p>These tables are independent from the historical V1 metadata schema.</p>
+<p>The operation record preserves operation ID, dataset identity, deterministic
+intent fingerprint, request time, canonical PublicationIntent payload and
+resolved/terminal state.</p>
+<p>The event record preserves a monotonic sequence, unique event ID, optional
+operation identity, dataset identity, event type, occurrence time and canonical
+lifecycle-event payload.</p>
+<p>The version-hold table is created now as required durable structure; hold
+mutation APIs remain deferred to LOT-27.</p>
+<h2 id="portable-persistence-codec">Portable persistence codec</h2>
+<p>Ledger payloads use framework-owned canonical V2 boundary contracts rather than
+SQLAlchemy objects.</p>
+<p>Publication intents persist canonical DatasetVersionReference and
+CorrelationContext envelopes. Lifecycle events persist optional
+DatasetVersionReference and FailureEvidence envelopes.</p>
+<p>Reads reconstruct and revalidate domain objects. Intent fingerprints are
+recomputed and compared, so malformed or tampered persisted intent state fails
+closed.</p>
+<h2 id="idempotence">Idempotence</h2>
+<p>The LOT-23 invariant is now durable:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>same PublicationOperationId + same semantic intent
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    -&gt; return existing operation
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>same PublicationOperationId + different semantic intent
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    -&gt; fail closed
+</code></pre></div>
+<p>PostgreSQL uses INSERT ... ON CONFLICT DO NOTHING followed by canonical intent
+verification, making registration safe under multi-process races.</p>
+<h2 id="append-only-lifecycle-semantics">Append-only lifecycle semantics</h2>
+<p>For events carrying an operation ID:</p>
+<ol>
+<li>the operation must already exist;</li>
+<li>the event dataset must match the registered intent;</li>
+<li>PostgreSQL locks the operation row while appending;</li>
+<li>terminal events resolve the operation;</li>
+<li>new event IDs are rejected after resolution;</li>
+<li>an exact duplicate event remains idempotent.</li>
+</ol>
+<p>Publication-outcome-unknown remains unresolved and therefore continues to appear
+in list_unresolved() until a terminal reconciliation event is recorded.</p>
+<h2 id="transaction-model">Transaction model</h2>
+<p>The frozen PublicationLedger Protocol keeps register() and append() separate.
+LOT-24 therefore adds an adapter-level explicit transaction context without
+changing that Protocol:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">with</span> <span class="n">ledger</span><span class="o">.</span><span class="n">transaction</span><span class="p">()</span> <span class="k">as</span> <span class="n">transaction</span><span class="p">:</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="n">transaction</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">intent</span><span class="p">)</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="n">transaction</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">first_event</span><span class="p">)</span>
+</code></pre></div>
+<p>The transaction-bound PostgreSQL ledger never commits itself.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>normal context exit
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    -&gt; operation + event commit together
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>exception
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    -&gt; operation + event both roll back
+</code></pre></div>
+<p>The in-memory adapter provides equivalent observable atomicity using a
+rollbackable snapshot.</p>
+<h2 id="restart-recovery">Restart recovery</h2>
+<p>The required durable path is:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>register intent
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    ↓
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>append non-terminal event
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    ↓
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>close process/adapter
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    ↓
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>new PostgresPublicationLedger
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>    ↓
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>get_operation()
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>list_unresolved()
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>list_events()
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>    ↓
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>same portable evidence
+</code></pre></div>
+<p>No provider client or secret is required to reconstruct the operation.</p>
+<h2 id="concurrent-event-ordering">Concurrent event ordering</h2>
+<p>PostgreSQL assigns each event a monotonic sequence ID. Concurrent writers may
+race for insertion order, but committed history has one deterministic observable
+ordering and repeated list_events() calls return that order.</p>
+<h2 id="secret-safety">Secret safety</h2>
+<p>Lifecycle evidence is validated before durable persistence. The ledger rejects
+obvious secret-bearing free text such as URI user-info credentials,
+password/secret/token/API-key assignments and bearer-token text.</p>
+<p>The PostgreSQL adapter exposes only a password-redacted safe_dsn for
+diagnostics.</p>
+<h2 id="optional-dependency-isolation">Optional dependency isolation</h2>
+<p>The base package remains provider-neutral. pyingestkit.governance and
+MemoryPublicationLedger work without SQLAlchemy or psycopg.</p>
+<p>PostgresPublicationLedger remains behind the existing postgres extra:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"pyingestkit[postgres]"</span>
+</code></pre></div>
+<h2 id="conformance-evidence">Conformance evidence</h2>
+<p>Shared behavioral contract:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>tests/conformance/v2/_governance_ledger_contract.py
+</code></pre></div>
+<p>Memory qualification:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>tests/unit/v2/test_memory_publication_ledger.py
+</code></pre></div>
+<p>Real PostgreSQL qualification:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>tests/integration/v2/test_postgres_publication_ledger.py
+</code></pre></div>
+<p>The PostgreSQL E2E proves shared semantics, atomic commit/rollback, restart
+recovery, stable concurrent ordering, additive table creation and DSN
+redaction.</p>
+<h2 id="ci-gates">CI gates</h2>
+<p>LOT-24 extends postgres-e2e to qualify both PostgresTargetV2 and
+PostgresPublicationLedger. The clean base-wheel gate imports
+MemoryPublicationLedger while still proving SQLAlchemy and psycopg are absent.</p>
+<p>The milestone checker verifies package version 2.1.0a2, the LOT-24 phase,
+frozen 2.0 root, frozen LOT-23 governance exports/signatures, exact adapter
+inventory, exact PostgreSQL table set and required evidence.</p>
+<h2 id="next-lot">Next lot</h2>
+<p>LOT-25 / <strong>2.1.0a3</strong> implements filesystem conditional publication:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>PublicationSnapshot
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>    +
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>PublicationRevision
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    +
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>ConditionalDatasetPublisher
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>        ↓
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>atomic filesystem CAS
+</code></pre></div>
+<p>LOT-25 must preserve the exact LOT-23 Protocols and LOT-24 ledger semantics.</p>
 
 
 
