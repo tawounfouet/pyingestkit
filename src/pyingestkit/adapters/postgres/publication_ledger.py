@@ -309,9 +309,7 @@ def _release_hold(
     released_at: datetime,
 ) -> bool:
     if not isinstance(reference, DatasetVersionReference):
-        raise TypeError(
-            "PostgresPublicationLedger.release_hold requires DatasetVersionReference."
-        )
+        raise TypeError("PostgresPublicationLedger.release_hold requires DatasetVersionReference.")
     validate_aware_datetime(released_at, "PostgresPublicationLedger released_at")
     row = (
         connection.execute(
@@ -380,11 +378,7 @@ def _hold_from_row(row: object) -> VersionHold:
 
 def _hold_id(reference: DatasetVersionReference, held_at: datetime) -> str:
     digest = hashlib.sha256(
-        (
-            f"{reference.dataset_id}\0"
-            f"{reference.version_id}\0"
-            f"{held_at.isoformat()}"
-        ).encode()
+        (f"{reference.dataset_id}\0{reference.version_id}\0{held_at.isoformat()}").encode()
     ).hexdigest()
     return f"hold:{digest}"
 
