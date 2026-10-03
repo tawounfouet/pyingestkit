@@ -58,9 +58,7 @@ class MigrationDecisionV2:
         if self.target_contract is not None:
             require_non_blank(self.target_contract, "MigrationDecisionV2 target_contract")
         if not isinstance(self.disposition, MigrationDispositionV2):
-            raise TypeError(
-                "MigrationDecisionV2 disposition must be MigrationDispositionV2."
-            )
+            raise TypeError("MigrationDecisionV2 disposition must be MigrationDispositionV2.")
         require_non_blank(self.reason, "MigrationDecisionV2 reason")
         validate_metadata(self.metadata, name="MigrationDecisionV2 metadata")
 
@@ -80,9 +78,7 @@ class V1PostgresTargetMigrationV2:
         require_non_blank(self.dsn_env, "V1PostgresTargetMigrationV2 dsn_env")
         require_non_blank(self.table, "V1PostgresTargetMigrationV2 table")
         if not isinstance(self.mode, TargetLoadModeV2):
-            raise TypeError(
-                "V1PostgresTargetMigrationV2 mode must be TargetLoadModeV2."
-            )
+            raise TypeError("V1PostgresTargetMigrationV2 mode must be TargetLoadModeV2.")
 
     @property
     def environment_variables(self) -> tuple[str, ...]:
@@ -134,26 +130,18 @@ class V1ProjectMigrationPlan:
         if not isinstance(self.decisions, tuple):
             raise TypeError("V1ProjectMigrationPlan decisions must be a tuple.")
         if any(not isinstance(item, MigrationDecisionV2) for item in self.decisions):
-            raise TypeError(
-                "V1ProjectMigrationPlan decisions must contain MigrationDecisionV2."
-            )
+            raise TypeError("V1ProjectMigrationPlan decisions must contain MigrationDecisionV2.")
         if not isinstance(self.postgres_targets, tuple):
             raise TypeError("V1ProjectMigrationPlan postgres_targets must be a tuple.")
-        if any(
-            not isinstance(item, V1PostgresTargetMigrationV2)
-            for item in self.postgres_targets
-        ):
+        if any(not isinstance(item, V1PostgresTargetMigrationV2) for item in self.postgres_targets):
             raise TypeError(
-                "V1ProjectMigrationPlan postgres_targets must contain "
-                "V1PostgresTargetMigrationV2."
+                "V1ProjectMigrationPlan postgres_targets must contain V1PostgresTargetMigrationV2."
             )
 
     @property
     def blocked(self) -> tuple[MigrationDecisionV2, ...]:
         return tuple(
-            item
-            for item in self.decisions
-            if item.disposition is MigrationDispositionV2.BLOCKED
+            item for item in self.decisions if item.disposition is MigrationDispositionV2.BLOCKED
         )
 
     @property
@@ -167,9 +155,7 @@ class V1ProjectMigrationPlan:
     @property
     def automatically_migratable(self) -> tuple[MigrationDecisionV2, ...]:
         return tuple(
-            item
-            for item in self.decisions
-            if item.disposition is MigrationDispositionV2.AUTOMATIC
+            item for item in self.decisions if item.disposition is MigrationDispositionV2.AUTOMATIC
         )
 
     @property
@@ -213,9 +199,7 @@ def migrate_v1_dataset_version_record(
 ) -> DatasetVersionReference:
     """Convert one stable V1 dataset-version metadata row into a V2 reference."""
     if not isinstance(record, DatasetVersionRecord):
-        raise TypeError(
-            "migrate_v1_dataset_version_record expects DatasetVersionRecord."
-        )
+        raise TypeError("migrate_v1_dataset_version_record expects DatasetVersionRecord.")
 
     locator = ResourceReference(
         namespace="pyingestkit.v1.dataset_version_snapshot",
@@ -246,9 +230,7 @@ def migrate_v1_published_dataset_record(
 ) -> PublishedDataset:
     """Convert one V1 publication pointer after its version reference is migrated."""
     if not isinstance(record, PublishedDatasetRecord):
-        raise TypeError(
-            "migrate_v1_published_dataset_record expects PublishedDatasetRecord."
-        )
+        raise TypeError("migrate_v1_published_dataset_record expects PublishedDatasetRecord.")
     if not isinstance(version, DatasetVersionReference):
         raise TypeError(
             "migrate_v1_published_dataset_record version must be DatasetVersionReference."
@@ -276,9 +258,7 @@ def migrate_v1_postgres_target_config(
 ) -> V1PostgresTargetMigrationV2:
     """Translate safe V1 target semantics without resolving the DSN secret."""
     if not isinstance(config, PostgresTargetConfig):
-        raise TypeError(
-            "migrate_v1_postgres_target_config expects PostgresTargetConfig."
-        )
+        raise TypeError("migrate_v1_postgres_target_config expects PostgresTargetConfig.")
     return V1PostgresTargetMigrationV2(
         target_id=config.target_id,
         dsn_env=config.dsn_env,
@@ -346,10 +326,7 @@ def plan_v1_config_migration(config: PyIngestKitConfig) -> V1ProjectMigrationPla
             ("backend", "sqlite"),
             (
                 "path",
-                str(
-                    config.metadata.sqlite.path
-                    or (workspace / "state" / "pyingest.sqlite3")
-                ),
+                str(config.metadata.sqlite.path or (workspace / "state" / "pyingest.sqlite3")),
             ),
         )
     else:
@@ -373,8 +350,7 @@ def plan_v1_config_migration(config: PyIngestKitConfig) -> V1ProjectMigrationPla
     )
 
     targets = tuple(
-        migrate_v1_postgres_target_config(target)
-        for _, target in sorted(config.targets.items())
+        migrate_v1_postgres_target_config(target) for _, target in sorted(config.targets.items())
     )
     for target in targets:
         decisions.append(
@@ -450,9 +426,7 @@ def _artifact_backend_decision(config: PyIngestKitConfig) -> MigrationDecisionV2
             source_contract="ArtifactConfig(local)",
             target_contract="FileArtifactStore + FileDatasetVersionStore",
             disposition=MigrationDispositionV2.AUTOMATIC,
-            reason=(
-                "The V1 workspace can be reused as an explicit local V2 storage root."
-            ),
+            reason=("The V1 workspace can be reused as an explicit local V2 storage root."),
             metadata=(("root", str(config.runtime.workspace)),),
         )
 
