@@ -6,7 +6,6 @@ import pyingestkit.artifacts as public_artifacts
 from pyingestkit.adapters.filesystem import FileArtifactStore
 from pyingestkit.domain.artifacts import RawArtifactEvidence
 from pyingestkit.ports.artifacts import ArtifactStore
-from pyingestkit.ports.targets import DatasetTargetV2
 
 from ._imports import imported_roots, matches_prefix, python_files
 
