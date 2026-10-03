@@ -2,6 +2,10 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
+import pytest
+
+pytest.importorskip("pytransformkit")
+
 from pyingestkit.domain.datasets import DatasetVersionReference
 from pyingestkit.domain.resources import ResourceReference
 from pyingestkit.domain.runtime import CorrelationContext, FailureCategory
