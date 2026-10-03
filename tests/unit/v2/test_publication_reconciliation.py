@@ -92,10 +92,7 @@ def test_unknown_publication_outcome_requires_reconciliation_before_safe_complet
 
     reconciled = service.reconcile(request)
 
-    assert (
-        reconciled.status
-        is PublicationReconciliationStatusV2.CONFIRMED_COMMITTED
-    )
+    assert reconciled.status is PublicationReconciliationStatusV2.CONFIRMED_COMMITTED
     assert reconciled.published_dataset is not None
     assert reconciled.published_dataset.version.identity == reference.identity
 
