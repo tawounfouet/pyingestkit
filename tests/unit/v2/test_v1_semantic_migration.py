@@ -55,8 +55,7 @@ def test_local_v1_config_maps_supported_backends_and_postgres_target() -> None:
         for item in plan.decisions
     )
     assert any(
-        item.subject == "metadata"
-        and item.disposition is MigrationDispositionV2.RETAINED_V1_ONLY
+        item.subject == "metadata" and item.disposition is MigrationDispositionV2.RETAINED_V1_ONLY
         for item in plan.decisions
     )
 
