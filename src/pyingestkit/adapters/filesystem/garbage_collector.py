@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import hashlib
 import shutil
-from contextlib import suppress
 from collections.abc import Callable
+from contextlib import suppress
 from datetime import datetime
 from pathlib import Path
 
@@ -429,7 +429,7 @@ class FileDatasetVersionGarbageCollector(DatasetVersionGarbageCollector):
         plan_id: GarbageCollectionPlanId,
     ) -> str:
         digest = hashlib.sha256(
-            f"{reference.dataset_id}\0{reference.version_id}".encode("utf-8")
+            f"{reference.dataset_id}\0{reference.version_id}".encode()
         ).hexdigest()[:16]
         return f"filesystem-gc:{digest}:{plan_id}"
 
