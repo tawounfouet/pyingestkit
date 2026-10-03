@@ -93,9 +93,7 @@ def test_governed_pointer_remains_readable_by_frozen_dataset_publisher(
         clock=lambda: _NOW,
     )
 
-    result = publisher.compare_and_publish(
-        _intent(reference, PublicationRevision.initial())
-    )
+    result = publisher.compare_and_publish(_intent(reference, PublicationRevision.initial()))
 
     assert result.status is ConditionalPublicationStatus.SUCCEEDED
     assert result.snapshot is not None
@@ -146,26 +144,18 @@ def test_aba_changes_revision_even_when_content_returns_to_old_version(
         clock=lambda: _NOW + timedelta(seconds=10),
     )
 
-    first = publisher.compare_and_publish(
-        _intent(v1, PublicationRevision.initial())
-    )
+    first = publisher.compare_and_publish(_intent(v1, PublicationRevision.initial()))
     assert first.snapshot is not None
-    second = publisher.compare_and_publish(
-        _intent(v2, first.snapshot.revision)
-    )
+    second = publisher.compare_and_publish(_intent(v2, first.snapshot.revision))
     assert second.snapshot is not None
-    third = publisher.compare_and_publish(
-        _intent(v1, second.snapshot.revision)
-    )
+    third = publisher.compare_and_publish(_intent(v1, second.snapshot.revision))
     assert third.snapshot is not None
 
     assert third.snapshot.published_dataset is not None
     assert third.snapshot.published_dataset.version.identity == v1.identity
     assert third.snapshot.revision != first.snapshot.revision
 
-    stale = publisher.compare_and_publish(
-        _intent(v2, first.snapshot.revision)
-    )
+    stale = publisher.compare_and_publish(_intent(v2, first.snapshot.revision))
     assert stale.status is ConditionalPublicationStatus.CONFLICT
     assert publisher.inspect(_DATASET_ID).revision == third.snapshot.revision
 
@@ -180,9 +170,7 @@ def test_crash_before_replace_keeps_prior_pointer_readable(tmp_path: Path) -> No
         ledger=ledger,
         clock=lambda: _NOW,
     )
-    first = stable.compare_and_publish(
-        _intent(v1, PublicationRevision.initial())
-    )
+    first = stable.compare_and_publish(_intent(v1, PublicationRevision.initial()))
     assert first.snapshot is not None
 
     def inject(phase: str) -> None:
