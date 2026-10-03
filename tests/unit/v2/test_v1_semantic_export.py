@@ -20,18 +20,12 @@ def test_v1_semantic_export_sanitizes_locator_secrets_before_bytes() -> None:
         run_id=run_id,
         kind="raw",
         path="/tmp/raw.csv",
-        source_uri=(
-            "https://user:password-secret@api.example.test/data.csv"
-            "?token=query-secret&page=2"
-        ),
+        source_uri=("https://user:password-secret@api.example.test/data.csv?token=query-secret&page=2"),
         content_type="text/csv",
         size_bytes=12,
         sha256="a" * 64,
         created_at=created_at,
-        resolved_url=(
-            "https://api.example.test/final.csv"
-            "?x-amz-signature=redirect-secret&page=3"
-        ),
+        resolved_url=("https://api.example.test/final.csv?x-amz-signature=redirect-secret&page=3"),
         status_code=200,
         etag='"v1"',
         last_modified="Wed, 02 Sep 2026 10:00:00 GMT",
@@ -49,9 +43,7 @@ def test_v1_semantic_export_sanitizes_locator_secrets_before_bytes() -> None:
     assert b"redirect-secret" not in encoded
     assert b"user:" not in encoded
     assert export.artifacts[0].source_uri == "https://api.example.test/data.csv?page=2"
-    assert export.artifacts[0].resolved_url == (
-        "https://api.example.test/final.csv?page=3"
-    )
+    assert export.artifacts[0].resolved_url == ("https://api.example.test/final.csv?page=3")
     assert V1SemanticExport.from_bytes(encoded).to_bytes() == encoded
 
 
@@ -124,11 +116,7 @@ def test_v1_semantic_import_preserves_identity_without_promoting_source_url() ->
     )
     assert result.publications[0].version == result.dataset_versions[0]
     assert result.replays[0].source_run_id == run_id
+    assert any(item.code == "artifact.source_locator.not_promoted" for item in result.report.issues)
     assert any(
-        item.code == "artifact.source_locator.not_promoted"
-        for item in result.report.issues
-    )
-    assert any(
-        item.code == "replay.request.requires_definition_and_raw"
-        for item in result.report.issues
+        item.code == "replay.request.requires_definition_and_raw" for item in result.report.issues
     )
