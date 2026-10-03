@@ -1,5 +1,33 @@
 """Optional PyTransformKit integration boundary.
 
-The integration is intentionally empty in LOT-00. LOT-17 introduces real
-translations using public contracts only.
+The module is importable without PyTransformKit installed. Provider contracts
+are loaded only when an integration operation is invoked.
 """
+
+from pyingestkit.integrations.pytransformkit.adapters import (
+    DatasetVersionInputAdapter,
+    PyTransformKitCompatibilityError,
+    PyTransformKitIntegrationError,
+    PyTransformKitMappingError,
+    PyTransformKitUnavailableError,
+    TransformationPublicationAdapter,
+    TransformationPublicationInput,
+    from_transform_correlation,
+    from_transform_failure,
+    pytransformkit_version,
+    to_transform_correlation,
+)
+
+__all__ = [
+    "DatasetVersionInputAdapter",
+    "PyTransformKitCompatibilityError",
+    "PyTransformKitIntegrationError",
+    "PyTransformKitMappingError",
+    "PyTransformKitUnavailableError",
+    "TransformationPublicationAdapter",
+    "TransformationPublicationInput",
+    "from_transform_correlation",
+    "from_transform_failure",
+    "pytransformkit_version",
+    "to_transform_correlation",
+]
