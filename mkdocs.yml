@@ -67,6 +67,9 @@ nav:
       - Stable qualification: releases/v2.0.0-qualification.md
       - Qualification evidence: releases/v2.0.0-evidence.md
       - Post-2.0 scope review: roadmap/post-2.0-scope-review.md
+  - Post-2.0 RFCs:
+      - RFC process: rfc/README.md
+      - "RFC-001 — Publication & Lifecycle Governance": rfc/RFC-001-publication-lifecycle-governance.md
   - Architecture:
       - Overview: architecture/overview.md
       - V2 baseline: architecture/v2-lot00-baseline.md
