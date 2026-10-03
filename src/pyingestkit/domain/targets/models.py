@@ -72,13 +72,9 @@ class TargetLoadRequestV2:
         ):
             raise ValueError("TargetLoadRequestV2 correlation run identity mismatch.")
         if not isinstance(self.dataset_version, DatasetVersionReference):
-            raise TypeError(
-                "TargetLoadRequestV2 dataset_version must be DatasetVersionReference."
-            )
+            raise TypeError("TargetLoadRequestV2 dataset_version must be DatasetVersionReference.")
         if not isinstance(self.representation, DecodedRepresentation):
-            raise TypeError(
-                "TargetLoadRequestV2 representation must be DecodedRepresentation."
-            )
+            raise TypeError("TargetLoadRequestV2 representation must be DecodedRepresentation.")
         require_non_blank(self.table, "TargetLoadRequestV2 table")
         validate_optional_text(self.schema, "TargetLoadRequestV2 schema")
         if not isinstance(self.mode, TargetLoadModeV2):
@@ -165,9 +161,7 @@ class TargetLoadResultV2:
         if not isinstance(self.correlation, CorrelationContext):
             raise TypeError("TargetLoadResultV2 correlation must be CorrelationContext.")
         if not isinstance(self.dataset_version, DatasetVersionReference):
-            raise TypeError(
-                "TargetLoadResultV2 dataset_version must be DatasetVersionReference."
-            )
+            raise TypeError("TargetLoadResultV2 dataset_version must be DatasetVersionReference.")
         if not isinstance(self.mode, TargetLoadModeV2):
             raise TypeError("TargetLoadResultV2 mode must be TargetLoadModeV2.")
         if not isinstance(self.status, TargetLoadStatusV2):
