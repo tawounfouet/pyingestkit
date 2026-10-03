@@ -7,7 +7,12 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from urllib.parse import urlsplit
 
-from pyingestkit.adapters.s3._objects import S3ClientV2, S3ObjectIOV2, create_s3_client_v2
+from pyingestkit.adapters.s3._objects import (
+    S3ClientV2,
+    S3ObjectIOV2,
+    create_s3_client_v2,
+    validate_s3_endpoint_v2,
+)
 from pyingestkit.domain.artifacts import (
     ArtifactIntegrityError,
     ArtifactPutStatus,
@@ -63,6 +68,7 @@ class S3ArtifactStoreV2:
         endpoint_url: str | None = None,
         client: S3ClientV2 | None = None,
     ) -> None:
+        validate_s3_endpoint_v2(endpoint_url)
         resolved_client = client or create_s3_client_v2(
             region_name=region_name,
             endpoint_url=endpoint_url,
@@ -214,6 +220,8 @@ class S3ArtifactStoreV2:
             raise ValueError("ArtifactReference points outside S3ArtifactStoreV2 prefix.")
         if reference.resource.resource_id != _resource_id(locator):
             raise ValueError("ArtifactReference S3 resource identity mismatch.")
+        if reference.checksum_algorithm != "sha256" or reference.checksum is None:
+            raise ValueError("S3 ArtifactReference requires SHA-256 integrity evidence.")
         return key
 
     @staticmethod
