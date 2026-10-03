@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import hashlib
-from contextlib import suppress
 from collections.abc import Callable
+from contextlib import suppress
 from datetime import datetime
 
 from pyingestkit.adapters.s3.dataset_version_store import S3DatasetVersionStoreV2
@@ -435,7 +435,7 @@ class S3DatasetVersionGarbageCollector(DatasetVersionGarbageCollector):
                 f"{self._store.prefix}\0"
                 f"{reference.dataset_id}\0"
                 f"{reference.version_id}"
-            ).encode("utf-8")
+            ).encode()
         ).hexdigest()[:16]
         return f"s3-gc:{digest}:{plan_id}"
 
