@@ -12,9 +12,10 @@ cut V2 runtime callers over to the qualified runtime surface, LOT-13 added
 secure HTTP acquisition/provenance, LOT-14 added transactional PostgreSQL
 materialization for immutable dataset versions, LOT-15 added S3-compatible V2 artifact/version storage, and LOT-16 adds
 canonical non-executable boundary serialization plus explicit migration
-infrastructure, and LOT-17 adds the optional PyTransformKit anti-corruption
-boundary while the V1 package keeps its exact star-import contract until the
-2.0 alpha cut.
+infrastructure, LOT-17 added the optional PyTransformKit anti-corruption
+boundary, and LOT-18 adds explicit V1 semantic migration planning and persisted
+reference conversion while the V1 package keeps its exact star-import contract
+until the 2.0 alpha cut.
 """
 
 from __future__ import annotations
@@ -221,6 +222,20 @@ V2_IMPLEMENTED_PYTRANSFORMKIT_VALUES: tuple[str, ...] = (
     "to_transform_correlation",
 )
 
+V2_IMPLEMENTED_MIGRATION_VALUES: tuple[str, ...] = (
+    "MigrationDecisionV2",
+    "MigrationDispositionV2",
+    "V1PluginMigrationAssessment",
+    "V1PostgresTargetMigrationV2",
+    "V1ProjectMigrationPlan",
+    "assess_v1_plugin_entry_point",
+    "migrate_v1_artifact_record",
+    "migrate_v1_dataset_version_record",
+    "migrate_v1_postgres_target_config",
+    "migrate_v1_published_dataset_record",
+    "plan_v1_config_migration",
+)
+
 V2_COMPLETED_LOTS: tuple[str, ...] = (
     "LOT-00",
     "LOT-01",
@@ -240,6 +255,7 @@ V2_COMPLETED_LOTS: tuple[str, ...] = (
     "LOT-15",
     "LOT-16",
     "LOT-17",
+    "LOT-18",
 )
 
 V2_MILESTONE_CANDIDATE = "2.0.0a1"
@@ -272,6 +288,7 @@ V2_PUBLIC_NAMESPACE_BASELINE: tuple[str, ...] = (
     "pyingestkit.decoders",
     "pyingestkit.diagnostics",
     "pyingestkit.integrations.pytransformkit",
+    "pyingestkit.migration",
     "pyingestkit.plugins",
     "pyingestkit.provenance",
     "pyingestkit.publication",
@@ -284,4 +301,4 @@ V2_PUBLIC_NAMESPACE_BASELINE: tuple[str, ...] = (
     "pyingestkit.quality",
 )
 
-V2_API_PHASE = "LOT-17_PYTRANSFORMKIT_INTEGRATION"
+V2_API_PHASE = "LOT-18_V1_SEMANTIC_MIGRATION"
