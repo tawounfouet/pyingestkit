@@ -1,7 +1,6 @@
 """Clean-slate V2 source and acquisition API during the V1 transition."""
 
 from pyingestkit.adapters.filesystem import FileAccessPolicy, FileSourceConnector
-from pyingestkit.application.sources import SourceRegistry
 from pyingestkit.adapters.http import (
     HttpAccessPolicy,
     HttpClientV2,
@@ -13,6 +12,7 @@ from pyingestkit.adapters.http import (
     HttpTimeoutErrorV2,
     HttpTransportErrorV2,
 )
+from pyingestkit.application.sources import SourceRegistry
 from pyingestkit.domain.acquisition import (
     AcquisitionRequest,
     AcquisitionResult,
