@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 from pyingestkit.adapters.postgres import PostgresTargetV2
+from pyingestkit.config import PyIngestKitConfig
 from pyingestkit.migration import (
     MigrationDispositionV2,
     assess_v1_plugin_entry_point,
@@ -11,9 +12,8 @@ from pyingestkit.migration import (
 )
 from pyingestkit.replay.v2 import ReplayServiceV2
 from pyingestkit.stores import S3ArtifactStoreV2, S3DatasetVersionStoreV2
-from pyingestkit.config import PyIngestKitConfig
 
-ROOT = Path(__file__).resolve().parents[3]
+ROOT = Path(__file__).resolve().parents[2]
 MANIFEST = ROOT / "fixtures" / "migration" / "v1" / "manifest.json"
 
 
