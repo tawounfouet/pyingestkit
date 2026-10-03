@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import pyingestkit.replay as v1_replay
+import pyingestkit.replay as public_replay
 from pyingestkit._api_v2 import (
     V2_API_PHASE,
     V2_COMPLETED_LOTS,
@@ -24,11 +24,9 @@ def test_lot11_replay_values_are_recorded_and_qualified() -> None:
     assert ReplayServiceV2.__module__ == "pyingestkit.application.replay"
 
 
-def test_v1_replay_namespace_remains_exact_during_lot11() -> None:
-    assert v1_replay.__all__ == [
-        "ReplayContext",
-        "ReplayRawArtifact",
+def test_replay_namespace_is_promoted_at_rc() -> None:
+    assert tuple(public_replay.__all__) == (
+        "ReplayRequest",
         "ReplayResult",
-        "ReplayService",
-        "materialize_replayed_raw",
-    ]
+        "ReplayServiceV2",
+    )
