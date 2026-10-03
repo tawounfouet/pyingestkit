@@ -8,7 +8,7 @@ PyIngestKit is a focused framework for acquiring external data, preserving durab
     The current stable release is **PyIngestKit 2.0.0**. The 2.0 package root, `IngestionRuntime.run(...)`, stable provider Protocols and version-1 portable wire contracts form the compatibility baseline for the maintained 2.x line.
 
 !!! warning "2.1 development line"
-    Repository `main` is currently **2.1.0a4 / LOT-26**. This alpha adds endpoint-qualified S3 conditional publication on top of the filesystem CAS and durable lifecycle ledger, while the published stable release remains 2.0.0 and the frozen 2.0/LOT-23 contracts remain unchanged.
+    Repository `main` is currently **2.1.0b1 / LOT-27**. This beta adds deterministic retention planning, durable version holds and guarded filesystem/S3 garbage collection on top of the governed publication lifecycle, while the published stable release remains 2.0.0 and the frozen 2.0/LOT-23 contracts remain unchanged.
 
 [Install 2.0](getting-started/installation.md){ .md-button .md-button--primary }
 [2.0 Quickstart](getting-started/quickstart.md){ .md-button }
