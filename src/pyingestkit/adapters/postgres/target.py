@@ -228,9 +228,7 @@ class PostgresTargetV2:
                 "PostgresTargetV2 requires the 'postgres' extra."
             ) from exc
         except ArgumentError as exc:
-            raise _PostgresConfigurationError(
-                "PostgresTargetV2 DSN is invalid."
-            ) from exc
+            raise _PostgresConfigurationError("PostgresTargetV2 DSN is invalid.") from exc
         return self._engine
 
     @staticmethod
@@ -265,9 +263,7 @@ class PostgresTargetV2:
         if not request.representation.records:
             return 0
         if connection.dialect.name != "postgresql":
-            raise _PostgresConfigurationError(
-                "PostgresTargetV2 requires a PostgreSQL dialect."
-            )
+            raise _PostgresConfigurationError("PostgresTargetV2 requires a PostgreSQL dialect.")
 
         try:
             from psycopg import Error as PsycopgError
@@ -371,9 +367,7 @@ def _scalar_value(record: Any, column: str) -> None | bool | int | float | str:
         return None
     if value is None or isinstance(value, (bool, int, float, str)):
         return value
-    raise ValueError(
-        f"PostgreSQL target cannot materialize nested field {column!r}."
-    )
+    raise ValueError(f"PostgreSQL target cannot materialize nested field {column!r}.")
 
 
 def _normalize_dsn(dsn: str) -> str:
@@ -393,9 +387,7 @@ def _safe_dsn(dsn: str) -> str:
 
 def _validate_identifier(value: str, *, label: str) -> str:
     if not isinstance(value, str) or not _IDENTIFIER.fullmatch(value):
-        raise _PostgresConfigurationError(
-            f"Unsafe PostgreSQL {label} identifier."
-        )
+        raise _PostgresConfigurationError(f"Unsafe PostgreSQL {label} identifier.")
     if len(value.encode("utf-8")) > _MAX_IDENTIFIER_BYTES:
         raise _PostgresConfigurationError(
             f"PostgreSQL {label} identifier exceeds {_MAX_IDENTIFIER_BYTES} bytes."
