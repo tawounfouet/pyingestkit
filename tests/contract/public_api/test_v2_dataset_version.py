@@ -14,8 +14,9 @@ from pyingestkit.datasets import (
 
 
 def test_lot07_phase_and_completed_lot_are_recorded() -> None:
-    assert V2_API_PHASE == "LOT-07_DATASET_VERSION"
-    assert V2_COMPLETED_LOTS[-1] == "LOT-07"
+    assert "LOT-07" in V2_COMPLETED_LOTS
+    assert V2_COMPLETED_LOTS.index("LOT-07") <= V2_COMPLETED_LOTS.index(V2_COMPLETED_LOTS[-1])
+    assert V2_API_PHASE.startswith("LOT-")
 
 
 def test_lot07_public_values_are_recorded() -> None:

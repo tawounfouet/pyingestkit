@@ -10,11 +10,13 @@ from pyingestkit.domain.datasets import (
     build_dataset_version,
     dataset_content_fingerprint,
 )
+from pyingestkit.domain.datasets.publication import PublishedDataset
 
 __all__ = [
     "DatasetReference",
     "DatasetVersion",
     "DatasetVersionReference",
+    "PublishedDataset",
     "build_dataset_version",
     "dataset_content_fingerprint",
 ]
