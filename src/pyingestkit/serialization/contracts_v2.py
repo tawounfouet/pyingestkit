@@ -332,7 +332,8 @@ def _decode_contract(envelope: ContractEnvelopeV2) -> object:
             },
         )
         resource = _nested_in(payload["resource"], ResourceReference.CONTRACT_ID)
-        assert isinstance(resource, ResourceReference)
+        if not isinstance(resource, ResourceReference):
+            raise ValueError("ArtifactReference resource must be ResourceReference.")
         return ArtifactReference(
             artifact_id=_required_text(payload["artifact_id"], "artifact_id"),
             kind=_required_text(payload["kind"], "kind"),
@@ -363,7 +364,8 @@ def _decode_contract(envelope: ContractEnvelopeV2) -> object:
             },
         )
         locator = _nested_in(payload["locator"], ResourceReference.CONTRACT_ID)
-        assert locator is None or isinstance(locator, ResourceReference)
+        if locator is not None and not isinstance(locator, ResourceReference):
+            raise ValueError("DatasetReference locator must be ResourceReference.")
         return DatasetReference(
             dataset_id=_required_text(payload["dataset_id"], "dataset_id"),
             schema_fingerprint=_optional_text(
@@ -394,8 +396,12 @@ def _decode_contract(envelope: ContractEnvelopeV2) -> object:
         )
         artifact = _nested_in(payload["artifact_reference"], ArtifactReference.CONTRACT_ID)
         locator = _nested_in(payload["locator"], ResourceReference.CONTRACT_ID)
-        assert artifact is None or isinstance(artifact, ArtifactReference)
-        assert locator is None or isinstance(locator, ResourceReference)
+        if artifact is not None and not isinstance(artifact, ArtifactReference):
+            raise ValueError(
+                "DatasetVersionReference artifact_reference must be ArtifactReference."
+            )
+        if locator is not None and not isinstance(locator, ResourceReference):
+            raise ValueError("DatasetVersionReference locator must be ResourceReference.")
         return DatasetVersionReference(
             dataset_id=_required_text(payload["dataset_id"], "dataset_id"),
             version_id=_required_text(payload["version_id"], "version_id"),
@@ -431,10 +437,14 @@ def _decode_contract(envelope: ContractEnvelopeV2) -> object:
             payload["output_dataset_version"],
             DatasetVersionReference.CONTRACT_ID,
         )
-        assert version_reference is None or isinstance(
+        if version_reference is not None and not isinstance(
             version_reference,
             DatasetVersionReference,
-        )
+        ):
+            raise ValueError(
+                "IngestionExecutionReference output_dataset_version must be "
+                "DatasetVersionReference."
+            )
         status_raw = _optional_text(payload["status"], "status")
         return IngestionExecutionReference(
             ingestion_run_id=IngestionRunId.parse(
