@@ -39,9 +39,7 @@ _EXPECTED_MATERIALIZATION = (
 def test_lot19_and_lot20_remain_recorded_as_completed() -> None:
     assert "LOT-19" in V2_COMPLETED_LOTS
     assert "LOT-20" in V2_COMPLETED_LOTS
-    assert V2_COMPLETED_LOTS.index("LOT-20") <= V2_COMPLETED_LOTS.index(
-        V2_COMPLETED_LOTS[-1]
-    )
+    assert V2_COMPLETED_LOTS.index("LOT-20") <= V2_COMPLETED_LOTS.index(V2_COMPLETED_LOTS[-1])
     assert V2_API_PHASE.startswith("LOT-")
 
 
