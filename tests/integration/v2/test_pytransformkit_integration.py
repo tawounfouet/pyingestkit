@@ -90,14 +90,12 @@ def test_correlation_round_trip_preserves_cross_framework_identity() -> None:
 
 
 def test_transform_failure_translation_preserves_retry_and_uncertainty() -> None:
-    from pytransformkit.runtime import (
-        CorrelationId as TransformCorrelationId,
-        FailureCategory as TransformFailureCategory,
-        FailureEvidence as TransformFailureEvidence,
-        OutcomeUncertainty as TransformOutcomeUncertainty,
-        Retryability as TransformRetryability,
-        TransformationExecutionId,
-    )
+    from pytransformkit.runtime import CorrelationId as TransformCorrelationId
+    from pytransformkit.runtime import FailureCategory as TransformFailureCategory
+    from pytransformkit.runtime import FailureEvidence as TransformFailureEvidence
+    from pytransformkit.runtime import OutcomeUncertainty as TransformOutcomeUncertainty
+    from pytransformkit.runtime import Retryability as TransformRetryability
+    from pytransformkit.runtime import TransformationExecutionId
 
     transform_failure = TransformFailureEvidence(
         error_code="PTK-EXEC-777",
@@ -134,8 +132,8 @@ def test_successful_transformation_publication_retains_execution_reference() -> 
     from pytransformkit.engines import EngineDescriptor
     from pytransformkit.lineage import analyze
     from pytransformkit.planning import TransformationCompiler
+    from pytransformkit.runtime import CorrelationContext as TransformCorrelationContext
     from pytransformkit.runtime import (
-        CorrelationContext as TransformCorrelationContext,
         ExecutionManifest,
         ExecutionStatus,
         TransformationExecution,
