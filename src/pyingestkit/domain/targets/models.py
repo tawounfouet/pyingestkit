@@ -107,7 +107,7 @@ class TargetLoadRequestV2:
 
         observed = self.observed_columns
         if self.columns:
-            if set(self.columns) != set(observed):
+            if observed and set(self.columns) != set(observed):
                 raise ValueError(
                     "TargetLoadRequestV2 columns must match decoded representation fields."
                 )
