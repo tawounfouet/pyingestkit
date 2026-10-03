@@ -168,9 +168,7 @@ def _dataset_version():
 def test_source_connector_provider_matrix(tmp_path: Path) -> None:
     source_file = tmp_path / "source.csv"
     source_file.write_bytes(b"id,name\n1,Ada\n")
-    file_connector = FileSourceConnector(
-        policy=FileAccessPolicy(allowed_roots=(tmp_path,))
-    )
+    file_connector = FileSourceConnector(policy=FileAccessPolicy(allowed_roots=(tmp_path,)))
     http_connector = HttpSourceConnector(
         policy=HttpAccessPolicy(
             allowed_hosts=("api.example.test",),
@@ -293,9 +291,7 @@ def test_postgres_target_port_and_capability_contract_without_connection() -> No
     assert target.descriptor.id == "pyingestkit.postgres"
     assert target.descriptor.transactional is True
     assert target.descriptor.bulk_load is True
-    assert set(target.descriptor.supported_modes) == {
-        mode.value for mode in TargetLoadModeV2
-    }
+    assert set(target.descriptor.supported_modes) == {mode.value for mode in TargetLoadModeV2}
     assert "secret" not in target.safe_dsn
     target.close()
     target.close()
