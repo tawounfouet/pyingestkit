@@ -27,9 +27,7 @@ class FileCsvDatasetVersionMaterializerV2:
         config: CsvDecoderConfig | None = None,
     ) -> None:
         if not isinstance(allowed_roots, tuple) or not allowed_roots:
-            raise ValueError(
-                "FileCsvDatasetVersionMaterializerV2 allowed_roots must be non-empty."
-            )
+            raise ValueError("FileCsvDatasetVersionMaterializerV2 allowed_roots must be non-empty.")
         self._roots = tuple(Path(root).expanduser().resolve() for root in allowed_roots)
         self._config = config or CsvDecoderConfig()
 
@@ -39,8 +37,7 @@ class FileCsvDatasetVersionMaterializerV2:
     ) -> DatasetVersion:
         if not isinstance(request, ResourceDatasetVersionRequestV2):
             raise TypeError(
-                "FileCsvDatasetVersionMaterializerV2 requires "
-                "ResourceDatasetVersionRequestV2."
+                "FileCsvDatasetVersionMaterializerV2 requires ResourceDatasetVersionRequestV2."
             )
         resource = request.resource
         if resource.locator is None:
