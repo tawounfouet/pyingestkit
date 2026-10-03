@@ -9,8 +9,10 @@ from itertools import chain
 
 from pyingestkit.domain.decoding.models import (
     DecodedRecord,
+    DecodedRepresentation,
     DecodeRequest,
     DecodeResult,
+    SchemaEvidence,
 )
 from pyingestkit.domain.decoding.policy import DecoderLimits, EncodingPolicy
 from pyingestkit.domain.runtime.failure import FailureCategory
@@ -89,9 +91,8 @@ class CsvDecoder:
     def decode(self, request: DecodeRequest) -> DecodeResult:
         try:
             validate_artifact_integrity(request)
-            text = decode_text(request.content, self._config.encoding, self._config.limits)
-            records, headers = self._parse(text)
-            schema = build_schema(records, preferred_order=headers)
+            representation, schema = _decode_csv_bytes(request.content, self._config)
+            records = representation.records
             return success_result(
                 request,
                 decoder_id=self.descriptor.id,
@@ -118,39 +119,56 @@ class CsvDecoder:
                 summary=str(exc),
             )
 
-    def _parse(self, text: str) -> tuple[tuple[DecodedRecord, ...], tuple[str, ...]]:
-        reader = csv.reader(
-            io.StringIO(text, newline=""),
-            delimiter=self._config.delimiter,
-            quotechar=self._config.quotechar,
-            escapechar=self._config.escapechar,
-            strict=True,
-        )
-        try:
-            first = next(reader)
-        except StopIteration:
-            return (), ()
 
-        if self._config.header:
-            headers = tuple(first)
-            _validate_headers(headers, self._config.limits)
-        else:
-            _validate_row_width(first, self._config.limits)
-            headers = tuple(f"column_{index}" for index in range(1, len(first) + 1))
 
-        rows: list[DecodedRecord] = []
-        initial_rows = () if self._config.header else (first,)
-        for row in chain(initial_rows, reader):
-            _validate_row(row, headers, self._config.limits)
-            rows.append(
-                DecodedRecord(
-                    tuple((name, value) for name, value in zip(headers, row, strict=True))
-                )
+
+def _decode_csv_bytes(
+    content: bytes,
+    config: CsvDecoderConfig,
+) -> tuple[DecodedRepresentation, SchemaEvidence]:
+    text = decode_text(content, config.encoding, config.limits)
+    records, headers = _parse_csv_text(text, config)
+    return (
+        DecodedRepresentation(records=records),
+        build_schema(records, preferred_order=headers),
+    )
+
+
+def _parse_csv_text(
+    text: str,
+    config: CsvDecoderConfig,
+) -> tuple[tuple[DecodedRecord, ...], tuple[str, ...]]:
+    reader = csv.reader(
+        io.StringIO(text, newline=""),
+        delimiter=config.delimiter,
+        quotechar=config.quotechar,
+        escapechar=config.escapechar,
+        strict=True,
+    )
+    try:
+        first = next(reader)
+    except StopIteration:
+        return (), ()
+
+    if config.header:
+        headers = tuple(first)
+        _validate_headers(headers, config.limits)
+    else:
+        _validate_row_width(first, config.limits)
+        headers = tuple(f"column_{index}" for index in range(1, len(first) + 1))
+
+    rows: list[DecodedRecord] = []
+    initial_rows = () if config.header else (first,)
+    for row in chain(initial_rows, reader):
+        _validate_row(row, headers, config.limits)
+        rows.append(
+            DecodedRecord(
+                tuple((name, value) for name, value in zip(headers, row, strict=True))
             )
-            if len(rows) > self._config.limits.max_rows:
-                raise DecodeLimitError(f"CSV exceeds max_rows={self._config.limits.max_rows}.")
-        return tuple(rows), headers
-
+        )
+        if len(rows) > config.limits.max_rows:
+            raise DecodeLimitError(f"CSV exceeds max_rows={config.limits.max_rows}.")
+    return tuple(rows), headers
 
 def _one_character(value: str, name: str) -> None:
     if not isinstance(value, str) or len(value) != 1:
