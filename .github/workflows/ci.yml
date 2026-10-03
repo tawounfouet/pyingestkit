@@ -20,12 +20,12 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - run: python -m pip install --upgrade pip
       - run: python -m pip install -e ".[dev]"
-      - name: V2 RC test matrix
+      - name: V2 stable test matrix
         run: make check-v2
-      - name: V2 RC quality
+      - name: V2 stable quality
         run: make quality
-      - name: V2 RC frozen contract
-        run: python scripts/check_v2_rc.py
+      - name: V2 stable frozen contract
+        run: python scripts/check_v2_stable.py
 
   v2-architecture-baseline:
     runs-on: ubuntu-latest
@@ -132,7 +132,7 @@ jobs:
               "ResourceReference",
               "Source",
           )
-          assert pyingestkit.__version__ == "2.0.0rc1"
+          assert pyingestkit.__version__ == "2.0.0"
           assert hasattr(pyingestkit.IngestionRuntime, "run")
 
           with tempfile.TemporaryDirectory() as directory:
@@ -216,7 +216,7 @@ jobs:
           /tmp/pyingestkit-v2-sdist/bin/python - <<'PY'
           import pyingestkit
 
-          assert pyingestkit.__version__ == "2.0.0rc1"
+          assert pyingestkit.__version__ == "2.0.0"
           assert tuple(pyingestkit.__all__) == (
               "ArtifactReference",
               "DatasetVersion",
@@ -400,7 +400,7 @@ jobs:
           tests/integration/v2/test_postgres_target_v2.py
           tests/integration/v2/test_s3_cross_host_replay_v2.py
 
-  rc-artifact-verify:
+  stable-artifact-verify:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -412,10 +412,10 @@ jobs:
           python-version: "3.12"
       - run: python -m pip install --upgrade pip
       - run: python -m pip install -e ".[dev]"
-      - name: V2 RC release check
+      - name: V2 stable release check
         run: make release-check
-      - name: Validate frozen RC contract
-        run: python scripts/check_v2_rc.py
+      - name: Validate frozen stable contract
+        run: python scripts/check_v2_stable.py
       - name: Build SHA-256 manifest
         shell: bash
         run: |
@@ -425,19 +425,19 @@ jobs:
 
           paths = sorted(Path("dist").glob("*"))
           lines = [f"{sha256(path.read_bytes()).hexdigest()}  {path.as_posix()}" for path in paths]
-          Path("SHA256SUMS-v2.0.0rc1").write_text(
+          Path("SHA256SUMS-v2.0.0").write_text(
               "\n".join(lines) + "\n",
               encoding="utf-8",
           )
-          print(Path("SHA256SUMS-v2.0.0rc1").read_text(encoding="utf-8"), end="")
+          print(Path("SHA256SUMS-v2.0.0").read_text(encoding="utf-8"), end="")
           PY
-      - name: Upload V2 RC distribution evidence
+      - name: Upload V2 stable distribution evidence
         uses: actions/upload-artifact@v7
         with:
-          name: pyingestkit-v2.0.0rc1-dist
+          name: pyingestkit-v2.0.0-dist
           path: |
             dist/*
-            SHA256SUMS-v2.0.0rc1
+            SHA256SUMS-v2.0.0
           if-no-files-found: error
 
   v1-history-gate:
@@ -462,7 +462,7 @@ jobs:
       - postgres-e2e
       - s3-e2e
       - object-storage-e2e
-      - rc-artifact-verify
+      - stable-artifact-verify
       - v1-history-gate
       - v2-architecture-baseline
       - v2-package-baseline
@@ -475,6 +475,6 @@ jobs:
           python-version: "3.12"
       - run: python -m pip install --upgrade pip
       - run: python -m pip install -e .
-      - name: Validate PyIngestKit 2.0.0rc1 contract
-        run: python scripts/check_v2_rc.py
-      - run: echo "All PyIngestKit 2.0.0rc1 qualification tiers passed."
+      - name: Validate PyIngestKit 2.0.0 stable contract
+        run: python scripts/check_v2_stable.py
+      - run: echo "All PyIngestKit 2.0.0 stable qualification tiers passed."
