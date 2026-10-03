@@ -39,16 +39,17 @@ def test_source_has_no_active_resource_fields() -> None:
     )
 
 
-def test_v2_authoring_root_is_explicitly_importable_during_v1_transition() -> None:
+def test_v2_authoring_root_is_canonical_at_rc() -> None:
     assert pyingestkit.IngestionDefinition is IngestionDefinition
     assert pyingestkit.Source is Source
 
 
-def test_v2_provisional_root_does_not_change_v1_star_import_contract() -> None:
-    assert "IngestionDefinition" not in pyingestkit.__all__
-    assert "Source" not in pyingestkit.__all__
-    assert "Job" in pyingestkit.__all__
-    assert "Pipeline" in pyingestkit.__all__
+def test_v2_root_freeze_removes_legacy_execution_aliases() -> None:
+    assert "IngestionDefinition" in pyingestkit.__all__
+    assert "Source" in pyingestkit.__all__
+    assert "Job" not in pyingestkit.__all__
+    assert "Pipeline" not in pyingestkit.__all__
+    assert "Runner" not in pyingestkit.__all__
 
 
 def test_no_public_ingestion_plan_is_introduced() -> None:
