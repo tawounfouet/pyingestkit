@@ -112,11 +112,13 @@ class RetentionStateLoader:
         inventory = self._store.list(dataset_id)
         verified: list[DatasetVersionReference] = []
         for reference in inventory:
+            verification_succeeded = True
             try:
                 self._store.read(reference)
             except Exception:  # noqa: BLE001 - any verification failure protects the version
-                continue
-            verified.append(reference)
+                verification_succeeded = False
+            if verification_succeeded:
+                verified.append(reference)
         return RetentionState(
             dataset_id=dataset_id,
             inventory=inventory,
