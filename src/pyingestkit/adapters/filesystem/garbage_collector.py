@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import shutil
+from contextlib import suppress
 from collections.abc import Callable
 from datetime import datetime
 from pathlib import Path
@@ -302,10 +303,10 @@ class FileDatasetVersionGarbageCollector(DatasetVersionGarbageCollector):
 
     def _canonical_state(self, reference: DatasetVersionReference) -> str:
         target = self._version_dir(reference)
-        if not target.exists():
-            return "absent"
         if target.is_symlink():
             return "invalid"
+        if not target.exists():
+            return "absent"
         try:
             resolved = target.resolve(strict=True)
         except OSError:
@@ -404,7 +405,7 @@ class FileDatasetVersionGarbageCollector(DatasetVersionGarbageCollector):
             occurred_at=completed_at,
         )
         if append_event:
-            try:
+            with suppress(Exception):
                 append_gc_event(
                     self._ledger,
                     event_type=PublicationLifecycleEventType.GC_DELETE_OUTCOME_UNKNOWN,
@@ -414,8 +415,6 @@ class FileDatasetVersionGarbageCollector(DatasetVersionGarbageCollector):
                     expected_evidence=expected_evidence,
                     failure=failure,
                 )
-            except Exception:  # noqa: BLE001 - uncertainty evidence is best effort
-                pass
         return DatasetVersionDeletionResult(
             dataset_version=reference,
             status=DatasetVersionDeletionStatus.UNKNOWN_OUTCOME,
