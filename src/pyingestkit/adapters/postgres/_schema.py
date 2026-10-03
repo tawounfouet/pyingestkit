@@ -51,10 +51,7 @@ class PostgresSchemaMapperV2:
         columns: tuple[str, ...],
     ) -> PostgresSchemaPlanV2:
         return PostgresSchemaPlanV2(
-            columns=tuple(
-                self._plan_column(representation, column)
-                for column in columns
-            )
+            columns=tuple(self._plan_column(representation, column) for column in columns)
         )
 
     def validate_table(self, plan: PostgresSchemaPlanV2, table: Any) -> None:
