@@ -32,7 +32,7 @@ V2_DEPENDENCY_DISPOSITION: dict[str, str] = {
     "pydantic": "BASE_CANDIDATE",
     "PyYAML": "BASE_CANDIDATE",
     "SQLAlchemy": "TRANSITIONAL_BASE_REVIEW_LOT08_LOT14",
-    "httpx": "TRANSITIONAL_BASE_TARGET_HTTP_EXTRA_LOT13",
+    "httpx": "HTTP_EXTRA_V2_BASE_RETAINED_FOR_V1_COMPAT_UNTIL_2_0",
     "tenacity": "BASE_CANDIDATE",
     "python-dotenv": "BASE_CANDIDATE",
     "psycopg": "OPTIONAL_POSTGRES",
