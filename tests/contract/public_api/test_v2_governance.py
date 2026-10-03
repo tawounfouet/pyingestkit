@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import inspect
 import json
 from pathlib import Path
 
@@ -54,3 +55,9 @@ def test_governance_protocol_signatures_match_lot23_fixture() -> None:
     }
     for qualified_name, protocol in protocols.items():
         assert _method_names(protocol) == set(fixture["protocols"][qualified_name])
+        for method_name, expected_parameters in fixture["protocol_signatures"][
+            qualified_name
+        ].items():
+            assert list(inspect.signature(getattr(protocol, method_name)).parameters) == (
+                expected_parameters
+            )
