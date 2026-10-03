@@ -110,9 +110,7 @@ class DatasetVersionInputAdapter:
         input_name: str,
     ) -> object:
         if not isinstance(reference, DatasetVersionReference):
-            raise TypeError(
-                "DatasetVersionInputAdapter requires DatasetVersionReference."
-            )
+            raise TypeError("DatasetVersionInputAdapter requires DatasetVersionReference.")
         if not isinstance(input_name, str) or not input_name.strip():
             raise ValueError("input_name must be non-blank.")
 
@@ -155,8 +153,7 @@ class TransformationPublicationAdapter:
         api = _pytransformkit_api()
         if not isinstance(result, api.transformation_result):
             raise TypeError(
-                "TransformationPublicationAdapter requires PyTransformKit "
-                "TransformationResult."
+                "TransformationPublicationAdapter requires PyTransformKit TransformationResult."
             )
         provider_result = cast(Any, result)
         if not isinstance(output_name, str) or not output_name.strip():
@@ -174,15 +171,11 @@ class TransformationPublicationAdapter:
         )
         correlation = from_transform_correlation(
             provider_result.correlation,
-            transformation_execution_id=str(
-                execution_reference.transformation_execution_id
-            ),
+            transformation_execution_id=str(execution_reference.transformation_execution_id),
         )
         fingerprint = execution_reference.transformation_plan_fingerprint
         fingerprint_text = (
-            None
-            if fingerprint is None
-            else f"{fingerprint.algorithm}:{fingerprint.value}"
+            None if fingerprint is None else f"{fingerprint.algorithm}:{fingerprint.value}"
         )
         engine_id = execution_reference.engine_id
         provenance = [
@@ -268,9 +261,7 @@ def from_transform_failure(
 
     details = list(provider_failure.details)
     if "transformation_execution_id" not in {key for key, _ in details}:
-        details.append(
-            ("transformation_execution_id", str(provider_failure.execution_id))
-        )
+        details.append(("transformation_execution_id", str(provider_failure.execution_id)))
     try:
         category = FailureCategory(provider_failure.category.value)
         retryability = Retryability(provider_failure.retryability.value)
@@ -370,9 +361,7 @@ def _to_transform_resource(
         ("pyingestkit.version_id", dataset_version.version_id),
     ]
     if dataset_version.schema_fingerprint is not None:
-        metadata.append(
-            ("pyingestkit.schema_fingerprint", dataset_version.schema_fingerprint)
-        )
+        metadata.append(("pyingestkit.schema_fingerprint", dataset_version.schema_fingerprint))
     return api.resource_reference(
         scheme=parsed.scheme,
         locator=resource.locator,
@@ -406,9 +395,7 @@ def _from_transform_resource(
     ).hexdigest()
     suffix = parsed.path.rsplit("/", 1)[-1]
     inferred_format = (
-        suffix.rsplit(".", 1)[-1].lower()
-        if "." in suffix and not suffix.endswith(".")
-        else None
+        suffix.rsplit(".", 1)[-1].lower() if "." in suffix and not suffix.endswith(".") else None
     )
     return ResourceReference(
         namespace="pyingestkit.integration.pytransformkit.resource",
@@ -431,8 +418,7 @@ def _output_resource(result: Any, output_name: str) -> object:
         if link.name == output_name and role == "output":
             return link.resource
     raise PyTransformKitMappingError(
-        f"TransformationResult has no materialized ResourceReference for output "
-        f"{output_name!r}."
+        f"TransformationResult has no materialized ResourceReference for output {output_name!r}."
     )
 
 
