@@ -1,15 +1,13 @@
-"""HTTP adapters for PyIngestKit V2."""
+"""Qualified V2 HTTP acquisition API during the V1 transition."""
 
-from pyingestkit.adapters.http.source import (
+from pyingestkit.adapters.http import (
     HttpAccessPolicy,
-    HttpCredentialResolverV2,
-    HttpSourceConnector,
-)
-from pyingestkit.adapters.http.transport import (
     HttpClientV2,
+    HttpCredentialResolverV2,
     HttpRequestV2,
     HttpResponseTooLargeErrorV2,
     HttpResponseV2,
+    HttpSourceConnector,
     HttpTimeoutErrorV2,
     HttpTransportErrorV2,
 )
