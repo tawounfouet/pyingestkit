@@ -2,6 +2,17 @@
 
 from pyingestkit.adapters.filesystem import FileAccessPolicy, FileSourceConnector
 from pyingestkit.application.sources import SourceRegistry
+from pyingestkit.adapters.http import (
+    HttpAccessPolicy,
+    HttpClientV2,
+    HttpCredentialResolverV2,
+    HttpRequestV2,
+    HttpResponseTooLargeErrorV2,
+    HttpResponseV2,
+    HttpSourceConnector,
+    HttpTimeoutErrorV2,
+    HttpTransportErrorV2,
+)
 from pyingestkit.domain.acquisition import (
     AcquisitionRequest,
     AcquisitionResult,
@@ -20,6 +31,15 @@ __all__ = [
     "AcquisitionStatus",
     "FileAccessPolicy",
     "FileSourceConnector",
+    "HttpAccessPolicy",
+    "HttpClientV2",
+    "HttpCredentialResolverV2",
+    "HttpRequestV2",
+    "HttpResponseTooLargeErrorV2",
+    "HttpResponseV2",
+    "HttpSourceConnector",
+    "HttpTimeoutErrorV2",
+    "HttpTransportErrorV2",
     "Source",
     "SourceConnector",
     "SourceConnectorCapability",
