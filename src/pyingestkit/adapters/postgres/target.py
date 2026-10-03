@@ -170,7 +170,7 @@ class PostgresTargetV2:
                 code="target.postgres.load_rolled_back",
                 category=FailureCategory.EXTERNAL_PROVIDER,
                 retryability=Retryability.UNKNOWN,
-                summary=self._safe_error("PostgreSQL load rolled back", exc),
+                summary="PostgreSQL target load rolled back atomically.",
                 started_at=started_at,
             )
 
@@ -359,14 +359,6 @@ class PostgresTargetV2:
             diagnostics=(diagnostic,),
             failure=failure,
         )
-
-    def _safe_error(self, prefix: str, exc: BaseException) -> str:
-        text = str(exc)
-        for unsafe in (self._raw_dsn, self._normalized_dsn):
-            if unsafe:
-                text = text.replace(unsafe, self._safe_dsn)
-        return f"{prefix}: {text}"
-
 
 def _scalar_value(record: Any, column: str) -> None | bool | int | float | str:
     try:
