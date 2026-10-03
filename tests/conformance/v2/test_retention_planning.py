@@ -125,9 +125,7 @@ def test_retention_planner_min_age_is_deterministic_and_missing_time_is_protecte
         old_b.identity,
     )
     assert recent.identity in {reference.identity for reference in first.protected_versions}
-    assert unknown_time.identity in {
-        reference.identity for reference in first.protected_versions
-    }
+    assert unknown_time.identity in {reference.identity for reference in first.protected_versions}
 
 
 def test_plan_fingerprint_changes_when_hold_or_unresolved_state_changes() -> None:
