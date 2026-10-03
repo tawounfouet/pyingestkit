@@ -11,6 +11,9 @@ from pyingestkit.adapters.filesystem.dataset_version_materializer import (
     FileCsvDatasetVersionMaterializerV2,
 )
 from pyingestkit.adapters.filesystem.dataset_version_store import FileDatasetVersionStore
+from pyingestkit.adapters.filesystem.garbage_collector import (
+    FileDatasetVersionGarbageCollector,
+)
 from pyingestkit.adapters.filesystem.source import (
     FileAccessPolicy,
     FileSourceConnector,
@@ -22,6 +25,7 @@ __all__ = [
     "FileArtifactStore",
     "FileConditionalDatasetPublisher",
     "FileCsvDatasetVersionMaterializerV2",
+    "FileDatasetVersionGarbageCollector",
     "FileDatasetVersionStore",
     "FileSourceConnector",
 ]

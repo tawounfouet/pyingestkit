@@ -2,15 +2,21 @@
 
 from __future__ import annotations
 
+import hashlib
 from collections.abc import Iterator
 from contextlib import contextmanager
+from datetime import datetime
 from threading import RLock
 
+from pyingestkit.domain.datasets import DatasetVersionReference
 from pyingestkit.domain.governance import (
     PublicationIntent,
     PublicationLifecycleEvent,
+    PublicationLifecycleEventType,
     PublicationOperationId,
+    VersionHold,
 )
+from pyingestkit.domain.shared.validation import validate_aware_datetime
 from pyingestkit.governance._ledger_codec import (
     assert_event_persistable,
     is_terminal_event,
@@ -26,6 +32,7 @@ class MemoryPublicationLedger(PublicationLedger):
         self._events: list[PublicationLifecycleEvent] = []
         self._events_by_id: dict[str, PublicationLifecycleEvent] = {}
         self._resolved: set[PublicationOperationId] = set()
+        self._active_holds: dict[tuple[str, str], VersionHold] = {}
         self._lock = RLock()
 
     def register(self, intent: PublicationIntent) -> PublicationIntent:
@@ -128,6 +135,64 @@ class MemoryPublicationLedger(PublicationLedger):
                 and (dataset_id is None or event.dataset_id == dataset_id)
             )
 
+    def place_hold(self, hold: VersionHold) -> VersionHold:
+        if not isinstance(hold, VersionHold):
+            raise TypeError("MemoryPublicationLedger.place_hold requires VersionHold.")
+        with self._lock:
+            existing = self._active_holds.get(hold.dataset_version.identity)
+            if existing is not None:
+                if existing != hold:
+                    raise ValueError("Dataset version already has a different active hold.")
+                return existing
+            self._active_holds[hold.dataset_version.identity] = hold
+            self.append(_hold_event(hold, PublicationLifecycleEventType.HOLD_PLACED, hold.held_at))
+            return hold
+
+    def release_hold(
+        self,
+        reference: DatasetVersionReference,
+        *,
+        released_at: datetime,
+    ) -> bool:
+        if not isinstance(reference, DatasetVersionReference):
+            raise TypeError(
+                "MemoryPublicationLedger.release_hold requires DatasetVersionReference."
+            )
+        validate_aware_datetime(released_at, "MemoryPublicationLedger released_at")
+        with self._lock:
+            hold = self._active_holds.get(reference.identity)
+            if hold is None:
+                return False
+            if released_at < hold.held_at:
+                raise ValueError("Version hold cannot be released before it was placed.")
+            self.append(
+                _hold_event(
+                    hold,
+                    PublicationLifecycleEventType.HOLD_RELEASED,
+                    released_at,
+                )
+            )
+            del self._active_holds[reference.identity]
+            return True
+
+    def list_active_holds(self, dataset_id: str) -> tuple[VersionHold, ...]:
+        if not isinstance(dataset_id, str) or not dataset_id.strip():
+            raise ValueError("MemoryPublicationLedger dataset_id must be non-blank.")
+        with self._lock:
+            return tuple(
+                sorted(
+                    (
+                        hold
+                        for hold in self._active_holds.values()
+                        if hold.dataset_version.dataset_id == dataset_id
+                    ),
+                    key=lambda item: (
+                        item.held_at,
+                        item.dataset_version.version_id,
+                    ),
+                )
+            )
+
     @contextmanager
     def transaction(self) -> Iterator[MemoryPublicationLedger]:
         """Group multiple ledger mutations atomically for conformance testing."""
@@ -136,6 +201,7 @@ class MemoryPublicationLedger(PublicationLedger):
             events = list(self._events)
             events_by_id = dict(self._events_by_id)
             resolved = set(self._resolved)
+            active_holds = dict(self._active_holds)
             try:
                 yield self
             except BaseException:
@@ -143,4 +209,31 @@ class MemoryPublicationLedger(PublicationLedger):
                 self._events = events
                 self._events_by_id = events_by_id
                 self._resolved = resolved
+                self._active_holds = active_holds
                 raise
+
+
+def _hold_event(
+    hold: VersionHold,
+    event_type: PublicationLifecycleEventType,
+    occurred_at: datetime,
+) -> PublicationLifecycleEvent:
+    digest = hashlib.sha256(
+        (
+            f"{hold.dataset_version.dataset_id}\0"
+            f"{hold.dataset_version.version_id}\0"
+            f"{event_type.value}\0"
+            f"{occurred_at.isoformat()}"
+        ).encode()
+    ).hexdigest()
+    metadata: tuple[tuple[str, str], ...] = ()
+    if hold.reason is not None:
+        metadata = (("reason", hold.reason),)
+    return PublicationLifecycleEvent(
+        event_id=f"hold:{digest}",
+        event_type=event_type,
+        dataset_id=hold.dataset_version.dataset_id,
+        occurred_at=occurred_at,
+        dataset_version=hold.dataset_version,
+        metadata=metadata,
+    )

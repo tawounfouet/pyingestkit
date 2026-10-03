@@ -27,7 +27,7 @@ jobs:
       - name: Frozen PyIngestKit 2.0 compatibility
         run: python scripts/check_v2_compatibility.py
       - name: Current PyIngestKit V2 milestone contract
-        run: python scripts/check_v2_1_alpha4.py
+        run: python scripts/check_v2_1_beta1.py
 
   v2-architecture-baseline:
     runs-on: ubuntu-latest
@@ -93,6 +93,7 @@ jobs:
           from pyingestkit.domain.resources import ResourceReference
           from pyingestkit.domain.runtime import CorrelationContext
           from pyingestkit.domain.shared import IngestionRunId
+          from pyingestkit.governance.retention import RetentionPlanner
           from pyingestkit.integrations.pytransformkit import (
               PyTransformKitUnavailableError,
               pytransformkit_version,
@@ -135,12 +136,13 @@ jobs:
               "ResourceReference",
               "Source",
           )
-          assert pyingestkit.__version__ == "2.1.0a4"
+          assert pyingestkit.__version__ == "2.1.0b1"
           assert hasattr(pyingestkit.IngestionRuntime, "run")
           import pyingestkit.governance as governance
           assert "PublicationLedger" in governance.__all__
           assert "ConditionalDatasetPublisher" in governance.__all__
           assert MemoryPublicationLedger().__class__.__name__ == "MemoryPublicationLedger"
+          assert RetentionPlanner.__module__ == "pyingestkit.governance.retention"
 
           with tempfile.TemporaryDirectory() as directory:
               root = Path(directory)
@@ -223,7 +225,7 @@ jobs:
           /tmp/pyingestkit-v2-sdist/bin/python - <<'PY'
           import pyingestkit
 
-          assert pyingestkit.__version__ == "2.1.0a4"
+          assert pyingestkit.__version__ == "2.1.0b1"
           assert tuple(pyingestkit.__all__) == (
               "ArtifactReference",
               "DatasetVersion",
@@ -302,6 +304,21 @@ jobs:
           python -m pytest -q
           tests/conformance/v2/test_filesystem_conditional_publication.py
           tests/integration/v2/test_filesystem_conditional_publication_processes.py
+
+  filesystem-gc-e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e ".[dev]"
+      - name: LOT-27 filesystem retention and guarded GC qualification
+        run: >-
+          python -m pytest -q
+          tests/conformance/v2/test_retention_planning.py
+          tests/integration/v2/test_filesystem_guarded_gc.py
 
   postgres-e2e:
     runs-on: ubuntu-latest
@@ -410,6 +427,42 @@ jobs:
           tests/conformance/v2/test_s3_conditional_publication_capability.py
           tests/integration/v2/test_s3_conditional_publication.py
 
+  s3-gc-e2e:
+    runs-on: ubuntu-latest
+    env:
+      AWS_DEFAULT_REGION: us-east-1
+      PYINGEST_TEST_S3_ENDPOINT_URL: http://127.0.0.1:9000
+      PYINGEST_TEST_S3_BUCKET: pyingestkit
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Generate ephemeral S3 test credentials
+        shell: bash
+        run: |
+          user="ci$(python -c 'import secrets; print(secrets.token_hex(8))')"
+          password="$(python -c 'import secrets; print(secrets.token_urlsafe(32))')"
+          echo "AWS_ACCESS_KEY_ID=$user" >> "$GITHUB_ENV"
+          echo "AWS_SECRET_ACCESS_KEY=$password" >> "$GITHUB_ENV"
+      - name: Start S3-compatible Moto server
+        shell: bash
+        run: |
+          python -m pip install "moto[server]>=5.1,<6"
+          moto_server -H 127.0.0.1 -p 9000 >/tmp/pyingestkit-moto-s3-gc.log 2>&1 &
+          for attempt in {1..30}; do
+            if curl -fsS http://127.0.0.1:9000/ >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/pyingestkit-moto-s3-gc.log
+          exit 1
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e ".[dev,s3]"
+      - name: LOT-27 S3 guarded GC qualification
+        run: python -m pytest -q tests/integration/v2/test_s3_guarded_gc.py
+
   object-storage-e2e:
     runs-on: ubuntu-latest
     services:
@@ -480,8 +533,8 @@ jobs:
         run: make release-check
       - name: Validate frozen 2.0 compatibility baseline
         run: python scripts/check_v2_compatibility.py
-      - name: Validate LOT-26 milestone contract
-        run: python scripts/check_v2_1_alpha4.py
+      - name: Validate LOT-27 milestone contract
+        run: python scripts/check_v2_1_beta1.py
       - name: Build SHA-256 manifest
         shell: bash
         run: |
@@ -491,19 +544,19 @@ jobs:
 
           paths = sorted(Path("dist").glob("*"))
           lines = [f"{sha256(path.read_bytes()).hexdigest()}  {path.as_posix()}" for path in paths]
-          Path("SHA256SUMS-v2.1.0a4").write_text(
+          Path("SHA256SUMS-v2.1.0b1").write_text(
               "\n".join(lines) + "\n",
               encoding="utf-8",
           )
-          print(Path("SHA256SUMS-v2.1.0a4").read_text(encoding="utf-8"), end="")
+          print(Path("SHA256SUMS-v2.1.0b1").read_text(encoding="utf-8"), end="")
           PY
       - name: Upload V2 stable distribution evidence
         uses: actions/upload-artifact@v7
         with:
-          name: pyingestkit-v2.1.0a4-dist
+          name: pyingestkit-v2.1.0b1-dist
           path: |
             dist/*
-            SHA256SUMS-v2.1.0a4
+            SHA256SUMS-v2.1.0b1
           if-no-files-found: error
 
   v1-history-gate:
@@ -527,8 +580,10 @@ jobs:
       - test
       - postgres-e2e
       - filesystem-cas-e2e
+      - filesystem-gc-e2e
       - s3-e2e
       - s3-cas-e2e
+      - s3-gc-e2e
       - object-storage-e2e
       - stable-artifact-verify
       - v1-history-gate
@@ -545,6 +600,6 @@ jobs:
       - run: python -m pip install -e ".[postgres]"
       - name: Validate frozen PyIngestKit 2.0 compatibility
         run: python scripts/check_v2_compatibility.py
-      - name: Validate current LOT-26 milestone
-        run: python scripts/check_v2_1_alpha4.py
-      - run: echo "PyIngestKit 2.1.0a4 LOT-26 qualification passed with frozen 2.0 compatibility."
+      - name: Validate current LOT-27 milestone
+        run: python scripts/check_v2_1_beta1.py
+      - run: echo "PyIngestKit 2.1.0b1 LOT-27 qualification passed with frozen 2.0 compatibility."

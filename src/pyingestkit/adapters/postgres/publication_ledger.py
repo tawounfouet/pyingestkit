@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import hashlib
 from collections.abc import Iterator
 from contextlib import contextmanager
+from datetime import datetime
 from typing import cast
 
 from sqlalchemy import (
@@ -23,11 +25,15 @@ from sqlalchemy.dialects.postgresql import insert as postgres_insert
 from sqlalchemy.engine import Connection, Engine, make_url
 from sqlalchemy.exc import ArgumentError, NoSuchModuleError, SQLAlchemyError
 
+from pyingestkit.domain.datasets import DatasetVersionReference
 from pyingestkit.domain.governance import (
     PublicationIntent,
     PublicationLifecycleEvent,
+    PublicationLifecycleEventType,
     PublicationOperationId,
+    VersionHold,
 )
+from pyingestkit.domain.shared.validation import validate_aware_datetime
 from pyingestkit.governance._ledger_codec import (
     decode_event,
     decode_intent,
@@ -159,6 +165,26 @@ class PostgresPublicationLedger(PublicationLedger):
         with self._engine.connect() as connection:
             return _list_events(connection, operation_id=operation_id, dataset_id=dataset_id)
 
+    def place_hold(self, hold: VersionHold) -> VersionHold:
+        self._ensure_open()
+        with self._engine.begin() as connection:
+            return _place_hold(connection, hold)
+
+    def release_hold(
+        self,
+        reference: DatasetVersionReference,
+        *,
+        released_at: datetime,
+    ) -> bool:
+        self._ensure_open()
+        with self._engine.begin() as connection:
+            return _release_hold(connection, reference, released_at=released_at)
+
+    def list_active_holds(self, dataset_id: str) -> tuple[VersionHold, ...]:
+        self._ensure_open()
+        with self._engine.connect() as connection:
+            return _list_active_holds(connection, dataset_id)
+
     @contextmanager
     def transaction(self) -> Iterator[_PostgresPublicationLedgerTransaction]:
         """Yield a ledger bound to one caller-controlled SQL transaction."""
@@ -219,6 +245,168 @@ class _PostgresPublicationLedgerTransaction(PublicationLedger):
             operation_id=operation_id,
             dataset_id=dataset_id,
         )
+
+    def place_hold(self, hold: VersionHold) -> VersionHold:
+        return _place_hold(self._connection, hold)
+
+    def release_hold(
+        self,
+        reference: DatasetVersionReference,
+        *,
+        released_at: datetime,
+    ) -> bool:
+        return _release_hold(self._connection, reference, released_at=released_at)
+
+    def list_active_holds(self, dataset_id: str) -> tuple[VersionHold, ...]:
+        return _list_active_holds(self._connection, dataset_id)
+
+
+def _place_hold(connection: Connection, hold: VersionHold) -> VersionHold:
+    if not isinstance(hold, VersionHold):
+        raise TypeError("PostgresPublicationLedger.place_hold requires VersionHold.")
+
+    active = (
+        connection.execute(
+            select(_VERSION_HOLD).where(
+                _VERSION_HOLD.c.dataset_id == hold.dataset_version.dataset_id,
+                _VERSION_HOLD.c.version_id == hold.dataset_version.version_id,
+                _VERSION_HOLD.c.released_at.is_(None),
+            )
+        )
+        .mappings()
+        .one_or_none()
+    )
+    if active is not None:
+        existing = _hold_from_row(active)
+        if existing != hold:
+            raise ValueError("Dataset version already has a different active hold.")
+        return existing
+
+    hold_id = _hold_id(hold.dataset_version, hold.held_at)
+    connection.execute(
+        postgres_insert(_VERSION_HOLD)
+        .values(
+            hold_id=hold_id,
+            dataset_id=hold.dataset_version.dataset_id,
+            version_id=hold.dataset_version.version_id,
+            held_at=hold.held_at,
+            released_at=None,
+            reason=hold.reason,
+        )
+        .on_conflict_do_nothing(index_elements=[_VERSION_HOLD.c.hold_id])
+    )
+    _append(
+        connection,
+        _hold_event(hold, PublicationLifecycleEventType.HOLD_PLACED, hold.held_at),
+    )
+    return hold
+
+
+def _release_hold(
+    connection: Connection,
+    reference: DatasetVersionReference,
+    *,
+    released_at: datetime,
+) -> bool:
+    if not isinstance(reference, DatasetVersionReference):
+        raise TypeError("PostgresPublicationLedger.release_hold requires DatasetVersionReference.")
+    validate_aware_datetime(released_at, "PostgresPublicationLedger released_at")
+    row = (
+        connection.execute(
+            select(_VERSION_HOLD)
+            .where(
+                _VERSION_HOLD.c.dataset_id == reference.dataset_id,
+                _VERSION_HOLD.c.version_id == reference.version_id,
+                _VERSION_HOLD.c.released_at.is_(None),
+            )
+            .order_by(_VERSION_HOLD.c.held_at.desc(), _VERSION_HOLD.c.hold_id.desc())
+            .with_for_update()
+        )
+        .mappings()
+        .first()
+    )
+    if row is None:
+        return False
+
+    hold = _hold_from_row(row)
+    if released_at < hold.held_at:
+        raise ValueError("Version hold cannot be released before it was placed.")
+    connection.execute(
+        update(_VERSION_HOLD)
+        .where(_VERSION_HOLD.c.hold_id == str(row["hold_id"]))
+        .values(released_at=released_at)
+    )
+    _append(
+        connection,
+        _hold_event(hold, PublicationLifecycleEventType.HOLD_RELEASED, released_at),
+    )
+    return True
+
+
+def _list_active_holds(
+    connection: Connection,
+    dataset_id: str,
+) -> tuple[VersionHold, ...]:
+    if not isinstance(dataset_id, str) or not dataset_id.strip():
+        raise ValueError("PostgresPublicationLedger dataset_id must be non-blank.")
+    rows = (
+        connection.execute(
+            select(_VERSION_HOLD)
+            .where(
+                _VERSION_HOLD.c.dataset_id == dataset_id,
+                _VERSION_HOLD.c.released_at.is_(None),
+            )
+            .order_by(_VERSION_HOLD.c.held_at, _VERSION_HOLD.c.version_id)
+        )
+        .mappings()
+        .all()
+    )
+    return tuple(_hold_from_row(row) for row in rows)
+
+
+def _hold_from_row(row: object) -> VersionHold:
+    mapping = cast(dict[str, object], row)
+    return VersionHold(
+        dataset_version=DatasetVersionReference(
+            dataset_id=str(mapping["dataset_id"]),
+            version_id=str(mapping["version_id"]),
+        ),
+        held_at=cast(datetime, mapping["held_at"]),
+        reason=None if mapping["reason"] is None else str(mapping["reason"]),
+    )
+
+
+def _hold_id(reference: DatasetVersionReference, held_at: datetime) -> str:
+    digest = hashlib.sha256(
+        (f"{reference.dataset_id}\0{reference.version_id}\0{held_at.isoformat()}").encode()
+    ).hexdigest()
+    return f"hold:{digest}"
+
+
+def _hold_event(
+    hold: VersionHold,
+    event_type: PublicationLifecycleEventType,
+    occurred_at: datetime,
+) -> PublicationLifecycleEvent:
+    digest = hashlib.sha256(
+        (
+            f"{hold.dataset_version.dataset_id}\0"
+            f"{hold.dataset_version.version_id}\0"
+            f"{event_type.value}\0"
+            f"{occurred_at.isoformat()}"
+        ).encode()
+    ).hexdigest()
+    metadata: tuple[tuple[str, str], ...] = ()
+    if hold.reason is not None:
+        metadata = (("reason", hold.reason),)
+    return PublicationLifecycleEvent(
+        event_id=f"hold:{digest}",
+        event_type=event_type,
+        dataset_id=hold.dataset_version.dataset_id,
+        occurred_at=occurred_at,
+        dataset_version=hold.dataset_version,
+        metadata=metadata,
+    )
 
 
 def _register(connection: Connection, intent: PublicationIntent) -> PublicationIntent:
