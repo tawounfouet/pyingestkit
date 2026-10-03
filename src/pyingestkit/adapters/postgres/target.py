@@ -163,7 +163,7 @@ class PostgresTargetV2:
                 summary=str(exc),
                 started_at=started_at,
             )
-        except (_PostgresProviderError, SQLAlchemyError) as exc:
+        except (_PostgresProviderError, SQLAlchemyError):
             return self._failed(
                 request,
                 status=TargetLoadStatusV2.ROLLED_BACK,
