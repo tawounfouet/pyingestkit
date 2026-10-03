@@ -10,9 +10,10 @@ run/result lifecycle evidence, LOT-10 added explicit V2 IngestionRuntime
 composition, LOT-11 added strict replay from durable historical RAW, LOT-12
 cut V2 runtime callers over to the qualified runtime surface, LOT-13 added
 secure HTTP acquisition/provenance, LOT-14 added transactional PostgreSQL
-materialization for immutable dataset versions, and LOT-15 adds S3-compatible
-V2 artifact/version storage while the V1 package keeps its exact star-import
-contract until the 2.0 alpha cut.
+materialization for immutable dataset versions, LOT-15 added S3-compatible V2 artifact/version storage, and LOT-16 adds
+canonical non-executable boundary serialization plus explicit migration
+infrastructure while the V1 package keeps its exact star-import contract until
+the 2.0 alpha cut.
 """
 
 from __future__ import annotations
@@ -198,6 +199,13 @@ V2_IMPLEMENTED_REPLAY_VALUES: tuple[str, ...] = (
     "ReplayServiceV2",
 )
 
+V2_IMPLEMENTED_SERIALIZATION_VALUES: tuple[str, ...] = (
+    "BoundaryContractCodecV2",
+    "ContractEnvelopeV2",
+    "ContractMigrationRegistryV2",
+    "SUPPORTED_BOUNDARY_CONTRACT_IDS",
+)
+
 V2_COMPLETED_LOTS: tuple[str, ...] = (
     "LOT-00",
     "LOT-01",
@@ -215,6 +223,7 @@ V2_COMPLETED_LOTS: tuple[str, ...] = (
     "LOT-13",
     "LOT-14",
     "LOT-15",
+    "LOT-16",
 )
 
 V2_MILESTONE_CANDIDATE = "2.0.0a1"
@@ -259,4 +268,4 @@ V2_PUBLIC_NAMESPACE_BASELINE: tuple[str, ...] = (
     "pyingestkit.quality",
 )
 
-V2_API_PHASE = "LOT-15_S3_OBJECT_STORAGE"
+V2_API_PHASE = "LOT-16_CANONICAL_SERIALIZATION"
