@@ -10,7 +10,7 @@ import pytest
 from pyingestkit.adapters.filesystem import FileAccessPolicy, FileSourceConnector
 from pyingestkit.application.decoders import DecoderRegistry
 from pyingestkit.application.sources import SourceRegistry
-from pyingestkit.datasets import DatasetVersionReference, build_dataset_version
+from pyingestkit.datasets import build_dataset_version, DatasetVersionReference
 from pyingestkit.decoders import CsvDecoder, DecodeRequest, DecodeStatus
 from pyingestkit.domain.acquisition import AcquisitionRequest, AcquisitionStatus
 from pyingestkit.domain.artifacts import (
