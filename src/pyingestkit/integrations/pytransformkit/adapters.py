@@ -323,8 +323,8 @@ def _pytransformkit_api() -> _PyTransformKitApi:
             exc.name is not None and exc.name.startswith("pytransformkit.")
         ):
             raise PyTransformKitUnavailableError(
-                "PyTransformKit integration requires "
-                'pip install "pyingestkit[transform]".'
+                "PyTransformKit integration requires pytransformkit>=1.1,<2. "
+                "The pyingestkit[transform] convenience extra is activated at the 2.0 package cut."
             ) from exc
         raise
 
