@@ -227,6 +227,10 @@ class PostgresTargetV2:
             raise _PostgresConfigurationError(
                 "PostgresTargetV2 requires the 'postgres' extra."
             ) from exc
+        except ArgumentError as exc:
+            raise _PostgresConfigurationError(
+                "PostgresTargetV2 DSN is invalid."
+            ) from exc
         return self._engine
 
     @staticmethod
