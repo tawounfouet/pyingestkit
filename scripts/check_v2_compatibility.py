@@ -50,9 +50,7 @@ def main() -> int:
     if stable["schema_version"] != 1 or stable["version"] != "2.0.0":
         raise SystemExit("Unexpected frozen PyIngestKit 2.0 stable fixture")
     if not pyingestkit.__version__.startswith("2."):
-        raise SystemExit(
-            f"PyIngestKit 2.x compatibility check received {pyingestkit.__version__}"
-        )
+        raise SystemExit(f"PyIngestKit 2.x compatibility check received {pyingestkit.__version__}")
 
     stable_root = tuple(str(item) for item in stable["root_exports"])
     rc_root = tuple(str(item) for item in rc["root_exports"])
@@ -74,8 +72,7 @@ def main() -> int:
         actual = _method_names(protocol)
         if actual != expected:
             raise SystemExit(
-                f"2.0 Protocol drift for {qualified_name}: "
-                f"{sorted(actual)} != {sorted(expected)}"
+                f"2.0 Protocol drift for {qualified_name}: {sorted(actual)} != {sorted(expected)}"
             )
 
     stable_runtime = stable["runtime"]
