@@ -52,7 +52,6 @@ postgres = ["psycopg[binary]>=3.2,<4"]
 s3 = ["boto3>=1.35,<2"]
 excel = ["openpyxl>=3.1,<4"]
 parquet = ["pyarrow>=16,<24"]
-transform = ["pytransformkit>=1.1,<2"]
 
 [project.scripts]
 pyingest = "pyingestkit.cli.main:main"
