@@ -253,7 +253,4 @@ def test_filesystem_uncertain_delete_requires_provider_truth_reconciliation(
         plan_id=plan.plan_id,
         reconciled_at=_NOW + timedelta(minutes=3),
     )
-    assert (
-        reconciled.status
-        is DatasetVersionDeletionReconciliationStatus.CONFIRMED_DELETED
-    )
+    assert reconciled.status is DatasetVersionDeletionReconciliationStatus.CONFIRMED_DELETED
