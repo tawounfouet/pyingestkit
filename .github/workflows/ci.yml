@@ -38,7 +38,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: python -m pip install --upgrade pip
-      - run: python -m pip install -e .
+      - run: python -m pip install -e ".[http,postgres,s3]"
       - run: python -m pip install "pytest>=8"
       - name: V2 architecture contracts
         run: python -m pytest -q tests/architecture
@@ -186,7 +186,15 @@ jobs:
               assert decoded.schema is not None
               assert [field.name for field in decoded.schema.fields] == ["id", "name"]
 
-          optional = ("boto3", "openpyxl", "psycopg", "pyarrow", "pytransformkit")
+          optional = (
+              "boto3",
+              "httpx",
+              "openpyxl",
+              "psycopg",
+              "pyarrow",
+              "pytransformkit",
+              "sqlalchemy",
+          )
           leaked = [name for name in optional if importlib.util.find_spec(name) is not None]
           if leaked:
               raise SystemExit(f"optional provider dependencies leaked into base install: {leaked}")
@@ -197,6 +205,33 @@ jobs:
               pass
           else:
               raise SystemExit("PyTransformKit integration unexpectedly activated in base wheel")
+          PY
+      - name: Clean source-distribution install
+        shell: bash
+        run: |
+          python -m venv /tmp/pyingestkit-v2-sdist
+          /tmp/pyingestkit-v2-sdist/bin/python -m pip install --upgrade pip
+          sdist="$(ls dist/pyingestkit-*.tar.gz | head -n 1)"
+          /tmp/pyingestkit-v2-sdist/bin/python -m pip install "$sdist"
+          /tmp/pyingestkit-v2-sdist/bin/python - <<'PY'
+          import pyingestkit
+
+          assert pyingestkit.__version__ == "2.0.0rc1"
+          assert tuple(pyingestkit.__all__) == (
+              "ArtifactReference",
+              "DatasetVersion",
+              "DatasetVersionReference",
+              "IngestionDefinition",
+              "IngestionResult",
+              "IngestionRun",
+              "IngestionRunId",
+              "IngestionRuntime",
+              "PublishedDataset",
+              "ResourceReference",
+              "Source",
+          )
+          assert hasattr(pyingestkit.IngestionRuntime, "run")
+          print("sdist", pyingestkit.__version__)
           PY
 
   pytransformkit-integration:
