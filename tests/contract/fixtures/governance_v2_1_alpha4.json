@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "milestone": "LOT-26",
+  "version": "2.1.0a4",
+  "baseline": {
+    "lot25_merge_sha": "0186bf544e4cb07ba499d26163ab8d6187fa246c",
+    "lot25_fixture": "tests/contract/fixtures/governance_v2_1_alpha3.json",
+    "lot24_fixture": "tests/contract/fixtures/governance_v2_1_alpha2.json",
+    "lot23_fixture": "tests/contract/fixtures/governance_v2_1_alpha1.json",
+    "stable_2_0_fixture": "tests/contract/fixtures/stable_release_v2.json"
+  },
+  "providers": {
+    "filesystem_conditional": "pyingestkit.adapters.filesystem.FileConditionalDatasetPublisher",
+    "s3_conditional": "pyingestkit.adapters.s3.S3ConditionalDatasetPublisher",
+    "s3_capability_error": "pyingestkit.adapters.s3.S3ConditionalWriteCapabilityErrorV2",
+    "memory_ledger": "pyingestkit.adapters.memory.MemoryPublicationLedger",
+    "postgres_ledger": "pyingestkit.adapters.postgres.PostgresPublicationLedger"
+  },
+  "s3_namespace_exports": [
+    "S3ArtifactReaderV2",
+    "S3ArtifactStoreV2",
+    "S3ClientV2",
+    "S3ConditionalDatasetPublisher",
+    "S3ConditionalWriteCapabilityErrorV2",
+    "S3DatasetVersionStoreV2"
+  ],
+  "required_evidence": [
+    "tests/contract/public_api/test_v2_governance_s3_cas.py",
+    "tests/conformance/v2/test_s3_conditional_publication_capability.py",
+    "tests/integration/v2/test_s3_conditional_publication.py"
+  ],
+  "required_docs": [
+    "docs/architecture/v2-lot26-s3-conditional-publication.md",
+    "docs/architecture/v2-lot25-filesystem-conditional-publication.md",
+    "docs/roadmap/rfc001-publication-lifecycle-implementation-roadmap.md"
+  ]
+}
