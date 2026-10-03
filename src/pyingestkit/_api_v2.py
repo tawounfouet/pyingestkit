@@ -384,6 +384,7 @@ V2_PUBLIC_NAMESPACE_BASELINE: tuple[str, ...] = (
     "pyingestkit.diagnostics",
     "pyingestkit.ingestion",
     "pyingestkit.governance",
+    "pyingestkit.governance.retention",
     "pyingestkit.integrations.pytransformkit",
     "pyingestkit.migration",
     "pyingestkit.plugins",
