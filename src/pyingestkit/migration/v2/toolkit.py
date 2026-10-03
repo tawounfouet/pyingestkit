@@ -196,6 +196,18 @@ class V1SemanticImporter:
 
         for item in export.artifacts:
             locator = item.storage_uri or item.path
+            if item.source_uri or item.resolved_url:
+                issues.append(
+                    MigrationIssue(
+                        code="artifact.source_locator.not_promoted",
+                        disposition=MigrationDisposition.LOSSY,
+                        summary=(
+                            "Historical source URLs remain migration input evidence but are "
+                            "not promoted into portable V2 artifact metadata."
+                        ),
+                        source_identity=item.artifact_id,
+                    )
+                )
             if item.storage_uri is None:
                 issues.append(
                     MigrationIssue(
@@ -217,8 +229,6 @@ class V1SemanticImporter:
                 format=_format_from_locator(locator),
                 metadata=_metadata(
                     ("v1.run_id", item.run_id),
-                    ("v1.source_uri", item.source_uri),
-                    ("v1.resolved_url", item.resolved_url),
                     ("v1.status_code", item.status_code),
                     ("v1.etag", item.etag),
                     ("v1.last_modified", item.last_modified),
