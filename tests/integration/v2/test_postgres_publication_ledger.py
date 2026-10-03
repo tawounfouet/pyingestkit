@@ -2,13 +2,14 @@ from __future__ import annotations
 
 import os
 from concurrent.futures import ThreadPoolExecutor
+from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
 import pytest
 from sqlalchemy import inspect
 
 from pyingestkit.adapters.postgres import PostgresPublicationLedger
-from pyingestkit.domain.governance import PublicationLifecycleEventType
+from pyingestkit.domain.governance import PublicationLifecycleEventType, VersionHold
 from tests.conformance.v2._governance_ledger_contract import (
     exercise_publication_ledger,
     make_event,
@@ -143,3 +144,42 @@ def test_postgres_lifecycle_schema_is_additive_and_dsn_is_redacted() -> None:
         assert "postgres:postgres@" not in ledger.safe_dsn
     finally:
         ledger.close()
+
+
+
+def test_postgres_version_hold_survives_restart_and_releases_durably() -> None:
+    assert POSTGRES_DSN is not None
+    dataset_id = f"hold.dataset.{uuid4().hex}"
+    reference = make_intent(dataset_id=dataset_id).dataset_version
+    held_at = datetime(2026, 10, 4, 2, 30, tzinfo=UTC)
+    hold = VersionHold(reference, held_at=held_at, reason="legal-review")
+
+    first = PostgresPublicationLedger(POSTGRES_DSN)
+    try:
+        assert first.place_hold(hold) == hold
+        active = first.list_active_holds(dataset_id)
+        assert len(active) == 1
+        assert active[0].dataset_version.identity == reference.identity
+        assert active[0].held_at == held_at
+        assert active[0].reason == "legal-review"
+    finally:
+        first.close()
+
+    restarted = PostgresPublicationLedger(POSTGRES_DSN)
+    try:
+        active = restarted.list_active_holds(dataset_id)
+        assert len(active) == 1
+        assert active[0].dataset_version.identity == reference.identity
+
+        released_at = held_at + timedelta(minutes=5)
+        assert restarted.release_hold(reference, released_at=released_at) is True
+        assert restarted.release_hold(reference, released_at=released_at) is False
+        assert restarted.list_active_holds(dataset_id) == ()
+
+        events = restarted.list_events(dataset_id=dataset_id)
+        assert [event.event_type for event in events] == [
+            PublicationLifecycleEventType.HOLD_PLACED,
+            PublicationLifecycleEventType.HOLD_RELEASED,
+        ]
+    finally:
+        restarted.close()
