@@ -154,6 +154,17 @@ class PublicationIntent:
             and self.intent_fingerprint == other.intent_fingerprint
         )
 
+    def assert_same_intent_as(self, other: PublicationIntent) -> None:
+        """Fail closed when one operation identity is reused for another intent."""
+        if not isinstance(other, PublicationIntent):
+            raise TypeError("PublicationIntent comparison requires PublicationIntent.")
+        if self.operation_id != other.operation_id:
+            raise ValueError("PublicationIntent operation identity mismatch.")
+        if self.intent_fingerprint != other.intent_fingerprint:
+            raise ValueError(
+                "PublicationOperationId cannot be reused for a different publication intent."
+            )
+
 
 class PublicationLifecycleEventType(StrEnum):
     """Append-only lifecycle event families accepted by RFC-001."""
