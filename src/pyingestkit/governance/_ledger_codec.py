@@ -85,9 +85,7 @@ def decode_intent(content: str) -> PublicationIntent:
     intent = PublicationIntent(
         operation_id=PublicationOperationId.parse(_required_text(payload, "operation_id")),
         dataset_version=dataset_version,
-        expected_revision=PublicationRevision.parse(
-            _required_text(payload, "expected_revision")
-        ),
+        expected_revision=PublicationRevision.parse(_required_text(payload, "expected_revision")),
         ingestion_run_id=IngestionRunId.parse(_required_text(payload, "ingestion_run_id")),
         correlation=correlation,
         requested_at=_required_datetime(payload, "requested_at"),
