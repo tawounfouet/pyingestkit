@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "milestone": "LOT-22",
+  "version": "2.0.0",
+  "baseline": {
+    "rc_merge_sha": "a7788666139ea36d097e6b666b067de7dd2f16b1",
+    "rc_contract_fixture": "tests/contract/fixtures/release_candidate_v2.json"
+  },
+  "root_exports": [
+    "ArtifactReference",
+    "DatasetVersion",
+    "DatasetVersionReference",
+    "IngestionDefinition",
+    "IngestionResult",
+    "IngestionRun",
+    "IngestionRunId",
+    "IngestionRuntime",
+    "PublishedDataset",
+    "ResourceReference",
+    "Source"
+  ],
+  "forbidden_root_exports": [
+    "Job",
+    "Pipeline",
+    "Runner",
+    "RunContext",
+    "RunResult",
+    "Step",
+    "job",
+    "step"
+  ],
+  "runtime": {
+    "canonical_method": "run",
+    "parameters": [
+      "self",
+      "definition",
+      "validation_rules",
+      "publish",
+      "ingestion_run_id",
+      "correlation"
+    ]
+  },
+  "stable_protocols": {
+    "pyingestkit.ports.sources.SourceConnector": [
+      "descriptor",
+      "acquire"
+    ],
+    "pyingestkit.ports.decoders.Decoder": [
+      "descriptor",
+      "decode"
+    ],
+    "pyingestkit.ports.artifacts.ArtifactStore": [
+      "put",
+      "open",
+      "exists"
+    ],
+    "pyingestkit.ports.dataset_versions.DatasetVersionStore": [
+      "put",
+      "get",
+      "list",
+      "read"
+    ],
+    "pyingestkit.ports.dataset_versions.DatasetPublisher": [
+      "publish",
+      "get_published"
+    ],
+    "pyingestkit.ports.dataset_materialization.DatasetVersionMaterializerV2": [
+      "materialize"
+    ],
+    "pyingestkit.ports.targets.DatasetTargetV2": [
+      "descriptor",
+      "load",
+      "close"
+    ]
+  },
+  "wire_contracts": {
+    "pykit.resource_reference": "1",
+    "pykit.artifact_reference": "1",
+    "pykit.dataset_reference": "1",
+    "pykit.dataset_version_reference": "1",
+    "pykit.credential_reference": "1",
+    "pykit.idempotency_reference": "1",
+    "pykit.correlation_context": "1",
+    "pykit.failure_evidence": "1",
+    "pykit.diagnostic": "1",
+    "pykit.ingestion_execution_reference": "1"
+  },
+  "provider_extras": [
+    "http",
+    "postgres",
+    "s3",
+    "excel",
+    "parquet"
+  ],
+  "required_docs": [
+    "docs/releases/v2.0.0.md",
+    "docs/reference/provider-compatibility-v2.md",
+    "docs/releases/v2.0.0-qualification.md",
+    "docs/guides/migrate-v1-to-v2.md",
+    "docs/releases/v2.0.0-evidence.md"
+  ]
+}

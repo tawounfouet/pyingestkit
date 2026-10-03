@@ -2,6 +2,19 @@
 
 All notable changes to PyIngestKit are documented here.
 
+## [2.0.0] - 2026-10-03
+
+### Stable — Clean-Slate V2 Contract
+
+- promoted the fully qualified `2.0.0rc1` contract to stable `2.0.0` without architectural redesign;
+- preserved the exact 11-symbol package root, `IngestionRuntime.run(...)` signature and framework-owned provider Protocols frozen by LOT-21;
+- froze all portable boundary wire contracts at contract version `1` for the 2.0 stable baseline;
+- retained provider-neutral base installation with HTTP, PostgreSQL, S3, Excel and Parquet dependencies behind optional extras;
+- requalified Python 3.11/3.12/3.13/3.14, PostgreSQL 16, S3-compatible cross-host replay, object-storage coexistence, clean wheel/sdist installation, PyTransformKit integration and Customer 360;
+- finalized the V1 → V2 migration guide, provider compatibility matrix, stable release notes and auditable qualification procedure;
+- retained the immutable V1.0.0 tag as historical evidence rather than exposing V1 execution aliases through the 2.0 contract;
+- established `v2.0.0` as the stable compatibility baseline for subsequent 2.x evolution.
+
 ## [2.0.0rc1] - 2026-10-03
 
 ### Release Candidate — V2 Public Contract Freeze

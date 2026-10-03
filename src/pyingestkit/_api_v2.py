@@ -17,8 +17,9 @@ boundary, LOT-18 added explicit V1 semantic migration planning and persisted
 reference conversion, LOT-19 qualified the provider/port conformance matrix,
 and LOT-20 added the Customer 360 end-to-end beta gate with transformed-resource
 publication, provenance, reconciliation, replay and built-artifact evidence.
-LOT-21 cuts the real 2.0 package root, freezes the stable provider/runtime
-contracts and qualifies the release-candidate artifacts.
+LOT-21 cut the real 2.0 package root, froze the stable provider/runtime
+contracts and qualified the release-candidate artifacts. LOT-22 promotes the
+unchanged RC contract to the stable 2.0.0 release after full requalification.
 """
 
 from __future__ import annotations
@@ -306,9 +307,10 @@ V2_COMPLETED_LOTS: tuple[str, ...] = (
     "LOT-19",
     "LOT-20",
     "LOT-21",
+    "LOT-22",
 )
 
-V2_MILESTONE_CANDIDATE = "2.0.0rc1"
+V2_MILESTONE_CANDIDATE = "2.0.0"
 
 V2_FORBIDDEN_LEGACY_ROOT_EXPORTS: frozenset[str] = frozenset(
     {
@@ -355,4 +357,4 @@ V2_PUBLIC_NAMESPACE_BASELINE: tuple[str, ...] = (
     "pyingestkit.quality",
 )
 
-V2_API_PHASE = "LOT-21_RELEASE_CANDIDATE"
+V2_API_PHASE = "LOT-22_STABLE"

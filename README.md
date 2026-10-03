@@ -4,15 +4,15 @@
 [![Security](https://github.com/tawounfouet/pyingestkit/actions/workflows/security.yml/badge.svg)](https://github.com/tawounfouet/pyingestkit/actions/workflows/security.yml)
 [![Python 3.11–3.14](https://img.shields.io/badge/python-3.11%E2%80%933.14-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![RC: 2.0.0rc1](https://img.shields.io/badge/release-2.0.0rc1-orange.svg)](docs/releases/v2.0.0rc1.md)
+[![Stable: 2.0.0](https://img.shields.io/badge/stable-2.0.0-brightgreen.svg)](docs/releases/v2.0.0.md)
 
 **PyIngestKit** is a focused Python framework for reliable, traceable and replayable ingestion.
 
 > Acquire external data, preserve durable RAW evidence, decode and validate it, create immutable dataset versions, then publish or materialize them explicitly.
 
-## 2.0 release candidate
+## 2.0 stable
 
-`2.0.0rc1` is the LOT-21 release candidate for the clean-slate V2 architecture. It promotes the V2 contracts into the actual package root and freezes the public runtime/provider boundary before `2.0.0`.
+`2.0.0` is the LOT-22 stable release of the clean-slate V2 architecture. It promotes the fully qualified RC contract without changing the frozen public root, runtime signature, provider Protocols or boundary wire versions.
 
 The V1 `Job / Pipeline / Step / Runner` execution model is **not** aliased into the 2.0 root. Existing V1 workloads should remain pinned to the 1.x line until they are migrated semantically.
 
@@ -90,17 +90,17 @@ print(result.status)
 Base installation is provider-neutral:
 
 ```bash
-pip install "pyingestkit==2.0.0rc1"
+pip install "pyingestkit==2.0.0"
 ```
 
 Install only the providers required by the application:
 
 ```bash
-pip install "pyingestkit[http]==2.0.0rc1"
-pip install "pyingestkit[postgres]==2.0.0rc1"
-pip install "pyingestkit[s3]==2.0.0rc1"
-pip install "pyingestkit[excel]==2.0.0rc1"
-pip install "pyingestkit[parquet]==2.0.0rc1"
+pip install "pyingestkit[http]==2.0.0"
+pip install "pyingestkit[postgres]==2.0.0"
+pip install "pyingestkit[s3]==2.0.0"
+pip install "pyingestkit[excel]==2.0.0"
+pip install "pyingestkit[parquet]==2.0.0"
 ```
 
 The base package does not require `httpx`, SQLAlchemy, psycopg, boto3, OpenPyXL, PyArrow or PyTransformKit.
@@ -172,7 +172,7 @@ PyIngestKit governed DatasetVersion
 publication
 ```
 
-PyTransformKit remains optional; the RC qualification installs the explicitly validated 1.1.0 implementation used by the integration tests.
+PyTransformKit remains optional; stable qualification installs the explicitly validated 1.1.0 implementation used by the integration tests.
 
 ## Migration from 1.x
 
@@ -192,7 +192,7 @@ See [Migrating PyIngestKit 1.x applications to 2.0](docs/guides/migrate-v1-to-v2
 
 ## Qualified matrix
 
-LOT-21 qualifies:
+LOT-22 requalifies the unchanged RC contract across:
 
 - Python 3.11, 3.12, 3.13 and 3.14;
 - clean wheel and source-distribution installs;
@@ -216,18 +216,20 @@ make quality
 make security
 make build
 make release-check
-python scripts/check_v2_rc.py
+python scripts/check_v2_stable.py
 ```
 
-The terminal CI gate is `stable-release-gate`, which is release-blocking for `2.0.0rc1`.
+The terminal CI gate is `stable-release-gate`, which is release-blocking for `2.0.0`.
 
-## Release candidate policy
+## Stable compatibility policy
 
-Once `2.0.0rc1` is accepted, only blocker fixes are allowed before `2.0.0`. Any redesign of the frozen public root or stable provider Protocols requires a new RC.
+The 2.0 root, stable provider Protocols and version-1 boundary wire contracts are the compatibility baseline for the 2.x line. Breaking changes require a new major version; additive evolution must preserve these frozen contracts.
 
 See:
 
-- [2.0.0rc1 release notes](docs/releases/v2.0.0rc1.md)
+- [2.0.0 stable release notes](docs/releases/v2.0.0.md)
+- [2.0 provider compatibility matrix](docs/reference/provider-compatibility-v2.md)
+- [2.0 stable qualification](docs/releases/v2.0.0-qualification.md)
 - [V1 → V2 migration guide](docs/guides/migrate-v1-to-v2.md)
 - [LOT-20 Customer 360 beta gate](docs/architecture/v2-lot20-customer360-beta-gate.md)
 - [LOT-18 semantic migration](docs/architecture/v2-lot18-v1-semantic-migration.md)
