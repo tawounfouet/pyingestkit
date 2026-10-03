@@ -10,7 +10,6 @@ from pyingestkit.application.decoders import DecoderRegistry
 from pyingestkit.application.sources import SourceRegistry
 from pyingestkit.domain.acquisition import AcquisitionRequest, AcquisitionStatus
 from pyingestkit.domain.artifacts import (
-    ArtifactKind,
     ArtifactPutStatus,
     ArtifactRetention,
     PutArtifactRequest,
@@ -20,6 +19,7 @@ from pyingestkit.domain.decoding import DecodeRequest, DecodeStatus
 from pyingestkit.domain.ingestion import IngestionDefinition
 from pyingestkit.domain.runtime import (
     CorrelationContext,
+    Diagnostic,
     FailureCategory,
     FailureEvidence,
     IngestionResult,
@@ -285,7 +285,7 @@ class IngestionRuntime:
         *,
         component: str,
         exc: Exception,
-        diagnostics: tuple = (),
+        diagnostics: tuple[Diagnostic, ...] = (),
     ) -> IngestionResult:
         return self._failed(
             definition=definition,
@@ -313,7 +313,7 @@ class IngestionRuntime:
         started_at: datetime,
         *,
         validation: ValidationResult,
-        diagnostics: tuple,
+        diagnostics: tuple[Diagnostic, ...],
     ) -> IngestionResult:
         return self._failed(
             definition=definition,
@@ -341,7 +341,7 @@ class IngestionRuntime:
         created_at: datetime,
         started_at: datetime,
         failure: FailureEvidence,
-        diagnostics: tuple = (),
+        diagnostics: tuple[Diagnostic, ...] = (),
     ) -> IngestionResult:
         run = IngestionRun(
             ingestion_run_id=run_id,
