@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import pyingestkit.runtime as v1_runtime
+import pyingestkit.runtime as public_runtime
 from pyingestkit._api_v2 import (
     V2_API_PHASE,
     V2_COMPLETED_LOTS,
@@ -24,5 +24,7 @@ def test_lot09_symbols_are_importable_from_qualified_v2_runtime() -> None:
     assert IngestionResult.__module__ == "pyingestkit.domain.runtime.execution"
 
 
-def test_v1_runtime_export_surface_remains_exact() -> None:
-    assert v1_runtime.__all__ == ["Runner"]
+def test_runtime_namespace_exposes_v2_run_evidence_at_rc() -> None:
+    assert "IngestionRun" in public_runtime.__all__
+    assert "IngestionResult" in public_runtime.__all__
+    assert "Runner" not in public_runtime.__all__
