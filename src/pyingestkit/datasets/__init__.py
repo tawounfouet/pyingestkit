@@ -7,6 +7,7 @@ from pyingestkit.domain.datasets import (
     DatasetReference,
     DatasetVersion,
     DatasetVersionReference,
+    ResourceDatasetVersionRequestV2,
     build_dataset_version,
     dataset_content_fingerprint,
 )
@@ -17,6 +18,7 @@ __all__ = [
     "DatasetVersion",
     "DatasetVersionReference",
     "PublishedDataset",
+    "ResourceDatasetVersionRequestV2",
     "build_dataset_version",
     "dataset_content_fingerprint",
 ]

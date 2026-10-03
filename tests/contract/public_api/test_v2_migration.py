@@ -25,8 +25,9 @@ _EXPECTED = (
 
 
 def test_lot18_phase_and_completed_lot_are_recorded() -> None:
-    assert V2_API_PHASE == "LOT-18_V1_SEMANTIC_MIGRATION"
-    assert V2_COMPLETED_LOTS[-1] == "LOT-18"
+    assert "LOT-18" in V2_COMPLETED_LOTS
+    assert V2_COMPLETED_LOTS.index("LOT-18") <= V2_COMPLETED_LOTS.index(V2_COMPLETED_LOTS[-1])
+    assert V2_API_PHASE.startswith("LOT-")
 
 
 def test_lot18_migration_values_are_explicit() -> None:

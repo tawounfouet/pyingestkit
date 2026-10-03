@@ -6,7 +6,6 @@ from pathlib import Path
 from pyingestkit._api_v2 import (
     V2_COMPLETED_LOTS,
     V2_IMPLEMENTED_DECODER_VALUES,
-    V2_MILESTONE_CANDIDATE,
 )
 from pyingestkit.decoders import (
     CsvDecoder,
@@ -32,7 +31,7 @@ def test_lot05_phase_and_milestone_are_recorded() -> None:
 
     assert "LOT-05" in V2_COMPLETED_LOTS
     assert V2_COMPLETED_LOTS.index("LOT-05") <= V2_COMPLETED_LOTS.index(V2_COMPLETED_LOTS[-1])
-    assert V2_MILESTONE_CANDIDATE == payload["milestone_candidate"]
+    assert payload["milestone_candidate"] == "2.0.0a1"
     assert "Decoder" in V2_IMPLEMENTED_DECODER_VALUES
     assert "CsvDecoder" in V2_IMPLEMENTED_DECODER_VALUES
     assert "JsonDecoder" in V2_IMPLEMENTED_DECODER_VALUES

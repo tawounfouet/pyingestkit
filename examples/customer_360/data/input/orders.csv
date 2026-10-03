@@ -1,0 +1,6 @@
+order_id,customer_id,amount,status
+101,1,10.5,PAID
+102,1,5.0,PAID
+103,1,99.0,CANCELLED
+104,2,20.0,PAID
+105,2,2.0,PENDING

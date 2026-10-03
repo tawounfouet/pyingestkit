@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 
+from pyingestkit.domain.artifacts.references import ArtifactReference
 from pyingestkit.domain.datasets.publication import PublishedDataset
 from pyingestkit.domain.datasets.references import DatasetVersionReference
 from pyingestkit.domain.runtime.context import CorrelationContext
@@ -82,6 +83,7 @@ class IngestionResult:
     """Terminal portable result for one semantic ingestion execution."""
 
     run: IngestionRun
+    raw_artifact: ArtifactReference | None = None
     dataset_version: DatasetVersionReference | None = None
     published_dataset: PublishedDataset | None = None
     diagnostics: tuple[Diagnostic, ...] = ()
@@ -92,6 +94,11 @@ class IngestionResult:
             raise TypeError("IngestionResult run must be IngestionRun.")
         if not self.run.terminal:
             raise ValueError("IngestionResult requires a terminal IngestionRun.")
+        if self.raw_artifact is not None and not isinstance(
+            self.raw_artifact,
+            ArtifactReference,
+        ):
+            raise TypeError("IngestionResult raw_artifact must be ArtifactReference.")
         if self.dataset_version is not None and not isinstance(
             self.dataset_version,
             DatasetVersionReference,

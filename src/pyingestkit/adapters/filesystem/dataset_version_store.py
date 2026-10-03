@@ -61,6 +61,7 @@ class FileDatasetVersionStore:
             "schema_fingerprint": version.schema.fingerprint,
             "content_fingerprint": version.version_id,
             "snapshot_locator": locator,
+            "reference_metadata": [list(item) for item in version.reference.metadata],
         }
 
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -115,6 +116,7 @@ class FileDatasetVersionStore:
             schema_fingerprint=str(payload["schema_fingerprint"]),
             content_fingerprint=str(payload["content_fingerprint"]),
             locator=resource,
+            metadata=_metadata_pairs(payload.get("reference_metadata", [])),
         )
 
     def list(self, dataset_id: str) -> tuple[DatasetVersionReference, ...]:
@@ -273,3 +275,20 @@ def _read_json(path: Path) -> dict[str, object]:
     if not isinstance(payload, dict):
         raise ValueError("Dataset version metadata must be a JSON object.")
     return payload
+
+
+def _metadata_pairs(value: object) -> tuple[tuple[str, str], ...]:
+    if value is None:
+        return ()
+    if not isinstance(value, list):
+        raise ValueError("Dataset version reference_metadata must be a list.")
+    pairs: list[tuple[str, str]] = []
+    for item in value:
+        if (
+            not isinstance(item, list)
+            or len(item) != 2
+            or not all(isinstance(part, str) for part in item)
+        ):
+            raise ValueError("Dataset version reference_metadata must contain string pairs.")
+        pairs.append((item[0], item[1]))
+    return tuple(pairs)

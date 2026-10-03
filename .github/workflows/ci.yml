@@ -202,6 +202,34 @@ jobs:
           tests/integration/v2/test_pytransformkit_integration.py
           tests/contract/public_api/test_v2_pytransformkit.py
 
+  customer360-built-artifact:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade pip build
+      - name: Build PyIngestKit wheel
+        run: python -m build --wheel
+      - name: Create clean Customer 360 environment
+        run: python -m venv .venv-customer360
+      - name: Install built PyIngestKit wheel
+        run: >-
+          .venv-customer360/bin/python -m pip install
+          --upgrade pip pytest dist/*.whl
+      - name: Install qualified PyTransformKit Customer 360 profile
+        run: >-
+          .venv-customer360/bin/python -m pip install
+          "pytransformkit[pandas,polars,io] @
+          git+https://github.com/tawounfouet/pytransformkit@026f29dcb95c710912db310e94227a5c57dbd97e"
+      - name: Customer 360 installed-package qualification
+        run: >-
+          .venv-customer360/bin/python -m pytest -q
+          tests/integration/v2/test_customer_360_e2e.py
+      - name: Customer 360 installed runner smoke
+        run: .venv-customer360/bin/python examples/customer_360/run_local.py
+
   postgres-e2e:
     runs-on: ubuntu-latest
     services:
@@ -439,6 +467,7 @@ jobs:
       - v2-architecture-baseline
       - v2-package-baseline
       - pytransformkit-integration
+      - customer360-built-artifact
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7

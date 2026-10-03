@@ -13,9 +13,11 @@ secure HTTP acquisition/provenance, LOT-14 added transactional PostgreSQL
 materialization for immutable dataset versions, LOT-15 added S3-compatible V2 artifact/version storage, and LOT-16 adds
 canonical non-executable boundary serialization plus explicit migration
 infrastructure, LOT-17 added the optional PyTransformKit anti-corruption
-boundary, and LOT-18 adds explicit V1 semantic migration planning and persisted
-reference conversion while the V1 package keeps its exact star-import contract
-until the 2.0 alpha cut.
+boundary, LOT-18 added explicit V1 semantic migration planning and persisted
+reference conversion, LOT-19 qualified the provider/port conformance matrix,
+and LOT-20 adds the Customer 360 end-to-end beta gate with transformed-resource
+publication, provenance, reconciliation, replay and built-artifact evidence
+while the V1 package keeps its exact star-import contract until the 2.0 cut.
 """
 
 from __future__ import annotations
@@ -222,6 +224,22 @@ V2_IMPLEMENTED_PYTRANSFORMKIT_VALUES: tuple[str, ...] = (
     "to_transform_correlation",
 )
 
+V2_IMPLEMENTED_PUBLICATION_VALUES: tuple[str, ...] = (
+    "PublicationOutcomeUnknownError",
+    "PublicationReconciliationResultV2",
+    "PublicationReconciliationStatusV2",
+    "PublicationRequestV2",
+    "PublicationResultV2",
+    "PublicationServiceV2",
+    "PublicationStatusV2",
+)
+
+V2_IMPLEMENTED_MATERIALIZATION_VALUES: tuple[str, ...] = (
+    "DatasetVersionMaterializerV2",
+    "FileCsvDatasetVersionMaterializerV2",
+    "ResourceDatasetVersionRequestV2",
+)
+
 V2_IMPLEMENTED_MIGRATION_VALUES: tuple[str, ...] = (
     "MigrationDecisionV2",
     "MigrationDispositionV2",
@@ -276,9 +294,11 @@ V2_COMPLETED_LOTS: tuple[str, ...] = (
     "LOT-16",
     "LOT-17",
     "LOT-18",
+    "LOT-19",
+    "LOT-20",
 )
 
-V2_MILESTONE_CANDIDATE = "2.0.0a1"
+V2_MILESTONE_CANDIDATE = "2.0.0b2"
 
 V2_FORBIDDEN_LEGACY_ROOT_EXPORTS: frozenset[str] = frozenset(
     {
@@ -304,15 +324,18 @@ V2_FORBIDDEN_LEGACY_ROOT_EXPORTS: frozenset[str] = frozenset(
 V2_PUBLIC_NAMESPACE_BASELINE: tuple[str, ...] = (
     "pyingestkit",
     "pyingestkit.artifacts",
+    "pyingestkit.boundaries",
     "pyingestkit.datasets",
     "pyingestkit.decoders",
     "pyingestkit.diagnostics",
+    "pyingestkit.ingestion",
     "pyingestkit.integrations.pytransformkit",
     "pyingestkit.migration",
     "pyingestkit.plugins",
     "pyingestkit.provenance",
     "pyingestkit.publication",
     "pyingestkit.replay",
+    "pyingestkit.resources",
     "pyingestkit.runtime",
     "pyingestkit.serialization",
     "pyingestkit.sources",
@@ -321,4 +344,4 @@ V2_PUBLIC_NAMESPACE_BASELINE: tuple[str, ...] = (
     "pyingestkit.quality",
 )
 
-V2_API_PHASE = "LOT-18_V1_SEMANTIC_MIGRATION"
+V2_API_PHASE = "LOT-20_CUSTOMER_360_BETA_GATE"

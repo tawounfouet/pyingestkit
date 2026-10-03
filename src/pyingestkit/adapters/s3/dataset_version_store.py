@@ -92,6 +92,7 @@ class S3DatasetVersionStoreV2:
             "schema_fingerprint": version.schema.fingerprint,
             "content_fingerprint": version.version_id,
             "snapshot_locator": locator,
+            "reference_metadata": [list(item) for item in version.reference.metadata],
         }
         metadata = _json_bytes(payload)
         created = self._objects.put_create_once(
@@ -146,6 +147,7 @@ class S3DatasetVersionStoreV2:
             schema_fingerprint=str(payload["schema_fingerprint"]),
             content_fingerprint=str(payload["content_fingerprint"]),
             locator=resource,
+            metadata=_metadata_pairs(payload.get("reference_metadata", [])),
         )
 
     def list(self, dataset_id: str) -> tuple[DatasetVersionReference, ...]:
@@ -335,3 +337,20 @@ def _json_object(content: bytes) -> dict[str, object]:
 
 def _resource_id(locator: str) -> str:
     return f"dataset_version_{hashlib.sha256(locator.encode()).hexdigest()}"
+
+
+def _metadata_pairs(value: object) -> tuple[tuple[str, str], ...]:
+    if value is None:
+        return ()
+    if not isinstance(value, list):
+        raise ValueError("S3 dataset version reference_metadata must be a list.")
+    pairs: list[tuple[str, str]] = []
+    for item in value:
+        if (
+            not isinstance(item, list)
+            or len(item) != 2
+            or not all(isinstance(part, str) for part in item)
+        ):
+            raise ValueError("S3 dataset version reference_metadata must contain string pairs.")
+        pairs.append((item[0], item[1]))
+    return tuple(pairs)

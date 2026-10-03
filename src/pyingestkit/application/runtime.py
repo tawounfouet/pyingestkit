@@ -350,6 +350,7 @@ class IngestionRuntime:
         )
         return IngestionResult(
             run=run,
+            raw_artifact=raw_artifact,
             dataset_version=reference,
             published_dataset=published,
             diagnostics=diagnostics,
