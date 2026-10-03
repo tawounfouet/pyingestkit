@@ -23,7 +23,7 @@ def _request(
     *,
     columns: tuple[str, ...] = (),
 ) -> TargetLoadRequestV2:
-    value = representation or _representation()
+    value = _representation() if representation is None else representation
     run_id = IngestionRunId.new()
     return TargetLoadRequestV2(
         target_id="postgres.demo",
