@@ -178,9 +178,7 @@ class RetentionPlanner:
                 if reference.created_at is None or reference.created_at > cutoff:
                     protected_ids.add(reference.identity)
 
-        protected = tuple(
-            reference for reference in ordered if reference.identity in protected_ids
-        )
+        protected = tuple(reference for reference in ordered if reference.identity in protected_ids)
         candidates = tuple(
             reference for reference in ordered if reference.identity not in protected_ids
         )
