@@ -98,9 +98,7 @@ class PostgresPublicationLedger(PublicationLedger):
                 pool_pre_ping=True,
             )
         except (ModuleNotFoundError, NoSuchModuleError) as exc:
-            raise RuntimeError(
-                "PostgresPublicationLedger requires the 'postgres' extra."
-            ) from exc
+            raise RuntimeError("PostgresPublicationLedger requires the 'postgres' extra.") from exc
         try:
             _METADATA.create_all(self._engine)
         except (ModuleNotFoundError, SQLAlchemyError) as exc:
@@ -240,9 +238,10 @@ def _register(connection: Connection, intent: PublicationIntent) -> PublicationI
             resolved_at=None,
         )
         .on_conflict_do_nothing(index_elements=[_PUBLICATION_OPERATION.c.operation_id])
+        .returning(_PUBLICATION_OPERATION.c.operation_id)
     )
-    result = connection.execute(statement)
-    if result.rowcount == 1:
+    inserted_operation_id = connection.execute(statement).scalar_one_or_none()
+    if inserted_operation_id is not None:
         return intent
 
     existing = _get_operation(connection, intent.operation_id)
@@ -258,14 +257,11 @@ def _append(connection: Connection, event: PublicationLifecycleEvent) -> None:
 
     payload = encode_event(event)
 
-    duplicate = (
-        connection.execute(
-            select(_PUBLICATION_EVENT.c.event_payload).where(
-                _PUBLICATION_EVENT.c.event_id == event.event_id
-            )
+    duplicate = connection.execute(
+        select(_PUBLICATION_EVENT.c.event_payload).where(
+            _PUBLICATION_EVENT.c.event_id == event.event_id
         )
-        .scalar_one_or_none()
-    )
+    ).scalar_one_or_none()
     if duplicate is not None:
         existing = decode_event(cast(str, duplicate))
         if existing != event:
@@ -276,9 +272,7 @@ def _append(connection: Connection, event: PublicationLifecycleEvent) -> None:
         operation_row = (
             connection.execute(
                 select(_PUBLICATION_OPERATION)
-                .where(
-                    _PUBLICATION_OPERATION.c.operation_id == str(event.operation_id)
-                )
+                .where(_PUBLICATION_OPERATION.c.operation_id == str(event.operation_id))
                 .with_for_update()
             )
             .mappings()
@@ -289,6 +283,20 @@ def _append(connection: Connection, event: PublicationLifecycleEvent) -> None:
         intent = decode_intent(cast(str, operation_row["intent_payload"]))
         if intent.dataset_id != event.dataset_id:
             raise ValueError("Lifecycle event dataset does not match registered intent.")
+
+        duplicate_after_lock = connection.execute(
+            select(_PUBLICATION_EVENT.c.event_payload).where(
+                _PUBLICATION_EVENT.c.event_id == event.event_id
+            )
+        ).scalar_one_or_none()
+        if duplicate_after_lock is not None:
+            existing = decode_event(cast(str, duplicate_after_lock))
+            if existing != event:
+                raise ValueError(
+                    "Lifecycle event ID cannot be reused for different event evidence."
+                )
+            return
+
         if operation_row["resolved_at"] is not None:
             raise ValueError("Resolved publication operation cannot accept new events.")
 
@@ -303,17 +311,15 @@ def _append(connection: Connection, event: PublicationLifecycleEvent) -> None:
             event_payload=payload,
         )
         .on_conflict_do_nothing(index_elements=[_PUBLICATION_EVENT.c.event_id])
+        .returning(_PUBLICATION_EVENT.c.event_id)
     )
-    result = connection.execute(statement)
-    if result.rowcount != 1:
-        duplicate_payload = (
-            connection.execute(
-                select(_PUBLICATION_EVENT.c.event_payload).where(
-                    _PUBLICATION_EVENT.c.event_id == event.event_id
-                )
+    inserted_event_id = connection.execute(statement).scalar_one_or_none()
+    if inserted_event_id is None:
+        duplicate_payload = connection.execute(
+            select(_PUBLICATION_EVENT.c.event_payload).where(
+                _PUBLICATION_EVENT.c.event_id == event.event_id
             )
-            .scalar_one()
-        )
+        ).scalar_one()
         existing = decode_event(cast(str, duplicate_payload))
         if existing != event:
             raise ValueError("Lifecycle event ID cannot be reused for different event evidence.")
@@ -335,9 +341,7 @@ def _get_operation(
     operation_id: PublicationOperationId,
 ) -> PublicationIntent | None:
     if not isinstance(operation_id, PublicationOperationId):
-        raise TypeError(
-            "PostgresPublicationLedger.get_operation requires PublicationOperationId."
-        )
+        raise TypeError("PostgresPublicationLedger.get_operation requires PublicationOperationId.")
     payload = connection.execute(
         select(_PUBLICATION_OPERATION.c.intent_payload).where(
             _PUBLICATION_OPERATION.c.operation_id == str(operation_id)
@@ -354,9 +358,7 @@ def _list_operations(
     dataset_id: str | None,
     unresolved_only: bool,
 ) -> tuple[PublicationIntent, ...]:
-    if dataset_id is not None and (
-        not isinstance(dataset_id, str) or not dataset_id.strip()
-    ):
+    if dataset_id is not None and (not isinstance(dataset_id, str) or not dataset_id.strip()):
         raise ValueError("PostgresPublicationLedger dataset_id must be non-blank or None.")
 
     statement = select(_PUBLICATION_OPERATION.c.intent_payload)
@@ -383,16 +385,12 @@ def _list_events(
             "PostgresPublicationLedger.list_events operation_id must be "
             "PublicationOperationId or None."
         )
-    if dataset_id is not None and (
-        not isinstance(dataset_id, str) or not dataset_id.strip()
-    ):
+    if dataset_id is not None and (not isinstance(dataset_id, str) or not dataset_id.strip()):
         raise ValueError("PostgresPublicationLedger dataset_id must be non-blank or None.")
 
     statement = select(_PUBLICATION_EVENT.c.event_payload)
     if operation_id is not None:
-        statement = statement.where(
-            _PUBLICATION_EVENT.c.operation_id == str(operation_id)
-        )
+        statement = statement.where(_PUBLICATION_EVENT.c.operation_id == str(operation_id))
     if dataset_id is not None:
         statement = statement.where(_PUBLICATION_EVENT.c.dataset_id == dataset_id)
     statement = statement.order_by(_PUBLICATION_EVENT.c.sequence_id)
