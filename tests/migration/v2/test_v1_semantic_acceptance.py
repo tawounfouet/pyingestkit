@@ -20,18 +20,14 @@ MANIFEST = ROOT / "fixtures" / "migration" / "v1" / "manifest.json"
 def test_lot18_manifest_kinds_have_executable_v2_acceptance_surfaces() -> None:
     payload = json.loads(MANIFEST.read_text(encoding="utf-8"))
     lot18 = {
-        item["kind"]
-        for item in payload["evidence"]
-        if "LOT-18" in item["target_lot"].split("/")
+        item["kind"] for item in payload["evidence"] if "LOT-18" in item["target_lot"].split("/")
     }
 
     assert lot18 == {"configuration", "plugins", "postgres", "replay", "s3"}
     assert ReplayServiceV2.__module__ == "pyingestkit.application.replay"
     assert PostgresTargetV2.__module__ == "pyingestkit.adapters.postgres.target"
     assert S3ArtifactStoreV2.__module__ == "pyingestkit.adapters.s3.artifact_store"
-    assert S3DatasetVersionStoreV2.__module__ == (
-        "pyingestkit.adapters.s3.dataset_version_store"
-    )
+    assert S3DatasetVersionStoreV2.__module__ == ("pyingestkit.adapters.s3.dataset_version_store")
 
 
 def test_lot18_configuration_and_plugin_migration_are_explicit_not_implicit() -> None:
