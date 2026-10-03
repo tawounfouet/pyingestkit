@@ -17,9 +17,7 @@ FORBIDDEN_CORE_IMPORTS = {
 
 def test_lot14_target_domain_and_port_are_provider_and_v1_neutral() -> None:
     violations: list[str] = []
-    for path, modules in imported_roots(
-        python_files("domain/targets", "ports/targets.py")
-    ).items():
+    for path, modules in imported_roots(python_files("domain/targets", "ports/targets.py")).items():
         for module in modules:
             if matches_prefix(module, FORBIDDEN_CORE_IMPORTS):
                 violations.append(f"{path}: {module}")
