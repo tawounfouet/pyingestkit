@@ -116,6 +116,12 @@ def main() -> int:
         raise SystemExit(f"Unexpected stable milestone: {V2_MILESTONE_CANDIDATE}")
 
     project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]
+    classifiers = {str(item) for item in project.get("classifiers", [])}
+    if "Development Status :: 5 - Production/Stable" not in classifiers:
+        raise SystemExit("Stable package classifier is missing")
+    if "Programming Language :: Python :: 3.14" not in classifiers:
+        raise SystemExit("Python 3.14 classifier is missing from the stable package")
+
     extras = project.get("optional-dependencies", {})
     expected_extras = {str(item) for item in stable["provider_extras"]}
     missing_extras = expected_extras.difference(extras)
