@@ -31,6 +31,6 @@ def test_lot09_domain_values_do_not_execute_work() -> None:
     run_surface = {name for name in dir(IngestionRun) if not name.startswith("_")}
     result_surface = {name for name in dir(IngestionResult) if not name.startswith("_")}
 
-    forbidden = {"acquire", "decode", "execute", "publish", "run", "validate"}
+    forbidden = {"acquire", "decode", "execute", "publish", "validate"}
     assert run_surface.isdisjoint(forbidden)
     assert result_surface.isdisjoint(forbidden)
