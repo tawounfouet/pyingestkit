@@ -16,7 +16,7 @@ class HttpTimeoutErrorV2(HttpTransportErrorV2):
     """The HTTP exchange exceeded its configured timeout."""
 
 
-class HttpResponseTooLargeErrorV2(HttpTransportErrorV2):
+class HttpResponseTooLargeErrorV2(Exception):
     """The HTTP body exceeded the acquisition byte limit."""
 
 
