@@ -30,3 +30,4 @@ Every post-2.0 RFC must:
 
 - [RFC-001 — Publication & Lifecycle Governance](RFC-001-publication-lifecycle-governance.md) — **Accepted**
   - [Formal architecture review](reviews/RFC-001-architecture-review.md)
+  - [Derived PyIngestKit 2.1 implementation roadmap](../roadmap/rfc001-publication-lifecycle-implementation-roadmap.md)
