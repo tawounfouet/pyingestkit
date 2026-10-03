@@ -41,8 +41,10 @@ A `ReplayRequest` requires:
 - an exact RAW `ArtifactReference`;
 - SHA-256 integrity evidence;
 - the current `IngestionDefinition`;
-- optional validation rules;
 - an optional expected `DatasetVersionReference`.
+
+Validation rules are supplied at the `ReplayServiceV2.replay(...)` execution
+boundary rather than embedded in the immutable replay request.
 
 Reading historical RAW goes through `ArtifactStore.open(...).read()`, so store
 integrity checks remain authoritative. Replay then creates a new RAW artifact
