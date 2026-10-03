@@ -129,8 +129,7 @@ def main() -> int:
         raise SystemExit(f"Missing stable provider extras: {sorted(missing_extras)}")
 
     base_dependencies = {
-        _distribution_name(str(requirement))
-        for requirement in project.get("dependencies", [])
+        _distribution_name(str(requirement)) for requirement in project.get("dependencies", [])
     }
     forbidden_base = {
         "boto3",
