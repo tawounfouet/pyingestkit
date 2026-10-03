@@ -85,6 +85,7 @@ nav:
       - V1 semantic migration: architecture/v2-lot18-v1-semantic-migration.md
       - Provider / port conformance: architecture/v2-lot19-provider-port-conformance.md
       - Customer 360 beta gate: architecture/v2-lot20-customer360-beta-gate.md
+      - LOT-23 governance domain & ports: architecture/v2-lot23-governance-domain-ports.md
   - Historical V1.x:
       - V1 Quickstart: guides/v1-quickstart.md
       - Authoring:
