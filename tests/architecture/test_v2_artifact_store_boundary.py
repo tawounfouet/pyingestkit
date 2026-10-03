@@ -6,7 +6,7 @@ import pyingestkit.artifacts as public_artifacts
 from pyingestkit.adapters.filesystem import FileArtifactStore
 from pyingestkit.domain.artifacts import RawArtifactEvidence
 from pyingestkit.ports.artifacts import ArtifactStore
-from pyingestkit.targets import Target
+from pyingestkit.ports.targets import DatasetTargetV2
 
 from ._imports import imported_roots, matches_prefix, python_files
 
@@ -34,7 +34,8 @@ def test_artifact_domain_and_port_do_not_import_transform_or_target_layers() -> 
 
 def test_artifact_store_is_not_target_contract() -> None:
     assert ArtifactStore.__module__ == "pyingestkit.ports.artifacts"
-    assert not issubclass(FileArtifactStore, Target)
+    assert not hasattr(FileArtifactStore, "load")
+    assert not hasattr(FileArtifactStore, "descriptor")
 
 
 def test_raw_evidence_does_not_own_dataset_or_transformation_state() -> None:
