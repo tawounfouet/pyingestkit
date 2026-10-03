@@ -109,15 +109,12 @@ def main() -> int:
     if tuple(sorted(V2_IMPLEMENTED_GOVERNANCE_PROVIDER_VALUES)) != expected_provider_values:
         raise SystemExit("LOT-24 provider inventory differs from milestone fixture")
 
-    postgres_module = importlib.import_module(
-        "pyingestkit.adapters.postgres.publication_ledger"
-    )
+    postgres_module = importlib.import_module("pyingestkit.adapters.postgres.publication_ledger")
     metadata = postgres_module._METADATA
     expected_tables = {str(item) for item in lot24["postgres_tables"]}
     if set(metadata.tables) != expected_tables:
         raise SystemExit(
-            f"LOT-24 PostgreSQL table drift: {sorted(metadata.tables)} != "
-            f"{sorted(expected_tables)}"
+            f"LOT-24 PostgreSQL table drift: {sorted(metadata.tables)} != {sorted(expected_tables)}"
         )
 
     project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]
