@@ -1,23 +1,25 @@
-from .client import HttpClient, HttpxClient
-from .exceptions import (
-    HttpError,
-    HttpStatusError,
-    HttpTimeoutError,
-    HttpTransportError,
+"""PyIngestKit 2.0 HTTP acquisition API."""
+
+from pyingestkit.adapters.http import (
+    HttpAccessPolicy,
+    HttpClientV2,
+    HttpCredentialResolverV2,
+    HttpRequestV2,
+    HttpResponseTooLargeErrorV2,
+    HttpResponseV2,
+    HttpSourceConnector,
+    HttpTimeoutErrorV2,
+    HttpTransportErrorV2,
 )
-from .request import HttpRequest, QueryValue
-from .response import HttpResponse
-from .source import HttpSource
 
 __all__ = [
-    "HttpClient",
-    "HttpError",
-    "HttpRequest",
-    "HttpResponse",
-    "HttpSource",
-    "HttpStatusError",
-    "HttpTimeoutError",
-    "HttpTransportError",
-    "HttpxClient",
-    "QueryValue",
+    "HttpAccessPolicy",
+    "HttpClientV2",
+    "HttpCredentialResolverV2",
+    "HttpRequestV2",
+    "HttpResponseTooLargeErrorV2",
+    "HttpResponseV2",
+    "HttpSourceConnector",
+    "HttpTimeoutErrorV2",
+    "HttpTransportErrorV2",
 ]

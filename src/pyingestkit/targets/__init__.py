@@ -1,45 +1,18 @@
-from .base import Target
-from .capabilities import TargetCapabilities
-from .errors import (
-    InvalidTargetIdentifierError,
-    TargetClosedError,
-    TargetConfigurationError,
-    TargetConnectionError,
-    TargetError,
-    TargetLoadConflictError,
-    TargetLoadError,
-    UnsupportedLoadModeError,
+"""Provider-neutral PyIngestKit 2.0 target contracts."""
+
+from pyingestkit.domain.targets import (
+    TargetLoadModeV2,
+    TargetLoadRequestV2,
+    TargetLoadResultV2,
+    TargetLoadStatusV2,
 )
-from .idempotency import TargetLoadExecutor
-from .models import (
-    IdempotencyAction,
-    IdempotencyPolicy,
-    LoadMode,
-    TargetLoadDecision,
-    TargetLoadRequest,
-    TargetLoadResult,
-    TargetLoadStatus,
-)
-from .postgres import PostgresTarget
+from pyingestkit.ports.targets import DatasetTargetV2, TargetDescriptorV2
 
 __all__ = [
-    "IdempotencyAction",
-    "IdempotencyPolicy",
-    "InvalidTargetIdentifierError",
-    "LoadMode",
-    "PostgresTarget",
-    "Target",
-    "TargetCapabilities",
-    "TargetClosedError",
-    "TargetConfigurationError",
-    "TargetConnectionError",
-    "TargetError",
-    "TargetLoadConflictError",
-    "TargetLoadDecision",
-    "TargetLoadError",
-    "TargetLoadExecutor",
-    "TargetLoadRequest",
-    "TargetLoadResult",
-    "TargetLoadStatus",
-    "UnsupportedLoadModeError",
+    "DatasetTargetV2",
+    "TargetDescriptorV2",
+    "TargetLoadModeV2",
+    "TargetLoadRequestV2",
+    "TargetLoadResultV2",
+    "TargetLoadStatusV2",
 ]

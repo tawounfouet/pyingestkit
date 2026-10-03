@@ -2,269 +2,237 @@
 
 [![CI](https://github.com/tawounfouet/pyingestkit/actions/workflows/ci.yml/badge.svg)](https://github.com/tawounfouet/pyingestkit/actions/workflows/ci.yml)
 [![Security](https://github.com/tawounfouet/pyingestkit/actions/workflows/security.yml/badge.svg)](https://github.com/tawounfouet/pyingestkit/actions/workflows/security.yml)
-[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
+[![Python 3.11–3.14](https://img.shields.io/badge/python-3.11%E2%80%933.14-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Stable: v1.0.0](https://img.shields.io/badge/stable-v1.0.0-brightgreen.svg)](docs/releases/v1.0.0.md)
+[![RC: 2.0.0rc1](https://img.shields.io/badge/release-2.0.0rc1-orange.svg)](docs/releases/v2.0.0rc1.md)
 
-**PyIngestKit** is a focused Python framework for reliable, traceable batch ingestion.
+**PyIngestKit** is a focused Python framework for reliable, traceable and replayable ingestion.
 
-> Transform an external source into a reliable, validated, reproducible and publishable dataset without rewriting ingestion plumbing for every job.
+> Acquire external data, preserve durable RAW evidence, decode and validate it, create immutable dataset versions, then publish or materialize them explicitly.
 
-**V1.0.0 Stable** is the first protected 1.x framework contract. It promotes the qualified RC1
-baseline without adding product scope and retains the immutable `v0.6.0` release as executable
-historical upgrade evidence. The annotated `v1.0.0` release tag is created only after the exact stable
-merge SHA passes post-merge CI and Security.
+## 2.0 release candidate
+
+`2.0.0rc1` is the LOT-21 release candidate for the clean-slate V2 architecture. It promotes the V2 contracts into the actual package root and freezes the public runtime/provider boundary before `2.0.0`.
+
+The V1 `Job / Pipeline / Step / Runner` execution model is **not** aliased into the 2.0 root. Existing V1 workloads should remain pinned to the 1.x line until they are migrated semantically.
 
 ## Product boundary
 
 PyIngestKit owns **HOW TO INGEST**. External orchestrators own **WHEN TO RUN**.
 
-It is not Airflow, Dagster, Prefect, Celery, a distributed scheduler, a Data Platform, a Data Catalog, an IAM platform, or a cloud-provisioning framework.
+It is not Airflow, Dagster, Prefect, Celery, a distributed scheduler, a Data Platform, a Data Catalog, IAM, or cloud provisioning.
 
 ```text
-ArtifactStore       != Target
-ArtifactStore       != MetadataStore
-DatasetVersionStore != ArtifactStore
-S3-compatible       != AWS-only
-DatasetVersion      != S3 object version
+ArtifactStore       != DatasetVersionStore
+ArtifactStore       != publication target
+DatasetVersion      != provider object version
 Replay              != new source acquisition
 PyIngestKit         != orchestrator
 ```
 
-## V1.0.0 stable capabilities
+## Canonical 2.0 API
 
-- immutable RAW with SHA-256 provenance;
-- CSV, JSON, NDJSON, Excel and Parquet parsing behind a dependency-neutral `Dataset`;
-- contracts, validation, profiling and portable quality reports;
-- deterministic Dataset fingerprints and diff reports;
-- immutable content-addressed DatasetVersion snapshots and PublishedDataset pointers;
-- strict replay from historical RAW;
-- transactional PostgreSQL target loads with COPY and idempotency;
-- `ArtifactURI` and `StoredArtifact` portable durable references;
-- optional `S3ArtifactStore` for RAW/reports/manifests;
-- optional `S3DatasetVersionStore` for remote snapshots/publication;
-- MinIO-tested S3-compatible behavior;
-- full replay from a fresh host/workspace using shared PostgreSQL metadata + object storage;
-- deterministic plugin/config/error/CLI/logging behavior governed for 1.x;
-- explicit stable Python/public/persisted compatibility contracts;
-- five representative pilots covering nine executable reference jobs;
-- clean-wheel packaging plus an executable V0.6.0 -> 1.0.0 upgrade smoke.
+The 2.0 root is intentionally small:
+
+```python
+from pyingestkit import (
+    ArtifactReference,
+    DatasetVersion,
+    DatasetVersionReference,
+    IngestionDefinition,
+    IngestionResult,
+    IngestionRun,
+    IngestionRunId,
+    IngestionRuntime,
+    PublishedDataset,
+    ResourceReference,
+    Source,
+)
+```
+
+The canonical synchronous execution entry point is `IngestionRuntime.run(...)`.
+
+```python
+from pathlib import Path
+
+from pyingestkit import IngestionDefinition, IngestionRuntime, Source
+from pyingestkit.adapters.filesystem import FileArtifactStore, FileSourceConnector
+from pyingestkit.application.decoders import DecoderRegistry
+from pyingestkit.application.sources import SourceRegistry
+from pyingestkit.decoders import CsvDecoder
+from pyingestkit.stores import FileDatasetVersionStore
+
+root = Path("./.pyingest-v2")
+
+sources = SourceRegistry([FileSourceConnector()])
+decoders = DecoderRegistry([CsvDecoder()])
+
+runtime = IngestionRuntime(
+    sources=sources,
+    decoders=decoders,
+    artifacts=FileArtifactStore(root=root / "artifacts"),
+    versions=FileDatasetVersionStore(root=root / "datasets"),
+)
+
+definition = IngestionDefinition(
+    name="customers",
+    source=Source.file(path="./customers.csv"),
+    decoder="csv",
+    dataset="customers",
+)
+
+result = runtime.run(definition)
+print(result.status)
+```
 
 ## Installation
 
-```bash
-python3.12 -m venv .venv
-source .venv/bin/activate
-python -m pip install -e ".[dev,excel,parquet,postgres,s3]"
-python -m pip install -e examples/plugin_package
-```
-
-Production consumers can select only the required extras:
+Base installation is provider-neutral:
 
 ```bash
-pip install "pyingestkit[s3]>=1,<2"
-pip install "pyingestkit[postgres]>=1,<2"
+pip install "pyingestkit==2.0.0rc1"
 ```
 
-Stable qualification builds and installs the generated `1.0.0` wheels in clean environments before
-the immutable release tag is published.
-
-## Minimal S3-compatible configuration
-
-```yaml
-runtime:
-  workspace: .pyingest
-
-artifacts:
-  backend: s3
-  s3:
-    bucket: my-pyingest-artifacts
-    prefix: pyingest
-    region_name: eu-west-3
-    endpoint_url_env: PYINGEST_S3_ENDPOINT_URL
-    cache_path: .pyingest
-```
-
-Credentials use the boto3/AWS provider chain and are not stored in YAML.
-
-For MinIO:
+Install only the providers required by the application:
 
 ```bash
-export PYINGEST_S3_ENDPOINT_URL='https://minio.example.internal'
+pip install "pyingestkit[http]==2.0.0rc1"
+pip install "pyingestkit[postgres]==2.0.0rc1"
+pip install "pyingestkit[s3]==2.0.0rc1"
+pip install "pyingestkit[excel]==2.0.0rc1"
+pip install "pyingestkit[parquet]==2.0.0rc1"
 ```
 
-## API
+The base package does not require `httpx`, SQLAlchemy, psycopg, boto3, OpenPyXL, PyArrow or PyTransformKit.
 
-Decorator style:
-
-```python
-from pyingestkit import RunContext, job, step
-
-@step(name="Fetch")
-def fetch(context: RunContext):
-    ...
-
-@step
-def normalize(data):
-    ...
-
-@job(id="public.postal_codes", version="1.0.0")
-def postal_codes() -> None:
-    fetch()
-    normalize()
-```
-
-Imperative style:
-
-```python
-from pyingestkit import Job, Pipeline, RunContext, Step
-
-class Fetch(Step):
-    def execute(self, context: RunContext, data):
-        ...
-
-class MyJob(Job):
-    id = "public.example"
-
-    def pipeline(self) -> Pipeline:
-        return Pipeline([Fetch()])
-```
-
-## Configuration Management & Backend Requirements
-
-PyIngestKit resolves configuration in the following order:
-1. Explicit `--config <path.yml>` CLI flag.
-2. `PYINGEST_CONFIG` environment variable path.
-3. `PYINGEST_ENV=<env>` selecting `pyingest.yml.<env>`.
-4. Automatic discovery of `pyingest.yml`, `pyingestkit.yml`, or `.pyingest.yml` in the working directory.
-5. Local in-memory defaults (`filesystem` artifacts & `sqlite` metadata).
-
-Explicit environment/profile selectors are fail closed: a missing selected config is an error.
-Workspace precedence is `--workspace` → `PYINGEST_WORKSPACE` → `runtime.workspace` → `.pyingest`.
-
-Jobs can explicitly declare backend requirements (e.g. `requires_artifacts="s3"`, `requires_metadata="postgres"`). If a job's requirements are not met by the active configuration, `pyingest run` halts before executing any step with a clear error message.
-
-### Configuration Profiles & Environment Files
-
-Three ready-to-use YAML profiles and corresponding environment templates in `envs/` are provided.
-The `*.example` dotenv files are templates only and are never auto-loaded.
-
-- `pyingest.yml.dev` & `envs/.env.dev.example`: local filesystem artifacts + SQLite metadata.
-- `pyingest.yml.stg` & `envs/.env.stg.example`: S3-compatible artifacts via MinIO + PostgreSQL metadata.
-- `pyingest.yml.prod` & `envs/.env.prod.example`: S3-compatible artifacts via AWS S3 / Cloudflare R2 + PostgreSQL metadata.
-
-```bash
-cp envs/.env.dev.example .env
-cp pyingest.yml.dev pyingest.yml
-```
-
-### Project auto-discovery
-
-```bash
-pyingest --version
-pyingest config
-pyingest jobs
-pyingest inspect demo.versioned_s3
-
-pyingest run demo.local_file --param path=examples/plugin_package/data/sample.txt
-pyingest run demo.http_csv
-pyingest run demo.http_json
-pyingest run demo.ndjson_quality
-pyingest run demo.excel_quality
-pyingest run demo.parquet_quality
-
-pyingest run demo.versioned_postgres --param revision=1
-pyingest run demo.versioned_s3 --param revision=1
-pyingest run demo.versioned_s3 --param revision=2
-
-pyingest versions demo.versioned_s3
-pyingest published demo.versioned_s3
-pyingest runs
-pyingest status
-pyingest replay
-```
-
-### Explicit demo configuration
-
-```bash
-pyingest run demo.local_file --config examples/plugin_package/demo.yml
-pyingest run demo.http_csv --config examples/plugin_package/demo-http.yml
-pyingest run demo.http_json --config examples/plugin_package/demo-http.yml
-pyingest run demo.ndjson_quality --config examples/plugin_package/demo-quality.yml
-pyingest run demo.excel_quality --config examples/plugin_package/demo-quality.yml
-pyingest run demo.parquet_quality --config examples/plugin_package/demo-quality.yml
-pyingest run demo.versioned_ndjson --config examples/plugin_package/demo-versioned.yml --param revision=1
-pyingest run demo.versioned_postgres --config examples/plugin_package/demo-versioned-postgres.yml --param revision=1
-pyingest run demo.versioned_s3 --config examples/plugin_package/demo-versioned-s3.yml --param revision=1
-pyingest run demo.versioned_s3 --config examples/plugin_package/demo-versioned-s3.yml --param revision=2
-```
-
-## V1 stable reference jobs
+## Core lifecycle
 
 ```text
-demo.local_file
-demo.http_csv
-demo.http_json
-demo.ndjson_quality
-demo.excel_quality
-demo.parquet_quality
-demo.versioned_ndjson
-demo.versioned_postgres
-demo.versioned_s3
+Source
+  ↓
+acquisition
+  ↓
+durable RAW ArtifactReference
+  ↓
+decoder
+  ↓
+validation / quality evidence
+  ↓
+immutable DatasetVersion
+  ↓
+DatasetVersionReference
+  ├── explicit publication
+  ├── explicit target materialization
+  └── strict replay / verification
 ```
 
-`demo.versioned_s3` remains the full cross-host vertical slice: V1 → V2 → remote RAW/reports/snapshots → PostgreSQL → publish V2 → destroy workspace A → strict replay from workspace B → fingerprint match → idempotent target SKIP.
+## Providers and ports
 
-## Durable storage model
+The stable provider boundary is expressed through framework-owned Protocols:
 
 ```text
-PostgreSQL metadata
-  └── runs / artifact locations / lineage / target loads
-
-S3-compatible object storage
-  └── RAW / reports / manifests / DatasetVersion snapshots / PublishedDataset pointer
-
-PostgreSQL Target
-  └── consumable dataset
+SourceConnector
+Decoder
+ArtifactStore
+DatasetVersionStore
+DatasetPublisher
+DatasetVersionMaterializerV2
+DatasetTargetV2
 ```
+
+Provider implementations remain replaceable. The framework does not expose boto3 clients, SQLAlchemy engines, open file handles or DataFrames as durable public contracts.
+
+## Replay and reproducibility
+
+V2 replay starts from preserved evidence. It allocates a new `IngestionRunId`, resolves the historical RAW artifact and verifies the resulting immutable dataset identity.
+
+Replay is fail-closed when required historical evidence is missing or inconsistent. It does not silently reacquire the original source.
+
+## PyTransformKit integration
+
+Transformation remains outside the ingestion core and is integrated through portable references under:
+
+```text
+pyingestkit.integrations.pytransformkit
+```
+
+The qualified Customer 360 path is:
+
+```text
+PyIngestKit DatasetVersionReference
+  ↓
+portable ResourceReference
+  ↓
+PyTransformKit InputBinding
+  ↓
+transformation result resource
+  ↓
+PyIngestKit governed DatasetVersion
+  ↓
+publication
+```
+
+PyTransformKit remains optional; the RC qualification installs the explicitly validated 1.1.0 implementation used by the integration tests.
+
+## Migration from 1.x
+
+PyIngestKit 2.0 is a major-version boundary, not an alias release.
+
+V1 root names such as `Job`, `Pipeline`, `Step`, `Runner`, `RunContext`, `job` and `step` are not part of the 2.0 root contract.
+
+Migration tooling lives under:
+
+```python
+import pyingestkit.migration
+```
+
+It converts supported persisted semantics and produces explicit migration decisions without executing V1 plugins or silently loading secrets.
+
+See [Migrating PyIngestKit 1.x applications to 2.0](docs/guides/migrate-v1-to-v2.md).
+
+## Qualified matrix
+
+LOT-21 qualifies:
+
+- Python 3.11, 3.12, 3.13 and 3.14;
+- clean wheel and source-distribution installs;
+- provider-neutral base installation;
+- filesystem acquisition/artifacts/version storage;
+- HTTP acquisition;
+- PostgreSQL target materialization;
+- S3-compatible object storage and cross-host replay;
+- canonical serialization and migration fixtures;
+- publication reconciliation / outcome-uncertainty paths;
+- PyTransformKit integration;
+- Customer 360 built-artifact E2E;
+- Ruff, formatting, mypy, Bandit and `pip-audit`;
+- sealed V1.0.0 historical evidence on the immutable V1 tag.
 
 ## Quality and release gates
 
 ```bash
-make test
+make check-v2
 make quality
 make security
 make build
-make check
 make release-check
+python scripts/check_v2_rc.py
 ```
 
-GitHub CI qualifies Python 3.11/3.12/3.13, PostgreSQL 16, MinIO/S3 integration, full cross-host
-object-storage replay, A1/A2/B1/B2 governance, historical RC1 evidence, the stable release contract,
-clean-wheel installation and the real `v0.6.0` → `1.0.0` upgrade path.
+The terminal CI gate is `stable-release-gate`, which is release-blocking for `2.0.0rc1`.
+
+## Release candidate policy
+
+Once `2.0.0rc1` is accepted, only blocker fixes are allowed before `2.0.0`. Any redesign of the frozen public root or stable provider Protocols requires a new RC.
 
 See:
-- `docs/guides/v1-quickstart.md`
-- `docs/guides/v1-production-pilot.md`
-- `docs/guides/migrate-v0.6-to-v1.md`
-- `docs/guides/release-validation-v1.0.0.md`
-- `docs/reference/stable-contract-v1.md`
-- `docs/reference/public-api.md`
-- `docs/reference/compatibility-v1.md`
-- `docs/reference/stability-v1.md`
-- `docs/reference/pilots-v1.md`
-- `SECURITY.md`
 
-## V1.0.0 stable build artifacts
+- [2.0.0rc1 release notes](docs/releases/v2.0.0rc1.md)
+- [V1 → V2 migration guide](docs/guides/migrate-v1-to-v2.md)
+- [LOT-20 Customer 360 beta gate](docs/architecture/v2-lot20-customer360-beta-gate.md)
+- [LOT-18 semantic migration](docs/architecture/v2-lot18-v1-semantic-migration.md)
+- [Security policy](SECURITY.md)
 
-```text
-pyingestkit-1.0.0-py3-none-any.whl
-pyingestkit-1.0.0.tar.gz
-pyingestkit_demo_jobs-1.0.0-py3-none-any.whl
-pyingestkit_demo_jobs-1.0.0.tar.gz
-SHA256SUMS
-```
+## V1 historical line
 
-CI groups these as `pyingestkit-v1.0.0-source` and `pyingestkit-v1.0.0-dist`. The historical `v0.6.0`
-and RC1 evidence remain immutable and separate. The annotated `v1.0.0` tag is created only after the
-exact stable merge SHA passes post-merge CI and Security.
+The immutable V1 stable line remains available through tag `v1.0.0`. Its CLI, demo jobs and Job/Pipeline/Step execution semantics are historical 1.x contracts and are intentionally separate from the 2.0 public API.

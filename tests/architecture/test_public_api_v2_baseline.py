@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import pyingestkit
 from pyingestkit._api_v2 import (
     V2_COMPLETED_LOTS,
     V2_FORBIDDEN_LEGACY_ROOT_EXPORTS,
@@ -26,6 +27,7 @@ EXPECTED_TARGET_ROOT = (
 
 def test_v2_target_root_is_exact_and_deterministic() -> None:
     assert V2_TARGET_ROOT_EXPORTS == EXPECTED_TARGET_ROOT
+    assert tuple(pyingestkit.__all__) == EXPECTED_TARGET_ROOT
 
 
 def test_v2_target_root_does_not_contain_legacy_execution_names() -> None:

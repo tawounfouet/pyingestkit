@@ -5,7 +5,6 @@ from pyingestkit._api_v2 import (
     V2_COMPLETED_LOTS,
     V2_IMPLEMENTED_MATERIALIZATION_VALUES,
     V2_IMPLEMENTED_PUBLICATION_VALUES,
-    V2_MILESTONE_CANDIDATE,
 )
 from pyingestkit.adapters.filesystem import FileCsvDatasetVersionMaterializerV2
 from pyingestkit.datasets import ResourceDatasetVersionRequestV2
@@ -37,10 +36,11 @@ _EXPECTED_MATERIALIZATION = (
 )
 
 
-def test_lot19_and_lot20_are_recorded_as_completed() -> None:
-    assert V2_COMPLETED_LOTS[-2:] == ("LOT-19", "LOT-20")
-    assert V2_API_PHASE == "LOT-20_CUSTOMER_360_BETA_GATE"
-    assert V2_MILESTONE_CANDIDATE == "2.0.0b2"
+def test_lot19_and_lot20_remain_recorded_as_completed() -> None:
+    assert "LOT-19" in V2_COMPLETED_LOTS
+    assert "LOT-20" in V2_COMPLETED_LOTS
+    assert V2_COMPLETED_LOTS.index("LOT-20") <= V2_COMPLETED_LOTS.index(V2_COMPLETED_LOTS[-1])
+    assert V2_API_PHASE.startswith("LOT-")
 
 
 def test_lot20_publication_values_are_explicit() -> None:

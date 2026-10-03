@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import pyingestkit.runtime as v1_runtime
+import pyingestkit.runtime as public_runtime
 from pyingestkit._api_v2 import (
     V2_API_PHASE,
     V2_COMPLETED_LOTS,
@@ -22,5 +22,7 @@ def test_lot10_runtime_is_recorded_and_importable() -> None:
     assert IngestionResult.__module__ == "pyingestkit.domain.runtime.execution"
 
 
-def test_v1_runtime_namespace_remains_exact_during_lot10() -> None:
-    assert v1_runtime.__all__ == ["Runner"]
+def test_runtime_namespace_promotes_ingestion_runtime_at_rc() -> None:
+    assert "IngestionRuntime" in public_runtime.__all__
+    assert hasattr(IngestionRuntime, "run")
+    assert "Runner" not in public_runtime.__all__

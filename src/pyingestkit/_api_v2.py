@@ -15,9 +15,10 @@ canonical non-executable boundary serialization plus explicit migration
 infrastructure, LOT-17 added the optional PyTransformKit anti-corruption
 boundary, LOT-18 added explicit V1 semantic migration planning and persisted
 reference conversion, LOT-19 qualified the provider/port conformance matrix,
-and LOT-20 adds the Customer 360 end-to-end beta gate with transformed-resource
-publication, provenance, reconciliation, replay and built-artifact evidence
-while the V1 package keeps its exact star-import contract until the 2.0 cut.
+and LOT-20 added the Customer 360 end-to-end beta gate with transformed-resource
+publication, provenance, reconciliation, replay and built-artifact evidence.
+LOT-21 cuts the real 2.0 package root, freezes the stable provider/runtime
+contracts and qualifies the release-candidate artifacts.
 """
 
 from __future__ import annotations
@@ -184,18 +185,26 @@ V2_IMPLEMENTED_VERSION_STORE_VALUES: tuple[str, ...] = (
     "S3DatasetVersionStoreV2",
 )
 
-V2_RUNTIME_SURFACE = "pyingestkit.runtime.v2"
+V2_RUNTIME_SURFACE = "pyingestkit.runtime"
 V2_RUNTIME_SURFACE_EXPORTS: tuple[str, ...] = (
+    "CorrelationContext",
+    "CorrelationId",
+    "Diagnostic",
+    "DiagnosticSeverity",
+    "FailureCategory",
+    "FailureEvidence",
+    "IdempotencyReference",
+    "IngestionExecutionReference",
     "IngestionResult",
     "IngestionRun",
+    "IngestionRunId",
     "IngestionRuntime",
+    "IngestionStatus",
+    "OutcomeUncertainty",
+    "Retryability",
 )
 
-V2_IMPLEMENTED_RUNTIME_VALUES: tuple[str, ...] = (
-    "IngestionResult",
-    "IngestionRun",
-    "IngestionRuntime",
-)
+V2_IMPLEMENTED_RUNTIME_VALUES: tuple[str, ...] = V2_RUNTIME_SURFACE_EXPORTS
 
 V2_IMPLEMENTED_REPLAY_VALUES: tuple[str, ...] = (
     "ReplayRequest",
@@ -296,9 +305,10 @@ V2_COMPLETED_LOTS: tuple[str, ...] = (
     "LOT-18",
     "LOT-19",
     "LOT-20",
+    "LOT-21",
 )
 
-V2_MILESTONE_CANDIDATE = "2.0.0b2"
+V2_MILESTONE_CANDIDATE = "2.0.0rc1"
 
 V2_FORBIDDEN_LEGACY_ROOT_EXPORTS: frozenset[str] = frozenset(
     {
@@ -332,6 +342,7 @@ V2_PUBLIC_NAMESPACE_BASELINE: tuple[str, ...] = (
     "pyingestkit.integrations.pytransformkit",
     "pyingestkit.migration",
     "pyingestkit.plugins",
+    "pyingestkit.ports",
     "pyingestkit.provenance",
     "pyingestkit.publication",
     "pyingestkit.replay",
@@ -344,4 +355,4 @@ V2_PUBLIC_NAMESPACE_BASELINE: tuple[str, ...] = (
     "pyingestkit.quality",
 )
 
-V2_API_PHASE = "LOT-20_CUSTOMER_360_BETA_GATE"
+V2_API_PHASE = "LOT-21_RELEASE_CANDIDATE"

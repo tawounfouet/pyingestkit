@@ -12,13 +12,8 @@ license = "MIT"
 license-files = ["LICENSE"]
 authors = [{ name = "Thomas Awounfouet" }]
 dependencies = [
-  "typer>=0.27,<0.28",
-  "rich>=15,<16",
   "pydantic>=2.11,<3",
   "PyYAML>=6,<7",
-  "SQLAlchemy>=2.0,<3",
-  "httpx>=0.28.1,<1",
-  "tenacity>=9.1.4,<10",
   "python-dotenv>=1.0,<2",
 ]
 classifiers = [
@@ -28,6 +23,7 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
 ]
 
 [project.optional-dependencies]
@@ -47,14 +43,17 @@ dev = [
   "pyarrow>=16,<24",
   "psycopg[binary]>=3.2,<4",
   "boto3>=1.35,<2",
+  "SQLAlchemy>=2.0,<3",
+  "httpx>=0.28.1,<1",
+  "typer>=0.27,<0.28",
+  "rich>=15,<16",
+  "tenacity>=9.1.4,<10",
 ]
-postgres = ["psycopg[binary]>=3.2,<4"]
+http = ["httpx>=0.28.1,<1"]
+postgres = ["SQLAlchemy>=2.0,<3", "psycopg[binary]>=3.2,<4"]
 s3 = ["boto3>=1.35,<2"]
 excel = ["openpyxl>=3.1,<4"]
 parquet = ["pyarrow>=16,<24"]
-
-[project.scripts]
-pyingest = "pyingestkit.cli.main:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

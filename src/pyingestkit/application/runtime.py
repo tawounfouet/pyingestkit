@@ -72,6 +72,24 @@ class IngestionRuntime:
         """Return the exact artifact boundary used by this runtime."""
         return self._artifacts
 
+    def run(
+        self,
+        definition: IngestionDefinition,
+        *,
+        validation_rules: tuple[ValidationRuleV2, ...] = (),
+        publish: bool = False,
+        ingestion_run_id: IngestionRunId | None = None,
+        correlation: CorrelationContext | None = None,
+    ) -> IngestionResult:
+        """Run one synchronous ingestion through the canonical V2 lifecycle."""
+        return self.execute(
+            definition,
+            validation_rules=validation_rules,
+            publish=publish,
+            ingestion_run_id=ingestion_run_id,
+            correlation=correlation,
+        )
+
     def execute(
         self,
         definition: IngestionDefinition,
@@ -81,7 +99,7 @@ class IngestionRuntime:
         ingestion_run_id: IngestionRunId | None = None,
         correlation: CorrelationContext | None = None,
     ) -> IngestionResult:
-        """Execute one synchronous ingestion without legacy Job/Pipeline/Step semantics."""
+        """Transitional alias for :meth:`run` retained through the 2.0 RC cycle."""
         self._validate_execution_inputs(definition, validation_rules, publish)
         run_id = self._run_id(ingestion_run_id)
         context = self._correlation(run_id, correlation)

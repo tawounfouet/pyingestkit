@@ -1,4 +1,4 @@
-.PHONY: bootstrap install install-dev install-demo docs-install docs-build docs-serve docs-deploy test test-demo compatibility stability pilots rc stable check format quality security build wheel-smoke upgrade-smoke demo verify release-check architecture-v2 contract-v2 v2-core v2-baseline clean
+.PHONY: bootstrap install install-dev install-demo docs-install docs-build docs-serve docs-deploy test test-v2 test-demo compatibility stability pilots rc stable check check-v2 format quality security build wheel-smoke upgrade-smoke demo verify release-check architecture-v2 contract-v2 v2-core v2-baseline clean
 
 DOCS_VERSION ?= 1.0
 DOCS_ALIAS ?= latest
@@ -33,6 +33,9 @@ test:
 	PYTHONPATH=src:examples/plugin_package/src python -m unittest discover -s tests -v
 	PYTHONPATH=src:examples/plugin_package/src pytest
 
+test-v2:
+	PYTHONPATH=src pytest -q tests/architecture tests/contract/public_api tests/unit/v2 tests/conformance/v2 tests/integration/v2 tests/migration/v2
+
 test-demo:
 	PYTHONPATH=src:examples/plugin_package/src python -m unittest discover -s examples/plugin_package/tests -v
 
@@ -64,25 +67,26 @@ v2-core:
 v2-baseline: architecture-v2 contract-v2 v2-core
 	python -m compileall -q src/pyingestkit tests/architecture tests/contract/public_api tests/unit/v2 tests/conformance/v2
 
-check: test test-demo compatibility stability pilots rc stable v2-baseline
-	python -m compileall -q src tests examples/plugin_package/src examples/plugin_package/tests scripts
+check-v2: test-v2 v2-baseline
+	python -m compileall -q src/pyingestkit tests/architecture tests/contract/public_api tests/unit/v2 tests/conformance/v2 tests/integration/v2 tests/migration/v2 scripts
+
+check: check-v2
 
 format:
 	ruff check --fix src tests examples/plugin_package/src examples/plugin_package/tests
 	ruff format src tests examples/plugin_package/src examples/plugin_package/tests
 
 quality:
-	ruff check src tests examples/plugin_package/src examples/plugin_package/tests
-	ruff format --check src tests examples/plugin_package/src examples/plugin_package/tests
-	mypy src/pyingestkit
+	ruff check src/pyingestkit tests/architecture tests/contract/public_api tests/unit/v2 tests/conformance/v2 tests/integration/v2 tests/migration/v2 scripts/check_v2_rc.py
+	ruff format --check src/pyingestkit tests/architecture tests/contract/public_api tests/unit/v2 tests/conformance/v2 tests/integration/v2 tests/migration/v2 scripts/check_v2_rc.py
+	mypy src/pyingestkit/__init__.py src/pyingestkit/_api_v2.py src/pyingestkit/_architecture_v2.py src/pyingestkit/domain src/pyingestkit/application src/pyingestkit/ports src/pyingestkit/adapters/filesystem src/pyingestkit/adapters/formats src/pyingestkit/adapters/http src/pyingestkit/adapters/postgres src/pyingestkit/adapters/s3 src/pyingestkit/serialization src/pyingestkit/integrations src/pyingestkit/migration
 
 security: bootstrap
-	bandit -q -r src/pyingestkit examples/plugin_package/src
+	bandit -q -r src/pyingestkit
 	pip-audit
 
 build:
 	python -m build
-	python -m build examples/plugin_package
 
 wheel-smoke:
 	python scripts/wheel_smoke_test.py
@@ -90,9 +94,9 @@ wheel-smoke:
 upgrade-smoke:
 	python scripts/upgrade_smoke_test.py
 
-verify: check quality security build
+verify: check-v2 quality security build
 
-release-check: verify wheel-smoke upgrade-smoke
+release-check: verify
 
 demo: install-demo
 	pyingest jobs

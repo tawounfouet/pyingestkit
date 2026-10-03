@@ -1,15 +1,26 @@
-from .report import ValidationIssue, ValidationReport, ValidationSeverity
+"""PyIngestKit 2.0 validation API."""
+
+from .report import ValidationIssue, ValidationSeverity
 from .result import ValidationResult
-from .rules import MinimumRows, RequiredField, UniqueField, ValidationRule, validate
+from .v2 import (
+    MinimumRowsV2,
+    RequiredFieldV2,
+    UniqueFieldV2,
+    ValidationLimits,
+    ValidationRequest,
+    ValidationRuleV2,
+    validate_v2,
+)
 
 __all__ = [
-    "MinimumRows",
-    "RequiredField",
-    "UniqueField",
+    "MinimumRowsV2",
+    "RequiredFieldV2",
+    "UniqueFieldV2",
     "ValidationIssue",
-    "ValidationReport",
+    "ValidationLimits",
+    "ValidationRequest",
     "ValidationResult",
-    "ValidationRule",
+    "ValidationRuleV2",
     "ValidationSeverity",
-    "validate",
+    "validate_v2",
 ]

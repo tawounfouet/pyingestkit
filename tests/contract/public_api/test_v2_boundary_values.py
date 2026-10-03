@@ -47,7 +47,7 @@ def test_lot01_terminal_status_contract_matches_fixture() -> None:
     assert actual == payload["terminal_statuses"]
 
 
-def test_new_public_qualified_namespaces_import_without_v1_root_change() -> None:
+def test_public_qualified_namespaces_match_rc_boundary_types() -> None:
     from pyingestkit.datasets import DatasetVersionReference as PublicDatasetVersionReference
     from pyingestkit.diagnostics import Diagnostic as PublicDiagnostic
 

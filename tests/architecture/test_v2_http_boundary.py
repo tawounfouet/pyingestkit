@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import pyingestkit.sources.http as v1_http
 from pyingestkit.adapters.http import HttpSourceConnector
 from pyingestkit.sources.http.v2 import HttpAccessPolicy
 
@@ -29,18 +28,3 @@ def test_lot13_http_adapter_does_not_import_legacy_runtime() -> None:
 def test_lot13_qualified_http_surface_is_v2() -> None:
     assert HttpSourceConnector.__module__ == "pyingestkit.adapters.http.source"
     assert HttpAccessPolicy.__module__ == "pyingestkit.adapters.http.source"
-
-
-def test_v1_http_namespace_remains_exact_during_lot13() -> None:
-    assert v1_http.__all__ == [
-        "HttpClient",
-        "HttpError",
-        "HttpRequest",
-        "HttpResponse",
-        "HttpSource",
-        "HttpStatusError",
-        "HttpTimeoutError",
-        "HttpTransportError",
-        "HttpxClient",
-        "QueryValue",
-    ]

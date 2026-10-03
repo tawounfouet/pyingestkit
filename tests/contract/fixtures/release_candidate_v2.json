@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "milestone": "LOT-21",
+  "version": "2.0.0rc1",
+  "baseline": {
+    "lot20_merge_sha": "b92670ed79765772a4c15dbfd290d1b5e803654a"
+  },
+  "root_exports": [
+    "ArtifactReference",
+    "DatasetVersion",
+    "DatasetVersionReference",
+    "IngestionDefinition",
+    "IngestionResult",
+    "IngestionRun",
+    "IngestionRunId",
+    "IngestionRuntime",
+    "PublishedDataset",
+    "ResourceReference",
+    "Source"
+  ],
+  "forbidden_root_exports": [
+    "Job",
+    "Pipeline",
+    "Runner",
+    "RunContext",
+    "RunResult",
+    "Step",
+    "job",
+    "step"
+  ],
+  "runtime": {
+    "canonical_method": "run",
+    "parameters": [
+      "self",
+      "definition",
+      "validation_rules",
+      "publish",
+      "ingestion_run_id",
+      "correlation"
+    ]
+  },
+  "stable_protocols": {
+    "pyingestkit.ports.sources.SourceConnector": [
+      "descriptor",
+      "acquire"
+    ],
+    "pyingestkit.ports.decoders.Decoder": [
+      "descriptor",
+      "decode"
+    ],
+    "pyingestkit.ports.artifacts.ArtifactStore": [
+      "put",
+      "open",
+      "exists"
+    ],
+    "pyingestkit.ports.dataset_versions.DatasetVersionStore": [
+      "put",
+      "get",
+      "list",
+      "read"
+    ],
+    "pyingestkit.ports.dataset_versions.DatasetPublisher": [
+      "publish",
+      "get_published"
+    ],
+    "pyingestkit.ports.dataset_materialization.DatasetVersionMaterializerV2": [
+      "materialize"
+    ],
+    "pyingestkit.ports.targets.DatasetTargetV2": [
+      "descriptor",
+      "load",
+      "close"
+    ]
+  },
+  "required_docs": [
+    "docs/architecture/v2-lot20-customer360-beta-gate.md",
+    "docs/architecture/v2-lot18-v1-semantic-migration.md",
+    "docs/releases/v2.0.0rc1.md",
+    "docs/guides/migrate-v1-to-v2.md"
+  ],
+  "known_limitations": [
+    "V1 Job/Pipeline/Step root aliases are not part of 2.0.",
+    "The V1 CLI/plugin runtime is not a 2.0 public execution contract.",
+    "PyTransformKit remains an optional sibling integration and is qualified with an explicit 1.1.0 pin."
+  ]
+}
