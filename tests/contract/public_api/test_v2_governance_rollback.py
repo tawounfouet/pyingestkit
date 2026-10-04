@@ -25,12 +25,8 @@ def test_lot28_does_not_expand_frozen_governance_protocols() -> None:
     assert set(vars(PublicationLedger)).issuperset(
         {"register", "append", "get_operation", "list_operations", "list_unresolved"}
     )
-    assert set(vars(ConditionalDatasetPublisher)).issuperset(
-        {"inspect", "compare_and_publish"}
-    )
-    assert set(vars(DatasetVersionGarbageCollector)).issuperset(
-        {"delete", "reconcile_delete"}
-    )
+    assert set(vars(ConditionalDatasetPublisher)).issuperset({"inspect", "compare_and_publish"})
+    assert set(vars(DatasetVersionGarbageCollector)).issuperset({"delete", "reconcile_delete"})
 
 
 def test_lot28_strict_replay_still_calls_runtime_with_publish_false() -> None:
