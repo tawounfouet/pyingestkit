@@ -17,11 +17,17 @@ from pyingestkit._api_v2 import (
     V2_MILESTONE_CANDIDATE,
     V2_PUBLIC_NAMESPACE_BASELINE,
 )
+from pyingestkit.adapters.postgres.publication_ledger import (
+    _PUBLICATION_EVENT,
+    _PUBLICATION_OPERATION,
+    _VERSION_HOLD,
+)
 from pyingestkit.domain.governance import (
     ConditionalPublicationStatus,
     DatasetVersionDeletionReconciliationStatus,
     DatasetVersionDeletionStatus,
     PublicationLifecycleEventType,
+    PublicationOperationId,
     PublicationRevision,
     RetentionPolicy,
 )
@@ -124,11 +130,28 @@ def main() -> int:
     assert isinstance(lifecycle, dict)
     if _SCHEMA_VERSION != lifecycle["schema_version"]:
         raise SystemExit("Lifecycle ledger schema version drift")
+    table_names = {
+        "intent_table": _PUBLICATION_OPERATION.name,
+        "event_table": _PUBLICATION_EVENT.name,
+        "hold_table": _VERSION_HOLD.name,
+    }
+    for name, actual in table_names.items():
+        if actual != lifecycle[name]:
+            raise SystemExit(f"Lifecycle persistence table drift: {name}")
 
     expected_events = [str(item) for item in stable["lifecycle_event_types"]]
     actual_events = [item.value for item in PublicationLifecycleEventType]
     if actual_events != expected_events:
         raise SystemExit("PublicationLifecycleEventType stable values drifted")
+
+    operation = stable["operation_id_serialization"]
+    assert isinstance(operation, dict)
+    operation_pattern = re.compile(str(operation["stable_pattern"]))
+    sample_operation = PublicationOperationId.parse(
+        "00000000-0000-0000-0000-000000000000"
+    )
+    if operation_pattern.fullmatch(str(sample_operation)) is None:
+        raise SystemExit("PublicationOperationId stable serialization pattern drift")
 
     revision = stable["revision_serialization"]
     assert isinstance(revision, dict)
