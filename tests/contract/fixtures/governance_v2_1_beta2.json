@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "milestone": "LOT-28",
+  "version": "2.1.0b2",
+  "baseline": {
+    "lot27_merge_sha": "3d7eba72180d42fdb470f0180fefee6b4de3c14f",
+    "lot27_fixture": "tests/contract/fixtures/governance_v2_1_beta1.json",
+    "lot23_fixture": "tests/contract/fixtures/governance_v2_1_alpha1.json",
+    "stable_2_0_fixture": "tests/contract/fixtures/stable_release_v2.json"
+  },
+  "rollback_namespace": "pyingestkit.governance.rollback",
+  "rollback_exports": [
+    "GovernedRollbackService"
+  ],
+  "providers": {
+    "filesystem_conditional": "pyingestkit.adapters.filesystem.FileConditionalDatasetPublisher",
+    "s3_conditional": "pyingestkit.adapters.s3.S3ConditionalDatasetPublisher",
+    "memory_ledger": "pyingestkit.adapters.memory.MemoryPublicationLedger",
+    "postgres_ledger": "pyingestkit.adapters.postgres.PostgresPublicationLedger"
+  },
+  "required_events": [
+    "rollback_requested",
+    "rollback_committed"
+  ],
+  "required_evidence": [
+    "tests/contract/public_api/test_v2_governance_rollback.py",
+    "tests/conformance/v2/test_governed_rollback.py",
+    "tests/integration/v2/test_s3_governed_rollback.py",
+    "tests/integration/v2/test_postgres_governed_rollback.py",
+    "tests/integration/v2/test_strict_replay.py"
+  ],
+  "required_docs": [
+    "docs/architecture/v2-lot28-governed-rollback.md",
+    "docs/architecture/v2-lot27-retention-holds-guarded-gc.md",
+    "docs/roadmap/rfc001-publication-lifecycle-implementation-roadmap.md"
+  ]
+}
