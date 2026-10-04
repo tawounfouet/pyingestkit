@@ -27,7 +27,7 @@ jobs:
       - name: Frozen PyIngestKit 2.0 compatibility
         run: python scripts/check_v2_compatibility.py
       - name: Current PyIngestKit V2 milestone contract
-        run: python scripts/check_v2_1_beta2.py
+        run: python scripts/check_v2_1_rc1.py
 
   v2-architecture-baseline:
     runs-on: ubuntu-latest
@@ -137,7 +137,7 @@ jobs:
               "ResourceReference",
               "Source",
           )
-          assert pyingestkit.__version__ == "2.1.0b2"
+          assert pyingestkit.__version__ == "2.1.0rc1"
           assert hasattr(pyingestkit.IngestionRuntime, "run")
           import pyingestkit.governance as governance
           assert "PublicationLedger" in governance.__all__
@@ -227,7 +227,7 @@ jobs:
           /tmp/pyingestkit-v2-sdist/bin/python - <<'PY'
           import pyingestkit
 
-          assert pyingestkit.__version__ == "2.1.0b2"
+          assert pyingestkit.__version__ == "2.1.0rc1"
           assert tuple(pyingestkit.__all__) == (
               "ArtifactReference",
               "DatasetVersion",
@@ -588,8 +588,8 @@ jobs:
         run: make release-check
       - name: Validate frozen 2.0 compatibility baseline
         run: python scripts/check_v2_compatibility.py
-      - name: Validate LOT-28 milestone contract
-        run: python scripts/check_v2_1_beta2.py
+      - name: Validate LOT-29 RC milestone contract
+        run: python scripts/check_v2_1_rc1.py
       - name: Build SHA-256 manifest
         shell: bash
         run: |
@@ -599,19 +599,19 @@ jobs:
 
           paths = sorted(Path("dist").glob("*"))
           lines = [f"{sha256(path.read_bytes()).hexdigest()}  {path.as_posix()}" for path in paths]
-          Path("SHA256SUMS-v2.1.0b2").write_text(
+          Path("SHA256SUMS-v2.1.0rc1").write_text(
               "\n".join(lines) + "\n",
               encoding="utf-8",
           )
-          print(Path("SHA256SUMS-v2.1.0b2").read_text(encoding="utf-8"), end="")
+          print(Path("SHA256SUMS-v2.1.0rc1").read_text(encoding="utf-8"), end="")
           PY
       - name: Upload V2 stable distribution evidence
         uses: actions/upload-artifact@v7
         with:
-          name: pyingestkit-v2.1.0b2-dist
+          name: pyingestkit-v2.1.0rc1-dist
           path: |
             dist/*
-            SHA256SUMS-v2.1.0b2
+            SHA256SUMS-v2.1.0rc1
           if-no-files-found: error
 
   v1-history-gate:
@@ -628,6 +628,392 @@ jobs:
       - name: Validate immutable V1 stable historical contract
         run: python scripts/check_v1_stable.py
       - run: echo "V1.0.0 historical release evidence remains sealed on tag v1.0.0."
+
+  governance-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e ".[dev]"
+      - name: LOT-29 frozen governance contract
+        run: >-
+          python -m pytest -q
+          tests/unit/v2/test_governance_foundations.py
+          tests/unit/v2/test_memory_publication_ledger.py
+          tests/contract/public_api/test_v2_governance_foundations.py
+          tests/contract/public_api/test_v2_governance_filesystem_cas.py
+          tests/contract/public_api/test_v2_governance_s3_cas.py
+          tests/contract/public_api/test_v2_governance_retention_gc.py
+          tests/contract/public_api/test_v2_governance_rollback.py
+          tests/conformance/v2/test_retention_planning.py
+          tests/conformance/v2/test_governed_rollback.py
+      - name: LOT-29 RC machine contract
+        run: python scripts/check_v2_1_rc1.py
+
+  governance-postgres-e2e:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: pyingestkit
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d pyingestkit"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      PYINGEST_TEST_POSTGRES_DSN: postgresql+psycopg://postgres:postgres@localhost:5432/pyingestkit
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e ".[dev,postgres]"
+      - name: LOT-29 PostgreSQL governance qualification
+        run: >-
+          python -m pytest -q
+          tests/integration/v2/test_postgres_publication_ledger.py
+          tests/integration/v2/test_postgres_governed_rollback.py
+
+  governance-filesystem-cas:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e ".[dev]"
+      - name: LOT-29 filesystem governance CAS and fault qualification
+        run: >-
+          python -m pytest -q
+          tests/conformance/v2/test_filesystem_conditional_publication.py
+          tests/integration/v2/test_filesystem_conditional_publication_processes.py
+
+  governance-s3-cas:
+    runs-on: ubuntu-latest
+    env:
+      AWS_DEFAULT_REGION: us-east-1
+      PYINGEST_TEST_S3_ENDPOINT_URL: http://127.0.0.1:9000
+      PYINGEST_TEST_S3_BUCKET: pyingestkit
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Generate ephemeral S3 test credentials
+        shell: bash
+        run: |
+          user="ci$(python -c 'import secrets; print(secrets.token_hex(8))')"
+          password="$(python -c 'import secrets; print(secrets.token_urlsafe(32))')"
+          echo "AWS_ACCESS_KEY_ID=$user" >> "$GITHUB_ENV"
+          echo "AWS_SECRET_ACCESS_KEY=$password" >> "$GITHUB_ENV"
+      - name: Start qualifying S3-compatible endpoint
+        shell: bash
+        run: |
+          python -m pip install "moto[server]>=5.1,<6"
+          moto_server -H 127.0.0.1 -p 9000 >/tmp/pyingestkit-moto-governance-s3-cas.log 2>&1 &
+          for attempt in {1..30}; do
+            if curl -fsS http://127.0.0.1:9000/ >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/pyingestkit-moto-governance-s3-cas.log
+          exit 1
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e ".[dev,s3]"
+      - name: LOT-29 S3 governance CAS qualification
+        run: >-
+          python -m pytest -q
+          tests/conformance/v2/test_s3_conditional_publication_capability.py
+          tests/integration/v2/test_s3_conditional_publication.py
+
+  governance-gc-e2e:
+    runs-on: ubuntu-latest
+    env:
+      AWS_DEFAULT_REGION: us-east-1
+      PYINGEST_TEST_S3_ENDPOINT_URL: http://127.0.0.1:9000
+      PYINGEST_TEST_S3_BUCKET: pyingestkit
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Generate ephemeral S3 test credentials
+        shell: bash
+        run: |
+          user="ci$(python -c 'import secrets; print(secrets.token_hex(8))')"
+          password="$(python -c 'import secrets; print(secrets.token_urlsafe(32))')"
+          echo "AWS_ACCESS_KEY_ID=$user" >> "$GITHUB_ENV"
+          echo "AWS_SECRET_ACCESS_KEY=$password" >> "$GITHUB_ENV"
+      - name: Start S3-compatible Moto server
+        shell: bash
+        run: |
+          python -m pip install "moto[server]>=5.1,<6"
+          moto_server -H 127.0.0.1 -p 9000 >/tmp/pyingestkit-moto-governance-gc.log 2>&1 &
+          for attempt in {1..30}; do
+            if curl -fsS http://127.0.0.1:9000/ >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/pyingestkit-moto-governance-gc.log
+          exit 1
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e ".[dev,s3]"
+      - name: LOT-29 File and S3 GC qualification
+        run: >-
+          python -m pytest -q
+          tests/conformance/v2/test_retention_planning.py
+          tests/integration/v2/test_filesystem_guarded_gc.py
+          tests/integration/v2/test_s3_guarded_gc.py
+
+  governance-rollback-e2e:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: pyingestkit
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d pyingestkit"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      AWS_DEFAULT_REGION: us-east-1
+      PYINGEST_TEST_S3_ENDPOINT_URL: http://127.0.0.1:9000
+      PYINGEST_TEST_S3_BUCKET: pyingestkit
+      PYINGEST_TEST_POSTGRES_DSN: postgresql+psycopg://postgres:postgres@localhost:5432/pyingestkit
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Generate ephemeral S3 test credentials
+        shell: bash
+        run: |
+          user="ci$(python -c 'import secrets; print(secrets.token_hex(8))')"
+          password="$(python -c 'import secrets; print(secrets.token_urlsafe(32))')"
+          echo "AWS_ACCESS_KEY_ID=$user" >> "$GITHUB_ENV"
+          echo "AWS_SECRET_ACCESS_KEY=$password" >> "$GITHUB_ENV"
+      - name: Start S3-compatible Moto server
+        shell: bash
+        run: |
+          python -m pip install "moto[server]>=5.1,<6"
+          moto_server -H 127.0.0.1 -p 9000 >/tmp/pyingestkit-moto-governance-rollback.log 2>&1 &
+          for attempt in {1..30}; do
+            if curl -fsS http://127.0.0.1:9000/ >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/pyingestkit-moto-governance-rollback.log
+          exit 1
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e ".[dev,postgres,s3]"
+      - name: LOT-29 File S3 and PostgreSQL rollback qualification
+        run: >-
+          python -m pytest -q
+          tests/conformance/v2/test_governed_rollback.py
+          tests/integration/v2/test_s3_governed_rollback.py
+          tests/integration/v2/test_postgres_governed_rollback.py
+          tests/integration/v2/test_strict_replay.py
+
+  governance-cross-provider-e2e:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: pyingestkit
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d pyingestkit"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      AWS_DEFAULT_REGION: us-east-1
+      PYINGEST_TEST_S3_ENDPOINT_URL: http://127.0.0.1:9000
+      PYINGEST_TEST_S3_BUCKET: pyingestkit
+      PYINGEST_TEST_POSTGRES_DSN: postgresql+psycopg://postgres:postgres@localhost:5432/pyingestkit
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Generate ephemeral S3 test credentials
+        shell: bash
+        run: |
+          user="ci$(python -c 'import secrets; print(secrets.token_hex(8))')"
+          password="$(python -c 'import secrets; print(secrets.token_urlsafe(32))')"
+          echo "AWS_ACCESS_KEY_ID=$user" >> "$GITHUB_ENV"
+          echo "AWS_SECRET_ACCESS_KEY=$password" >> "$GITHUB_ENV"
+      - name: Start S3-compatible Moto server
+        shell: bash
+        run: |
+          python -m pip install "moto[server]>=5.1,<6"
+          moto_server -H 127.0.0.1 -p 9000 >/tmp/pyingestkit-moto-governance-cross.log 2>&1 &
+          for attempt in {1..30}; do
+            if curl -fsS http://127.0.0.1:9000/ >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/pyingestkit-moto-governance-cross.log
+          exit 1
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e ".[dev,postgres,s3]"
+      - name: LOT-29 mixed-provider crash restart reconciliation qualification
+        run: >-
+          python -m pytest -q
+          tests/integration/v2/test_governance_cross_provider_filesystem_rc.py
+          tests/integration/v2/test_governance_cross_provider_s3_rc.py
+
+  governance-built-artifact:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade pip "build>=1.2"
+      - run: python -m build
+      - name: Clean base wheel source distribution and provider extras
+        shell: bash
+        run: |
+          wheel="$(ls dist/pyingestkit-*.whl | head -n 1)"
+          sdist="$(ls dist/pyingestkit-*.tar.gz | head -n 1)"
+
+          python -m venv /tmp/pyingestkit-rc-base
+          /tmp/pyingestkit-rc-base/bin/python -m pip install --upgrade pip
+          /tmp/pyingestkit-rc-base/bin/python -m pip install "$wheel"
+          /tmp/pyingestkit-rc-base/bin/python - <<'PY'
+          import importlib.util
+          import pyingestkit
+
+          assert pyingestkit.__version__ == "2.1.0rc1"
+          assert len(pyingestkit.__all__) == 11
+          for dependency in ("boto3", "psycopg", "sqlalchemy"):
+              assert importlib.util.find_spec(dependency) is None
+          PY
+
+          python -m venv /tmp/pyingestkit-rc-postgres
+          /tmp/pyingestkit-rc-postgres/bin/python -m pip install --upgrade pip
+          /tmp/pyingestkit-rc-postgres/bin/python -m pip install "$wheel[postgres]"
+          /tmp/pyingestkit-rc-postgres/bin/python - <<'PY'
+          import importlib.util
+          import pyingestkit
+          from pyingestkit.adapters.postgres import PostgresPublicationLedger
+
+          assert pyingestkit.__version__ == "2.1.0rc1"
+          assert len(pyingestkit.__all__) == 11
+          assert PostgresPublicationLedger.__name__ == "PostgresPublicationLedger"
+          assert importlib.util.find_spec("psycopg") is not None
+          assert importlib.util.find_spec("sqlalchemy") is not None
+          PY
+
+          python -m venv /tmp/pyingestkit-rc-s3
+          /tmp/pyingestkit-rc-s3/bin/python -m pip install --upgrade pip
+          /tmp/pyingestkit-rc-s3/bin/python -m pip install "$wheel[s3]"
+          /tmp/pyingestkit-rc-s3/bin/python - <<'PY'
+          import importlib.util
+          import pyingestkit
+          from pyingestkit.adapters.s3 import S3ConditionalDatasetPublisher
+
+          assert pyingestkit.__version__ == "2.1.0rc1"
+          assert len(pyingestkit.__all__) == 11
+          assert S3ConditionalDatasetPublisher.__name__ == "S3ConditionalDatasetPublisher"
+          assert importlib.util.find_spec("boto3") is not None
+          PY
+
+          python -m venv /tmp/pyingestkit-rc-sdist
+          /tmp/pyingestkit-rc-sdist/bin/python -m pip install --upgrade pip
+          /tmp/pyingestkit-rc-sdist/bin/python -m pip install "$sdist"
+          /tmp/pyingestkit-rc-sdist/bin/python - <<'PY'
+          import pyingestkit
+
+          assert pyingestkit.__version__ == "2.1.0rc1"
+          assert len(pyingestkit.__all__) == 11
+          PY
+
+  governance-security-negatives:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: pyingestkit
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d pyingestkit"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      AWS_DEFAULT_REGION: us-east-1
+      PYINGEST_TEST_S3_ENDPOINT_URL: http://127.0.0.1:9000
+      PYINGEST_TEST_S3_BUCKET: pyingestkit
+      PYINGEST_TEST_POSTGRES_DSN: postgresql+psycopg://postgres:postgres@localhost:5432/pyingestkit
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Generate ephemeral S3 test credentials
+        shell: bash
+        run: |
+          user="ci$(python -c 'import secrets; print(secrets.token_hex(8))')"
+          password="$(python -c 'import secrets; print(secrets.token_urlsafe(32))')"
+          echo "AWS_ACCESS_KEY_ID=$user" >> "$GITHUB_ENV"
+          echo "AWS_SECRET_ACCESS_KEY=$password" >> "$GITHUB_ENV"
+      - name: Start S3-compatible Moto server
+        shell: bash
+        run: |
+          python -m pip install "moto[server]>=5.1,<6"
+          moto_server -H 127.0.0.1 -p 9000 >/tmp/pyingestkit-moto-governance-security.log 2>&1 &
+          for attempt in {1..30}; do
+            if curl -fsS http://127.0.0.1:9000/ >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/pyingestkit-moto-governance-security.log
+          exit 1
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e ".[dev,postgres,s3]"
+      - name: LOT-29 governance security negative qualification
+        run: >-
+          python -m pytest -q
+          tests/unit/v2/test_governance_foundations.py
+          tests/unit/v2/test_source_definition.py
+          tests/unit/test_artifact_uri.py
+          tests/integration/v2/test_postgres_publication_ledger.py
+          tests/integration/v2/test_filesystem_guarded_gc.py
+          tests/integration/v2/test_s3_guarded_gc.py
+          tests/conformance/v2/test_s3_conditional_publication_capability.py
+          tests/integration/v2/test_filesystem_conditional_publication_processes.py
 
   stable-release-gate:
     runs-on: ubuntu-latest
@@ -648,6 +1034,15 @@ jobs:
       - v2-package-baseline
       - pytransformkit-integration
       - customer360-built-artifact
+      - governance-contract
+      - governance-postgres-e2e
+      - governance-filesystem-cas
+      - governance-s3-cas
+      - governance-gc-e2e
+      - governance-rollback-e2e
+      - governance-cross-provider-e2e
+      - governance-built-artifact
+      - governance-security-negatives
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
@@ -657,6 +1052,6 @@ jobs:
       - run: python -m pip install -e ".[postgres]"
       - name: Validate frozen PyIngestKit 2.0 compatibility
         run: python scripts/check_v2_compatibility.py
-      - name: Validate current LOT-28 milestone
-        run: python scripts/check_v2_1_beta2.py
-      - run: echo "PyIngestKit 2.1.0b2 LOT-28 qualification passed with frozen 2.0 compatibility."
+      - name: Validate current LOT-29 RC milestone
+        run: python scripts/check_v2_1_rc1.py
+      - run: echo "PyIngestKit 2.1.0rc1 LOT-29 RC qualification passed with frozen 2.0 compatibility."
