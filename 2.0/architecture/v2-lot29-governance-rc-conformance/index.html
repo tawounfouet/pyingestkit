@@ -10,9 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://tawounfouet.github.io/pyingestkit/2.0/architecture/dataset-parsers-contracts-beta1/">
+        <link rel="canonical" href="https://tawounfouet.github.io/pyingestkit/2.0/architecture/v2-lot29-governance-rc-conformance/">
       
       
+        <link rel="prev" href="../v2-lot28-governed-rollback/">
+      
+      
+        <link rel="next" href="../../guides/v1-quickstart/">
       
       
         
@@ -23,7 +27,7 @@
     
     
       
-        <title>Dataset, parsers and contracts — V0.2.0 Beta 1 - PyIngestKit</title>
+        <title>LOT-29 governance RC conformance - PyIngestKit</title>
       
     
     
@@ -66,7 +70,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#dataset-parsers-and-contracts-v020-beta-1" class="md-skip">
+        <a href="#pyingestkit-21-lot-29-full-governance-conformance-rc" class="md-skip">
           Skip to content
         </a>
       
@@ -104,7 +108,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Dataset, parsers and contracts — V0.2.0 Beta 1
+              LOT-29 governance RC conformance
             
           </span>
         </div>
@@ -274,10 +278,12 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
+      <li class="md-tabs__item md-tabs__item--active">
         <a href="../overview/" class="md-tabs__link">
           
   
@@ -938,8 +944,10 @@
       
   
   
+    
   
   
+  
     
     
       
@@ -985,19 +993,22 @@
     
     
       
+        
+        
+      
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
         
           
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
             
   
   
@@ -1015,7 +1026,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1534,10 +1545,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../v2-lot29-governance-rc-conformance/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LOT-29 governance RC conformance
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1553,6 +1591,169 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scope
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#no-new-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        No new architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rc-topology" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RC topology
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#crash-window-a-durable-intent-before-provider-side-effect" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Crash window A — durable intent before provider side effect
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#crash-window-b-provider-commit-before-terminal-ledger-append" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Crash window B — provider commit before terminal ledger append
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#retention-after-recovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Retention after recovery
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rollback-after-recovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rollback after recovery
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fault-injection-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fault-injection matrix
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#release-blocking-governance-jobs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Release-blocking governance jobs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#built-artifact-qualification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Built-artifact qualification
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-negatives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security negatives
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rc-compatibility-freeze" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RC compatibility freeze
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#stable-promotion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stable promotion
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -2578,10 +2779,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#dataset-boundary" class="md-nav__link">
+  <a href="#scope" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Dataset boundary
+        Scope
       
     </span>
   </a>
@@ -2589,49 +2790,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#parser-boundary" class="md-nav__link">
+  <a href="#no-new-architecture" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Parser boundary
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Parser boundary">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#csvparser" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        CsvParser
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#jsonparser" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        JsonParser
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#dataset-contracts" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Dataset contracts
+        No new architecture
       
     </span>
   </a>
@@ -2639,10 +2801,120 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#lifecycle-position" class="md-nav__link">
+  <a href="#rc-topology" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Lifecycle position
+        RC topology
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#crash-window-a-durable-intent-before-provider-side-effect" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Crash window A — durable intent before provider side effect
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#crash-window-b-provider-commit-before-terminal-ledger-append" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Crash window B — provider commit before terminal ledger append
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#retention-after-recovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Retention after recovery
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rollback-after-recovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rollback after recovery
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fault-injection-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fault-injection matrix
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#release-blocking-governance-jobs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Release-blocking governance jobs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#built-artifact-qualification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Built-artifact qualification
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-negatives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security negatives
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rc-compatibility-freeze" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RC compatibility freeze
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#stable-promotion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stable promotion
       
     </span>
   </a>
@@ -2666,7 +2938,7 @@
 
 
   
-    <a href="https://github.com/tawounfouet/pyingestkit/edit/main/docs/architecture/dataset-parsers-contracts-beta1.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+    <a href="https://github.com/tawounfouet/pyingestkit/edit/main/docs/architecture/v2-lot29-governance-rc-conformance.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -2674,73 +2946,243 @@
   
 
 
-<h1 id="dataset-parsers-and-contracts-v020-beta-1">Dataset, parsers and contracts — V0.2.0 Beta 1</h1>
-<p>Beta 1 introduces the first structured-data layer above immutable RAW artifacts.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>RawArtifact
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>     │
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>     ▼
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>   Parser
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a> ┌───┴────┐
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a> ▼        ▼
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>CSV      JSON
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a> └───┬────┘
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>     ▼
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>  Dataset
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>     │
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>     ▼
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>DatasetContract
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>     │
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>     ▼
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>ValidationResult
-</code></pre></div>
-<h2 id="dataset-boundary">Dataset boundary</h2>
-<p><code>Dataset</code> is owned by PyIngestKit and intentionally remains a small Python container:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>Dataset
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>≠ Pandas DataFrame
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>≠ Polars DataFrame
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>≠ Arrow Table
-</code></pre></div>
-<p>The runtime representation is an ordered schema plus read-only row mappings. <code>Dataset.to_rows()</code> creates mutable copies only at an explicit interoperability boundary. A dataset may retain the <code>source_artifact_id</code> of the RAW artifact from which it was parsed.</p>
-<p>This keeps the framework API stable without binding every ingestion job to one analytical dataframe engine. Job packs remain free to convert a <code>Dataset</code> to Pandas, Polars, Arrow, database rows, or another representation after the framework parsing boundary when their own use case requires it.</p>
-<h2 id="parser-boundary">Parser boundary</h2>
-<p>A <code>Parser</code> performs structural decoding only:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Parser
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>= bytes/serialization structure -&gt; records
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>Parser
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>≠ business normalization
-</code></pre></div>
-<p>The framework parsers therefore do not trim business fields, rename domain columns, map codes, convert identifiers, enrich records, apply business defaults, or implement domain-specific cleanup.</p>
-<h3 id="csvparser">CsvParser</h3>
-<p><code>CsvParser</code> reads a header-based CSV artifact and preserves every cell as a string. It may be configured with encoding, delimiter, quote character, and strict CSV syntax because those are serialization concerns. Header duplication and row-width mismatches are rejected as ambiguous structure.</p>
-<h3 id="jsonparser">JsonParser</h3>
-<p><code>JsonParser</code> accepts a JSON object as one record or an array of objects as multiple records. An optional <code>records_path</code> can select a nested structural container. JSON scalar/list/object values inside records are preserved as decoded by the Python JSON implementation. The parser does not flatten nested objects or coerce values.</p>
-<h2 id="dataset-contracts">Dataset contracts</h2>
-<p><code>DatasetContract</code> validates the structural expectations of a parsed dataset without mutating it. <code>FieldContract</code> supports:</p>
+<h1 id="pyingestkit-21-lot-29-full-governance-conformance-rc">PyIngestKit 2.1 — LOT-29 Full Governance Conformance &amp; RC</h1>
+<p><strong>Candidate: 2.1.0rc1.</strong></p>
+<p>LOT-29 introduces no new governance architecture. It freezes and qualifies the
+complete 2.1 publication-lifecycle contract implemented by LOT-23 through
+LOT-28.</p>
+<h2 id="scope">Scope</h2>
+<p>The release candidate proves, on one final head:</p>
 <ul>
-<li>required field presence;</li>
-<li>nullability;</li>
-<li>Python runtime type checks;</li>
-<li>uniqueness;</li>
-<li>optional rejection of extra fields;</li>
-<li>dataset minimum/maximum row counts.</li>
+<li>the frozen 2.0 package root and stable contracts remain unchanged;</li>
+<li>the LOT-23 governance namespace and Protocol signatures remain unchanged;</li>
+<li>Memory and PostgreSQL lifecycle ledgers preserve the same portable behavior;</li>
+<li>filesystem conditional publication remains process-safe and ABA-safe;</li>
+<li>S3 conditional publication remains provider-enforced and endpoint-qualified;</li>
+<li>File/S3 retention and guarded GC preserve current/held/unresolved versions;</li>
+<li>File/S3 governed rollback preserves immutable DatasetVersion history;</li>
+<li>crash/restart windows reconcile from observable provider truth;</li>
+<li>built wheel/source artifacts preserve optional-provider isolation;</li>
+<li>security negatives remain fail-closed.</li>
 </ul>
-<p>Validation returns an immutable <code>ValidationResult</code> containing <code>ValidationIssue</code> records. Issues carry a stable rule/code plus optional field and row coordinates. Validation messages deliberately avoid embedding complete dataset rows.</p>
-<h2 id="lifecycle-position">Lifecycle position</h2>
-<p>Beta 1 makes the following lifecycle concrete:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>HTTP / Local source
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>        ↓
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>RawArtifact + SHA-256 + provenance
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>        ↓
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>Parser
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>        ↓
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>Dataset
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>        ↓
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>DatasetContract
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>        ↓
-<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>Normalization / business logic (job-pack concern)
+<h2 id="no-new-architecture">No new architecture</h2>
+<p>LOT-29 MUST NOT add:</p>
+<ul>
+<li>a new governance port;</li>
+<li>a new root export;</li>
+<li>a new lifecycle domain concept;</li>
+<li>a new scheduler/orchestrator responsibility;</li>
+<li>a new provider-specific token in portable contracts.</li>
+</ul>
+<p>The implementation delta is therefore limited to:</p>
+<ul>
+<li>cross-provider executable evidence;</li>
+<li>RC contract fixture/checker;</li>
+<li>release-blocking CI aggregation;</li>
+<li>built-artifact provider-extra qualification;</li>
+<li>release-candidate documentation/version metadata.</li>
+</ul>
+<h2 id="rc-topology">RC topology</h2>
+<p>The two composed provider profiles are:</p>
+<div class="highlight"><pre><span></span><code>PostgreSQL PublicationLedger
+        +
+FileConditionalDatasetPublisher
+        +
+FileDatasetVersionStore
 </code></pre></div>
-<p>A contract is not a normalizer. It reports whether the parsed structure satisfies declared expectations; it does not rewrite the data to make the contract pass.</p>
+<p>and:</p>
+<div class="highlight"><pre><span></span><code>PostgreSQL PublicationLedger
+        +
+S3ConditionalDatasetPublisher
+        +
+S3DatasetVersionStoreV2
+</code></pre></div>
+<p>Both must expose the same portable lifecycle semantics.</p>
+<h2 id="crash-window-a-durable-intent-before-provider-side-effect">Crash window A — durable intent before provider side effect</h2>
+<p>The test deliberately persists:</p>
+<div class="highlight"><pre><span></span><code>PublicationIntent
++
+PUBLICATION_REQUESTED
+</code></pre></div>
+<p>then simulates process termination before the provider is invoked.</p>
+<p>After restart:</p>
+<div class="highlight"><pre><span></span><code>list_unresolved(dataset)
+    -&gt; exact intent
+</code></pre></div>
+<p>Provider reconciliation inspects real provider truth.</p>
+<p>Because no provider commit occurred:</p>
+<div class="highlight"><pre><span></span><code>publication revision == expected revision
+    -&gt;
+PUBLICATION_RECONCILED_NOT_COMMITTED
+    -&gt;
+controlled FAILED outcome
+    -&gt;
+operation no longer unresolved
+</code></pre></div>
+<p>No synthetic success is permitted.</p>
+<h2 id="crash-window-b-provider-commit-before-terminal-ledger-append">Crash window B — provider commit before terminal ledger append</h2>
+<p>The test uses a ledger wrapper around the real PostgreSQL ledger.</p>
+<p>The wrapper persists request evidence normally, but raises <code>SystemExit</code> when
+the publisher attempts its terminal committed event.</p>
+<p><code>SystemExit</code> is intentional: it models process death and is not captured by
+the application-level <code>Exception</code> uncertainty handlers.</p>
+<p>Observable sequence:</p>
+<div class="highlight"><pre><span></span><code>durable PUBLICATION_REQUESTED
+    -&gt;
+File/S3 provider CAS commit
+    -&gt;
+process death before terminal ledger append
+    -&gt;
+PostgreSQL restart
+    -&gt;
+unresolved intent recovered
+    -&gt;
+provider pointer inspected
+    -&gt;
+operation-id / intent fingerprint match
+    -&gt;
+PUBLICATION_RECONCILED_COMMITTED
+</code></pre></div>
+<p>The provider pointer is asserted before restart. The test never manufactures a
+successful outcome without observable provider truth.</p>
+<h2 id="retention-after-recovery">Retention after recovery</h2>
+<p>After reconciliation, the restarted PostgreSQL ledger is also used as the hold
+repository.</p>
+<p>The RC scenario creates three immutable versions:</p>
+<div class="highlight"><pre><span></span><code>V0 old
+V1 historical
+V2 current
+</code></pre></div>
+<p>Then:</p>
+<div class="highlight"><pre><span></span><code>hold(V0)
+keep_last = 1
+</code></pre></div>
+<p>Expected plan:</p>
+<div class="highlight"><pre><span></span><code>V2 -&gt; protected because current / newest
+V0 -&gt; protected because held
+V1 -&gt; candidate
+</code></pre></div>
+<p>This proves retention planning consumes the same recovered lifecycle state used
+by publication/reconciliation.</p>
+<h2 id="rollback-after-recovery">Rollback after recovery</h2>
+<p>The hold on V0 is released and the same restarted provider stack executes a
+governed rollback to V0 using the current publication revision.</p>
+<p>Required terminal history:</p>
+<div class="highlight"><pre><span></span><code>ROLLBACK_REQUESTED
+ROLLBACK_COMMITTED
+</code></pre></div>
+<p>The historical DatasetVersion remains immutable and rollback advances the
+publication revision through the existing CAS provider.</p>
+<h2 id="fault-injection-matrix">Fault-injection matrix</h2>
+<p>LOT-29 closes the full matrix by aggregating prior executable evidence plus the
+new mixed-provider crash tests.</p>
+<table>
+<thead>
+<tr>
+<th>Fault</th>
+<th>Evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>durable intent before provider side effect</td>
+<td>LOT-29 File/S3 + PostgreSQL cross-provider tests</td>
+</tr>
+<tr>
+<td>provider commit before terminal ledger append</td>
+<td>LOT-29 File/S3 + PostgreSQL cross-provider tests</td>
+</tr>
+<tr>
+<td>acknowledgement loss</td>
+<td>LOT-25/26 publication + LOT-28 rollback tests</td>
+</tr>
+<tr>
+<td>stale revision</td>
+<td>LOT-25/26 CAS + LOT-28 rollback</td>
+</tr>
+<tr>
+<td>filesystem lock acquisition failure</td>
+<td>filesystem CAS conformance</td>
+</tr>
+<tr>
+<td>stale GC plan</td>
+<td>LOT-27 File/S3 GC</td>
+</tr>
+<tr>
+<td>delete acknowledgement loss</td>
+<td>LOT-27 File/S3 GC</td>
+</tr>
+<tr>
+<td>restart with unresolved operation</td>
+<td>LOT-24 PostgreSQL + LOT-29 mixed-provider tests</td>
+</tr>
+</tbody>
+</table>
+<h2 id="release-blocking-governance-jobs">Release-blocking governance jobs</h2>
+<p>LOT-29 adds the explicit jobs required by the accepted roadmap:</p>
+<div class="highlight"><pre><span></span><code>governance-contract
+governance-postgres-e2e
+governance-filesystem-cas
+governance-s3-cas
+governance-gc-e2e
+governance-rollback-e2e
+governance-cross-provider-e2e
+governance-built-artifact
+governance-security-negatives
+</code></pre></div>
+<p>The existing 2.0 compatibility/release jobs remain mandatory and are not
+replaced.</p>
+<h2 id="built-artifact-qualification">Built-artifact qualification</h2>
+<p>The RC is qualified from generated distributions, not only editable source.</p>
+<p>Required clean environments:</p>
+<div class="highlight"><pre><span></span><code>wheel base
+wheel + postgres
+wheel + s3
+source distribution base
+</code></pre></div>
+<p>The base wheel must not leak optional dependencies.</p>
+<p>The provider-extra wheel environments must import their concrete adapters from
+the installed artifact and preserve the exact 2.0 root.</p>
+<h2 id="security-negatives">Security negatives</h2>
+<p>The RC release-blocking security job aggregates the established fail-closed
+evidence for:</p>
+<ul>
+<li>lifecycle secret rejection;</li>
+<li>credential-bearing references;</li>
+<li>PostgreSQL DSN redaction;</li>
+<li>filesystem path/symlink escape;</li>
+<li>foreign S3 bucket/prefix deletion attempts;</li>
+<li>malformed governance revisions;</li>
+<li>operation-ID reuse with changed intent;</li>
+<li>stale destructive lifecycle evidence;</li>
+<li>unsupported S3 conditional-write capability.</li>
+</ul>
+<h2 id="rc-compatibility-freeze">RC compatibility freeze</h2>
+<p>The following remain unchanged from the 2.1 feature baseline:</p>
+<div class="highlight"><pre><span></span><code>PublicationLedger
+ConditionalDatasetPublisher
+DatasetVersionGarbageCollector
+</code></pre></div>
+<p>The following remain unchanged from 2.0:</p>
+<div class="highlight"><pre><span></span><code>pyingestkit.__all__
+DatasetPublisher
+DatasetVersionStore
+PublishedDataset
+IngestionRuntime.run(...)
+contract-version 1 meanings
+v1.0.0 historical tag
+</code></pre></div>
+<p>The RC checker is:</p>
+<div class="highlight"><pre><span></span><code>scripts/check_v2_1_rc1.py
+</code></pre></div>
+<p>The machine fixture is:</p>
+<div class="highlight"><pre><span></span><code>tests/contract/fixtures/governance_v2_1_rc1.json
+</code></pre></div>
+<h2 id="stable-promotion">Stable promotion</h2>
+<p>LOT-30 may promote this exact qualified contract to <code>2.1.0</code>.</p>
+<p>LOT-30 is promotion-only. Any semantic, signature or provider-capability change
+found necessary after RC qualification must return to a pre-stable candidate
+rather than being hidden inside stable promotion.</p>
 
 
 
