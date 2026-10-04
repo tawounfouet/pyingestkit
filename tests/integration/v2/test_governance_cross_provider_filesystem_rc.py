@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import ContextManager
 from uuid import uuid4
 
 import pytest
@@ -75,8 +74,6 @@ class _CrashOnTerminalLedger:
     ) -> tuple[PublicationLifecycleEvent, ...]:
         return self._delegate.list_events(operation_id, dataset_id=dataset_id)
 
-    def transaction(self) -> ContextManager[PostgresPublicationLedger]:
-        return self._delegate.transaction()
 
 
 def _put_version(
