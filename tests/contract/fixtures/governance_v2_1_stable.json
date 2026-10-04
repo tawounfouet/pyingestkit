@@ -182,5 +182,8 @@
     "docs/reference/provider-compatibility-v2.md",
     "docs/architecture/v2-lot29-governance-rc-conformance.md",
     "docs/roadmap/rfc001-publication-lifecycle-implementation-roadmap.md"
-  ]
+  ],
+  "operation_id_serialization": {
+    "stable_pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+  }
 }
