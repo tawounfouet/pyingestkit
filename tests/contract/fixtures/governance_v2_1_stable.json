@@ -49,23 +49,58 @@
   ],
   "protocols": {
     "pyingestkit.ports.governance.PublicationLedger": {
-      "register": ["self", "intent"],
-      "append": ["self", "event"],
-      "get_operation": ["self", "operation_id"],
-      "list_operations": ["self", "dataset_id"],
-      "list_unresolved": ["self", "dataset_id"]
+      "register": [
+        "self",
+        "intent"
+      ],
+      "append": [
+        "self",
+        "event"
+      ],
+      "get_operation": [
+        "self",
+        "operation_id"
+      ],
+      "list_operations": [
+        "self",
+        "dataset_id"
+      ],
+      "list_unresolved": [
+        "self",
+        "dataset_id"
+      ]
     },
     "pyingestkit.ports.governance.ConditionalDatasetPublisher": {
-      "inspect": ["self", "dataset_id"],
-      "compare_and_publish": ["self", "intent"]
+      "inspect": [
+        "self",
+        "dataset_id"
+      ],
+      "compare_and_publish": [
+        "self",
+        "intent"
+      ]
     },
     "pyingestkit.ports.governance.DatasetVersionGarbageCollector": {
-      "delete": ["self", "reference", "plan_id", "expected_evidence", "requested_at"],
-      "reconcile_delete": ["self", "reference", "plan_id", "reconciled_at"]
+      "delete": [
+        "self",
+        "reference",
+        "plan_id",
+        "expected_evidence",
+        "requested_at"
+      ],
+      "reconcile_delete": [
+        "self",
+        "reference",
+        "plan_id",
+        "reconciled_at"
+      ]
     }
   },
   "retention_policy": {
-    "parameters": ["keep_last", "min_age_seconds"],
+    "parameters": [
+      "keep_last",
+      "min_age_seconds"
+    ],
     "defaults": {
       "keep_last": 1,
       "min_age_seconds": null
@@ -144,6 +179,7 @@
     "docs/releases/v2.1.0.md",
     "docs/releases/v2.1.0-qualification.md",
     "docs/releases/v2.1.0-evidence.md",
+    "docs/reference/provider-compatibility-v2.md",
     "docs/architecture/v2-lot29-governance-rc-conformance.md",
     "docs/roadmap/rfc001-publication-lifecycle-implementation-roadmap.md"
   ]
