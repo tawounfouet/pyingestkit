@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "milestone": "LOT-30",
+  "version": "2.1.0",
+  "baseline": {
+    "rc_merge_sha": "12a0dbb83933b141cb08909bab3b3d6159293966",
+    "rc_contract_fixture": "tests/contract/fixtures/governance_v2_1_rc1.json",
+    "lot23_contract_fixture": "tests/contract/fixtures/governance_v2_1_alpha1.json",
+    "stable_2_0_fixture": "tests/contract/fixtures/stable_release_v2.json"
+  },
+  "root_exports": [
+    "ArtifactReference",
+    "DatasetVersion",
+    "DatasetVersionReference",
+    "IngestionDefinition",
+    "IngestionResult",
+    "IngestionRun",
+    "IngestionRunId",
+    "IngestionRuntime",
+    "PublishedDataset",
+    "ResourceReference",
+    "Source"
+  ],
+  "qualified_namespaces": [
+    "pyingestkit.governance",
+    "pyingestkit.governance.retention",
+    "pyingestkit.governance.rollback"
+  ],
+  "governance_namespace_exports": [
+    "ConditionalDatasetPublisher",
+    "ConditionalPublicationOutcome",
+    "ConditionalPublicationStatus",
+    "DatasetVersionDeletionReconciliationResult",
+    "DatasetVersionDeletionReconciliationStatus",
+    "DatasetVersionDeletionResult",
+    "DatasetVersionDeletionStatus",
+    "DatasetVersionGarbageCollector",
+    "GarbageCollectionPlan",
+    "GarbageCollectionPlanId",
+    "PublicationIntent",
+    "PublicationLedger",
+    "PublicationLifecycleEvent",
+    "PublicationLifecycleEventType",
+    "PublicationOperationId",
+    "PublicationRevision",
+    "PublicationSnapshot",
+    "RetentionPolicy",
+    "VersionHold"
+  ],
+  "protocols": {
+    "pyingestkit.ports.governance.PublicationLedger": {
+      "register": ["self", "intent"],
+      "append": ["self", "event"],
+      "get_operation": ["self", "operation_id"],
+      "list_operations": ["self", "dataset_id"],
+      "list_unresolved": ["self", "dataset_id"]
+    },
+    "pyingestkit.ports.governance.ConditionalDatasetPublisher": {
+      "inspect": ["self", "dataset_id"],
+      "compare_and_publish": ["self", "intent"]
+    },
+    "pyingestkit.ports.governance.DatasetVersionGarbageCollector": {
+      "delete": ["self", "reference", "plan_id", "expected_evidence", "requested_at"],
+      "reconcile_delete": ["self", "reference", "plan_id", "reconciled_at"]
+    }
+  },
+  "retention_policy": {
+    "parameters": ["keep_last", "min_age_seconds"],
+    "defaults": {
+      "keep_last": 1,
+      "min_age_seconds": null
+    }
+  },
+  "lifecycle_ledger": {
+    "schema_version": 1,
+    "intent_table": "pyingestkit_v2_publication_operation",
+    "event_table": "pyingestkit_v2_publication_event",
+    "hold_table": "pyingestkit_v2_version_hold"
+  },
+  "lifecycle_event_types": [
+    "version_observed",
+    "publication_requested",
+    "publication_committed",
+    "publication_conflict",
+    "publication_outcome_unknown",
+    "publication_reconciled_committed",
+    "publication_reconciled_not_committed",
+    "publication_reconciled_conflict",
+    "rollback_requested",
+    "rollback_committed",
+    "hold_placed",
+    "hold_released",
+    "retention_plan_created",
+    "gc_delete_requested",
+    "gc_delete_committed",
+    "gc_delete_failed",
+    "gc_delete_outcome_unknown"
+  ],
+  "revision_serialization": {
+    "initial": "initial",
+    "stable_pattern": "^rev-[0-9a-f]{32}$"
+  },
+  "provider_inventory": [
+    "FileConditionalDatasetPublisher",
+    "FileDatasetVersionGarbageCollector",
+    "MemoryPublicationLedger",
+    "PostgresPublicationLedger",
+    "S3ConditionalDatasetPublisher",
+    "S3DatasetVersionGarbageCollector"
+  ],
+  "result_contracts": {
+    "conditional_publication_status": [
+      "succeeded",
+      "conflict",
+      "failed",
+      "unknown_outcome"
+    ],
+    "dataset_version_deletion_status": [
+      "deleted",
+      "already_absent",
+      "failed",
+      "unknown_outcome"
+    ],
+    "dataset_version_deletion_reconciliation_status": [
+      "confirmed_deleted",
+      "confirmed_present",
+      "conflict",
+      "unknown"
+    ],
+    "rollback_result": "ConditionalPublicationOutcome"
+  },
+  "required_release_blocking_jobs": [
+    "governance-contract",
+    "governance-postgres-e2e",
+    "governance-filesystem-cas",
+    "governance-s3-cas",
+    "governance-gc-e2e",
+    "governance-rollback-e2e",
+    "governance-cross-provider-e2e",
+    "governance-built-artifact",
+    "governance-security-negatives"
+  ],
+  "required_docs": [
+    "docs/releases/v2.1.0.md",
+    "docs/releases/v2.1.0-qualification.md",
+    "docs/releases/v2.1.0-evidence.md",
+    "docs/architecture/v2-lot29-governance-rc-conformance.md",
+    "docs/roadmap/rfc001-publication-lifecycle-implementation-roadmap.md"
+  ]
+}
