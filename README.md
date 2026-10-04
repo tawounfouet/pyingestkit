@@ -92,17 +92,17 @@ print(result.status)
 Base installation is provider-neutral:
 
 ```bash
-pip install "pyingestkit==2.0.0"
+pip install "pyingestkit==2.1.0"
 ```
 
 Install only the providers required by the application:
 
 ```bash
-pip install "pyingestkit[http]==2.0.0"
-pip install "pyingestkit[postgres]==2.0.0"
-pip install "pyingestkit[s3]==2.0.0"
-pip install "pyingestkit[excel]==2.0.0"
-pip install "pyingestkit[parquet]==2.0.0"
+pip install "pyingestkit[http]==2.1.0"
+pip install "pyingestkit[postgres]==2.1.0"
+pip install "pyingestkit[s3]==2.1.0"
+pip install "pyingestkit[excel]==2.1.0"
+pip install "pyingestkit[parquet]==2.1.0"
 ```
 
 The base package does not require `httpx`, SQLAlchemy, psycopg, boto3, OpenPyXL, PyArrow or PyTransformKit.
@@ -221,7 +221,7 @@ make release-check
 python scripts/check_v2_stable.py
 ```
 
-The terminal CI gate is `stable-release-gate`, which is release-blocking for `2.0.0`.
+The terminal CI gate is `stable-release-gate`, which is release-blocking for `2.1.0` and preserves the independent 2.0 compatibility checks.
 
 ## Stable compatibility policy
 
@@ -229,9 +229,11 @@ The 2.0 root, stable provider Protocols and version-1 boundary wire contracts ar
 
 See:
 
-- [2.0.0 stable release notes](docs/releases/v2.0.0.md)
-- [2.0 provider compatibility matrix](docs/reference/provider-compatibility-v2.md)
-- [2.0 stable qualification](docs/releases/v2.0.0-qualification.md)
+- [2.1.0 stable release notes](docs/releases/v2.1.0.md)
+- [2.x provider compatibility matrix](docs/reference/provider-compatibility-v2.md)
+- [2.1 stable qualification](docs/releases/v2.1.0-qualification.md)
+- [2.1 qualification evidence](docs/releases/v2.1.0-evidence.md)
+- [Historical 2.0.0 release notes](docs/releases/v2.0.0.md)
 - [V1 → V2 migration guide](docs/guides/migrate-v1-to-v2.md)
 - [LOT-20 Customer 360 beta gate](docs/architecture/v2-lot20-customer360-beta-gate.md)
 - [LOT-18 semantic migration](docs/architecture/v2-lot18-v1-semantic-migration.md)
