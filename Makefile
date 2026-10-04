@@ -1,6 +1,6 @@
 .PHONY: bootstrap install install-dev install-demo docs-install docs-build docs-serve docs-deploy test test-v2 test-demo compatibility stability pilots rc stable check check-v2 format quality security build wheel-smoke upgrade-smoke demo verify release-check stable-v2 compatibility-v2 milestone-v2 architecture-v2 contract-v2 v2-core v2-baseline clean
 
-DOCS_VERSION ?= 2.0
+DOCS_VERSION ?= 2.1
 DOCS_ALIAS ?= latest
 
 bootstrap:
@@ -100,9 +100,9 @@ compatibility-v2:
 	PYTHONPATH=src python scripts/check_v2_compatibility.py
 
 milestone-v2:
-	PYTHONPATH=src python scripts/check_v2_1_rc1.py
+	PYTHONPATH=src python scripts/check_v2_1_stable.py
 
-stable-v2: compatibility-v2
+stable-v2: compatibility-v2 milestone-v2
 
 release-check: verify compatibility-v2 milestone-v2
 
