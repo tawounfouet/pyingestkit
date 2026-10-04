@@ -58,14 +58,17 @@ extra:
 nav:
   - Home: index.md
   - Getting Started:
-      - Installation 2.0: getting-started/installation.md
-      - Quickstart 2.0: getting-started/quickstart.md
+      - Installation 2.x: getting-started/installation.md
+      - Quickstart 2.x: getting-started/quickstart.md
       - Migrate V1 to V2: guides/migrate-v1-to-v2.md
-  - PyIngestKit 2.0:
-      - Stable release 2.0.0: releases/v2.0.0.md
+  - PyIngestKit 2.x:
+      - Stable release 2.1.0: releases/v2.1.0.md
+      - 2.1 stable qualification: releases/v2.1.0-qualification.md
+      - 2.1 qualification evidence: releases/v2.1.0-evidence.md
       - Provider compatibility matrix: reference/provider-compatibility-v2.md
-      - Stable qualification: releases/v2.0.0-qualification.md
-      - Qualification evidence: releases/v2.0.0-evidence.md
+      - Historical 2.0.0 release: releases/v2.0.0.md
+      - Historical 2.0 qualification: releases/v2.0.0-qualification.md
+      - Historical 2.0 evidence: releases/v2.0.0-evidence.md
       - Post-2.0 scope review: roadmap/post-2.0-scope-review.md
   - Post-2.0 RFCs:
       - RFC process: rfc/README.md
