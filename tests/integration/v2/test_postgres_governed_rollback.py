@@ -106,13 +106,9 @@ def test_postgres_rollback_evidence_survives_ledger_restart(tmp_path: Path) -> N
             ledger=ledger,
             clock=lambda: _NOW + timedelta(seconds=1),
         )
-        first = publisher.compare_and_publish(
-            _intent(v1, PublicationRevision.initial(), _NOW)
-        )
+        first = publisher.compare_and_publish(_intent(v1, PublicationRevision.initial(), _NOW))
         assert first.snapshot is not None
-        current = publisher.compare_and_publish(
-            _intent(v2, first.snapshot.revision, _NOW)
-        )
+        current = publisher.compare_and_publish(_intent(v2, first.snapshot.revision, _NOW))
         assert current.snapshot is not None
 
         intent = _intent(
