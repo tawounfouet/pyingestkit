@@ -102,9 +102,7 @@ def test_filesystem_rollback_publishes_existing_version_and_advances_revision(
         _intent(v1, PublicationRevision.initial(), requested_at=_NOW)
     )
     assert first.snapshot is not None
-    second = publisher.compare_and_publish(
-        _intent(v2, first.snapshot.revision, requested_at=_NOW)
-    )
+    second = publisher.compare_and_publish(_intent(v2, first.snapshot.revision, requested_at=_NOW))
     assert second.snapshot is not None
 
     immutable_before = store.read(v1)
@@ -201,9 +199,7 @@ def test_filesystem_repeated_rollback_to_same_version_is_new_revision(
         _intent(v1, PublicationRevision.initial(), requested_at=_NOW)
     )
     assert first.snapshot is not None
-    current = publisher.compare_and_publish(
-        _intent(v2, first.snapshot.revision, requested_at=_NOW)
-    )
+    current = publisher.compare_and_publish(_intent(v2, first.snapshot.revision, requested_at=_NOW))
     assert current.snapshot is not None
 
     service = GovernedRollbackService(
@@ -288,9 +284,7 @@ def test_filesystem_unknown_rollback_reconciles_without_blind_retry(
         _intent(v1, PublicationRevision.initial(), requested_at=_NOW)
     )
     assert first.snapshot is not None
-    current = stable.compare_and_publish(
-        _intent(v2, first.snapshot.revision, requested_at=_NOW)
-    )
+    current = stable.compare_and_publish(_intent(v2, first.snapshot.revision, requested_at=_NOW))
     assert current.snapshot is not None
 
     def lose_acknowledgement(phase: str) -> None:
