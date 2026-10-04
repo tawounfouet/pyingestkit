@@ -350,9 +350,10 @@ V2_COMPLETED_LOTS: tuple[str, ...] = (
     "LOT-25",
     "LOT-26",
     "LOT-27",
+    "LOT-28",
 )
 
-V2_MILESTONE_CANDIDATE = "2.1.0b1"
+V2_MILESTONE_CANDIDATE = "2.1.0b2"
 
 V2_FORBIDDEN_LEGACY_ROOT_EXPORTS: frozenset[str] = frozenset(
     {
@@ -385,6 +386,7 @@ V2_PUBLIC_NAMESPACE_BASELINE: tuple[str, ...] = (
     "pyingestkit.ingestion",
     "pyingestkit.governance",
     "pyingestkit.governance.retention",
+    "pyingestkit.governance.rollback",
     "pyingestkit.integrations.pytransformkit",
     "pyingestkit.migration",
     "pyingestkit.plugins",
@@ -401,4 +403,4 @@ V2_PUBLIC_NAMESPACE_BASELINE: tuple[str, ...] = (
     "pyingestkit.quality",
 )
 
-V2_API_PHASE = "LOT-27_BETA"
+V2_API_PHASE = "LOT-28_BETA"

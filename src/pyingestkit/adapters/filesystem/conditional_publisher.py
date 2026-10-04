@@ -33,6 +33,7 @@ from pyingestkit.domain.runtime import (
     Retryability,
 )
 from pyingestkit.domain.shared import IngestionRunId
+from pyingestkit.governance.rollback import operation_is_rollback
 from pyingestkit.ports.governance import ConditionalDatasetPublisher, PublicationLedger
 
 _DATASET_PART = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]*$")
@@ -127,7 +128,7 @@ class FileConditionalDatasetPublisher(ConditionalDatasetPublisher):
         if self._pointer_matches_intent(snapshot, metadata, intent):
             self._append_if_unresolved(
                 intent,
-                PublicationLifecycleEventType.PUBLICATION_RECONCILED_COMMITTED,
+                self._committed_event_type(intent, reconciled=True),
                 previous_revision=intent.expected_revision,
                 next_revision=snapshot.revision,
             )
@@ -183,7 +184,7 @@ class FileConditionalDatasetPublisher(ConditionalDatasetPublisher):
             if self._is_unresolved(intent):
                 self._append_if_unresolved(
                     intent,
-                    PublicationLifecycleEventType.PUBLICATION_RECONCILED_COMMITTED,
+                    self._committed_event_type(intent, reconciled=True),
                     previous_revision=intent.expected_revision,
                     next_revision=current.revision,
                 )
@@ -305,7 +306,7 @@ class FileConditionalDatasetPublisher(ConditionalDatasetPublisher):
         try:
             self._append_if_unresolved(
                 intent,
-                PublicationLifecycleEventType.PUBLICATION_COMMITTED,
+                self._committed_event_type(intent, reconciled=False),
                 previous_revision=current.revision,
                 next_revision=next_revision,
             )
@@ -352,6 +353,18 @@ class FileConditionalDatasetPublisher(ConditionalDatasetPublisher):
             return
         self._ledger.register(intent)
         self._ledger.append(requested)
+
+    def _committed_event_type(
+        self,
+        intent: PublicationIntent,
+        *,
+        reconciled: bool,
+    ) -> PublicationLifecycleEventType:
+        if operation_is_rollback(self._ledger, intent.operation_id):
+            return PublicationLifecycleEventType.ROLLBACK_COMMITTED
+        if reconciled:
+            return PublicationLifecycleEventType.PUBLICATION_RECONCILED_COMMITTED
+        return PublicationLifecycleEventType.PUBLICATION_COMMITTED
 
     def _append_if_unresolved(
         self,

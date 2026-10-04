@@ -2,6 +2,20 @@
 
 All notable changes to PyIngestKit are documented here.
 
+## [2.1.0b2] - 2026-10-04
+
+### Beta 2 — Governed Rollback
+
+- added qualified `pyingestkit.governance.rollback.GovernedRollbackService` without widening the frozen package or governance roots;
+- defined rollback as a new CAS publication to an already-existing immutable DatasetVersion, never as mutation, deletion or replay;
+- added target existence/integrity admission checks before lifecycle registration;
+- added durable `ROLLBACK_REQUESTED` / `ROLLBACK_COMMITTED` evidence with operation-id idempotency;
+- reused filesystem and S3 conditional publication semantics for stale-revision conflicts and ABA-safe revision advancement;
+- added UNKNOWN_OUTCOME rollback reconciliation without blind retry;
+- proved repeated rollback to the same historical version creates a distinct publication revision;
+- proved rollback does not mutate DatasetVersion bytes and strict replay remains `publish=False`;
+- added PostgreSQL restart durability plus File/S3 rollback release-blocking CI gates.
+
 ## [2.1.0b1] - 2026-10-04
 
 ### Beta 1 — Retention, Holds & Guarded Garbage Collection
