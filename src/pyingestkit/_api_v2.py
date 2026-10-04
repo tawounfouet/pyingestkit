@@ -23,7 +23,7 @@ unchanged RC contract to the stable 2.0.0 release after full requalification.
 LOT-23 opens the additive 2.1 line with provider-neutral publication/lifecycle
 governance domain values and ports while preserving every frozen 2.0 surface.
 LOT-24 adds the durable lifecycle ledger with in-memory reference semantics and
-PostgreSQL persistence/restart recovery without changing the LOT-23 contracts.\nLOT-25 adds opt-in filesystem compare-and-swap publication with ABA-safe revisions,\ninter-process locking and reconciliation while preserving the frozen 2.0 publisher.\nLOT-26 adds endpoint-qualified S3 conditional publication using provider-enforced\ncreate-if-absent and compare-and-replace semantics without exposing ETags.\nLOT-27 adds deterministic retention planning, durable version holds and guarded\nfilesystem/S3 garbage collection with stale-plan detection and reconciliation.\nLOT-28 adds governed rollback to immutable historical versions, and LOT-29\nqualifies the complete 2.1 governance contract across providers, crashes,\nrestarts and built artifacts without adding new architecture.\n"""
+PostgreSQL persistence/restart recovery without changing the LOT-23 contracts.\nLOT-25 adds opt-in filesystem compare-and-swap publication with ABA-safe revisions,\ninter-process locking and reconciliation while preserving the frozen 2.0 publisher.\nLOT-26 adds endpoint-qualified S3 conditional publication using provider-enforced\ncreate-if-absent and compare-and-replace semantics without exposing ETags.\nLOT-27 adds deterministic retention planning, durable version holds and guarded\nfilesystem/S3 garbage collection with stale-plan detection and reconciliation.\nLOT-28 adds governed rollback to immutable historical versions, LOT-29\nqualifies the complete 2.1 governance contract across providers, crashes,\nrestarts and built artifacts without adding new architecture, and LOT-30\npromotes that unchanged release candidate to PyIngestKit 2.1.0 stable.\n"""
 
 from __future__ import annotations
 
@@ -352,9 +352,10 @@ V2_COMPLETED_LOTS: tuple[str, ...] = (
     "LOT-27",
     "LOT-28",
     "LOT-29",
+    "LOT-30",
 )
 
-V2_MILESTONE_CANDIDATE = "2.1.0rc1"
+V2_MILESTONE_CANDIDATE = "2.1.0"
 
 V2_FORBIDDEN_LEGACY_ROOT_EXPORTS: frozenset[str] = frozenset(
     {
@@ -404,4 +405,4 @@ V2_PUBLIC_NAMESPACE_BASELINE: tuple[str, ...] = (
     "pyingestkit.quality",
 )
 
-V2_API_PHASE = "LOT-29_RC"
+V2_API_PHASE = "LOT-30_STABLE"

@@ -1,6 +1,6 @@
-# PyIngestKit 2.0 Quickstart
+# PyIngestKit 2.x Quickstart
 
-This quickstart exercises the canonical 2.0 Python API:
+This quickstart exercises the canonical 2.x root API:
 
 ```text
 IngestionDefinition + IngestionRuntime.run(...)
@@ -8,13 +8,13 @@ IngestionDefinition + IngestionRuntime.run(...)
 
 It intentionally does not use the historical V1 Job/Pipeline/Step operator flow.
 
-## 1. Install 2.0
+## 1. Install 2.1
 
 ```bash
 python3.12 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
-python -m pip install "pyingestkit==2.0.0"
+python -m pip install "pyingestkit==2.1.0"
 ```
 
 ## 2. Create a small source file
@@ -71,7 +71,7 @@ print(result.status)
 python ingest.py
 ```
 
-The runtime acquires the local file, preserves durable RAW evidence, decodes the CSV and creates the governed V2 ingestion result through the same stable runtime entry point qualified for 2.0.0.
+The runtime acquires the local file, preserves durable RAW evidence, decodes the CSV and creates the governed V2 ingestion result through the same stable runtime entry point qualified for 2.1.0.
 
 ## 5. Understand the lifecycle
 
@@ -103,18 +103,18 @@ Publication and target materialization are explicit operations. Replay starts fr
 The base installation remains provider-neutral. Qualified optional provider families include:
 
 ```bash
-python -m pip install "pyingestkit[http]==2.0.0"
-python -m pip install "pyingestkit[postgres]==2.0.0"
-python -m pip install "pyingestkit[s3]==2.0.0"
-python -m pip install "pyingestkit[excel]==2.0.0"
-python -m pip install "pyingestkit[parquet]==2.0.0"
+python -m pip install "pyingestkit[http]==2.1.0"
+python -m pip install "pyingestkit[postgres]==2.1.0"
+python -m pip install "pyingestkit[s3]==2.1.0"
+python -m pip install "pyingestkit[excel]==2.1.0"
+python -m pip install "pyingestkit[parquet]==2.1.0"
 ```
 
-See the [2.0 provider compatibility matrix](../reference/provider-compatibility-v2.md) for the evidence-backed support boundaries.
+See the [2.x provider compatibility matrix](../reference/provider-compatibility-v2.md) for the evidence-backed support boundaries.
 
 ## Next steps
 
 - Read the [architecture overview](../architecture/overview.md).
-- Review the [2.0.0 release notes](../releases/v2.0.0.md).
-- Review the [stable qualification](../releases/v2.0.0-qualification.md).
+- Review the [2.1.0 release notes](../releases/v2.1.0.md).
+- Review the [stable qualification](../releases/v2.1.0-qualification.md).
 - If you operate a V1 application, follow the [V1 → V2 migration guide](../guides/migrate-v1-to-v2.md).

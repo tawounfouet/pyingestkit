@@ -4,23 +4,19 @@
 [![Security](https://github.com/tawounfouet/pyingestkit/actions/workflows/security.yml/badge.svg)](https://github.com/tawounfouet/pyingestkit/actions/workflows/security.yml)
 [![Python 3.11–3.14](https://img.shields.io/badge/python-3.11%E2%80%933.14-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Stable: 2.0.0](https://img.shields.io/badge/stable-2.0.0-brightgreen.svg)](docs/releases/v2.0.0.md)
+[![Stable: 2.1.0](https://img.shields.io/badge/stable-2.1.0-brightgreen.svg)](docs/releases/v2.1.0.md)
 
 **PyIngestKit** is a focused Python framework for reliable, traceable and replayable ingestion.
 
 > Acquire external data, preserve durable RAW evidence, decode and validate it, create immutable dataset versions, then publish or materialize them explicitly.
 
-## 2.0 stable
+## 2.1 stable
 
-`2.0.0` is the LOT-22 stable release of the clean-slate V2 architecture. It promotes the fully qualified RC contract without changing the frozen public root, runtime signature, provider Protocols or boundary wire versions.
+`2.1.0` is the LOT-30 stable release. It promotes the fully qualified `2.1.0rc1` governance contract unchanged: durable lifecycle ledgers, filesystem/S3 CAS publication, retention/holds, guarded GC, rollback and crash/restart reconciliation remain additive under qualified namespaces.
 
-The V1 `Job / Pipeline / Step / Runner` execution model is **not** aliased into the 2.0 root. Existing V1 workloads should remain pinned to the 1.x line until they are migrated semantically.
+The exact 2.0 package root, `IngestionRuntime.run(...)`, stable provider Protocols and version-1 portable wire contracts remain frozen. Applications that do not use governance APIs do not need to change their 2.0 imports or runtime composition.
 
-## 2.1 development line
-
-Repository `main` is now on **2.1.0rc1 / LOT-29**. LOT-23→28 established the complete publication/lifecycle governance feature line; LOT-29 freezes and qualifies that unchanged contract across File/S3, Memory/PostgreSQL, crash/restart recovery and built artifacts. The exact 2.0 package root and LOT-23 Protocols remain frozen.
-
-Stable promotion remains in LOT-30 and is promotion-only: no new governance semantics are allowed after this RC without returning to a pre-stable candidate.
+The V1 `Job / Pipeline / Step / Runner` execution model is **not** aliased into the 2.x root. Existing V1 workloads should remain pinned to the 1.x line until they are migrated semantically.
 
 ## Product boundary
 
@@ -36,7 +32,7 @@ Replay              != new source acquisition
 PyIngestKit         != orchestrator
 ```
 
-## Canonical 2.0 API
+## Canonical 2.x root API
 
 The 2.0 root is intentionally small:
 
@@ -96,17 +92,17 @@ print(result.status)
 Base installation is provider-neutral:
 
 ```bash
-pip install "pyingestkit==2.0.0"
+pip install "pyingestkit==2.1.0"
 ```
 
 Install only the providers required by the application:
 
 ```bash
-pip install "pyingestkit[http]==2.0.0"
-pip install "pyingestkit[postgres]==2.0.0"
-pip install "pyingestkit[s3]==2.0.0"
-pip install "pyingestkit[excel]==2.0.0"
-pip install "pyingestkit[parquet]==2.0.0"
+pip install "pyingestkit[http]==2.1.0"
+pip install "pyingestkit[postgres]==2.1.0"
+pip install "pyingestkit[s3]==2.1.0"
+pip install "pyingestkit[excel]==2.1.0"
+pip install "pyingestkit[parquet]==2.1.0"
 ```
 
 The base package does not require `httpx`, SQLAlchemy, psycopg, boto3, OpenPyXL, PyArrow or PyTransformKit.
@@ -225,7 +221,7 @@ make release-check
 python scripts/check_v2_stable.py
 ```
 
-The terminal CI gate is `stable-release-gate`, which is release-blocking for `2.0.0`.
+The terminal CI gate is `stable-release-gate`, which is release-blocking for `2.1.0` and preserves the independent 2.0 compatibility checks.
 
 ## Stable compatibility policy
 
@@ -233,9 +229,11 @@ The 2.0 root, stable provider Protocols and version-1 boundary wire contracts ar
 
 See:
 
-- [2.0.0 stable release notes](docs/releases/v2.0.0.md)
-- [2.0 provider compatibility matrix](docs/reference/provider-compatibility-v2.md)
-- [2.0 stable qualification](docs/releases/v2.0.0-qualification.md)
+- [2.1.0 stable release notes](docs/releases/v2.1.0.md)
+- [2.x provider compatibility matrix](docs/reference/provider-compatibility-v2.md)
+- [2.1 stable qualification](docs/releases/v2.1.0-qualification.md)
+- [2.1 qualification evidence](docs/releases/v2.1.0-evidence.md)
+- [Historical 2.0.0 release notes](docs/releases/v2.0.0.md)
 - [V1 → V2 migration guide](docs/guides/migrate-v1-to-v2.md)
 - [LOT-20 Customer 360 beta gate](docs/architecture/v2-lot20-customer360-beta-gate.md)
 - [LOT-18 semantic migration](docs/architecture/v2-lot18-v1-semantic-migration.md)
