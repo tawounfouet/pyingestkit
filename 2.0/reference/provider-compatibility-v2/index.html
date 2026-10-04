@@ -13,10 +13,10 @@
         <link rel="canonical" href="https://tawounfouet.github.io/pyingestkit/2.0/reference/provider-compatibility-v2/">
       
       
-        <link rel="prev" href="../../releases/v2.0.0/">
+        <link rel="prev" href="../../releases/v2.1.0-evidence/">
       
       
-        <link rel="next" href="../../releases/v2.0.0-qualification/">
+        <link rel="next" href="../../releases/v2.0.0/">
       
       
         
@@ -70,7 +70,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#pyingestkit-20-provider-compatibility-matrix" class="md-skip">
+        <a href="#pyingestkit-2x-provider-compatibility-matrix" class="md-skip">
           Skip to content
         </a>
       
@@ -240,13 +240,13 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../../releases/v2.0.0/" class="md-tabs__link">
+        <a href="../../releases/v2.1.0/" class="md-tabs__link">
           
   
   
     
   
-  PyIngestKit 2.0
+  PyIngestKit 2.x
 
         </a>
       </li>
@@ -488,7 +488,7 @@
   <span class="md-ellipsis">
     
   
-    Installation 2.0
+    Installation 2.x
   
 
     
@@ -516,7 +516,7 @@
   <span class="md-ellipsis">
     
   
-    Quickstart 2.0
+    Quickstart 2.x
   
 
     
@@ -586,6 +586,12 @@
       
         
       
+        
+      
+        
+      
+        
+      
     
     
     
@@ -612,7 +618,7 @@
   <span class="md-ellipsis">
     
   
-    PyIngestKit 2.0
+    PyIngestKit 2.x
   
 
     
@@ -628,7 +634,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    PyIngestKit 2.0
+    PyIngestKit 2.x
   
 
           </label>
@@ -641,14 +647,70 @@
   
   
     <li class="md-nav__item">
-      <a href="../../releases/v2.0.0/" class="md-nav__link">
+      <a href="../../releases/v2.1.0/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Stable release 2.0.0
+    Stable release 2.1.0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releases/v2.1.0-qualification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.1 stable qualification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../releases/v2.1.0-evidence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    2.1 qualification evidence
   
 
     
@@ -755,6 +817,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../releases/v2.0.0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical 2.0.0 release
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../releases/v2.0.0-qualification/" class="md-nav__link">
         
   
@@ -762,7 +852,7 @@
   <span class="md-ellipsis">
     
   
-    Stable qualification
+    Historical 2.0 qualification
   
 
     
@@ -790,7 +880,7 @@
   <span class="md-ellipsis">
     
   
-    Qualification evidence
+    Historical 2.0 evidence
   
 
     
@@ -2682,16 +2772,17 @@
   
 
 
-<h1 id="pyingestkit-20-provider-compatibility-matrix">PyIngestKit 2.0 Provider Compatibility Matrix</h1>
-<p>This matrix is part of the PyIngestKit 2.0 stable qualification. Capability
-claims are backed by CI evidence rather than Protocol conformance alone.</p>
+<h1 id="pyingestkit-2x-provider-compatibility-matrix">PyIngestKit 2.x Provider Compatibility Matrix</h1>
+<p>This matrix covers the frozen PyIngestKit 2.0 provider baseline plus the additive
+2.1 governance providers. Capability claims are backed by CI evidence rather than
+Protocol conformance alone.</p>
 <table>
 <thead>
 <tr>
 <th>Provider / boundary</th>
 <th>Stable contract</th>
 <th>Dependency profile</th>
-<th>2.0 evidence</th>
+<th>2.x evidence</th>
 </tr>
 </thead>
 <tbody>
@@ -2761,6 +2852,48 @@ claims are backed by CI evidence rather than Protocol conformance alone.</p>
 <td>optional sibling install</td>
 <td>pinned 1.1.0 integration + Customer 360</td>
 </tr>
+<tr>
+<td>In-memory lifecycle ledger</td>
+<td><code>PublicationLedger</code></td>
+<td>base</td>
+<td>shared ledger conformance</td>
+</tr>
+<tr>
+<td>PostgreSQL lifecycle ledger</td>
+<td><code>PublicationLedger</code></td>
+<td><code>[postgres]</code> / SQLAlchemy + psycopg</td>
+<td>restart + transaction E2E</td>
+</tr>
+<tr>
+<td>Filesystem conditional publisher</td>
+<td><code>ConditionalDatasetPublisher</code></td>
+<td>base</td>
+<td>inter-process CAS, ABA, lock-timeout, reconciliation</td>
+</tr>
+<tr>
+<td>S3 conditional publisher</td>
+<td><code>ConditionalDatasetPublisher</code></td>
+<td><code>[s3]</code> / boto3</td>
+<td>endpoint capability probe, provider CAS races, reconciliation</td>
+</tr>
+<tr>
+<td>Filesystem version GC</td>
+<td><code>DatasetVersionGarbageCollector</code></td>
+<td>base</td>
+<td>stale-plan, symlink/path confinement, uncertain-delete reconciliation</td>
+</tr>
+<tr>
+<td>S3 version GC</td>
+<td><code>DatasetVersionGarbageCollector</code></td>
+<td><code>[s3]</code> / boto3</td>
+<td>bucket/prefix confinement, stale-plan, reconciliation</td>
+</tr>
+<tr>
+<td>Governed rollback</td>
+<td>qualified governance service over CAS</td>
+<td>provider-composed</td>
+<td>File/S3 + PostgreSQL rollback qualification</td>
+</tr>
 </tbody>
 </table>
 <h2 id="compatibility-rules">Compatibility rules</h2>
@@ -2769,7 +2902,9 @@ behavioral/conformance suite. Structural typing by itself is not a support claim
 <p>The base installation remains provider-neutral. Optional provider packages are
 not imported unless the relevant provider boundary is selected.</p>
 <p>S3 qualification uses an S3-compatible endpoint and therefore does not make the
-framework AWS-only. PostgreSQL qualification targets PostgreSQL 16 in CI.</p>
+framework AWS-only. The 2.1 conditional-publisher profile additionally requires
+provider-enforced conditional writes and fails closed when that capability cannot
+be proven. PostgreSQL qualification targets PostgreSQL 16 in CI.</p>
 <p>PyTransformKit remains a sibling framework rather than a base dependency.
 Inter-framework handoff uses portable references; DataFrames, engines and live
 provider clients are not durable compatibility contracts.</p>
