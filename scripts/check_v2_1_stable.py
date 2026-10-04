@@ -147,9 +147,7 @@ def main() -> int:
     operation = stable["operation_id_serialization"]
     assert isinstance(operation, dict)
     operation_pattern = re.compile(str(operation["stable_pattern"]))
-    sample_operation = PublicationOperationId.parse(
-        "00000000-0000-0000-0000-000000000000"
-    )
+    sample_operation = PublicationOperationId.parse("00000000-0000-0000-0000-000000000000")
     if operation_pattern.fullmatch(str(sample_operation)) is None:
         raise SystemExit("PublicationOperationId stable serialization pattern drift")
 
