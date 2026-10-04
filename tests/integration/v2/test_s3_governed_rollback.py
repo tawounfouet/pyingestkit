@@ -203,7 +203,11 @@ def test_s3_stale_rollback_conflicts_against_newer_publication() -> None:
         second.snapshot.revision,
         requested_at=_NOW + timedelta(seconds=2),
     )
-    newer = publisher.compare_and_publish(
+    newer = _publisher(
+        store,
+        ledger,
+        _NOW + timedelta(seconds=2),
+    ).compare_and_publish(
         _intent(v3, second.snapshot.revision, requested_at=_NOW + timedelta(seconds=2))
     )
     assert newer.snapshot is not None
