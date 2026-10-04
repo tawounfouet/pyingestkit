@@ -146,9 +146,7 @@ def test_filesystem_stale_rollback_conflicts_without_mutating_target_bytes(
         _intent(v1, PublicationRevision.initial(), requested_at=_NOW)
     )
     assert first.snapshot is not None
-    second = publisher.compare_and_publish(
-        _intent(v2, first.snapshot.revision, requested_at=_NOW)
-    )
+    second = publisher.compare_and_publish(_intent(v2, first.snapshot.revision, requested_at=_NOW))
     assert second.snapshot is not None
 
     stale_intent = _intent(
