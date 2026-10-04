@@ -151,9 +151,7 @@ def test_s3_rollback_uses_provider_cas_and_preserves_version_bytes() -> None:
         _intent(v1, PublicationRevision.initial(), requested_at=_NOW)
     )
     assert first.snapshot is not None
-    current = publisher.compare_and_publish(
-        _intent(v2, first.snapshot.revision, requested_at=_NOW)
-    )
+    current = publisher.compare_and_publish(_intent(v2, first.snapshot.revision, requested_at=_NOW))
     assert current.snapshot is not None
 
     immutable_before = store.read(v1)
@@ -193,9 +191,7 @@ def test_s3_stale_rollback_conflicts_against_newer_publication() -> None:
         _intent(v1, PublicationRevision.initial(), requested_at=_NOW)
     )
     assert first.snapshot is not None
-    second = publisher.compare_and_publish(
-        _intent(v2, first.snapshot.revision, requested_at=_NOW)
-    )
+    second = publisher.compare_and_publish(_intent(v2, first.snapshot.revision, requested_at=_NOW))
     assert second.snapshot is not None
 
     stale = _intent(
@@ -240,9 +236,7 @@ def test_s3_unknown_rollback_is_reconciled_without_republication() -> None:
         _intent(v1, PublicationRevision.initial(), requested_at=_NOW)
     )
     assert first.snapshot is not None
-    current = stable.compare_and_publish(
-        _intent(v2, first.snapshot.revision, requested_at=_NOW)
-    )
+    current = stable.compare_and_publish(_intent(v2, first.snapshot.revision, requested_at=_NOW))
     assert current.snapshot is not None
 
     def lose_acknowledgement(phase: str) -> None:
