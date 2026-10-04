@@ -643,7 +643,8 @@ jobs:
           python -m pytest -q
           tests/unit/v2/test_governance_foundations.py
           tests/unit/v2/test_memory_publication_ledger.py
-          tests/contract/public_api/test_v2_governance.py\n          tests/contract/public_api/test_v2_governance_ledger.py
+          tests/contract/public_api/test_v2_governance.py
+          tests/contract/public_api/test_v2_governance_ledger.py
           tests/contract/public_api/test_v2_governance_filesystem_cas.py
           tests/contract/public_api/test_v2_governance_s3_cas.py
           tests/contract/public_api/test_v2_governance_retention_gc.py
