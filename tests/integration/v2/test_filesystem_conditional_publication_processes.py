@@ -161,7 +161,9 @@ def _holding_publish_worker(root: str, intent: PublicationIntent, ready, release
         fault_injector=hold_lock,
     )
     outcome = publisher.compare_and_publish(intent)
-    queue.put(\n        (outcome.status.value, None if outcome.failure is None else outcome.failure.error_code)\n    )
+    queue.put(
+        (outcome.status.value, None if outcome.failure is None else outcome.failure.error_code)
+    )
 
 
 def _timeout_publish_worker(root: str, intent: PublicationIntent, queue) -> None:
@@ -172,7 +174,9 @@ def _timeout_publish_worker(root: str, intent: PublicationIntent, queue) -> None
         lock_timeout_seconds=0.05,
     )
     outcome = publisher.compare_and_publish(intent)
-    queue.put(\n        (outcome.status.value, None if outcome.failure is None else outcome.failure.error_code)\n    )
+    queue.put(
+        (outcome.status.value, None if outcome.failure is None else outcome.failure.error_code)
+    )
 
 
 def test_process_lock_acquisition_timeout_fails_before_pointer_side_effect(
