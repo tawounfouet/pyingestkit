@@ -5,13 +5,13 @@
 PyIngestKit is a focused framework for acquiring external data, preserving durable RAW evidence, decoding and validating it, creating immutable dataset versions, and publishing or materializing them explicitly.
 
 !!! success "Stable release"
-    The current stable release is **PyIngestKit 2.0.0**. The 2.0 package root, `IngestionRuntime.run(...)`, stable provider Protocols and version-1 portable wire contracts form the compatibility baseline for the maintained 2.x line.
+    The current stable release is **PyIngestKit 2.1.0 / LOT-30**. It promotes the qualified 2.1 governance contract unchanged while preserving the exact 2.0 root, `IngestionRuntime.run(...)`, stable provider Protocols and version-1 portable wire contracts.
 
-!!! warning "2.1 development line"
-    Repository `main` is currently **2.1.0rc1 / LOT-29**. The complete 2.1 governance contract is now frozen and undergoing full cross-provider, crash/restart and built-artifact qualification; the published stable release remains 2.0.0 and the frozen 2.0/LOT-23 contracts remain unchanged.
+!!! info "2.1 governance"
+    Publication/lifecycle governance is additive under qualified namespaces: durable Memory/PostgreSQL ledgers, filesystem/S3 CAS, retention/holds, guarded GC, rollback and crash/restart reconciliation.
 
-[Install 2.0](getting-started/installation.md){ .md-button .md-button--primary }
-[2.0 Quickstart](getting-started/quickstart.md){ .md-button }
+[Install 2.1](getting-started/installation.md){ .md-button .md-button--primary }
+[2.x Quickstart](getting-started/quickstart.md){ .md-button }
 [Migrate V1 → V2](guides/migrate-v1-to-v2.md){ .md-button }
 [Provider matrix](reference/provider-compatibility-v2.md){ .md-button }
 
@@ -32,7 +32,7 @@ Source
 
 It is intentionally not a scheduler, distributed worker platform, generic DAG engine, IAM system, data catalog or cloud-provisioning framework.
 
-## Stable 2.0 capabilities
+## Stable 2.x capabilities
 
 - compact V2 root centered on `IngestionDefinition`, `IngestionRuntime`, `Source` and portable references;
 - durable immutable RAW evidence with provenance;
@@ -46,17 +46,18 @@ It is intentionally not a scheduler, distributed worker platform, generic DAG en
 - S3-compatible artifact and dataset-version storage through `[s3]`;
 - canonical portable serialization across framework boundaries;
 - optional PyTransformKit integration through portable references;
-- explicit V1 → V2 semantic migration rather than compatibility aliases.
+- explicit V1 → V2 semantic migration rather than compatibility aliases;
+- additive 2.1 lifecycle governance with durable ledgers, CAS publication, retention/holds, guarded GC and rollback.
 
-See the [2.0 release notes](releases/v2.0.0.md), [provider compatibility matrix](reference/provider-compatibility-v2.md) and [stable qualification](releases/v2.0.0-qualification.md).
+See the [2.1 release notes](releases/v2.1.0.md), [provider compatibility matrix](reference/provider-compatibility-v2.md) and [stable qualification](releases/v2.1.0-qualification.md).
 
 ## Start here
 
-### New 2.0 users
+### New 2.x users
 
-1. [Install PyIngestKit 2.0](getting-started/installation.md).
-2. Run the [2.0 Quickstart](getting-started/quickstart.md).
-3. Review the [2.0 provider compatibility matrix](reference/provider-compatibility-v2.md).
+1. [Install PyIngestKit 2.1](getting-started/installation.md).
+2. Run the [2.x Quickstart](getting-started/quickstart.md).
+3. Review the [2.x provider compatibility matrix](reference/provider-compatibility-v2.md).
 4. Read the [architecture overview](architecture/overview.md).
 
 ### Migrating existing 1.x applications
@@ -67,9 +68,10 @@ Use the [V1 → V2 migration guide](guides/migrate-v1-to-v2.md) to inventory V1 
 
 ### Qualification and release evidence
 
-- [PyIngestKit 2.0.0 release notes](releases/v2.0.0.md)
-- [Stable qualification](releases/v2.0.0-qualification.md)
-- [Auditable qualification evidence](releases/v2.0.0-evidence.md)
+- [PyIngestKit 2.1.0 release notes](releases/v2.1.0.md)
+- [2.1 stable qualification](releases/v2.1.0-qualification.md)
+- [2.1 auditable qualification evidence](releases/v2.1.0-evidence.md)
+- [Historical 2.0.0 release notes](releases/v2.0.0.md)
 - [Provider compatibility matrix](reference/provider-compatibility-v2.md)
 - [Post-2.0 scope review](roadmap/post-2.0-scope-review.md)
 
