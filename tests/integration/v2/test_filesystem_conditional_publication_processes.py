@@ -146,7 +146,6 @@ def test_existing_revision_process_race_has_exactly_one_winner(
     assert outcomes == ["conflict", "succeeded"]
 
 
-
 def _holding_publish_worker(root: str, intent: PublicationIntent, ready, release, queue) -> None:
     store = FileDatasetVersionStore(root=Path(root))
 
@@ -162,7 +161,7 @@ def _holding_publish_worker(root: str, intent: PublicationIntent, ready, release
         fault_injector=hold_lock,
     )
     outcome = publisher.compare_and_publish(intent)
-    queue.put((outcome.status.value, None if outcome.failure is None else outcome.failure.error_code))
+    queue.put(\n        (outcome.status.value, None if outcome.failure is None else outcome.failure.error_code)\n    )
 
 
 def _timeout_publish_worker(root: str, intent: PublicationIntent, queue) -> None:
@@ -173,7 +172,7 @@ def _timeout_publish_worker(root: str, intent: PublicationIntent, queue) -> None
         lock_timeout_seconds=0.05,
     )
     outcome = publisher.compare_and_publish(intent)
-    queue.put((outcome.status.value, None if outcome.failure is None else outcome.failure.error_code))
+    queue.put(\n        (outcome.status.value, None if outcome.failure is None else outcome.failure.error_code)\n    )
 
 
 def test_process_lock_acquisition_timeout_fails_before_pointer_side_effect(
