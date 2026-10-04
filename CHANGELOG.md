@@ -2,6 +2,20 @@
 
 All notable changes to PyIngestKit are documented here.
 
+## [2.1.0] - 2026-10-04
+
+### Stable — Publication & Lifecycle Governance
+
+- promoted the qualified `2.1.0rc1` governance contract unchanged to stable;
+- froze the exact LOT-23 governance namespace and Protocol signatures;
+- froze `RetentionPolicy(keep_last=1, min_age_seconds=None)`;
+- froze lifecycle-ledger schema version `1`, lifecycle event values and portable publication revision serialization;
+- froze the File/S3 + Memory/PostgreSQL governance provider matrix;
+- preserved exactly-one-winner CAS, ABA protection, UNKNOWN_OUTCOME reconciliation, guarded GC and governed rollback semantics;
+- preserved the exact PyIngestKit 2.0 package root, runtime signature, stable provider Protocols and version-1 portable wire contracts;
+- promoted package metadata to `Development Status :: 5 - Production/Stable`;
+- retained all LOT-29 governance gates as release-blocking stable qualification evidence.
+
 ## [2.1.0rc1] - 2026-10-04
 
 ### Release Candidate 1 — Full Governance Conformance
