@@ -90,7 +90,8 @@ nav:
       - LOT-25 filesystem conditional publication: architecture/v2-lot25-filesystem-conditional-publication.md
       - LOT-26 S3 conditional publication: architecture/v2-lot26-s3-conditional-publication.md
       - LOT-27 retention, holds & guarded GC: architecture/v2-lot27-retention-holds-guarded-gc.md
-      - LOT-28 governed rollback: architecture/v2-lot28-governed-rollback.md\n      - LOT-29 governance RC conformance: architecture/v2-lot29-governance-rc-conformance.md
+      - LOT-28 governed rollback: architecture/v2-lot28-governed-rollback.md
+      - LOT-29 governance RC conformance: architecture/v2-lot29-governance-rc-conformance.md
   - Historical V1.x:
       - V1 Quickstart: guides/v1-quickstart.md
       - Authoring:
