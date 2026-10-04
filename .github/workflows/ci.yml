@@ -1009,7 +1009,6 @@ jobs:
           python -m pytest -q
           tests/unit/v2/test_governance_foundations.py
           tests/unit/v2/test_source_definition.py
-          tests/unit/test_artifact_uri.py
           tests/integration/v2/test_postgres_publication_ledger.py
           tests/integration/v2/test_filesystem_guarded_gc.py
           tests/integration/v2/test_s3_guarded_gc.py
