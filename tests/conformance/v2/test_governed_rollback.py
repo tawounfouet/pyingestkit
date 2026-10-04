@@ -158,7 +158,11 @@ def test_filesystem_stale_rollback_conflicts_without_mutating_target_bytes(
         second.snapshot.revision,
         requested_at=_NOW + timedelta(seconds=2),
     )
-    newer = publisher.compare_and_publish(
+    newer = _publisher(
+        store,
+        ledger,
+        _NOW + timedelta(seconds=2),
+    ).compare_and_publish(
         _intent(v3, second.snapshot.revision, requested_at=_NOW + timedelta(seconds=2))
     )
     assert newer.snapshot is not None
