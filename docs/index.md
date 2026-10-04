@@ -107,5 +107,6 @@ Within the current documentation tree, V1 material is grouped under **Historical
 The online documentation is versioned with **Mike**:
 
 - `latest` follows the maintained **2.x** documentation;
-- `2.1` is the current maintained PyIngestKit 2.x documentation line;\n- `2.0` preserves the prior stable 2.0 documentation line;
+- `2.1` is the current maintained PyIngestKit 2.x documentation line;
+- `2.0` preserves the prior stable 2.0 documentation line;
 - `1.0` preserves the historical V1 stable documentation line.
