@@ -4,7 +4,7 @@ This matrix covers the frozen PyIngestKit 2.0 provider baseline plus the additiv
 2.1 governance providers. Capability claims are backed by CI evidence rather than
 Protocol conformance alone.
 
-| Provider / boundary | Stable contract | Dependency profile | 2.0 evidence |
+| Provider / boundary | Stable contract | Dependency profile | 2.x evidence |
 | --- | --- | --- | --- |
 | Local file source | `SourceConnector` | base | architecture + V2 integration tests |
 | HTTP source | `SourceConnector` | `[http]` / httpx | HTTP runtime + security boundary tests |
