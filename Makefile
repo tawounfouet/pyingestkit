@@ -100,7 +100,7 @@ compatibility-v2:
 	PYTHONPATH=src python scripts/check_v2_compatibility.py
 
 milestone-v2:
-	PYTHONPATH=src python scripts/check_v2_1_beta1.py
+	PYTHONPATH=src python scripts/check_v2_1_beta2.py
 
 stable-v2: compatibility-v2
 
