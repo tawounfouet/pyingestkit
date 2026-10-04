@@ -75,7 +75,6 @@ class _CrashOnTerminalLedger:
         return self._delegate.list_events(operation_id, dataset_id=dataset_id)
 
 
-
 def _put_version(
     store: FileDatasetVersionStore,
     workspace: Path,
@@ -172,9 +171,7 @@ def test_filesystem_postgres_restart_reconciles_crash_before_provider_side_effec
         assert reconciled.snapshot.revision == PublicationRevision.initial()
         assert publisher.inspect(dataset_id).published_dataset is None
         assert restarted.list_unresolved(dataset_id) == ()
-        assert [
-            event.event_type for event in restarted.list_events(intent.operation_id)
-        ] == [
+        assert [event.event_type for event in restarted.list_events(intent.operation_id)] == [
             PublicationLifecycleEventType.PUBLICATION_REQUESTED,
             PublicationLifecycleEventType.PUBLICATION_RECONCILED_NOT_COMMITTED,
         ]
