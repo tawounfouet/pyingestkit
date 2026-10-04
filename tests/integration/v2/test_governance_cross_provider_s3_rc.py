@@ -222,9 +222,7 @@ def test_s3_postgres_restart_reconciles_crash_before_provider_side_effect() -> N
         assert reconciled.snapshot.revision == PublicationRevision.initial()
         assert publisher.inspect(dataset_id).published_dataset is None
         assert restarted.list_unresolved(dataset_id) == ()
-        assert [
-            event.event_type for event in restarted.list_events(intent.operation_id)
-        ] == [
+        assert [event.event_type for event in restarted.list_events(intent.operation_id)] == [
             PublicationLifecycleEventType.PUBLICATION_REQUESTED,
             PublicationLifecycleEventType.PUBLICATION_RECONCILED_NOT_COMMITTED,
         ]
