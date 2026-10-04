@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "milestone": "LOT-29",
+  "version": "2.1.0rc1",
+  "baseline": {
+    "lot28_merge_sha": "48a325134216821379af461f6513a305dd8743c4",
+    "lot28_fixture": "tests/contract/fixtures/governance_v2_1_beta2.json",
+    "lot23_fixture": "tests/contract/fixtures/governance_v2_1_alpha1.json",
+    "stable_2_0_fixture": "tests/contract/fixtures/stable_release_v2.json"
+  },
+  "qualified_namespaces": [
+    "pyingestkit.governance",
+    "pyingestkit.governance.retention",
+    "pyingestkit.governance.rollback"
+  ],
+  "provider_inventory": [
+    "FileConditionalDatasetPublisher",
+    "FileDatasetVersionGarbageCollector",
+    "MemoryPublicationLedger",
+    "PostgresPublicationLedger",
+    "S3ConditionalDatasetPublisher",
+    "S3DatasetVersionGarbageCollector"
+  ],
+  "cross_provider_evidence": [
+    "tests/integration/v2/test_governance_cross_provider_filesystem_rc.py",
+    "tests/integration/v2/test_governance_cross_provider_s3_rc.py"
+  ],
+  "required_release_blocking_jobs": [
+    "governance-contract",
+    "governance-postgres-e2e",
+    "governance-filesystem-cas",
+    "governance-s3-cas",
+    "governance-gc-e2e",
+    "governance-rollback-e2e",
+    "governance-cross-provider-e2e",
+    "governance-built-artifact",
+    "governance-security-negatives"
+  ],
+  "fault_matrix": [
+    "durable_intent_before_provider_side_effect",
+    "provider_commit_before_terminal_ledger_append",
+    "acknowledgement_loss",
+    "stale_revision",
+    "lock_acquisition_failure",
+    "stale_gc_plan",
+    "delete_acknowledgement_loss",
+    "restart_with_unresolved_operation"
+  ],
+  "required_evidence": [
+    "tests/conformance/v2/_governance_ledger_contract.py",
+    "tests/conformance/v2/test_filesystem_conditional_publication.py",
+    "tests/conformance/v2/test_s3_conditional_publication_capability.py",
+    "tests/conformance/v2/test_retention_planning.py",
+    "tests/conformance/v2/test_governed_rollback.py",
+    "tests/integration/v2/test_postgres_publication_ledger.py",
+    "tests/integration/v2/test_filesystem_conditional_publication_processes.py",
+    "tests/integration/v2/test_s3_conditional_publication.py",
+    "tests/integration/v2/test_filesystem_guarded_gc.py",
+    "tests/integration/v2/test_s3_guarded_gc.py",
+    "tests/integration/v2/test_postgres_governed_rollback.py",
+    "tests/integration/v2/test_s3_governed_rollback.py",
+    "tests/integration/v2/test_governance_cross_provider_filesystem_rc.py",
+    "tests/integration/v2/test_governance_cross_provider_s3_rc.py"
+  ],
+  "required_docs": [
+    "docs/architecture/v2-lot29-governance-rc-conformance.md",
+    "docs/roadmap/rfc001-publication-lifecycle-implementation-roadmap.md"
+  ]
+}

@@ -2,6 +2,20 @@
 
 All notable changes to PyIngestKit are documented here.
 
+## [2.1.0rc1] - 2026-10-04
+
+### Release Candidate 1 — Full Governance Conformance
+
+- froze the complete LOT-23→28 governance surface without adding new domain values, ports or provider capabilities;
+- added File + PostgreSQL and S3 + PostgreSQL mixed-provider crash/restart proofs;
+- proved durable-intent/no-side-effect recovery and provider-commit/before-terminal-ledger recovery from observable provider truth;
+- proved recovered provider stacks can continue through retention planning and governed rollback;
+- added explicit filesystem lock-acquisition timeout evidence;
+- added the nine release-blocking governance RC jobs required by RFC-001;
+- extended built-artifact qualification to clean base, PostgreSQL-extra and S3-extra wheel environments;
+- aggregated lifecycle secret, DSN redaction, path/symlink escape, foreign S3 key, malformed revision, operation-ID collision and stale destructive-evidence negatives;
+- preserved the exact PyIngestKit 2.0 root, LOT-23 Protocol signatures and 2.0 wire meanings.
+
 ## [2.1.0b2] - 2026-10-04
 
 ### Beta 2 — Governed Rollback

@@ -8,7 +8,7 @@ PyIngestKit is a focused framework for acquiring external data, preserving durab
     The current stable release is **PyIngestKit 2.0.0**. The 2.0 package root, `IngestionRuntime.run(...)`, stable provider Protocols and version-1 portable wire contracts form the compatibility baseline for the maintained 2.x line.
 
 !!! warning "2.1 development line"
-    Repository `main` is currently **2.1.0b2 / LOT-28**. This beta adds governed rollback as CAS publication to an existing immutable DatasetVersion on top of the retention/holds/GC lifecycle, while the published stable release remains 2.0.0 and the frozen 2.0/LOT-23 contracts remain unchanged.
+    Repository `main` is currently **2.1.0rc1 / LOT-29**. The complete 2.1 governance contract is now frozen and undergoing full cross-provider, crash/restart and built-artifact qualification; the published stable release remains 2.0.0 and the frozen 2.0/LOT-23 contracts remain unchanged.
 
 [Install 2.0](getting-started/installation.md){ .md-button .md-button--primary }
 [2.0 Quickstart](getting-started/quickstart.md){ .md-button }
