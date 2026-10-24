@@ -86,3 +86,4 @@ make docs-serve       # mkdocs serve
 - **DO NOT** edit JSON files under `tests/contract/fixtures/` to fix test failures.
 - **DO NOT** bypass Compare-and-Swap in conditional publishers.
 - **DO NOT** add top-level imports of physical drivers (`psycopg`, `boto3`, `httpx`) in core or domain modules.
+- **DO NOT** stack new backlog items onto an active branch without formally closing, reviewing, and merging the current milestone into `main`.

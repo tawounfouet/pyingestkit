@@ -56,3 +56,7 @@ Toute session de développement agentique ou humaine doit synchroniser ce fichie
    - Rédiger la fiche REX correspondante dans [`docs/build/feedback/`](../feedback/).
    - Mettre à jour la ligne dans `TODOS.md` avec la date de clôture, le commit SHA et le lien vers la fiche de feedback.
    - Mettre à jour le compteur des tâches terminées et le taux de complétion.
+3. **Clôture formelle de Jalon (Règle « Clôturer avant de poursuivre ») :**
+   - Dès qu'un LOT entier est complété à 100% (toutes ses tâches à `✅ DONE`), le jalon doit être audité via une revue formelle dans [`docs/build/reviews/`](../reviews/).
+   - La branche du lot doit être poussée et fusionnée dans `main`.
+   - La branche suivante doit impérativement être créée à partir du `main` mis à jour avant d'entamer les tâches du lot suivant. Voir [`docs/build/reviews/README.md`](../reviews/README.md).

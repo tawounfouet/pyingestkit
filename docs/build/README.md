@@ -134,7 +134,12 @@ Chaque dossier du cycle possède un rôle strict et son template de référence 
    - Sécurité et absence de secrets vérifiées ? ✅
    - Documentation et guides à jour ? ✅
 3. **Signer formellement :** Passer le statut à `APPROUVÉ POUR MERGE & RELEASE`.
-4. Procéder au merge de la PR, à la création du tag Git et à la publication PyPI.
+4. **Appliquer la règle « Clôturer avant de poursuivre » (Discipline Git & Small Batches) :**
+   - Pousser la branche du lot (`git push origin feat/...`).
+   - Ouvrir et fusionner la Pull Request vers `main`.
+   - Se replacer sur `main` et resynchroniser en local (`git checkout main && git pull origin main`).
+   - Créer une nouvelle branche dédiée pour le lot suivant (`git checkout -b feat/<nouveau-lot>`).
+   - *Règle absolue : Ne jamais empiler deux chantiers techniques hétérogènes sur la même branche de travail.* Détails dans [`docs/build/reviews/README.md`](./reviews/README.md).
 
 ---
 
@@ -152,6 +157,8 @@ Tout utilisateur ou agent opérant dans ce framework **DOIT IMPÉRATIVEMENT** re
    Tous les liens dans les fichiers Markdown doivent être des **chemins relatifs** (`../plans/...`, `../../README.md`). Ne jamais utiliser d'URL absolue de machine locale (`file:///Users/...`).
 5. **Nomenclature Temporelle Standardisée :**
    Les fichiers d'analyses et de plans portent impérativement le préfixe de date avec tiret bas : `YYYY-MM-DD_<intitule>.md`.
+6. **Discipline de Clôture Systématique de Jalon (Small Batches & Blast Radius) :**
+   Toujours clôturer, auditer et fusionner le jalon courant dans `main` avant d'ouvrir un nouveau chantier du backlog. Ne jamais empiler des lots techniques hétérogènes sur une même branche de travail. Voir le protocole complet dans [`docs/build/reviews/README.md`](./reviews/README.md).
 
 ---
 

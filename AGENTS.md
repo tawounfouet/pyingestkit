@@ -140,3 +140,16 @@ Agents must verify all changes using the standard Makefile commands:
 - `make quality`         : Ruff lint, format check, and strict Mypy
 - `make security`        : Bandit static analysis and pip-audit
 - `make verify`          : Global gate (check-v2 + quality + security + build)
+
+---
+
+## 6. Milestone & Branch Discipline (Small Batches & Blast Radius)
+
+Agents and contributors must strictly adhere to the **« Close before continuing »** lifecycle:
+- **No Stacking Across Lots:** NEVER stack heterogeneous backlog items or milestones onto a single feature branch.
+- **Definition of Done (DoD) Gate:** A milestone is complete ONLY when:
+  1. All unit, architecture, and contract tests pass (`make verify` or targeted equivalents).
+  2. Post-task feedback is documented in `docs/build/feedback/`.
+  3. Formal review is signed off in `docs/build/reviews/`.
+  4. Master registry `docs/build/tasks/TODOS.md` reflects `[x] TERMINÉ` with updated KPIs.
+- **Merge & Sync Before Next Milestone:** Once a lot is signed off, the branch must be pushed and merged to `main`. The next milestone MUST start on a clean dedicated branch off updated `main` (`git checkout -b feat/<next-lot>`).
