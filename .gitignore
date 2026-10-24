@@ -18,3 +18,4 @@ htmlcov/
 !.env*.example
 infra/envs/.env*
 !infra/envs/.env*.example
+site/
