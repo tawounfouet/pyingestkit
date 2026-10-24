@@ -1,4 +1,4 @@
-"""PyIngestKit 2.0 runtime API."""
+from typing import TYPE_CHECKING
 
 from pyingestkit.application.runtime import IngestionRuntime
 from pyingestkit.domain.runtime import (
@@ -17,6 +17,9 @@ from pyingestkit.domain.runtime import (
 )
 from pyingestkit.domain.shared import CorrelationId, IngestionRunId
 
+if TYPE_CHECKING:
+    from .runner import Runner as Runner
+
 __all__ = [
     "CorrelationContext",
     "CorrelationId",
@@ -34,3 +37,11 @@ __all__ = [
     "OutcomeUncertainty",
     "Retryability",
 ]
+
+
+def __getattr__(name: str) -> object:
+    if name == "Runner":
+        from .runner import Runner
+
+        return Runner
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
