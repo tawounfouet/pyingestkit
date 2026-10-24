@@ -33,7 +33,7 @@ En comparaison, [`pytransformkit`](../../../../pytransformkit) compte 25 entrée
 ## 3. Bénéfices Attendus
 
 1. **Hygiène du code :** Racine réduite de 38 à 22 entrées.
-2. **Alignement écosystème :** Rangement standardisé des exemples de profils dans `examples/configs/` et de l'infra dans `deployment/`.
+2. **Alignement écosystème :** Rangement standardisé des exemples de profils dans `examples/configs/` et de l'infra dans `infra/`.
 3. **Sécurité :** Zéro fichier d'environnement sensible risquant d'être commité ou packagé.
 
 ---

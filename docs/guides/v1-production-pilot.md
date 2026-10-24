@@ -57,13 +57,13 @@ Never put database passwords, access keys or session tokens directly in project 
 
 ## 4. Local service-backed staging pilot
 
-The repository includes `docker-compose.staging.yml` for a local PostgreSQL + MinIO topology. Required
+The repository includes `infra/docker-compose.staging.yml` for a local PostgreSQL + MinIO topology. Required
 credentials are fail-closed environment variables; the compose file does not ship working passwords.
 
 After supplying the required environment values:
 
 ```bash
-docker compose -f docker-compose.staging.yml up -d
+docker compose -f infra/docker-compose.staging.yml up -d
 ```
 
 Verify the selected profile before ingestion:

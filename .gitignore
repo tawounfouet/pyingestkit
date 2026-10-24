@@ -16,5 +16,5 @@ htmlcov/
 .env
 .env.*
 !.env*.example
-envs/.env*
-!envs/.env*.example
+infra/envs/.env*
+!infra/envs/.env*.example
