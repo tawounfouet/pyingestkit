@@ -1,62 +1,60 @@
-# PyIngestKit
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/brand/pyingestkit-primary-lockup-dark.png">
+    <source media="(prefers-color-scheme: light)" srcset="docs/assets/brand/pyingestkit-primary-lockup-light.png">
+    <img src="docs/assets/brand/pyingestkit-logo-horizontal.png" alt="PyIngestKit — From any source to reliable datasets" width="480">
+  </picture>
+</p>
 
-[![CI](https://github.com/tawounfouet/pyingestkit/actions/workflows/ci.yml/badge.svg)](https://github.com/tawounfouet/pyingestkit/actions/workflows/ci.yml)
-[![Security](https://github.com/tawounfouet/pyingestkit/actions/workflows/security.yml/badge.svg)](https://github.com/tawounfouet/pyingestkit/actions/workflows/security.yml)
-[![Python 3.11–3.14](https://img.shields.io/badge/python-3.11%E2%80%933.14-blue.svg)](https://www.python.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Stable: 2.1.0](https://img.shields.io/badge/stable-2.1.0-brightgreen.svg)](docs/releases/v2.1.0.md)
+<p align="center">
+  <strong>From any source to reliable datasets.</strong><br>
+  <code>Acquire</code> &nbsp;→&nbsp; <code>Preserve RAW</code> &nbsp;→&nbsp; <code>Validate</code> &nbsp;→&nbsp; <code>Publish</code>
+</p>
 
-**PyIngestKit** is a focused Python framework for reliable, traceable and replayable ingestion.
+<p align="center">
+  <a href="https://github.com/tawounfouet/pyingestkit/actions/workflows/ci.yml"><img src="https://github.com/tawounfouet/pyingestkit/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/tawounfouet/pyingestkit/actions/workflows/security.yml"><img src="https://github.com/tawounfouet/pyingestkit/actions/workflows/security.yml/badge.svg" alt="Security"></a>
+  <a href="https://pypi.org/project/pyingestkit/"><img src="https://img.shields.io/pypi/v/pyingestkit.svg" alt="PyPI version"></a>
+  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/python-3.11%E2%80%933.14-blue.svg" alt="Python 3.11–3.14"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
+  <a href="https://tawounfouet.github.io/pyingestkit/"><img src="https://img.shields.io/badge/docs-online-blue.svg" alt="Docs"></a>
+</p>
 
-> Acquire external data, preserve durable RAW evidence, decode and validate it, create immutable dataset versions, then publish or materialize them explicitly.
+---
 
-## 2.1 stable
+**PyIngestKit** is a lightweight, composable Python framework for reliable, traceable and replayable batch ingestion.
 
-`2.1.0` is the LOT-30 stable release. It promotes the fully qualified `2.1.0rc1` governance contract unchanged: durable lifecycle ledgers, filesystem/S3 CAS publication, retention/holds, guarded GC, rollback and crash/restart reconciliation remain additive under qualified namespaces.
+It focuses strictly on **how to ingest data reliably** — preserving durable RAW acquisition evidence, producing immutable content-addressed dataset versions, and enforcing atomic compare-and-swap (CAS) publications with zero accidental overwrites.
 
-The exact 2.0 package root, `IngestionRuntime.run(...)`, stable provider Protocols and version-1 portable wire contracts remain frozen. Applications that do not use governance APIs do not need to change their 2.0 imports or runtime composition.
+> External orchestrators (Airflow, Dagster, Prefect) decide **when to run**. PyIngestKit guarantees **how it runs safely**.
 
-The V1 `Job / Pipeline / Step / Runner` execution model is **not** aliased into the 2.x root. Existing V1 workloads should remain pinned to the 1.x line until they are migrated semantically.
+---
 
-## Product boundary
+## ⚡ Highlights
 
-PyIngestKit owns **HOW TO INGEST**. External orchestrators own **WHEN TO RUN**.
+- 🛡️ **Governed CAS Publication** — Atomic compare-and-swap with durable ledgers (PostgreSQL / Memory), retention holds, guarded GC, and governed rollback.
+- 📦 **Zero-Bloat Core** — Pure standard library core by default. Heavy connectors (`psycopg`, `boto3`, `httpx`, `pyarrow`) are strictly opt-in extras.
+- 🔄 **Strict Deterministic Replay** — Replay runs from verified historical RAW artifacts; never silently re-fetches live external sources.
+- 🩺 **Built-in CLI & Self-Diagnostics** — Standardized `pik` command line with instant environment health check via `pik doctor`.
 
-It is not Airflow, Dagster, Prefect, Celery, a distributed scheduler, a Data Platform, a Data Catalog, IAM, or cloud provisioning.
+---
 
-```text
-ArtifactStore       != DatasetVersionStore
-ArtifactStore       != publication target
-DatasetVersion      != provider object version
-Replay              != new source acquisition
-PyIngestKit         != orchestrator
+## 🚀 Quickstart (30 seconds)
+
+### 1. Installation
+
+```bash
+# Base framework (zero heavy dependencies)
+pip install pyingestkit
+
+# Or with specific providers
+pip install "pyingestkit[postgres,s3,http]"
 ```
 
-## Canonical 2.x root API
-
-The 2.0 root is intentionally small:
-
-```python
-from pyingestkit import (
-    ArtifactReference,
-    DatasetVersion,
-    DatasetVersionReference,
-    IngestionDefinition,
-    IngestionResult,
-    IngestionRun,
-    IngestionRunId,
-    IngestionRuntime,
-    PublishedDataset,
-    ResourceReference,
-    Source,
-)
-```
-
-The canonical synchronous execution entry point is `IngestionRuntime.run(...)`.
+### 2. Run an Ingestion Pipeline
 
 ```python
 from pathlib import Path
-
 from pyingestkit import IngestionDefinition, IngestionRuntime, Source
 from pyingestkit.adapters.filesystem import FileArtifactStore, FileSourceConnector
 from pyingestkit.application.decoders import DecoderRegistry
@@ -64,181 +62,65 @@ from pyingestkit.application.sources import SourceRegistry
 from pyingestkit.decoders import CsvDecoder
 from pyingestkit.stores import FileDatasetVersionStore
 
-root = Path("./.pyingest-v2")
-
-sources = SourceRegistry([FileSourceConnector()])
-decoders = DecoderRegistry([CsvDecoder()])
+root = Path("./.pyingest")
 
 runtime = IngestionRuntime(
-    sources=sources,
-    decoders=decoders,
+    sources=SourceRegistry([FileSourceConnector()]),
+    decoders=DecoderRegistry([CsvDecoder()]),
     artifacts=FileArtifactStore(root=root / "artifacts"),
     versions=FileDatasetVersionStore(root=root / "datasets"),
 )
 
-definition = IngestionDefinition(
-    name="customers",
-    source=Source.file(path="./customers.csv"),
-    decoder="csv",
-    dataset="customers",
+result = runtime.run(
+    IngestionDefinition(
+        name="customers_pipeline",
+        source=Source.file(path="./data/customers.csv"),
+        decoder="csv",
+        dataset="customers",
+    )
 )
 
-result = runtime.run(definition)
-print(result.status)
+print(f"Status: {result.status.value} | Version: {result.version_id}")
 ```
 
-## Installation
+---
 
-Base installation is provider-neutral:
+## 🛠️ CLI: `pik`
+
+PyIngestKit includes a fast CLI with zero runtime overhead on startup:
 
 ```bash
-pip install "pyingestkit==2.1.0"
+# Run system and environment diagnostics
+pik doctor
+
+# Inspect environment in JSON format
+pik doctor --json
 ```
 
-Install only the providers required by the application:
+---
 
-```bash
-pip install "pyingestkit[http]==2.1.0"
-pip install "pyingestkit[postgres]==2.1.0"
-pip install "pyingestkit[s3]==2.1.0"
-pip install "pyingestkit[excel]==2.1.0"
-pip install "pyingestkit[parquet]==2.1.0"
-```
+## 🧩 Providers & Optional Extras
 
-The base package does not require `httpx`, SQLAlchemy, psycopg, boto3, OpenPyXL, PyArrow or PyTransformKit.
+| Extra | Capabilities | Drivers Installed |
+| :--- | :--- | :--- |
+| `pyingestkit` *(base)* | Core runtime, Filesystem, Memory, CSV, JSON(L) | Standard library |
+| `pyingestkit[http]` | Robust HTTP(S) acquisition with retry policies | `httpx` |
+| `pyingestkit[postgres]`| PostgreSQL targets, staging & publication ledger | `psycopg`, `sqlalchemy` |
+| `pyingestkit[s3]` | S3 / MinIO / Ceph / R2 object storage artifacts | `boto3` |
+| `pyingestkit[parquet]` | High-performance Parquet format decoder | `pyarrow` |
+| `pyingestkit[excel]` | Excel `.xlsx` / `.xls` spreadsheets decoding | `openpyxl` |
 
-## Core lifecycle
+---
 
-```text
-Source
-  ↓
-acquisition
-  ↓
-durable RAW ArtifactReference
-  ↓
-decoder
-  ↓
-validation / quality evidence
-  ↓
-immutable DatasetVersion
-  ↓
-DatasetVersionReference
-  ├── explicit publication
-  ├── explicit target materialization
-  └── strict replay / verification
-```
+## 📚 Documentation & Resources
 
-## Providers and ports
+- 📖 **Official Documentation :** [https://tawounfouet.github.io/pyingestkit/](https://tawounfouet.github.io/pyingestkit/)
+- 🏛️ **Architecture & RFC-001 :** [RFC-001 Publication & Lifecycle Governance](docs/rfc/RFC-001-publication-lifecycle-governance.md)
+- 🚀 **Migration Guide (V1 → V2) :** [Migration Guide](docs/guides/migrate-v1-to-v2.md)
+- 📝 **Changelog & Releases :** [Release Notes](docs/releases/v2.1.0.md)
 
-The stable provider boundary is expressed through framework-owned Protocols:
+---
 
-```text
-SourceConnector
-Decoder
-ArtifactStore
-DatasetVersionStore
-DatasetPublisher
-DatasetVersionMaterializerV2
-DatasetTargetV2
-```
+## 📄 License
 
-Provider implementations remain replaceable. The framework does not expose boto3 clients, SQLAlchemy engines, open file handles or DataFrames as durable public contracts.
-
-## Replay and reproducibility
-
-V2 replay starts from preserved evidence. It allocates a new `IngestionRunId`, resolves the historical RAW artifact and verifies the resulting immutable dataset identity.
-
-Replay is fail-closed when required historical evidence is missing or inconsistent. It does not silently reacquire the original source.
-
-## PyTransformKit integration
-
-Transformation remains outside the ingestion core and is integrated through portable references under:
-
-```text
-pyingestkit.integrations.pytransformkit
-```
-
-The qualified Customer 360 path is:
-
-```text
-PyIngestKit DatasetVersionReference
-  ↓
-portable ResourceReference
-  ↓
-PyTransformKit InputBinding
-  ↓
-transformation result resource
-  ↓
-PyIngestKit governed DatasetVersion
-  ↓
-publication
-```
-
-PyTransformKit remains optional; stable qualification installs the explicitly validated 1.1.0 implementation used by the integration tests.
-
-## Migration from 1.x
-
-PyIngestKit 2.0 is a major-version boundary, not an alias release.
-
-V1 root names such as `Job`, `Pipeline`, `Step`, `Runner`, `RunContext`, `job` and `step` are not part of the 2.0 root contract.
-
-Migration tooling lives under:
-
-```python
-import pyingestkit.migration
-```
-
-It converts supported persisted semantics and produces explicit migration decisions without executing V1 plugins or silently loading secrets.
-
-See [Migrating PyIngestKit 1.x applications to 2.0](docs/guides/migrate-v1-to-v2.md).
-
-## Qualified matrix
-
-LOT-22 requalifies the unchanged RC contract across:
-
-- Python 3.11, 3.12, 3.13 and 3.14;
-- clean wheel and source-distribution installs;
-- provider-neutral base installation;
-- filesystem acquisition/artifacts/version storage;
-- HTTP acquisition;
-- PostgreSQL target materialization;
-- S3-compatible object storage and cross-host replay;
-- canonical serialization and migration fixtures;
-- publication reconciliation / outcome-uncertainty paths;
-- PyTransformKit integration;
-- Customer 360 built-artifact E2E;
-- Ruff, formatting, mypy, Bandit and `pip-audit`;
-- sealed V1.0.0 historical evidence on the immutable V1 tag.
-
-## Quality and release gates
-
-```bash
-make check-v2
-make quality
-make security
-make build
-make release-check
-python scripts/check_v2_stable.py
-```
-
-The terminal CI gate is `stable-release-gate`, which is release-blocking for `2.1.0` and preserves the independent 2.0 compatibility checks.
-
-## Stable compatibility policy
-
-The 2.0 root, stable provider Protocols and version-1 boundary wire contracts are the compatibility baseline for the 2.x line. Breaking changes require a new major version; additive evolution must preserve these frozen contracts.
-
-See:
-
-- [2.1.0 stable release notes](docs/releases/v2.1.0.md)
-- [2.x provider compatibility matrix](docs/reference/provider-compatibility-v2.md)
-- [2.1 stable qualification](docs/releases/v2.1.0-qualification.md)
-- [2.1 qualification evidence](docs/releases/v2.1.0-evidence.md)
-- [Historical 2.0.0 release notes](docs/releases/v2.0.0.md)
-- [V1 → V2 migration guide](docs/guides/migrate-v1-to-v2.md)
-- [LOT-20 Customer 360 beta gate](docs/architecture/v2-lot20-customer360-beta-gate.md)
-- [LOT-18 semantic migration](docs/architecture/v2-lot18-v1-semantic-migration.md)
-- [Security policy](SECURITY.md)
-
-## V1 historical line
-
-The immutable V1 stable line remains available through tag `v1.0.0`. Its CLI, demo jobs and Job/Pipeline/Step execution semantics are historical 1.x contracts and are intentionally separate from the 2.0 public API.
+Distributed under the [MIT License](LICENSE).
