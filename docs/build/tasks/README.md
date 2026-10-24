@@ -106,6 +106,7 @@ PATH="/opt/miniconda3/bin:$PATH" pytest tests/unit/mon_module/test_mon_module.py
 | Réf. Tâche | Intitulé | Plan Associé | Statut |
 | :--- | :--- | :--- | :--- |
 | [`TASK-LOT30-01`](./TASK-LOT30-01_agentic-framework-governance.md) | Gouvernance Agentique (`AGENTS.md` + `CLAUDE.md`) | [Plan Agentique](../plans/2026-10-24_plan-agentic-framework-integration.md) | ✅ **DONE** |
-| [`TASK-LOT31-01`](./TASK-LOT31-01_cli-bootstrap-and-exit-codes.md) | Bootstrap CLI stdlib & Exit Codes IntEnum | [Plan CLI pik](../plans/2026-10-24_plan-cli-architecture-and-pik-standardization.md) | 📋 **TODO** |
-| [`TASK-LOT31-02`](./TASK-LOT31-02_cli-security-and-credentials-redaction.md) | Sécurité Filesystem & Masquage des Secrets | [Plan CLI pik](../plans/2026-10-24_plan-cli-architecture-and-pik-standardization.md) | 📋 **TODO** |
-| [`TASK-LOT32-01`](./TASK-LOT32-01_root-hygiene-and-profile-reorganization.md) | Nettoyage de la Racine & Migration des Profils YAML | [Analyse Hygiène Racine](../../analyses/2026-10-24_backlog-governance-and-root-hygiene-analysis.md) | 📋 **TODO** |
+| [`TASK-LOT31-01`](./TASK-LOT31-01_cli-bootstrap-and-exit-codes.md) | Bootstrap CLI stdlib & Exit Codes IntEnum | [Plan CLI pik](../plans/2026-10-24_plan-cli-architecture-and-pik-standardization.md) | ✅ **DONE** |
+| [`TASK-LOT31-02`](./TASK-LOT31-02_cli-security-and-credentials-redaction.md) | Sécurité Filesystem & Masquage des Secrets | [Plan CLI pik](../plans/2026-10-24_plan-cli-architecture-and-pik-standardization.md) | ✅ **DONE** |
+| [`TASK-LOT31-03`](./TASK-LOT31-03_cli-doctor-diagnostic-command.md) | Commande d'Autodiagnostic Système (`pik doctor`) | [Plan CLI pik](../plans/2026-10-24_plan-cli-architecture-and-pik-standardization.md) | ✅ **DONE** |
+| [`TASK-LOT32-01`](./TASK-LOT32-01_root-hygiene-and-profile-reorganization.md) | Nettoyage de la Racine & Migration des Profils YAML | [Analyse Hygiène Racine](../../analyses/2026-10-24_backlog-governance-and-root-hygiene-analysis.md) | ✅ **DONE** |

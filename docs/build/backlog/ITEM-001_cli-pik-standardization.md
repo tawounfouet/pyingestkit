@@ -1,11 +1,13 @@
 # ITEM-001 : Standardisation de la CLI PyIngestKit (`pik`) & Bootstrap Résilient
 
-- **Statut :** PLANNED
+- **Statut :** ✅ **DONE**
 - **Auteur :** Antigravity / AWF
 - **Date d'émission :** 2026-10-24
+- **Date de clôture :** 2026-10-24
 - **Priorité :** HAUTE
 - **Composant Cible :** CLI (`src/pyingestkit/cli/`)
 - **Plan Associé :** [`docs/build/plans/2026-10-24_plan-cli-architecture-and-pik-standardization.md`](../plans/2026-10-24_plan-cli-architecture-and-pik-standardization.md)
+- **Revue de Lot Associée :** [`docs/build/reviews/2026-10-24_lot31_cli-pik-standardization-review.md`](../reviews/2026-10-24_lot31_cli-pik-standardization-review.md)
 - **LOT Cible :** LOT-31 (v2.1.1 / v2.2.0)
 
 ---

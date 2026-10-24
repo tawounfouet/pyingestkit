@@ -63,8 +63,8 @@ Description claire du besoin ou de la limitation actuelle.
 
 | Réf. Item | Intitulé du Besoin / Dette | Priorité | Jalon / LOT Cible | Statut | Fichier |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **ITEM-001** | Standardisation CLI `pik` & Bootstrap Stdlib | HAUTE | LOT-31 (v2.1.1) | 🚀 **PLANNED** | [`ITEM-001`](./ITEM-001_cli-pik-standardization.md) |
-| **ITEM-002** | Assainissement Racine & Profils YAML | HAUTE | LOT-32 (v2.1.1) | 🚀 **PLANNED** | [`ITEM-002`](./ITEM-002_root-cleanup-and-profile-reorganization.md) |
+| **ITEM-001** | Standardisation CLI `pik` & Bootstrap Stdlib | HAUTE | LOT-31 (v2.1.1) | ✅ **DONE** | [`ITEM-001`](./ITEM-001_cli-pik-standardization.md) |
+| **ITEM-002** | Assainissement Racine & Profils YAML | HAUTE | LOT-32 (v2.1.1) | ✅ **DONE** | [`ITEM-002`](./ITEM-002_root-cleanup-and-profile-reorganization.md) |
 | **ITEM-003** | Charte Graphique & Brand Assets v1 | MOYENNE | LOT-33 (v2.1.1) | 🚀 **PLANNED** | [`ITEM-003`](./ITEM-003_brand-assets-and-visual-identity.md) |
 | **ITEM-004** | Supply Chain CI/CD & PyPI OIDC | CRITIQUE | LOT-34 (v2.1.1) | 🚀 **PLANNED** | [`ITEM-004`](./ITEM-004_pypi-supply-chain-and-release-automation.md) |
 | **ITEM-005** | Provenance Replay & Reconstruction Historique | HAUTE | LOT-35 (v2.2.0) | 📋 **ACCEPTED** | [`ITEM-005`](./ITEM-005_replay-provenance-and-historical-reconstruction.md) |
