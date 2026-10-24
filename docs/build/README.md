@@ -95,7 +95,7 @@ Chaque dossier du cycle possède un rôle strict et son template de référence 
    - Donner uniquement la fiche `TASK-LOT33-01_ma-tache.md` à l'agent IA comme consigne.
    - L'agent n'a pas besoin de lire l'intégralité du plan parent de 500 lignes : **gain massif de tokens et zéro hallucination**.
 4. **Passage d'état :** `TODO` ➔ `IN_PROGRESS` ➔ `DONE`.
-5. **En fin de tâche :** Renseigner le SHA du commit et les résultats de tests dans la section 5 de la tâche.
+5. **En fin de tâche :** Renseigner le SHA du commit et les résultats de tests dans la section 5 de la tâche, rédiger la fiche REX dans `feedback/`, et synchroniser le tableau de bord [`docs/build/tasks/TODOS.md`](./tasks/TODOS.md).
 
 ---
 

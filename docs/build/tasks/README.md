@@ -22,6 +22,10 @@ Une tâche :
 - Optimise la fenêtre de contexte des agents IA (Antigravity, Claude Code, OpenCode) en fournissant uniquement le contexte nécessaire.
 - Comporte sa propre commande de validation unitaire (`pytest`, `make`).
 
+> [!TIP]
+> **Registre Central d'Avancement :**
+> Pour consulter la matrice complète de toutes les tâches, leurs métriques d'avancement, statuts en direct et liens vers les fiches de feedback, référez-vous au document central : [**`TODOS.md`**](./TODOS.md).
+
 ---
 
 ## 2. Convention de Nommage & Nomenclature
