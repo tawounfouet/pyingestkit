@@ -1,4 +1,4 @@
-# PyIngestKit Environment Profiles (`envs/`)
+# PyIngestKit Environment Profiles (`infra/envs/`)
 
 Ce dossier regroupe les modèles de profils d'environnement pour PyIngestKit.
 
@@ -15,13 +15,14 @@ B1, le runtime ne les charge jamais automatiquement. Copiez le modèle vers un v
 avant utilisation.
 
 ```bash
-cp envs/.env.dev.example envs/.env.dev
+cp infra/envs/.env.dev.example infra/envs/.env.dev
 PYINGEST_ENV=dev pyingest config
 ```
 
 Avec `PYINGEST_ENV=dev`, le CLI cherche, dans le répertoire courant :
 
 ```text
+infra/envs/.env.dev
 envs/.env.dev
 .env.dev
 ```

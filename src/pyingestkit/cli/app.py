@@ -7,6 +7,7 @@ import typer
 from pyingestkit import __version__
 from pyingestkit.cli.commands import (
     config_command,
+    doctor_command,
     inspect_command,
     jobs_command,
     published_command,
@@ -64,6 +65,7 @@ app.command("status", help="Inspect one persisted ingestion run.")(status_comman
 app.command("versions", help="List immutable versions of a logical dataset.")(versions_command)
 app.command("published", help="Inspect the currently published dataset version.")(published_command)
 app.command("replay", help="Replay a historical run from captured RAW artifacts.")(replay_command)
+app.command("doctor", help="Inspect local environment and optional extras.")(doctor_command)
 
 
 @app.command("help")

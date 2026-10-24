@@ -7,6 +7,8 @@ edit_uri: edit/main/docs/
 
 exclude_docs: |
   reviews/
+  build/
+  analyses/
 
 theme:
   name: material

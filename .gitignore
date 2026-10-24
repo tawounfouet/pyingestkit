@@ -4,7 +4,7 @@ __pycache__/
 .venv/
 venv/
 dist/
-build/
+/build/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
@@ -16,5 +16,6 @@ htmlcov/
 .env
 .env.*
 !.env*.example
-envs/.env*
-!envs/.env*.example
+infra/envs/.env*
+!infra/envs/.env*.example
+site/

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import hashlib
-from collections.abc import Iterator
+from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
 from datetime import datetime
 from typing import cast
@@ -503,7 +503,7 @@ def _append(connection: Connection, event: PublicationLifecycleEvent) -> None:
     )
     inserted_event_id = connection.execute(statement).scalar_one_or_none()
     if inserted_event_id is None:
-        duplicate_payload = connection.execute(
+        duplicate_payload: object = connection.execute(
             select(_PUBLICATION_EVENT.c.event_payload).where(
                 _PUBLICATION_EVENT.c.event_id == event.event_id
             )
@@ -558,7 +558,7 @@ def _list_operations(
         _PUBLICATION_OPERATION.c.requested_at,
         _PUBLICATION_OPERATION.c.operation_id,
     )
-    rows = connection.execute(statement).scalars().all()
+    rows: Sequence[object] = connection.execute(statement).scalars().all()
     return tuple(decode_intent(cast(str, payload)) for payload in rows)
 
 
@@ -582,7 +582,7 @@ def _list_events(
     if dataset_id is not None:
         statement = statement.where(_PUBLICATION_EVENT.c.dataset_id == dataset_id)
     statement = statement.order_by(_PUBLICATION_EVENT.c.sequence_id)
-    rows = connection.execute(statement).scalars().all()
+    rows: Sequence[object] = connection.execute(statement).scalars().all()
     return tuple(decode_event(cast(str, payload)) for payload in rows)
 
 

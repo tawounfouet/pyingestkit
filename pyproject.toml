@@ -49,11 +49,20 @@ dev = [
   "rich>=15,<16",
   "tenacity>=9.1.4,<10",
 ]
+cli = [
+  "typer>=0.15,<1",
+  "rich>=13,<16",
+]
 http = ["httpx>=0.28.1,<1"]
 postgres = ["SQLAlchemy>=2.0,<3", "psycopg[binary]>=3.2,<4"]
 s3 = ["boto3>=1.35,<2"]
 excel = ["openpyxl>=3.1,<4"]
 parquet = ["pyarrow>=16,<24"]
+
+[project.scripts]
+pik = "pyingestkit.cli.bootstrap:main"
+pyingest = "pyingestkit.cli.bootstrap:main"
+pyingestkit = "pyingestkit.cli.bootstrap:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

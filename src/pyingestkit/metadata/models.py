@@ -5,7 +5,7 @@ from datetime import date, datetime
 from typing import TYPE_CHECKING, Any, Self
 
 if TYPE_CHECKING:
-    from pyingestkit.targets import TargetLoadResult
+    from pyingestkit.targets.models import TargetLoadResult
 
 
 @dataclass(frozen=True, slots=True)

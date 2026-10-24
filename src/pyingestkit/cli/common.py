@@ -7,7 +7,9 @@ from typing import Any, NoReturn
 import typer
 import yaml
 
-from pyingestkit.artifacts import ArtifactStore, S3ArtifactStore, create_artifact_store
+from pyingestkit.artifacts import ArtifactStore
+from pyingestkit.artifacts.factory import create_artifact_store
+from pyingestkit.artifacts.s3 import S3ArtifactStore
 from pyingestkit.config import PyIngestKitConfig, load_config
 from pyingestkit.core.exceptions import ConfigurationError
 from pyingestkit.core.job import Job
