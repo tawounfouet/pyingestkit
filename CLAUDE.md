@@ -30,11 +30,13 @@ Before editing code:
 2. Check git status and current branch (git status -sb).
 3. Confirm version in src/pyingestkit/_version.py and pyproject.toml.
 4. Inspect the relevant RFC, release note, or implementation plan in docs/.
-5. Inspect adjacent test suites and contract fixtures in tests/contract/fixtures/.
-6. Plan changes strictly respecting the frozen 2.x root and RFC-001 invariants.
+5. Consult the Delivery & SDLC Framework Handbook in docs/build/README.md.
+6. Inspect adjacent test suites and contract fixtures in tests/contract/fixtures/.
+7. Plan changes strictly respecting the frozen 2.x root and RFC-001 invariants.
 ```
 
 The live repository is the source of truth. Never assume state from memory or stale notes.
+Delivery framework handbook: [`docs/build/README.md`](docs/build/README.md) (backlog → plans → tasks → reports → reviews).
 
 ---
 
