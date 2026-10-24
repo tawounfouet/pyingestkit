@@ -1,5 +1,5 @@
 site_name: PyIngestKit
-site_description: Reliable, traceable batch ingestion for Python.
+site_description: From any source to reliable datasets. Composable batch ingestion and governance for Python.
 site_url: https://tawounfouet.github.io/pyingestkit/
 repo_url: https://github.com/tawounfouet/pyingestkit
 repo_name: tawounfouet/pyingestkit
@@ -13,6 +13,8 @@ exclude_docs: |
 theme:
   name: material
   language: en
+  logo: assets/brand/pyingestkit-pik-mark-color.png
+  favicon: assets/favicons/favicon.ico
   features:
     - navigation.tabs
     - navigation.sections
@@ -22,6 +24,27 @@ theme:
     - search.highlight
     - content.code.copy
     - content.action.edit
+  palette:
+    # 1. Mode Clair automatique ou sélectionné
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      accent: blue
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # 2. Mode Sombre automatique ou sélectionné
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      accent: cyan
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+extra_css:
+  - assets/pyingestkit-brand-tokens.css
+  - stylesheets/brand.css
 
 plugins:
   - search
@@ -56,6 +79,11 @@ markdown_extensions:
 extra:
   version:
     provider: mike
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/tawounfouet/pyingestkit
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/pyingestkit/
 
 nav:
   - Home: index.md

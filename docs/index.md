@@ -1,6 +1,15 @@
 # PyIngestKit
 
-**Reliable, traceable and replayable ingestion for Python.**
+<p align="center">
+  <img src="assets/brand/pyingestkit-logo-horizontal.png" alt="PyIngestKit logo" width="460">
+</p>
+
+<p align="center">
+  <strong>From any source to reliable datasets.</strong><br>
+  <code>Acquire</code> &nbsp;→&nbsp; <code>Process</code> &nbsp;→&nbsp; <code>Validate</code> &nbsp;→&nbsp; <code>Publish</code>
+</p>
+
+---
 
 PyIngestKit is a focused framework for acquiring external data, preserving durable RAW evidence, decoding and validating it, creating immutable dataset versions, and publishing or materializing them explicitly.
 

@@ -1,0 +1,43 @@
+/* Intégration de la charte graphique officielle PyIngestKit */
+
+:root {
+  --md-primary-fg-color:        #0B2447; /* Navy */
+  --md-primary-fg-color--light: #2563EB; /* Blue */
+  --md-primary-fg-color--dark:  #07172E;
+  --md-accent-fg-color:         #06B6D4; /* Cyan */
+}
+
+/* Ajustement pour le thème sombre (slate) */
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color:        #0B2447;
+  --md-primary-fg-color--light: #2563EB;
+  --md-primary-fg-color--dark:  #040D1A;
+  --md-accent-fg-color:         #06B6D4;
+}
+
+/* En-tête de page Hero personnalisée */
+.pik-hero {
+  text-align: center;
+  padding: 2.5rem 1rem 1.5rem;
+}
+
+.pik-hero img {
+  max-width: 480px;
+  width: 100%;
+  height: auto;
+  margin-bottom: 1rem;
+}
+
+.pik-hero .pik-tagline {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--pyingestkit-blue);
+  margin-bottom: 0.5rem;
+}
+
+.pik-hero .pik-lifecycle {
+  font-size: 0.95rem;
+  color: var(--md-default-fg-color--light);
+  letter-spacing: 0.05em;
+  font-family: monospace;
+}

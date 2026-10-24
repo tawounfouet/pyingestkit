@@ -11,7 +11,7 @@ Ce document constitue le **tableau de bord opérationnel centralisé** des tâch
 │ TABLEAU DE BORD D'AVANCEMENT GLOBAL DES TÂCHES                                                   │
 ├─────────────────┬─────────────────┬─────────────────┬─────────────────┬──────────────────────────┤
 │ TOTAL TÂCHES    │ TERMINÉES (DONE)│ EN COURS (WIP)  │ À FAIRE (TODO)  │ TAUX DE COMPLÉTION       │
-│ 5               │ 5               │ 0               │ 0               │ 100 % [████████████████] │
+│ 6               │ 6               │ 0               │ 0               │ 100 % [████████████████] │
 └─────────────────┴─────────────────┴─────────────────┴─────────────────┴──────────────────────────┘
 ```
 
@@ -26,6 +26,7 @@ Ce document constitue le **tableau de bord opérationnel centralisé** des tâch
 | [`TASK-LOT31-01`](./TASK-LOT31-01_cli-bootstrap-and-exit-codes.md) | Bootstrap CLI stdlib & Exit Codes `IntEnum` | LOT-31 | [`ITEM-001`](../backlog/ITEM-001_cli-pik-standardization.md) | CLI (`pik`) | AWF / Antigravity | ✅ **DONE** | 2026-10-24 | 2026-10-24 | [`011a806`](https://github.com/) | [`FEEDBACK-LOT31-01`](../feedback/FEEDBACK-LOT31-01_cli-bootstrap-and-exit-codes.md) |
 | [`TASK-LOT31-02`](./TASK-LOT31-02_cli-security-and-credentials-redaction.md) | Sécurité Filesystem & Redaction des Credentials | LOT-31 | [`ITEM-001`](../backlog/ITEM-001_cli-pik-standardization.md) | CLI (`pik`) | AWF / Antigravity | ✅ **DONE** | 2026-10-24 | 2026-10-24 | [`9ccfd3b`](https://github.com/) | [`FEEDBACK-LOT31-02`](../feedback/FEEDBACK-LOT31-02_cli-security-and-credentials-redaction.md) |
 | [`TASK-LOT31-03`](./TASK-LOT31-03_cli-doctor-diagnostic-command.md) | Commande d'Autodiagnostic Système (`pik doctor`) | LOT-31 | [`ITEM-001`](../backlog/ITEM-001_cli-pik-standardization.md) | CLI (`pik`) | AWF / Antigravity | ✅ **DONE** | 2026-10-24 | 2026-10-24 | [`040d5af`](https://github.com/) | [`FEEDBACK-LOT31-03`](../feedback/FEEDBACK-LOT31-03_cli-doctor-diagnostic-command.md) |
+| [`TASK-LOT33-01`](./TASK-LOT33-01_brand-identity-assets-integration.md) | Intégration globale brand assets & charte visuelle | LOT-33 | [`ITEM-003`](../backlog/ITEM-003_brand-assets-and-visual-identity.md) | Design System | AWF / Antigravity | ✅ **DONE** | 2026-10-24 | 2026-10-24 | [`e4349a0`](https://github.com/) | [`FEEDBACK-LOT33-01`](../feedback/FEEDBACK-LOT33-01_brand-identity-assets-integration.md) |
 
 ---
 
@@ -35,7 +36,6 @@ Les tâches ci-dessous sont issues des items de backlog approuvés et seront act
 
 | Réf. Future Tâche | Intitulé Prévu | LOT | Item Backlog | Priorité | Statut |
 | :--- | :--- | :--- | :--- | :---: | :---: |
-| `TASK-LOT33-01` | Création de la charte graphique et des assets visuels (logo SVG, bannières MkDocs) | LOT-33 | [`ITEM-003`](../backlog/ITEM-003_brand-assets-and-visual-identity.md) | MOYENNE | 📋 **TODO** |
 | `TASK-LOT34-01` | Workflow GitHub Actions OIDC et automatisation de release PyPI | LOT-34 | [`ITEM-004`](../backlog/ITEM-004_pypi-supply-chain-and-release-automation.md) | CRITIQUE | 📋 **TODO** |
 | `TASK-LOT35-01` | Service de reconstruction historique et audit de provenance RAW | LOT-35 | [`ITEM-005`](../backlog/ITEM-005_replay-provenance-and-historical-reconstruction.md) | HAUTE | 📋 **TODO** |
 | `TASK-LOT36-01` | Adaptateur PostgreSQL UPSERT/MERGE et staging transactionnel | LOT-36 | [`ITEM-006`](../backlog/ITEM-006_postgresql-target-upsert-merge-and-staging.md) | MOYENNE | 💡 **CANDIDAT** |
