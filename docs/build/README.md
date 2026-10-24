@@ -16,16 +16,16 @@ Ce framework documentaire et opérationnel repose sur le principe de **l'ingéni
 +───────────────────────────────────────────────────────────────────────────────────────────────────+
 | LE CYCLE DE DELIVERY COMPLET DANS DOCS/BUILD/                                                     |
 |                                                                                                   |
-|  1. BACKLOG          2. PLANS          3. TASKS          4. REPORTS           5. REVIEWS          |
-| ┌──────────────┐   ┌──────────────┐  ┌──────────────┐  ┌──────────────────┐  ┌──────────────────┐ |
-| │ docs/build/  │──>│ docs/build/  │─>│ docs/build/  │─>│ docs/build/      │─>│ docs/build/      │ |
-| │ backlog/     │   │ plans/       │  │ tasks/       │  │ reports/tests/   │  │ reviews/         │ |
-| │              │   │              │  │              │  │                  │  │                  │ |
-| │ - Quoi faire │   │ - Comment le │  │ - Actions    │  │ - Preuves de     │  │ - Conformité RFC │ |
-| │ - Expression │   │   cadencer   │  │   unitaires  │  │   qualification  │  │ - Signature de   │ |
-| │   du besoin  │   │ - Architect. │  │ - WBS session│  │ - Couverture code│     clôture de lot  │ |
-| │ - Dette tech │   │ - Plan LOT   │  │ - Context IA │  │ - Zero régression│  │ - Autorisation   │ |
-| └──────────────┘   └──────────────┘  └──────────────┘  └──────────────────┘  └──────────────────┘ |
+|  1. BACKLOG          2. PLANS          3. TASKS          4. FEEDBACK          5. REPORTS           6. REVIEWS          |
+| ┌──────────────┐   ┌──────────────┐  ┌──────────────┐  ┌──────────────────┐ ┌──────────────────┐  ┌──────────────────┐ |
+| │ docs/build/  │──>│ docs/build/  │─>│ docs/build/  │─>│ docs/build/      │>│ docs/build/      │─>│ docs/build/      │ |
+| │ backlog/     │   │ plans/       │  │ tasks/       │  │ feedback/        │ │ reports/tests/   │  │ reviews/         │ |
+| │              │   │              │  │              │  │                  │ │                  │  │                  │ |
+| │ - Quoi faire │   │ - Comment le │  │ - Actions    │  │ - REX post-tâche │ │ - Preuves de     │  │ - Conformité RFC │ |
+| │ - Expression │   │   cadencer   │  │   unitaires  │  │ - Frictions      │ │   qualification  │  │ - Signature de   │ |
+| │   du besoin  │   │ - Architect. │  │ - WBS session│  │ - Arbitrages     │ │ - Couverture code│     clôture de lot  │ |
+| │ - Dette tech │   │ - Plan LOT   │  │ - Context IA │  │ - Feedback loop  │ │ - Zero régression│  │ - Autorisation   │ |
+| └──────────────┘   └──────────────┘  └──────────────┘  └──────────────────┘ └──────────────────┘  └──────────────────┘ |
 +───────────────────────────────────────────────────────────────────────────────────────────────────+
 ```
 
@@ -41,8 +41,9 @@ Chaque dossier du cycle possède un rôle strict et son template de référence 
 | **1. Cadrage** | [`docs/build/backlog/`](./backlog/) | Besoins bruts, user stories, signalements de dette technique | [`TEMPLATE_BACKLOG_ITEM.md`](./backlog/TEMPLATE_BACKLOG_ITEM.md) |
 | **2. Conception** | [`docs/build/plans/`](./plans/) | Plans directeurs d'implémentation par LOT technique | [`TEMPLATE_IMPLEMENTATION_PLAN.md`](./plans/TEMPLATE_IMPLEMENTATION_PLAN.md) |
 | **3. Exécution** | [`docs/build/tasks/`](./tasks/) | Tâches atomiques de session, checklists WBS ciblées | [`TEMPLATE_TASK.md`](./tasks/TEMPLATE_TASK.md) |
-| **4. Validation** | [`docs/build/reports/tests/`](./reports/tests/) | Procès-verbaux d'exécution, matrices de recette, couverture | [`TEMPLATE_TEST_REPORT.md`](./reports/tests/TEMPLATE_TEST_REPORT.md) |
-| **5. Clôture** | [`docs/build/reviews/`](./reviews/) | Audit de conformité, signatures formelles et merge autorisés | [`TEMPLATE_LOT_REVIEW.md`](./reviews/TEMPLATE_LOT_REVIEW.md) |
+| **4. Rétroaction** | [`docs/build/feedback/`](./feedback/) | Retours post-implémentation, REX, leçons apprises et feedback loop | [`TEMPLATE_FEEDBACK.md`](./feedback/TEMPLATE_FEEDBACK.md) |
+| **5. Validation** | [`docs/build/reports/tests/`](./reports/tests/) | Procès-verbaux d'exécution, matrices de recette, couverture | [`TEMPLATE_TEST_REPORT.md`](./reports/tests/TEMPLATE_TEST_REPORT.md) |
+| **6. Clôture** | [`docs/build/reviews/`](./reviews/) | Audit de conformité, signatures formelles et merge autorisés | [`TEMPLATE_LOT_REVIEW.md`](./reviews/TEMPLATE_LOT_REVIEW.md) |
 
 ---
 
