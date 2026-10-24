@@ -1,0 +1,6 @@
+:root {
+  --pyingestkit-navy: #0B2447;   /* Confidence / Infrastructure */
+  --pyingestkit-blue: #2563EB;   /* Technical reliability */
+  --pyingestkit-cyan: #06B6D4;   /* Flow / Ingestion */
+  --pyingestkit-green: #10B981;  /* Reliable data / Publication */
+}
