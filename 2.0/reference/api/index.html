@@ -622,6 +622,8 @@
       
         
       
+        
+      
     
     
     
@@ -766,6 +768,34 @@
     
   
     Provider compatibility matrix
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/historical-replay-and-provenance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Historical Replay & Provenance
   
 
     
@@ -3888,6 +3918,17 @@
     <span class="md-ellipsis">
       
         replay
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pyingestkit.replay.ReplayServiceV2.publish_replay" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        publish_replay
       
     </span>
   </a>
@@ -7546,6 +7587,24 @@ redacted reports. They must therefore be protected like source data.</p>
     <div class="doc doc-contents ">
 
         <p>Execute strict replay with a new run id and no live-source fallback.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="pyingestkit.replay.ReplayServiceV2.publish_replay" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">publish_replay</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">publisher</span><span class="p">,</span> <span class="n">expected_revision</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+</h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Publish successful replay output with compare-and-swap safety.</p>
 
 
     </div>
