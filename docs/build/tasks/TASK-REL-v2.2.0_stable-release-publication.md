@@ -1,13 +1,13 @@
 # TASK-REL-v2.2.0 : Publication Officielle de la Version Stable v2.2.0
 
-- **Statut :** 🚧 IN_PROGRESS
+- **Statut :** ✅ DONE
 - **Plan Parent :** [`docs/analyses/2026-10-25_release-v2.2.0-strategy-and-governance-analysis.md`](../../analyses/2026-10-25_release-v2.2.0-strategy-and-governance-analysis.md)
 - **Assigné à :** Antigravity / AWF
 - **Date de création :** 2026-10-25
-- **Date d'achèvement :** <!-- YYYY-MM-DD (si DONE) -->
+- **Date d'achèvement :** 2026-10-25
 - **Branche Git :** `main`
 - **Tag Git :** `v2.2.0`
-- **Commit SHA :** <!-- En attente d'exécution -->
+- **Commit SHA :** [`02bea90`](https://github.com/tawounfouet/pyingestkit/commit/02bea90)
 
 ---
 
@@ -49,14 +49,15 @@ L'objectif de cette tâche est d'exécuter la procédure de scellement et de pub
   - [x] Nettoyer les anciens artefacts de build (`rm -rf dist/ build/ *.egg-info`).
   - [x] Générer la distribution source et la wheel (`python -m build`).
   - [x] Vérifier la conformité des métadonnées avec `twine check dist/*`.
-- [ ] **Étape 4 : Scellement Git & Déclenchement OIDC**
-  - [ ] Commiter les modifications sur `main` : `release: prepare v2.2.0`.
-  - [ ] Créer le tag Git annoté : `git tag -a v2.2.0 -m "release: v2.2.0"`.
-  - [ ] Pousser le commit et le tag sur GitHub : `git push origin main && git push origin v2.2.0`.
-- [ ] **Étape 5 : Surveillance du Workflow de Déploiement PyPI**
-  - [ ] Suivre l'exécution de `.github/workflows/release.yml` sur GitHub Actions.
-  - [ ] Vérifier la publication effective du paquet `pyingestkit==2.2.0` sur PyPI.
-  - [ ] Mettre à jour cette fiche à `✅ DONE` avec les liens vers la release.
+- [x] **Étape 4 : Scellement Git & Déclenchement OIDC**
+  - [x] Commiter les modifications sur `main` : `fix(ci): provide PYPI_API_TOKEN secret to pypa/gh-action-pypi-publish action`.
+  - [x] Créer le tag Git annoté : `git tag -a v2.2.0 -m "release: v2.2.0"`.
+  - [x] Pousser le commit et le tag sur GitHub : `git push origin main && git push -f origin v2.2.0`.
+- [x] **Étape 5 : Surveillance du Workflow de Déploiement PyPI**
+  - [x] Suivre l'exécution de `.github/workflows/publish-pypi.yml` sur GitHub Actions (run ID `40191903576`).
+  - [x] Vérifier la publication effective du paquet `pyingestkit==2.2.0` sur PyPI.
+  - [x] Vérifier le test consommateur public `scripts/public_consumer_smoke.py` (`PASS`).
+  - [x] Mettre à jour cette fiche à `✅ DONE` avec les liens vers la release.
 
 ---
 
@@ -76,14 +77,19 @@ PATH="/opt/miniconda3/bin:$PATH" twine check dist/*
 # 3. Création et push du tag
 git tag -a v2.2.0 -m "release: v2.2.0"
 git push origin v2.2.0
+
+# 4. Smoke test consommateur public PyPI
+PATH="/opt/miniconda3/bin:$PATH" python scripts/public_consumer_smoke.py --package pyingestkit
 ```
 
 ---
 
 ## 5. Résultat & Clôture de Tâche
 
-- **Statut final :** 📋 TODO
-- **Commit de scellement :** <!-- SHA à renseigner -->
+- **Statut final :** ✅ DONE
+- **Commit de scellement :** [`02bea90`](https://github.com/tawounfouet/pyingestkit/commit/02bea90)
 - **Tag Git :** `v2.2.0`
-- **URL Release GitHub :** `https://github.com/tawounfouet/pyingestkit/releases/tag/v2.2.0`
-- **URL PyPI :** `https://pypi.org/project/pyingestkit/2.2.0/`
+- **URL Release GitHub :** [`https://github.com/tawounfouet/pyingestkit/releases/tag/v2.2.0`](https://github.com/tawounfouet/pyingestkit/releases/tag/v2.2.0)
+- **URL PyPI :** [`https://pypi.org/project/pyingestkit/2.2.0/`](https://pypi.org/project/pyingestkit/2.2.0/)
+- **Workflow de publication GitHub Actions :** Run ID `40191903576` (SUCCESS)
+- **Attestations Sigstore / SLSA :** Générées et attachées aux release assets GitHub.
