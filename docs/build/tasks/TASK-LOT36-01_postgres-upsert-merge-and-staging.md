@@ -65,6 +65,6 @@ PATH="/opt/miniconda3/bin:$PATH" mkdocs build --strict
 ## 5. Résultat & Clôture de Tâche
 
 - **Statut final :** ✅ DONE
-- **Commit / PR :** Branche `feat/postgres-upsert-merge-and-staging`
+- **Commit / PR :** [`28b6a75`](https://github.com/tawounfouet/pyingestkit/commit/28b6a75b204bb4ae83655b2d2e8fcab1a3013fc9) (PR [#72](https://github.com/tawounfouet/pyingestkit/pull/72))
 - **Fiche REX associée :** [`docs/build/feedback/FEEDBACK-LOT36-01_postgres-upsert-merge-and-staging.md`](../feedback/FEEDBACK-LOT36-01_postgres-upsert-merge-and-staging.md)
 - **Revue de lot associée :** [`docs/build/reviews/2026-10-25_lot36_postgres-upsert-merge-and-staging-review.md`](../reviews/2026-10-25_lot36_postgres-upsert-merge-and-staging-review.md)
