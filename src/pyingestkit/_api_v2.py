@@ -353,6 +353,13 @@ V2_COMPLETED_LOTS: tuple[str, ...] = (
     "LOT-28",
     "LOT-29",
     "LOT-30",
+    "LOT-31",
+    "LOT-32",
+    "LOT-33",
+    "LOT-34",
+    "LOT-35",
+    "LOT-36",
+    "LOT-37",
 )
 
 V2_MILESTONE_CANDIDATE = "2.2.0"
@@ -405,4 +412,4 @@ V2_PUBLIC_NAMESPACE_BASELINE: tuple[str, ...] = (
     "pyingestkit.quality",
 )
 
-V2_API_PHASE = "LOT-30_STABLE"
+V2_API_PHASE = "LOT-37_STABLE"

@@ -38,7 +38,7 @@ def _resolve_default_version() -> str:
         except Exception:
             pass
 
-    return "2.1.0"
+    return "2.2.0"
 
 
 def _args() -> argparse.Namespace:

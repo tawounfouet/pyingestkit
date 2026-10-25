@@ -14,12 +14,12 @@
 PyIngestKit is a focused framework for acquiring external data, preserving durable RAW evidence, decoding and validating it, creating immutable dataset versions, and publishing or materializing them explicitly.
 
 !!! success "Stable release"
-    The current stable release is **PyIngestKit 2.1.0 / LOT-30**. It promotes the qualified 2.1 governance contract unchanged while preserving the exact 2.0 root, `IngestionRuntime.run(...)`, stable provider Protocols and version-1 portable wire contracts.
+    The current stable release is **PyIngestKit 2.2.0 / LOT-37**. It consolidates the production-grade capabilities (CLI `pik`, PostgreSQL staging UPSERT/MERGE, anti-SSRF HTTP & OAuth 2.0, strict replay traceability, OIDC supply-chain publishing) while preserving the exact 2.0 root, `IngestionRuntime.run(...)`, provider Protocols and 2.1 governance contracts.
 
-!!! info "2.1 governance"
-    Publication/lifecycle governance is additive under qualified namespaces: durable Memory/PostgreSQL ledgers, filesystem/S3 CAS, retention/holds, guarded GC, rollback and crash/restart reconciliation.
+!!! info "2.x governance & production"
+    Publication/lifecycle governance is additive under qualified namespaces: durable Memory/PostgreSQL ledgers, filesystem/S3 CAS, retention/holds, guarded GC, rollback, crash/restart reconciliation, transactional PostgreSQL staging and hardened HTTP acquisition.
 
-[Install 2.1](getting-started/installation.md){ .md-button .md-button--primary }
+[Install 2.2](getting-started/installation.md){ .md-button .md-button--primary }
 [2.x Quickstart](getting-started/quickstart.md){ .md-button }
 [Migrate V1 → V2](guides/migrate-v1-to-v2.md){ .md-button }
 [Provider matrix](reference/provider-compatibility-v2.md){ .md-button }

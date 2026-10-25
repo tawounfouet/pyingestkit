@@ -1,10 +1,10 @@
 # Installation
 
-PyIngestKit 2.1 requires Python 3.11 or newer. The stable release is qualified on Python **3.11, 3.12, 3.13 and 3.14**.
+PyIngestKit 2.2 requires Python 3.11 or newer. The stable release is qualified on Python **3.11, 3.12, 3.13 and 3.14**.
 
-## Install PyIngestKit 2.1
+## Install PyIngestKit 2.2
 
-The canonical stable release is **2.1.0**.
+The canonical stable release is **2.2.0**.
 
 If PyIngestKit is available from your configured Python package index:
 
@@ -12,27 +12,27 @@ If PyIngestKit is available from your configured Python package index:
 python3.12 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
-python -m pip install "pyingestkit==2.1.0"
+python -m pip install "pyingestkit==2.2.0"
 ```
 
 The GitHub release also publishes the qualified wheel and source distribution with SHA-256 checksums. You can install the downloaded wheel directly:
 
 ```bash
-python -m pip install ./pyingestkit-2.1.0-py3-none-any.whl
+python -m pip install ./pyingestkit-2.2.0-py3-none-any.whl
 ```
 
-See the [PyIngestKit 2.1.0 release notes](../releases/v2.1.0.md) and [stable qualification](../releases/v2.1.0-qualification.md).
+See the [PyIngestKit 2.2.0 release notes](../releases/v2.2.0.md).
 
 ## Optional providers
 
 The base 2.x installation is provider-neutral. Install only the provider families required by your application:
 
 ```bash
-python -m pip install "pyingestkit[http]==2.1.0"
-python -m pip install "pyingestkit[postgres]==2.1.0"
-python -m pip install "pyingestkit[s3]==2.1.0"
-python -m pip install "pyingestkit[excel]==2.1.0"
-python -m pip install "pyingestkit[parquet]==2.1.0"
+python -m pip install "pyingestkit[http]==2.2.0"
+python -m pip install "pyingestkit[postgres]==2.2.0"
+python -m pip install "pyingestkit[s3]==2.2.0"
+python -m pip install "pyingestkit[excel]==2.2.0"
+python -m pip install "pyingestkit[parquet]==2.2.0"
 ```
 
 The base package does not require httpx, SQLAlchemy, psycopg, boto3, OpenPyXL, PyArrow or PyTransformKit.
@@ -64,7 +64,7 @@ python -c "from pyingestkit import IngestionDefinition, IngestionRuntime, Source
 The expected stable version is:
 
 ```text
-2.1.0
+2.2.0
 ```
 
 ## Documentation contributors

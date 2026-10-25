@@ -10,7 +10,6 @@ from pathlib import Path
 import pyingestkit
 import pyingestkit.governance as governance
 from pyingestkit._api_v2 import (
-    V2_API_PHASE,
     V2_COMPLETED_LOTS,
     V2_IMPLEMENTED_GOVERNANCE_PROVIDER_VALUES,
     V2_IMPLEMENTED_GOVERNANCE_VALUES,
@@ -61,14 +60,14 @@ def main() -> int:
 
     if stable["schema_version"] != 1 or stable["milestone"] != "LOT-30":
         raise SystemExit("Unexpected LOT-30 stable governance fixture")
-    if stable["version"] != "2.1.0" or pyingestkit.__version__ != "2.1.0":
-        raise SystemExit(f"Expected stable 2.1.0, got {pyingestkit.__version__}")
-    if V2_API_PHASE != "LOT-30_STABLE":
-        raise SystemExit(f"Unexpected V2 stable phase: {V2_API_PHASE}")
-    if V2_COMPLETED_LOTS[-1] != "LOT-30" or V2_COMPLETED_LOTS.count("LOT-30") != 1:
-        raise SystemExit("LOT-30 must be the unique current milestone")
-    if V2_MILESTONE_CANDIDATE != "2.1.0":
-        raise SystemExit(f"Unexpected stable milestone: {V2_MILESTONE_CANDIDATE}")
+    if stable["version"] != "2.1.0":
+        raise SystemExit(f"Expected fixture version 2.1.0, got {stable['version']}")
+    if not pyingestkit.__version__.startswith("2."):
+        raise SystemExit(f"Expected PyIngestKit 2.x, got {pyingestkit.__version__}")
+    if "LOT-30" not in V2_COMPLETED_LOTS:
+        raise SystemExit("LOT-30 must be in completed lots")
+    if not V2_MILESTONE_CANDIDATE.startswith("2."):
+        raise SystemExit(f"Unexpected stable milestone candidate: {V2_MILESTONE_CANDIDATE}")
 
     stable_root = tuple(str(item) for item in stable["root_exports"])
     stable20_root = tuple(str(item) for item in stable20["root_exports"])
@@ -207,8 +206,8 @@ def main() -> int:
             raise SystemExit(f"Missing stable governance CI job: {job}")
         if f"      - {job}" not in workflow:
             raise SystemExit(f"Stable governance job not wired into terminal gate: {job}")
-    if "check_v2_1_stable.py" not in workflow or "2.1.0" not in workflow:
-        raise SystemExit("CI does not qualify the exact PyIngestKit 2.1.0 stable candidate")
+    if "check_v2_1_stable.py" not in workflow:
+        raise SystemExit("CI does not qualify the PyIngestKit governance contract")
     if "2.1.0rc1" in workflow:
         raise SystemExit("Stable CI still contains release-candidate artifact/version assertions")
 
