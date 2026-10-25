@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 import importlib.util
 import ipaddress
-import random
+import secrets
 import time
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
@@ -619,7 +619,7 @@ class HttpSourceConnector:
         base_delay = float(self._policy.retry_backoff_seconds) * (2 ** (attempt - 1))
         capped: float = min(base_delay, float(self._policy.max_backoff_seconds))
         if self._policy.retry_jitter:
-            return float(random.uniform(0.0, capped))
+            return float(secrets.SystemRandom().uniform(0.0, capped))
         return float(capped)
 
     def _validate_url(
