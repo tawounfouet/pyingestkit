@@ -11,7 +11,7 @@ Ce document constitue le **tableau de bord opérationnel centralisé** des tâch
 │ TABLEAU DE BORD D'AVANCEMENT GLOBAL DES TÂCHES                                                   │
 ├─────────────────┬─────────────────┬─────────────────┬─────────────────┬──────────────────────────┤
 │ TOTAL TÂCHES    │ TERMINÉES (DONE)│ EN COURS (WIP)  │ À FAIRE (TODO)  │ TAUX DE COMPLÉTION       │
-│ 7               │ 7               │ 0               │ 0               │ 100 % [████████████████] │
+│ 8               │ 8               │ 0               │ 0               │ 100.0 % [████████████████]│
 └─────────────────┴─────────────────┴─────────────────┴─────────────────┴──────────────────────────┘
 ```
 
@@ -28,6 +28,7 @@ Ce document constitue le **tableau de bord opérationnel centralisé** des tâch
 | [`TASK-LOT31-03`](./TASK-LOT31-03_cli-doctor-diagnostic-command.md) | Commande d'Autodiagnostic Système (`pik doctor`) | LOT-31 | [`ITEM-001`](../backlog/ITEM-001_cli-pik-standardization.md) | CLI (`pik`) | AWF / Antigravity | ✅ **DONE** | 2026-10-24 | 2026-10-24 | [`040d5af`](https://github.com/) | [`FEEDBACK-LOT31-03`](../feedback/FEEDBACK-LOT31-03_cli-doctor-diagnostic-command.md) |
 | [`TASK-LOT33-01`](./TASK-LOT33-01_brand-identity-assets-integration.md) | Intégration globale brand assets & charte visuelle | LOT-33 | [`ITEM-003`](../backlog/ITEM-003_brand-assets-and-visual-identity.md) | Design System | AWF / Antigravity | ✅ **DONE** | 2026-10-24 | 2026-10-24 | [`e4349a0`](https://github.com/) | [`FEEDBACK-LOT33-01`](../feedback/FEEDBACK-LOT33-01_brand-identity-assets-integration.md) |
 | [`TASK-LOT34-01`](./TASK-LOT34-01_pypi-oidc-release-automation.md) | Automatisation Release PyPI OIDC & Supply Chain | LOT-34 | [`ITEM-004`](../backlog/ITEM-004_pypi-supply-chain-and-release-automation.md) | CI/CD & Supply Chain | AWF / Antigravity | ✅ **DONE** | 2026-10-24 | 2026-10-25 | [`PR#70`](https://github.com/) | [`FEEDBACK-LOT34-01`](../feedback/FEEDBACK-LOT34-01_pypi-oidc-release-automation.md) |
+| [`TASK-LOT35-01`](./TASK-LOT35-01_replay-provenance-and-historical-reconstruction.md) | Provenance Replay & Reconstruction Historique d'Ingestion | LOT-35 | [`ITEM-005`](../backlog/ITEM-005_replay-provenance-and-historical-reconstruction.md) | Core Domain & Replay | AWF / Antigravity | ✅ **DONE** | 2026-10-25 | 2026-10-25 | [`feat/replay`](https://github.com/) | [`FEEDBACK-LOT35-01`](../feedback/FEEDBACK-LOT35-01_replay-provenance-and-historical-reconstruction.md) |
 
 ---
 
@@ -37,7 +38,6 @@ Les tâches ci-dessous sont issues des items de backlog approuvés et seront act
 
 | Réf. Future Tâche | Intitulé Prévu | LOT | Item Backlog | Priorité | Statut |
 | :--- | :--- | :--- | :--- | :---: | :---: |
-| `TASK-LOT35-01` | Service de reconstruction historique et audit de provenance RAW | LOT-35 | [`ITEM-005`](../backlog/ITEM-005_replay-provenance-and-historical-reconstruction.md) | HAUTE | 📋 **TODO** |
 | `TASK-LOT36-01` | Adaptateur PostgreSQL UPSERT/MERGE et staging transactionnel | LOT-36 | [`ITEM-006`](../backlog/ITEM-006_postgresql-target-upsert-merge-and-staging.md) | MOYENNE | 💡 **CANDIDAT** |
 | `TASK-LOT37-01` | Client HTTP durci avec validation anti-SSRF et retry exponentiel | LOT-37 | [`ITEM-007`](../backlog/ITEM-007_advanced-http-acquisition-and-ssrf-hardening.md) | MOYENNE | 💡 **CANDIDAT** |
 

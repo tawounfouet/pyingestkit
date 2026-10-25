@@ -14,9 +14,18 @@ from pyingestkit.domain.artifacts import (
     ArtifactRetention,
     PutArtifactRequest,
 )
-from pyingestkit.domain.replay import ReplayRequest, ReplayResult
+from pyingestkit.domain.governance import (
+    ConditionalPublicationOutcome,
+    ConditionalPublicationStatus,
+    PublicationIntent,
+    PublicationOperationId,
+    PublicationRevision,
+)
+from pyingestkit.domain.replay import ReplayLineage, ReplayRequest, ReplayResult
 from pyingestkit.domain.runtime import CorrelationContext
 from pyingestkit.domain.shared import IngestionRunId
+from pyingestkit.ports.governance import ConditionalDatasetPublisher
+from pyingestkit.ports.replay import ReplayLineageLedger
 from pyingestkit.validation.v2 import ValidationRuleV2
 
 
@@ -27,11 +36,15 @@ class ReplayServiceV2:
         self,
         *,
         runtime: IngestionRuntime,
+        ledger: ReplayLineageLedger | None = None,
         clock: Callable[[], datetime] | None = None,
     ) -> None:
         if not isinstance(runtime, IngestionRuntime):
             raise TypeError("ReplayServiceV2 runtime must be IngestionRuntime.")
+        if ledger is not None and not isinstance(ledger, ReplayLineageLedger):
+            raise TypeError("ReplayServiceV2 ledger must be ReplayLineageLedger or None.")
         self._runtime = runtime
+        self._ledger = ledger
         self._clock = clock or (lambda: datetime.now(UTC))
 
     def replay(
@@ -120,6 +133,24 @@ class ReplayServiceV2:
             ):
                 matched = False
 
+        lineage: ReplayLineage | None = None
+        if ingestion.dataset_version is not None:
+            dataset_id = ingestion.dataset_version.dataset_id
+            version_id = ingestion.dataset_version.version_id
+            lineage = ReplayLineage(
+                source_run_id=request.source_run_id,
+                replay_run_id=run_id,
+                dataset_id=dataset_id,
+                version_id=version_id,
+                origin_raw_checksum=origin.checksum or "",
+                replay_raw_checksum=raw_put.reference.checksum or "",
+                matched=matched if matched is not None else True,
+                replayed_at=self._now(),
+                published=False,
+            )
+            if self._ledger is not None:
+                self._ledger.record_replay_lineage(lineage)
+
         return ReplayResult(
             source_run_id=request.source_run_id,
             origin_raw_artifact=origin,
@@ -127,7 +158,47 @@ class ReplayServiceV2:
             ingestion=ingestion,
             expected_dataset_version=request.expected_dataset_version,
             matched=matched,
+            lineage=lineage,
         )
+
+    def publish_replay(
+        self,
+        result: ReplayResult,
+        *,
+        publisher: ConditionalDatasetPublisher,
+        expected_revision: PublicationRevision | None = None,
+    ) -> ConditionalPublicationOutcome:
+        """Publish successful replay output with compare-and-swap safety."""
+        if not isinstance(result, ReplayResult):
+            raise TypeError("publish_replay requires ReplayResult.")
+        if not result.succeeded:
+            raise ValueError("Cannot publish an unsuccessful replay result.")
+        if result.ingestion.dataset_version is None:
+            raise ValueError("Replay result contains no dataset version to publish.")
+        if not isinstance(publisher, ConditionalDatasetPublisher):
+            raise TypeError("publish_replay requires ConditionalDatasetPublisher.")
+
+        dataset_id = result.ingestion.dataset_version.dataset_id
+        if expected_revision is None:
+            snapshot = publisher.inspect(dataset_id)
+            resolved_revision = snapshot.revision
+        else:
+            resolved_revision = expected_revision
+
+        intent = PublicationIntent(
+            operation_id=PublicationOperationId.new(),
+            dataset_version=result.ingestion.dataset_version,
+            expected_revision=resolved_revision,
+            ingestion_run_id=result.replay_run_id,
+            correlation=result.ingestion.run.correlation,
+            requested_at=self._now(),
+        )
+        outcome = publisher.compare_and_publish(intent)
+        if outcome.status is ConditionalPublicationStatus.SUCCEEDED:
+            if self._ledger is not None and result.lineage is not None:
+                updated_lineage = replace(result.lineage, published=True)
+                self._ledger.record_replay_lineage(updated_lineage)
+        return outcome
 
     @staticmethod
     def _correlation(

@@ -1,5 +1,5 @@
 """Portable V2 strict-replay contracts."""
 
-from pyingestkit.domain.replay.models import ReplayRequest, ReplayResult
+from pyingestkit.domain.replay.models import ReplayLineage, ReplayRequest, ReplayResult
 
-__all__ = ["ReplayRequest", "ReplayResult"]
+__all__ = ["ReplayLineage", "ReplayRequest", "ReplayResult"]

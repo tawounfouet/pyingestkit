@@ -96,6 +96,7 @@ nav:
       - 2.1 stable qualification: releases/v2.1.0-qualification.md
       - 2.1 qualification evidence: releases/v2.1.0-evidence.md
       - Provider compatibility matrix: reference/provider-compatibility-v2.md
+      - Historical Replay & Provenance: guides/historical-replay-and-provenance.md
       - Historical 2.0.0 release: releases/v2.0.0.md
       - Historical 2.0 qualification: releases/v2.0.0-qualification.md
       - Historical 2.0 evidence: releases/v2.0.0-evidence.md

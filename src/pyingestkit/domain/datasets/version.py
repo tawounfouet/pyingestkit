@@ -97,6 +97,7 @@ def build_dataset_version(
         created_at=created_at,
         schema_fingerprint=result.schema.fingerprint,
         content_fingerprint=content_fingerprint,
+        artifact_reference=request.artifact,
         metadata=metadata,
     )
     return DatasetVersion(

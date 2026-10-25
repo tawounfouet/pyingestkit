@@ -10,6 +10,7 @@ from typing import cast
 
 from sqlalchemy import (
     BigInteger,
+    Boolean,
     Column,
     DateTime,
     ForeignKey,
@@ -33,6 +34,8 @@ from pyingestkit.domain.governance import (
     PublicationOperationId,
     VersionHold,
 )
+from pyingestkit.domain.replay import ReplayLineage
+from pyingestkit.domain.shared import IngestionRunId
 from pyingestkit.domain.shared.validation import validate_aware_datetime
 from pyingestkit.governance._ledger_codec import (
     decode_event,
@@ -42,6 +45,7 @@ from pyingestkit.governance._ledger_codec import (
     is_terminal_event,
 )
 from pyingestkit.ports.governance import PublicationLedger
+from pyingestkit.ports.replay import ReplayLineageLedger
 
 _METADATA = MetaData()
 
@@ -86,8 +90,23 @@ _VERSION_HOLD = Table(
     Column("reason", Text, nullable=True),
 )
 
+_REPLAY_LINEAGE = Table(
+    "pyingestkit_v2_replay_lineage",
+    _METADATA,
+    Column("lineage_id", String(64), primary_key=True),
+    Column("source_run_id", String(64), nullable=False, index=True),
+    Column("replay_run_id", String(64), nullable=False, index=True),
+    Column("dataset_id", String(512), nullable=False, index=True),
+    Column("version_id", String(512), nullable=False),
+    Column("origin_raw_checksum", String(128), nullable=False),
+    Column("replay_raw_checksum", String(128), nullable=False),
+    Column("matched", Boolean, nullable=False),
+    Column("replayed_at", DateTime(timezone=True), nullable=False),
+    Column("published", Boolean, nullable=False, default=False),
+)
 
-class PostgresPublicationLedger(PublicationLedger):
+
+class PostgresPublicationLedger(PublicationLedger, ReplayLineageLedger):
     """Durable PostgreSQL implementation of the frozen LOT-23 ledger port."""
 
     def __init__(self, dsn: str) -> None:
@@ -185,6 +204,20 @@ class PostgresPublicationLedger(PublicationLedger):
         with self._engine.connect() as connection:
             return _list_active_holds(connection, dataset_id)
 
+    def record_replay_lineage(self, lineage: ReplayLineage) -> ReplayLineage:
+        self._ensure_open()
+        with self._engine.begin() as connection:
+            return _record_replay_lineage(connection, lineage)
+
+    def list_replays(
+        self,
+        dataset_id: str | None = None,
+        source_run_id: IngestionRunId | None = None,
+    ) -> tuple[ReplayLineage, ...]:
+        self._ensure_open()
+        with self._engine.connect() as connection:
+            return _list_replays(connection, dataset_id=dataset_id, source_run_id=source_run_id)
+
     @contextmanager
     def transaction(self) -> Iterator[_PostgresPublicationLedgerTransaction]:
         """Yield a ledger bound to one caller-controlled SQL transaction."""
@@ -202,7 +235,7 @@ class PostgresPublicationLedger(PublicationLedger):
             raise RuntimeError("PostgresPublicationLedger is closed.")
 
 
-class _PostgresPublicationLedgerTransaction(PublicationLedger):
+class _PostgresPublicationLedgerTransaction(PublicationLedger, ReplayLineageLedger):
     """Protocol-compatible view that never commits its bound Connection."""
 
     def __init__(self, connection: Connection) -> None:
@@ -259,6 +292,20 @@ class _PostgresPublicationLedgerTransaction(PublicationLedger):
 
     def list_active_holds(self, dataset_id: str) -> tuple[VersionHold, ...]:
         return _list_active_holds(self._connection, dataset_id)
+
+    def record_replay_lineage(self, lineage: ReplayLineage) -> ReplayLineage:
+        return _record_replay_lineage(self._connection, lineage)
+
+    def list_replays(
+        self,
+        dataset_id: str | None = None,
+        source_run_id: IngestionRunId | None = None,
+    ) -> tuple[ReplayLineage, ...]:
+        return _list_replays(
+            self._connection,
+            dataset_id=dataset_id,
+            source_run_id=source_run_id,
+        )
 
 
 def _place_hold(connection: Connection, hold: VersionHold) -> VersionHold:
@@ -599,3 +646,105 @@ def _safe_dsn(dsn: str) -> str:
         return make_url(_normalize_dsn(dsn)).render_as_string(hide_password=True)
     except ArgumentError:
         return "<invalid-postgresql-dsn>"
+
+
+def _record_replay_lineage(
+    connection: Connection,
+    lineage: ReplayLineage,
+) -> ReplayLineage:
+    if not isinstance(lineage, ReplayLineage):
+        raise TypeError("PostgresPublicationLedger.record_replay_lineage requires ReplayLineage.")
+    lineage_id = lineage.lineage_id or ""
+    statement = (
+        postgres_insert(_REPLAY_LINEAGE)
+        .values(
+            lineage_id=lineage_id,
+            source_run_id=str(lineage.source_run_id),
+            replay_run_id=str(lineage.replay_run_id),
+            dataset_id=lineage.dataset_id,
+            version_id=lineage.version_id,
+            origin_raw_checksum=lineage.origin_raw_checksum,
+            replay_raw_checksum=lineage.replay_raw_checksum,
+            matched=lineage.matched,
+            replayed_at=lineage.replayed_at,
+            published=lineage.published,
+        )
+        .on_conflict_do_nothing(index_elements=[_REPLAY_LINEAGE.c.lineage_id])
+        .returning(_REPLAY_LINEAGE.c.lineage_id)
+    )
+    inserted_id = connection.execute(statement).scalar_one_or_none()
+    if inserted_id is None:
+        row = connection.execute(
+            select(
+                _REPLAY_LINEAGE.c.source_run_id,
+                _REPLAY_LINEAGE.c.replay_run_id,
+                _REPLAY_LINEAGE.c.dataset_id,
+                _REPLAY_LINEAGE.c.version_id,
+                _REPLAY_LINEAGE.c.origin_raw_checksum,
+                _REPLAY_LINEAGE.c.replay_raw_checksum,
+                _REPLAY_LINEAGE.c.matched,
+            ).where(_REPLAY_LINEAGE.c.lineage_id == lineage_id)
+        ).one()
+        if (
+            row[0] != str(lineage.source_run_id)
+            or row[1] != str(lineage.replay_run_id)
+            or row[2] != lineage.dataset_id
+            or row[3] != lineage.version_id
+            or row[4] != lineage.origin_raw_checksum
+            or row[5] != lineage.replay_raw_checksum
+            or row[6] != lineage.matched
+        ):
+            raise ValueError("Replay lineage ID cannot be reused for different lineage evidence.")
+        if lineage.published:
+            connection.execute(
+                update(_REPLAY_LINEAGE)
+                .where(_REPLAY_LINEAGE.c.lineage_id == lineage_id)
+                .values(published=True)
+            )
+    return lineage
+
+
+def _list_replays(
+    connection: Connection,
+    *,
+    dataset_id: str | None,
+    source_run_id: IngestionRunId | None,
+) -> tuple[ReplayLineage, ...]:
+    if dataset_id is not None and (not isinstance(dataset_id, str) or not dataset_id.strip()):
+        raise ValueError("PostgresPublicationLedger dataset_id must be non-blank or None.")
+    if source_run_id is not None and not isinstance(source_run_id, IngestionRunId):
+        raise TypeError("PostgresPublicationLedger source_run_id must be IngestionRunId or None.")
+
+    statement = select(
+        _REPLAY_LINEAGE.c.lineage_id,
+        _REPLAY_LINEAGE.c.source_run_id,
+        _REPLAY_LINEAGE.c.replay_run_id,
+        _REPLAY_LINEAGE.c.dataset_id,
+        _REPLAY_LINEAGE.c.version_id,
+        _REPLAY_LINEAGE.c.origin_raw_checksum,
+        _REPLAY_LINEAGE.c.replay_raw_checksum,
+        _REPLAY_LINEAGE.c.matched,
+        _REPLAY_LINEAGE.c.replayed_at,
+        _REPLAY_LINEAGE.c.published,
+    )
+    if dataset_id is not None:
+        statement = statement.where(_REPLAY_LINEAGE.c.dataset_id == dataset_id)
+    if source_run_id is not None:
+        statement = statement.where(_REPLAY_LINEAGE.c.source_run_id == str(source_run_id))
+    statement = statement.order_by(_REPLAY_LINEAGE.c.replayed_at, _REPLAY_LINEAGE.c.lineage_id)
+    rows = connection.execute(statement).all()
+    return tuple(
+        ReplayLineage(
+            lineage_id=row[0],
+            source_run_id=IngestionRunId.parse(row[1]),
+            replay_run_id=IngestionRunId.parse(row[2]),
+            dataset_id=row[3],
+            version_id=row[4],
+            origin_raw_checksum=row[5],
+            replay_raw_checksum=row[6],
+            matched=bool(row[7]),
+            replayed_at=row[8],
+            published=bool(row[9]),
+        )
+        for row in rows
+    )

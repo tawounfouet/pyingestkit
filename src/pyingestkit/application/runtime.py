@@ -304,11 +304,28 @@ class IngestionRuntime:
                 diagnostics=diagnostics,
             )
 
+        meta_items: list[tuple[str, str]] = [
+            ("source_run_id", str(run_id)),
+            ("source_raw_artifact_id", raw_artifact.artifact_id),
+            ("definition_name", definition.name),
+            ("definition_fingerprint", str(definition.fingerprint)),
+            ("decoder_id", definition.decoder),
+        ]
+        if raw_artifact.checksum:
+            meta_items.append(("source_raw_checksum", raw_artifact.checksum))
+        if raw_artifact.resource.locator:
+            meta_items.append(("source_raw_locator", raw_artifact.resource.locator))
+        if raw_artifact.resource.namespace:
+            meta_items.append(("source_raw_namespace", raw_artifact.resource.namespace))
+        if raw_artifact.resource.resource_id:
+            meta_items.append(("source_raw_resource_id", raw_artifact.resource.resource_id))
+
         version = build_dataset_version(
             dataset_id=definition.dataset,
             request=decode_request,
             result=decoded,
             created_at=self._now(),
+            metadata=tuple(meta_items),
         )
         if expected_version_id is not None and version.version_id != expected_version_id:
             return self._failed(
