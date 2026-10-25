@@ -16,7 +16,7 @@
         <link rel="prev" href="../../reference/provider-compatibility-v2/">
       
       
-        <link rel="next" href="../../releases/v2.0.0/">
+        <link rel="next" href="../postgres-upsert-merge-and-staging/">
       
       
         
@@ -632,6 +632,8 @@
       
         
       
+        
+      
     
     
     
@@ -973,6 +975,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../postgres-upsert-merge-and-staging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PostgreSQL UPSERT, MERGE & Staging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -3064,6 +3094,37 @@
     D --&gt;|Record| G[ReplayLineageLedger]
     F --&gt;|Optional CAS| H[FileConditionalDatasetPublisher]
     H --&gt;|Promote published=True| G</code></pre>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>┌──────────────────────────┐
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>│  Dataset Version Store   │
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>└────────────┬─────────────┘
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>             │ Lookup metadata
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>             ▼
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>┌──────────────────────────────────────┐
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>│   DefaultReplayProvenanceResolver    │
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>└──────────────────┬───────────────────┘
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>                   │ Construct
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>                   ▼
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>       ┌────────────────────────┐
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>       │     ReplayRequest      │
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>       └───────────┬────────────┘
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>                   │ Execute
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>                   ▼
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>┌──────────────────────────┐        ┌──────────────────────────┐
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>│   Durable RAW Artifact   │───────&gt;│     ReplayServiceV2      │
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>│  (Read &amp; Verify SHA-256) │        └────────────┬─────────────┘
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>└──────────────────────────┘                     │
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>                   ┌─────────────────────────────┴─────────────────────────────┐
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>                   │ Produce                                                   │ Record
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>                   ▼                                                           ▼
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>       ┌────────────────────────┐                                  ┌───────────────────────┐
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>       │      ReplayResult      │                                  │  ReplayLineageLedger  │
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>       └───────────┬────────────┘                                  └───────────▲───────────┘
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>                   │ (Optional CAS)                                            │
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>                   ▼                                                           │ Promote published=True
+<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>┌──────────────────────────────────────┐                                       │
+<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>│   FileConditionalDatasetPublisher    │───────────────────────────────────────┘
+<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>└──────────────────────────────────────┘
+</code></pre></div>
 <h3 id="domain-models-pyingestkitdomainreplay">Domain Models (<code>pyingestkit.domain.replay</code>)</h3>
 <ul>
 <li><code>ReplayLineage</code>: Immutable causal lineage record with <code>lineage_id</code>, <code>source_run_id</code>, <code>replay_run_id</code>, <code>dataset_id</code>, <code>version_id</code>, checksum verification, and <code>published</code> boolean status.</li>
@@ -3080,92 +3141,92 @@
 <p>The <code>pik replay</code> CLI supports modern V2 dataset replay while preserving 100% backward compatibility with V1 run-based workflows.</p>
 <h3 id="replay-a-specific-dataset-version">Replay a Specific Dataset Version</h3>
 <p>Replay the exact historical RAW bytes that produced a specific dataset version:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pik<span class="w"> </span>replay<span class="w"> </span>--dataset<span class="w"> </span>orders<span class="w"> </span>--version<span class="w"> </span>sha256-7f034c6b5e843a3e90f11b3fcb44d7b4a9ca3f5e14c9bf46ecd11fb66e17754c
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pik<span class="w"> </span>replay<span class="w"> </span>--dataset<span class="w"> </span>orders<span class="w"> </span>--version<span class="w"> </span>sha256-7f034c6b5e843a3e90f11b3fcb44d7b4a9ca3f5e14c9bf46ecd11fb66e17754c
 </code></pre></div>
 <p>Or using short flags:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pik<span class="w"> </span>replay<span class="w"> </span>-d<span class="w"> </span>orders<span class="w"> </span>-v<span class="w"> </span>sha256-7f034c6b5e843a3e90f11b3fcb44d7b4a9ca3f5e14c9bf46ecd11fb66e17754c
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>pik<span class="w"> </span>replay<span class="w"> </span>-d<span class="w"> </span>orders<span class="w"> </span>-v<span class="w"> </span>sha256-7f034c6b5e843a3e90f11b3fcb44d7b4a9ca3f5e14c9bf46ecd11fb66e17754c
 </code></pre></div>
 <h3 id="replay-and-publish-with-compare-and-swap-cas">Replay and Publish with Compare-And-Swap (CAS)</h3>
 <p>To automatically promote the replayed version to the current published pointer using CAS governance:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>pik<span class="w"> </span>replay<span class="w"> </span>-d<span class="w"> </span>orders<span class="w"> </span>-v<span class="w"> </span>sha256-7f034c6b5e843a3e90f11b3fcb44d7b4a9ca3f5e14c9bf46ecd11fb66e17754c<span class="w"> </span>--publish
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>pik<span class="w"> </span>replay<span class="w"> </span>-d<span class="w"> </span>orders<span class="w"> </span>-v<span class="w"> </span>sha256-7f034c6b5e843a3e90f11b3fcb44d7b4a9ca3f5e14c9bf46ecd11fb66e17754c<span class="w"> </span>--publish
 </code></pre></div>
 <p>Terminal output:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>╭────────────────── Replay Provenance Execution ──────────────────╮
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>│ Dataset:         orders                                         │
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>│ Target Version:  sha256-7f034c6b5e843a3e90f11b3fcb44d7b4a9ca... │
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>│ Source Run ID:   d2137390-cb2e-4194-81d6-60e9fb29fd0c          │
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>│ Replay Run ID:   90a2cc59-604a-43ec-8a74-f29b659c348f          │
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>│ RAW Integrity:   MATCHED                                        │
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>│ Lineage ID:      c33a071884304b2ebacc7e4b42518170              │
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>│ CAS Publication: SUCCEEDED (rev: rev-4bb4a4bb5cdb46cd8f0675ba)  │
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>╰─────────────────────────────────────────────────────────────────╯
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>╭────────────────── Replay Provenance Execution ──────────────────╮
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>│ Dataset:         orders                                         │
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>│ Target Version:  sha256-7f034c6b5e843a3e90f11b3fcb44d7b4a9ca... │
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>│ Source Run ID:   d2137390-cb2e-4194-81d6-60e9fb29fd0c          │
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>│ Replay Run ID:   90a2cc59-604a-43ec-8a74-f29b659c348f          │
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>│ RAW Integrity:   MATCHED                                        │
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>│ Lineage ID:      c33a071884304b2ebacc7e4b42518170              │
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>│ CAS Publication: SUCCEEDED (rev: rev-4bb4a4bb5cdb46cd8f0675ba)  │
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>╰─────────────────────────────────────────────────────────────────╯
 </code></pre></div></p>
 <h3 id="automation-cicd-with-json-output">Automation &amp; CI/CD with JSON Output</h3>
 <p>Passing <code>--json</code> emits structured, machine-parsable JSON:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>pik<span class="w"> </span>replay<span class="w"> </span>-d<span class="w"> </span>orders<span class="w"> </span>-v<span class="w"> </span>sha256-7f034c6b...<span class="w"> </span>--publish<span class="w"> </span>--json
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>pik<span class="w"> </span>replay<span class="w"> </span>-d<span class="w"> </span>orders<span class="w"> </span>-v<span class="w"> </span>sha256-7f034c6b...<span class="w"> </span>--publish<span class="w"> </span>--json
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">{</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="nt">"dataset_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"orders"</span><span class="p">,</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="nt">"lineage_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"c33a071884304b2ebacc7e4b42518170"</span><span class="p">,</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span><span class="nt">"matched"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span><span class="nt">"origin_raw_checksum"</span><span class="p">:</span><span class="w"> </span><span class="s2">"d1efbdbd801abb6872ab799a86e51b10e209d0020be968cffca5de4d2597d112"</span><span class="p">,</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">  </span><span class="nt">"publication_operation_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"7c94f971-473c-45c6-a547-ac0a595ba639"</span><span class="p">,</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">  </span><span class="nt">"publication_status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"succeeded"</span><span class="p">,</span>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">  </span><span class="nt">"published"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">  </span><span class="nt">"replay_raw_checksum"</span><span class="p">:</span><span class="w"> </span><span class="s2">"d1efbdbd801abb6872ab799a86e51b10e209d0020be968cffca5de4d2597d112"</span><span class="p">,</span>
-<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">  </span><span class="nt">"replay_run_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"90a2cc59-604a-43ec-8a74-f29b659c348f"</span><span class="p">,</span>
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">  </span><span class="nt">"revision"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rev-4bb4a4bb5cdb46cd8f0675ba937b08d8"</span><span class="p">,</span>
-<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">  </span><span class="nt">"source_run_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"d2137390-cb2e-4194-81d6-60e9fb29fd0c"</span><span class="p">,</span>
-<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">  </span><span class="nt">"succeeded"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
-<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="w">  </span><span class="nt">"version_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sha256-7f034c6b5e843a3e90f11b3fcb44d7b4a9ca3f5e14c9bf46ecd11fb66e17754c"</span>
-<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="p">}</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p">{</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="nt">"dataset_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"orders"</span><span class="p">,</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span><span class="nt">"lineage_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"c33a071884304b2ebacc7e4b42518170"</span><span class="p">,</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span><span class="nt">"matched"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">  </span><span class="nt">"origin_raw_checksum"</span><span class="p">:</span><span class="w"> </span><span class="s2">"d1efbdbd801abb6872ab799a86e51b10e209d0020be968cffca5de4d2597d112"</span><span class="p">,</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">  </span><span class="nt">"publication_operation_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"7c94f971-473c-45c6-a547-ac0a595ba639"</span><span class="p">,</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">  </span><span class="nt">"publication_status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"succeeded"</span><span class="p">,</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">  </span><span class="nt">"published"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">  </span><span class="nt">"replay_raw_checksum"</span><span class="p">:</span><span class="w"> </span><span class="s2">"d1efbdbd801abb6872ab799a86e51b10e209d0020be968cffca5de4d2597d112"</span><span class="p">,</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">  </span><span class="nt">"replay_run_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"90a2cc59-604a-43ec-8a74-f29b659c348f"</span><span class="p">,</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">  </span><span class="nt">"revision"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rev-4bb4a4bb5cdb46cd8f0675ba937b08d8"</span><span class="p">,</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">  </span><span class="nt">"source_run_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"d2137390-cb2e-4194-81d6-60e9fb29fd0c"</span><span class="p">,</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="w">  </span><span class="nt">"succeeded"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="w">  </span><span class="nt">"version_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sha256-7f034c6b5e843a3e90f11b3fcb44d7b4a9ca3f5e14c9bf46ecd11fb66e17754c"</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="p">}</span>
 </code></pre></div>
 <hr />
 <h2 id="4-programmatic-python-api">4. Programmatic Python API</h2>
 <p>For embedded platform integration, use <code>DefaultReplayProvenanceResolver</code> and <code>ReplayServiceV2</code> directly:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pyingestkit.adapters.filesystem</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileArtifactStore</span><span class="p">,</span> <span class="n">FileDatasetVersionStore</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pyingestkit.adapters.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">MemoryPublicationLedger</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pyingestkit.application.replay</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReplayServiceV2</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pyingestkit.application.resolver</span><span class="w"> </span><span class="kn">import</span> <span class="n">DefaultReplayProvenanceResolver</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pyingestkit.application.runtime</span><span class="w"> </span><span class="kn">import</span> <span class="n">IngestionRuntime</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pyingestkit.application.decoders</span><span class="w"> </span><span class="kn">import</span> <span class="n">DecoderRegistry</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pyingestkit.adapters.formats.json</span><span class="w"> </span><span class="kn">import</span> <span class="n">JsonDecoder</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pyingestkit.application.sources</span><span class="w"> </span><span class="kn">import</span> <span class="n">SourceRegistry</span>
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>
-<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="c1"># 1. Initialize storage and ledger</span>
-<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="n">artifact_store</span> <span class="o">=</span> <span class="n">FileArtifactStore</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="s2">"/var/data/ingest"</span><span class="p">)</span>
-<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="n">version_store</span> <span class="o">=</span> <span class="n">FileDatasetVersionStore</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="s2">"/var/data/ingest"</span><span class="p">)</span>
-<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="n">ledger</span> <span class="o">=</span> <span class="n">MemoryPublicationLedger</span><span class="p">()</span>
-<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>
-<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="c1"># 2. Setup runtime &amp; replay service</span>
-<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="n">decoders</span> <span class="o">=</span> <span class="n">DecoderRegistry</span><span class="p">()</span>
-<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a><span class="n">decoders</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">JsonDecoder</span><span class="p">())</span>
-<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a><span class="n">runtime</span> <span class="o">=</span> <span class="n">IngestionRuntime</span><span class="p">(</span>
-<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a>    <span class="n">sources</span><span class="o">=</span><span class="n">SourceRegistry</span><span class="p">(),</span>
-<a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a>    <span class="n">decoders</span><span class="o">=</span><span class="n">decoders</span><span class="p">,</span>
-<a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a>    <span class="n">artifacts</span><span class="o">=</span><span class="n">artifact_store</span><span class="p">,</span>
-<a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a>    <span class="n">versions</span><span class="o">=</span><span class="n">version_store</span><span class="p">,</span>
-<a id="__codelineno-6-23" name="__codelineno-6-23" href="#__codelineno-6-23"></a>    <span class="n">publisher</span><span class="o">=</span><span class="n">version_store</span><span class="p">,</span>
-<a id="__codelineno-6-24" name="__codelineno-6-24" href="#__codelineno-6-24"></a><span class="p">)</span>
-<a id="__codelineno-6-25" name="__codelineno-6-25" href="#__codelineno-6-25"></a><span class="n">service</span> <span class="o">=</span> <span class="n">ReplayServiceV2</span><span class="p">(</span><span class="n">runtime</span><span class="o">=</span><span class="n">runtime</span><span class="p">,</span> <span class="n">ledger</span><span class="o">=</span><span class="n">ledger</span><span class="p">)</span>
-<a id="__codelineno-6-26" name="__codelineno-6-26" href="#__codelineno-6-26"></a>
-<a id="__codelineno-6-27" name="__codelineno-6-27" href="#__codelineno-6-27"></a><span class="c1"># 3. Resolve provenance from historical version</span>
-<a id="__codelineno-6-28" name="__codelineno-6-28" href="#__codelineno-6-28"></a><span class="n">resolver</span> <span class="o">=</span> <span class="n">DefaultReplayProvenanceResolver</span><span class="p">(</span>
-<a id="__codelineno-6-29" name="__codelineno-6-29" href="#__codelineno-6-29"></a>    <span class="n">version_store</span><span class="o">=</span><span class="n">version_store</span><span class="p">,</span>
-<a id="__codelineno-6-30" name="__codelineno-6-30" href="#__codelineno-6-30"></a>    <span class="n">artifact_store</span><span class="o">=</span><span class="n">artifact_store</span><span class="p">,</span>
-<a id="__codelineno-6-31" name="__codelineno-6-31" href="#__codelineno-6-31"></a><span class="p">)</span>
-<a id="__codelineno-6-32" name="__codelineno-6-32" href="#__codelineno-6-32"></a><span class="n">request</span> <span class="o">=</span> <span class="n">resolver</span><span class="o">.</span><span class="n">resolve_from_version</span><span class="p">(</span>
-<a id="__codelineno-6-33" name="__codelineno-6-33" href="#__codelineno-6-33"></a>    <span class="n">dataset_id</span><span class="o">=</span><span class="s2">"orders"</span><span class="p">,</span>
-<a id="__codelineno-6-34" name="__codelineno-6-34" href="#__codelineno-6-34"></a>    <span class="n">version_id</span><span class="o">=</span><span class="s2">"sha256-7f034c6b5e843a3e90f11b3fcb44d7b4a9ca3f5e14c9bf46ecd11fb66e17754c"</span><span class="p">,</span>
-<a id="__codelineno-6-35" name="__codelineno-6-35" href="#__codelineno-6-35"></a><span class="p">)</span>
-<a id="__codelineno-6-36" name="__codelineno-6-36" href="#__codelineno-6-36"></a>
-<a id="__codelineno-6-37" name="__codelineno-6-37" href="#__codelineno-6-37"></a><span class="c1"># 4. Execute replay</span>
-<a id="__codelineno-6-38" name="__codelineno-6-38" href="#__codelineno-6-38"></a><span class="n">result</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">replay</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
-<a id="__codelineno-6-39" name="__codelineno-6-39" href="#__codelineno-6-39"></a><span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">succeeded</span>
-<a id="__codelineno-6-40" name="__codelineno-6-40" href="#__codelineno-6-40"></a><span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">matched</span>
-<a id="__codelineno-6-41" name="__codelineno-6-41" href="#__codelineno-6-41"></a>
-<a id="__codelineno-6-42" name="__codelineno-6-42" href="#__codelineno-6-42"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Replay run: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">replay_run_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-<a id="__codelineno-6-43" name="__codelineno-6-43" href="#__codelineno-6-43"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Lineage ID: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">lineage</span><span class="o">.</span><span class="n">lineage_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pyingestkit.adapters.filesystem</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileArtifactStore</span><span class="p">,</span> <span class="n">FileDatasetVersionStore</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pyingestkit.adapters.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">MemoryPublicationLedger</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pyingestkit.application.replay</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReplayServiceV2</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pyingestkit.application.resolver</span><span class="w"> </span><span class="kn">import</span> <span class="n">DefaultReplayProvenanceResolver</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pyingestkit.application.runtime</span><span class="w"> </span><span class="kn">import</span> <span class="n">IngestionRuntime</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pyingestkit.application.decoders</span><span class="w"> </span><span class="kn">import</span> <span class="n">DecoderRegistry</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pyingestkit.adapters.formats.json</span><span class="w"> </span><span class="kn">import</span> <span class="n">JsonDecoder</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pyingestkit.application.sources</span><span class="w"> </span><span class="kn">import</span> <span class="n">SourceRegistry</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="c1"># 1. Initialize storage and ledger</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="n">artifact_store</span> <span class="o">=</span> <span class="n">FileArtifactStore</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="s2">"/var/data/ingest"</span><span class="p">)</span>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="n">version_store</span> <span class="o">=</span> <span class="n">FileDatasetVersionStore</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="s2">"/var/data/ingest"</span><span class="p">)</span>
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="n">ledger</span> <span class="o">=</span> <span class="n">MemoryPublicationLedger</span><span class="p">()</span>
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>
+<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a><span class="c1"># 2. Setup runtime &amp; replay service</span>
+<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a><span class="n">decoders</span> <span class="o">=</span> <span class="n">DecoderRegistry</span><span class="p">()</span>
+<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a><span class="n">decoders</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">JsonDecoder</span><span class="p">())</span>
+<a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a><span class="n">runtime</span> <span class="o">=</span> <span class="n">IngestionRuntime</span><span class="p">(</span>
+<a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a>    <span class="n">sources</span><span class="o">=</span><span class="n">SourceRegistry</span><span class="p">(),</span>
+<a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a>    <span class="n">decoders</span><span class="o">=</span><span class="n">decoders</span><span class="p">,</span>
+<a id="__codelineno-7-21" name="__codelineno-7-21" href="#__codelineno-7-21"></a>    <span class="n">artifacts</span><span class="o">=</span><span class="n">artifact_store</span><span class="p">,</span>
+<a id="__codelineno-7-22" name="__codelineno-7-22" href="#__codelineno-7-22"></a>    <span class="n">versions</span><span class="o">=</span><span class="n">version_store</span><span class="p">,</span>
+<a id="__codelineno-7-23" name="__codelineno-7-23" href="#__codelineno-7-23"></a>    <span class="n">publisher</span><span class="o">=</span><span class="n">version_store</span><span class="p">,</span>
+<a id="__codelineno-7-24" name="__codelineno-7-24" href="#__codelineno-7-24"></a><span class="p">)</span>
+<a id="__codelineno-7-25" name="__codelineno-7-25" href="#__codelineno-7-25"></a><span class="n">service</span> <span class="o">=</span> <span class="n">ReplayServiceV2</span><span class="p">(</span><span class="n">runtime</span><span class="o">=</span><span class="n">runtime</span><span class="p">,</span> <span class="n">ledger</span><span class="o">=</span><span class="n">ledger</span><span class="p">)</span>
+<a id="__codelineno-7-26" name="__codelineno-7-26" href="#__codelineno-7-26"></a>
+<a id="__codelineno-7-27" name="__codelineno-7-27" href="#__codelineno-7-27"></a><span class="c1"># 3. Resolve provenance from historical version</span>
+<a id="__codelineno-7-28" name="__codelineno-7-28" href="#__codelineno-7-28"></a><span class="n">resolver</span> <span class="o">=</span> <span class="n">DefaultReplayProvenanceResolver</span><span class="p">(</span>
+<a id="__codelineno-7-29" name="__codelineno-7-29" href="#__codelineno-7-29"></a>    <span class="n">version_store</span><span class="o">=</span><span class="n">version_store</span><span class="p">,</span>
+<a id="__codelineno-7-30" name="__codelineno-7-30" href="#__codelineno-7-30"></a>    <span class="n">artifact_store</span><span class="o">=</span><span class="n">artifact_store</span><span class="p">,</span>
+<a id="__codelineno-7-31" name="__codelineno-7-31" href="#__codelineno-7-31"></a><span class="p">)</span>
+<a id="__codelineno-7-32" name="__codelineno-7-32" href="#__codelineno-7-32"></a><span class="n">request</span> <span class="o">=</span> <span class="n">resolver</span><span class="o">.</span><span class="n">resolve_from_version</span><span class="p">(</span>
+<a id="__codelineno-7-33" name="__codelineno-7-33" href="#__codelineno-7-33"></a>    <span class="n">dataset_id</span><span class="o">=</span><span class="s2">"orders"</span><span class="p">,</span>
+<a id="__codelineno-7-34" name="__codelineno-7-34" href="#__codelineno-7-34"></a>    <span class="n">version_id</span><span class="o">=</span><span class="s2">"sha256-7f034c6b5e843a3e90f11b3fcb44d7b4a9ca3f5e14c9bf46ecd11fb66e17754c"</span><span class="p">,</span>
+<a id="__codelineno-7-35" name="__codelineno-7-35" href="#__codelineno-7-35"></a><span class="p">)</span>
+<a id="__codelineno-7-36" name="__codelineno-7-36" href="#__codelineno-7-36"></a>
+<a id="__codelineno-7-37" name="__codelineno-7-37" href="#__codelineno-7-37"></a><span class="c1"># 4. Execute replay</span>
+<a id="__codelineno-7-38" name="__codelineno-7-38" href="#__codelineno-7-38"></a><span class="n">result</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">replay</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+<a id="__codelineno-7-39" name="__codelineno-7-39" href="#__codelineno-7-39"></a><span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">succeeded</span>
+<a id="__codelineno-7-40" name="__codelineno-7-40" href="#__codelineno-7-40"></a><span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">matched</span>
+<a id="__codelineno-7-41" name="__codelineno-7-41" href="#__codelineno-7-41"></a>
+<a id="__codelineno-7-42" name="__codelineno-7-42" href="#__codelineno-7-42"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Replay run: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">replay_run_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-7-43" name="__codelineno-7-43" href="#__codelineno-7-43"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Lineage ID: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">lineage</span><span class="o">.</span><span class="n">lineage_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div>
 
 
