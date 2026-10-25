@@ -69,5 +69,6 @@ PATH="/opt/miniconda3/bin:$PATH" mkdocs build --strict
 ## 5. Résultat & Clôture de Tâche
 
 - **Statut final :** ✅ DONE
+- **Commit / PR :** [PR #71](https://github.com/tawounfouet/pyingestkit/pull/71) (merge commit: `4019da9`)
 - **Fiche REX associée :** `docs/build/feedback/FEEDBACK-LOT35-01_replay-provenance-and-historical-reconstruction.md`
 - **Revue de lot associée :** `docs/build/reviews/2026-10-25_lot35_replay-provenance-and-historical-reconstruction-review.md`
