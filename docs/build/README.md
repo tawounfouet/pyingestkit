@@ -2,7 +2,8 @@
 
 Bienvenue dans le guide de référence du **Framework de Delivery & d'Ingénierie Logicielle (SDLC)** de [`PyIngestKit`](../../README.md).
 
-Ce document explique pas-à-pas **comment fonctionne ce framework**, **comment utiliser chaque dossier**, et **comment instancier les templates** pour conduire un chantier de l'expression de besoin jusqu'à la release certifiée.
+Ce document explique pas-à-pas **comment fonctionne ce framework**, **comment utiliser chaque dossier**, et **comment instancier les templates** pour conduire un chantier de l'expression de besoin jusqu'à la release certifiée.  
+Pour la synthèse des standards de nommage, conventions d'archivage des sessions et règles Git, consulter [`CONVENTIONS.md`](./CONVENTIONS.md).
 
 ---
 
