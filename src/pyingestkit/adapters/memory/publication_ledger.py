@@ -16,15 +16,18 @@ from pyingestkit.domain.governance import (
     PublicationOperationId,
     VersionHold,
 )
+from pyingestkit.domain.replay import ReplayLineage
+from pyingestkit.domain.shared import IngestionRunId
 from pyingestkit.domain.shared.validation import validate_aware_datetime
 from pyingestkit.governance._ledger_codec import (
     assert_event_persistable,
     is_terminal_event,
 )
 from pyingestkit.ports.governance import PublicationLedger
+from pyingestkit.ports.replay import ReplayLineageLedger
 
 
-class MemoryPublicationLedger(PublicationLedger):
+class MemoryPublicationLedger(PublicationLedger, ReplayLineageLedger):
     """Deterministic reference ledger for tests and behavioral conformance."""
 
     def __init__(self) -> None:
@@ -33,6 +36,8 @@ class MemoryPublicationLedger(PublicationLedger):
         self._events_by_id: dict[str, PublicationLifecycleEvent] = {}
         self._resolved: set[PublicationOperationId] = set()
         self._active_holds: dict[tuple[str, str], VersionHold] = {}
+        self._replays: list[ReplayLineage] = []
+        self._replays_by_id: dict[str, ReplayLineage] = {}
         self._lock = RLock()
 
     def register(self, intent: PublicationIntent) -> PublicationIntent:
@@ -193,6 +198,53 @@ class MemoryPublicationLedger(PublicationLedger):
                 )
             )
 
+    def record_replay_lineage(self, lineage: ReplayLineage) -> ReplayLineage:
+        if not isinstance(lineage, ReplayLineage):
+            raise TypeError("MemoryPublicationLedger.record_replay_lineage requires ReplayLineage.")
+        with self._lock:
+            existing = self._replays_by_id.get(lineage.lineage_id or "")
+            if existing is not None:
+                if (
+                    existing.source_run_id != lineage.source_run_id
+                    or existing.replay_run_id != lineage.replay_run_id
+                    or existing.dataset_id != lineage.dataset_id
+                    or existing.version_id != lineage.version_id
+                    or existing.origin_raw_checksum != lineage.origin_raw_checksum
+                    or existing.replay_raw_checksum != lineage.replay_raw_checksum
+                    or existing.matched != lineage.matched
+                ):
+                    raise ValueError(
+                        "Replay lineage ID cannot be reused for different lineage evidence."
+                    )
+                if not existing.published and lineage.published:
+                    self._replays.remove(existing)
+                    self._replays.append(lineage)
+                    if lineage.lineage_id:
+                        self._replays_by_id[lineage.lineage_id] = lineage
+                    return lineage
+                return existing
+            self._replays.append(lineage)
+            if lineage.lineage_id:
+                self._replays_by_id[lineage.lineage_id] = lineage
+            return lineage
+
+    def list_replays(
+        self,
+        dataset_id: str | None = None,
+        source_run_id: IngestionRunId | None = None,
+    ) -> tuple[ReplayLineage, ...]:
+        if dataset_id is not None and (not isinstance(dataset_id, str) or not dataset_id.strip()):
+            raise ValueError("MemoryPublicationLedger dataset_id must be non-blank or None.")
+        if source_run_id is not None and not isinstance(source_run_id, IngestionRunId):
+            raise TypeError("MemoryPublicationLedger source_run_id must be IngestionRunId or None.")
+        with self._lock:
+            filtered = self._replays
+            if dataset_id is not None:
+                filtered = [r for r in filtered if r.dataset_id == dataset_id]
+            if source_run_id is not None:
+                filtered = [r for r in filtered if r.source_run_id == source_run_id]
+            return tuple(sorted(filtered, key=lambda r: (r.replayed_at, r.lineage_id or "")))
+
     @contextmanager
     def transaction(self) -> Iterator[MemoryPublicationLedger]:
         """Group multiple ledger mutations atomically for conformance testing."""
@@ -202,6 +254,8 @@ class MemoryPublicationLedger(PublicationLedger):
             events_by_id = dict(self._events_by_id)
             resolved = set(self._resolved)
             active_holds = dict(self._active_holds)
+            replays = list(self._replays)
+            replays_by_id = dict(self._replays_by_id)
             try:
                 yield self
             except BaseException:
@@ -210,6 +264,8 @@ class MemoryPublicationLedger(PublicationLedger):
                 self._events_by_id = events_by_id
                 self._resolved = resolved
                 self._active_holds = active_holds
+                self._replays = replays
+                self._replays_by_id = replays_by_id
                 raise
 
 

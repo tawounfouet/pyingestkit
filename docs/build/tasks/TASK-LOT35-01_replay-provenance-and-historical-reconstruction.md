@@ -1,11 +1,11 @@
 # TASK-LOT35-01 : Provenance Replay & Reconstruction Historique d'Ingestion
 
-- **Statut :** 🚧 IN_PROGRESS
+- **Statut :** ✅ DONE
 - **Plan Parent :** [`docs/build/plans/2026-10-25_plan-replay-provenance-and-historical-reconstruction.md`](../plans/2026-10-25_plan-replay-provenance-and-historical-reconstruction.md)
 - **Item Backlog :** [`docs/build/backlog/ITEM-005_replay-provenance-and-historical-reconstruction.md`](../backlog/ITEM-005_replay-provenance-and-historical-reconstruction.md)
 - **Assigné à :** Antigravity / AWF
 - **Date de création :** 2026-10-25
-- **Date d'achèvement :** -
+- **Date d'achèvement :** 2026-10-25
 - **Branche Git :** `feat/replay-provenance-and-historical-reconstruction`
 
 ---
@@ -45,13 +45,13 @@ Implémenter l'infrastructure de traçabilité, de reconstruction historique et 
 
 ## 3. Checklist d'Exécution
 
-- [ ] **Étape 1 :** Modéliser `ReplayLineage` dans `src/pyingestkit/domain/replay/models.py` et l'exporter.
-- [ ] **Étape 2 :** Créer le port et service `ReplayProvenanceResolver` dans `src/pyingestkit/ports/replay.py` et `src/pyingestkit/application/resolver.py`.
-- [ ] **Étape 3 :** Étendre `PublicationLedger` avec `record_replay_lineage` et `list_replays` dans memory et postgres.
-- [ ] **Étape 4 :** Mettre à jour `ReplayServiceV2` pour enregistrer la lignée et proposer la publication conditionnelle.
-- [ ] **Étape 5 :** Moderniser la commande CLI `pik replay` avec support V2 et options enrichies.
-- [ ] **Étape 6 :** Valider par tests unitaires, conformité et intégration (`make quality`, `make architecture-v2`, `make test-v2`).
-- [ ] **Étape 7 :** Rédiger la fiche REX `FEEDBACK-LOT35-01` et la revue formelle de clôture de lot.
+- [x] **Étape 1 :** Modéliser `ReplayLineage` dans `src/pyingestkit/domain/replay/models.py` et l'exporter.
+- [x] **Étape 2 :** Créer les ports et services `ReplayProvenanceResolver` et `ReplayLineageLedger` dans `src/pyingestkit/ports/replay.py` et `src/pyingestkit/application/resolver.py`.
+- [x] **Étape 3 :** Implémenter `ReplayLineageLedger` dans memory et postgres avec table `pyingestkit_v2_replay_lineage`.
+- [x] **Étape 4 :** Mettre à jour `ReplayServiceV2` pour enregistrer la lignée et proposer la publication CAS (`publish_replay`).
+- [x] **Étape 5 :** Moderniser la commande CLI `pik replay` avec support V2 (`--dataset`, `--version`, `--publish`, `--json`).
+- [x] **Étape 6 :** Valider par tests unitaires, conformité et intégration (`make quality`, `make architecture-v2`, `make test-v2`, `mkdocs build --strict`).
+- [x] **Étape 7 :** Rédiger la fiche REX `FEEDBACK-LOT35-01` et la revue formelle de clôture de lot.
 
 ---
 
@@ -68,7 +68,6 @@ PATH="/opt/miniconda3/bin:$PATH" mkdocs build --strict
 
 ## 5. Résultat & Clôture de Tâche
 
-*(À remplir à l'achèvement de la tâche)*
-- **Commit SHA :** -
-- **Statut final :** IN_PROGRESS
+- **Statut final :** ✅ DONE
 - **Fiche REX associée :** `docs/build/feedback/FEEDBACK-LOT35-01_replay-provenance-and-historical-reconstruction.md`
+- **Revue de lot associée :** `docs/build/reviews/2026-10-25_lot35_replay-provenance-and-historical-reconstruction-review.md`
