@@ -1,6 +1,6 @@
 # TASK-REL-v2.2.0 : Publication Officielle de la Version Stable v2.2.0
 
-- **Statut :** 📋 TODO
+- **Statut :** 🚧 IN_PROGRESS
 - **Plan Parent :** [`docs/analyses/2026-10-25_release-v2.2.0-strategy-and-governance-analysis.md`](../../analyses/2026-10-25_release-v2.2.0-strategy-and-governance-analysis.md)
 - **Assigné à :** Antigravity / AWF
 - **Date de création :** 2026-10-25
@@ -37,18 +37,18 @@ L'objectif de cette tâche est d'exécuter la procédure de scellement et de pub
 
 ## 3. Checklist d'Exécution
 
-- [ ] **Étape 1 : Préparation des Métadonnées & Changelog**
-  - [ ] Mettre à jour `__version__ = "2.2.0"` dans `src/pyingestkit/_version.py`.
-  - [ ] Rédiger la section `## [2.2.0] - 2026-10-25` dans `CHANGELOG.md` avec le récapitulatif détaillé des LOT-31 à LOT-37.
-- [ ] **Étape 2 : Contrôles Qualité Stricts & Non-Régression**
-  - [ ] `make quality` (Ruff check, Ruff format, Mypy strict sans erreur).
-  - [ ] `make architecture-v2` (79/79 passés).
-  - [ ] `make test-v2` (406 passés).
-  - [ ] `mkdocs build --strict`.
-- [ ] **Étape 3 : Qualification du Packaging & Intégrité**
-  - [ ] Nettoyer les anciens artefacts de build (`rm -rf dist/ build/ *.egg-info`).
-  - [ ] Générer la distribution source et la wheel (`python -m build`).
-  - [ ] Vérifier la conformité des métadonnées avec `twine check dist/*`.
+- [x] **Étape 1 : Préparation des Métadonnées & Changelog**
+  - [x] Mettre à jour `__version__ = "2.2.0"` dans `src/pyingestkit/_version.py`.
+  - [x] Rédiger la section `## [2.2.0] - 2026-10-25` dans `CHANGELOG.md` avec le récapitulatif détaillé des LOT-31 à LOT-37.
+- [x] **Étape 2 : Contrôles Qualité Stricts & Non-Régression**
+  - [x] `make quality` (Ruff check, Ruff format, Mypy strict sans erreur).
+  - [x] `make architecture-v2` (79/79 passés).
+  - [x] `make test-v2` (406 passés).
+  - [x] `mkdocs build --strict`.
+- [x] **Étape 3 : Qualification du Packaging & Intégrité**
+  - [x] Nettoyer les anciens artefacts de build (`rm -rf dist/ build/ *.egg-info`).
+  - [x] Générer la distribution source et la wheel (`python -m build`).
+  - [x] Vérifier la conformité des métadonnées avec `twine check dist/*`.
 - [ ] **Étape 4 : Scellement Git & Déclenchement OIDC**
   - [ ] Commiter les modifications sur `main` : `release: prepare v2.2.0`.
   - [ ] Créer le tag Git annoté : `git tag -a v2.2.0 -m "release: v2.2.0"`.

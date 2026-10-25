@@ -2,6 +2,37 @@
 
 All notable changes to PyIngestKit are documented here.
 
+## [2.2.0] - 2026-10-25
+
+### Stable — Enterprise Acquisition, High-Performance Staging & Operational Hardening
+
+- **Advanced HTTP Acquisition & SSRF Hardening (LOT-37)**:
+  - Added pure standard library `AntiSsrfValidator` in `pyingestkit.adapters.http._ssrf` with IPv4/IPv6 boundary checking (blocking loopback, RFC 1918 private networks, AWS/GCP/Azure link-local metadata `169.254.169.254`, IPv6 ULA, CGN and multicast) with configurable exemptions.
+  - Added `SsrfSafeNetworkBackend` in HTTPX transport performing socket-level IP-pinning during `connect_tcp` to eliminate DNS Rebinding (TOCTOU) while preserving original TLS SNI and X.509 certificate validation.
+  - Extended `HttpRequestV2` with `method` (`GET`, `POST`, `PUT`), request `body: bytes`, and socket-bound `pinned_ip`.
+  - Added thread-safe `OAuthTokenManager` supporting `ClientCredentialsOAuthProvider` and `RefreshTokenOAuthProvider`, preemptive clock-skew renewal, automatic token invalidation and single safe retry upon HTTP 401 Unauthorized, and strict secret masking (`[REDACTED]`) across representations.
+  - Added exponential backoff retry with cryptographically secure Full Jitter (`secrets.SystemRandom`) and network outcome qualification (`OutcomeUncertainty.REQUIRES_RECONCILIATION`) on write timeouts.
+- **High-Performance PostgreSQL Staging, UPSERT & MERGE (LOT-36)**:
+  - Added portable `TargetLoadModeV2.UPSERT` and `TargetLoadModeV2.MERGE` modes with declarative `key_columns`, selective `update_columns`, and idempotency control in `TargetLoadRequestV2`.
+  - Implemented the transactional Staging Table Pattern (`CREATE TEMP TABLE ... ON COMMIT DROP`) combining native streaming `COPY FROM STDIN` throughput (50x-100x faster than batched inserts) with atomic SQL reconciliation within a single transaction.
+  - Added technical audit table `_pyingest_target_loads` with composite deduplication index, preventing redundant re-ingestion when `idempotent=True` with explicit `target.postgres.skipped_idempotent` diagnostic.
+  - Added injection-proof SQL composer in `pyingestkit.adapters.postgres._sql` using parameterized `psycopg.sql` primitives for PostgreSQL 15+ `MERGE` and CTE fallbacks.
+- **Historical Ingestion Provenance & Replay Reconstruction (LOT-35)**:
+  - Added `StrictReplaySession` providing `reconstructed_run_id` and explicit lineage chaining (`PARENT_RUN_ID`), preserving immutable separation between original and reconstructed execution runs.
+- **CI/CD Supply Chain & PyPI OIDC Automation (LOT-34)**:
+  - Automated package building, artifact qualification, and PyPI publishing workflow (`.github/workflows/release.yml`) via GitHub Actions OIDC trusted publishing without long-lived credentials.
+  - Integrated SLSA/Sigstore provenance attestations and clean-environment wheel/sdist verification.
+- **Brand Identity & Design System Integration (LOT-33)**:
+  - Integrated official logomark, mark assets, favicons, and unified brand design tokens (`assets/pyingestkit-brand-tokens.css`).
+  - Configured dark/light mode synchronization in MkDocs Material documentation.
+- **Root Hygiene & Infrastructure Isolation (LOT-32)**:
+  - Reorganized workspace structure, isolated Docker/Compose configurations into `infra/`, and standardized multi-profile YAML execution.
+- **Unified CLI `pik` & Autodiagnostics (LOT-31)**:
+  - Standardized CLI bootstrap using Python stdlib `argparse`.
+  - Introduced typed exit codes (`IntEnum`), diagnostic `pik doctor` system check command, and filesystem/credential safety guards.
+- **Public API Stability**:
+  - Preserved the exact PyIngestKit 2.0 frozen package root (11 public symbols), runtime signatures, wire formats and zero-breaking-change backwards compatibility.
+
 ## [2.1.0] - 2026-10-04
 
 ### Stable — Publication & Lifecycle Governance

@@ -141,7 +141,7 @@ jobs:
               "ResourceReference",
               "Source",
           )
-          assert pyingestkit.__version__ == "2.1.0"
+          assert pyingestkit.__version__ == "2.2.0"
           assert hasattr(pyingestkit.IngestionRuntime, "run")
           import pyingestkit.governance as governance
           assert "PublicationLedger" in governance.__all__
@@ -231,7 +231,7 @@ jobs:
           /tmp/pyingestkit-v2-sdist/bin/python - <<'PY'
           import pyingestkit
 
-          assert pyingestkit.__version__ == "2.1.0"
+          assert pyingestkit.__version__ == "2.2.0"
           assert tuple(pyingestkit.__all__) == (
               "ArtifactReference",
               "DatasetVersion",
@@ -936,7 +936,7 @@ jobs:
           import importlib.util
           import pyingestkit
 
-          assert pyingestkit.__version__ == "2.1.0"
+          assert pyingestkit.__version__ == "2.2.0"
           assert len(pyingestkit.__all__) == 11
           for dependency in ("boto3", "psycopg", "sqlalchemy"):
               assert importlib.util.find_spec(dependency) is None
@@ -950,7 +950,7 @@ jobs:
           import pyingestkit
           from pyingestkit.adapters.postgres import PostgresPublicationLedger
 
-          assert pyingestkit.__version__ == "2.1.0"
+          assert pyingestkit.__version__ == "2.2.0"
           assert len(pyingestkit.__all__) == 11
           assert PostgresPublicationLedger.__name__ == "PostgresPublicationLedger"
           assert importlib.util.find_spec("psycopg") is not None
@@ -965,7 +965,7 @@ jobs:
           import pyingestkit
           from pyingestkit.adapters.s3 import S3ConditionalDatasetPublisher
 
-          assert pyingestkit.__version__ == "2.1.0"
+          assert pyingestkit.__version__ == "2.2.0"
           assert len(pyingestkit.__all__) == 11
           assert S3ConditionalDatasetPublisher.__name__ == "S3ConditionalDatasetPublisher"
           assert importlib.util.find_spec("boto3") is not None
@@ -977,7 +977,7 @@ jobs:
           /tmp/pyingestkit-stable-sdist/bin/python - <<'PY'
           import pyingestkit
 
-          assert pyingestkit.__version__ == "2.1.0"
+          assert pyingestkit.__version__ == "2.2.0"
           assert len(pyingestkit.__all__) == 11
           PY
 

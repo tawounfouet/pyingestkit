@@ -355,7 +355,7 @@ V2_COMPLETED_LOTS: tuple[str, ...] = (
     "LOT-30",
 )
 
-V2_MILESTONE_CANDIDATE = "2.1.0"
+V2_MILESTONE_CANDIDATE = "2.2.0"
 
 V2_FORBIDDEN_LEGACY_ROOT_EXPORTS: frozenset[str] = frozenset(
     {

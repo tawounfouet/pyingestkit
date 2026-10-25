@@ -15,8 +15,8 @@ Human-maintained specifications, public contracts, tests, and release evidence r
 Project: PyIngestKit
 Package: pyingestkit
 Repository: tawounfouet/pyingestkit
-Current stable baseline: 2.1.0
-Current milestone: LOT-30 Stable
+Current stable baseline: 2.2.0
+Current milestone: LOT-37 Stable (v2.2.0)
 Python support: 3.11 / 3.12 / 3.13 / 3.14
 Build tool: setuptools / wheel
 ```
@@ -116,7 +116,7 @@ pyingestkit/
 │   ├── governance/             # Retention, GC, Rollback, Ledger codecs
 │   ├── ports/                  # Protocol boundaries and abstract interfaces
 │   ├── serialization/          # Portable version-1 envelope codecs
-│   └── _version.py             # Package version authority (__version__ = "2.1.0")
+│   └── _version.py             # Package version authority (__version__ = "2.2.0")
 ├── tests/
 │   ├── architecture/           # Automated hexagonal and boundary constraint tests
 │   ├── conformance/            # Provider and connector contract conformance suites
