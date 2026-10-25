@@ -26,6 +26,13 @@ classifiers = [
   "Programming Language :: Python :: 3.14",
 ]
 
+[project.urls]
+Homepage = "https://github.com/tawounfouet/pyingestkit"
+Documentation = "https://tawounfouet.github.io/pyingestkit/"
+Repository = "https://github.com/tawounfouet/pyingestkit.git"
+Changelog = "https://github.com/tawounfouet/pyingestkit/blob/main/CHANGELOG.md"
+Issues = "https://github.com/tawounfouet/pyingestkit/issues"
+
 [project.optional-dependencies]
 dev = [
   "pytest>=8",
