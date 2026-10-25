@@ -99,15 +99,23 @@ Le passage d'un lot achevé au lot suivant suit rigoureusement ces 5 étapes :
 
 ## 5. Convention de Nommage des Fiches de Revue
 
-Chaque document de revue est nommé selon la règle :
-
+### A. Revues de Lots Unitaires (Chantiers Techniques)
+Chaque document de revue de lot est placé à la racine de `reviews/` et nommé :
 ```text
 YYYY-MM-DD_<nom-du-lot>_review.md
 ```
+- Modèle standard : [`TEMPLATE_LOT_REVIEW.md`](./TEMPLATE_LOT_REVIEW.md)
+- Exemples :
+  - `2026-10-24_lot31_cli-pik-standardization-review.md`
+  - `2026-10-25_lot36_postgres-upsert-merge-and-staging-review.md`
+  - `2026-10-25_lot37_advanced-http-acquisition-and-ssrf-hardening-review.md`
 
-### Exemples :
-- `2026-10-24_lot31_cli-pik-standardization-review.md`
-- `2026-10-25_lot32_root-hygiene-and-infra-review.md`
-- `2026-10-26_lot34_pypi-oidc-release-automation-review.md`
+### B. Bilans de Clôture de Milestone (Releases Majeures / Mineures)
+Les bilans macroscopiques clôturant une version complète (agrégeant plusieurs lots) sont hébergés dans le sous-dossier dédié [`milestones/`](./milestones/) et nommés :
+```text
+YYYY-MM-DD_milestone-<version>_bilan-cloture.md
+```
+- Modèle standard : [`milestones/TEMPLATE_MILESTONE_REVIEW.md`](./milestones/TEMPLATE_MILESTONE_REVIEW.md)
+- Guide dédié : [`milestones/README.md`](./milestones/README.md)
+- Exemple : `milestones/2026-10-25_milestone-v2.2.0_bilan-cloture.md`
 
-Pour initialiser une nouvelle revue, copier le gabarit officiel : [`TEMPLATE_LOT_REVIEW.md`](./TEMPLATE_LOT_REVIEW.md).

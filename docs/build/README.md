@@ -42,8 +42,9 @@ Chaque dossier du cycle possède un rôle strict et son template de référence 
 | **2. Conception** | [`docs/build/plans/`](./plans/) | Plans directeurs d'implémentation par LOT technique | [`TEMPLATE_IMPLEMENTATION_PLAN.md`](./plans/TEMPLATE_IMPLEMENTATION_PLAN.md) |
 | **3. Exécution** | [`docs/build/tasks/`](./tasks/) | Tâches atomiques de session, checklists WBS ciblées | [`TEMPLATE_TASK.md`](./tasks/TEMPLATE_TASK.md) |
 | **4. Rétroaction** | [`docs/build/feedback/`](./feedback/) | Retours post-implémentation, REX, leçons apprises et feedback loop | [`TEMPLATE_FEEDBACK.md`](./feedback/TEMPLATE_FEEDBACK.md) |
-| **5. Validation** | [`docs/build/reports/tests/`](./reports/tests/) | Procès-verbaux d'exécution, matrices de recette, couverture | [`TEMPLATE_TEST_REPORT.md`](./reports/tests/TEMPLATE_TEST_REPORT.md) |
-| **6. Clôture** | [`docs/build/reviews/`](./reviews/) | Audit de conformité, signatures formelles et merge autorisés | [`TEMPLATE_LOT_REVIEW.md`](./reviews/TEMPLATE_LOT_REVIEW.md) |
+| **5. Validation (Tests)** | [`docs/build/reports/tests/`](./reports/tests/) | Procès-verbaux d'exécution, matrices de recette, couverture | [`TEMPLATE_TEST_REPORT.md`](./reports/tests/TEMPLATE_TEST_REPORT.md) |
+| **5 bis. Distribution & Supply Chain** | [`docs/build/reports/dist/`](./reports/dist/) | Qualification packaging, SBOM CycloneDX, provenance Sigstore et validation PyPI | [`TEMPLATE_DIST_REPORT.md`](./reports/dist/TEMPLATE_DIST_REPORT.md) |
+| **6. Clôture & Bilans** | [`docs/build/reviews/`](./reviews/) | Audits de conformité par lot et bilans de clôture de milestone ([`milestones/`](./reviews/milestones/)) | [`TEMPLATE_LOT_REVIEW.md`](./reviews/TEMPLATE_LOT_REVIEW.md) & [`TEMPLATE_MILESTONE_REVIEW.md`](./reviews/milestones/TEMPLATE_MILESTONE_REVIEW.md) |
 
 ---
 
@@ -119,6 +120,19 @@ Chaque dossier du cycle possède un rôle strict et son template de référence 
    PATH="/opt/miniconda3/bin:$PATH" make quality
    ```
 3. **Consigner les résultats** dans le rapport (durée, nombre de tests, logs d'exécution).
+
+---
+
+### Scénario 4 bis : Je certifie la distribution et la publication PyPI (Release)
+1. **Créer le rapport de qualification de distribution :**
+   ```bash
+   cp docs/build/reports/dist/TEMPLATE_DIST_REPORT.md docs/build/reports/dist/YYYY-MM-DD_vX.Y.Z_distribution-qualification-report.md
+   ```
+2. **Consigner les métadonnées de packaging et de supply chain :**
+   - Tailles et empreintes SHA-256 (`wheel`, `tarball`, `SHA256SUMS`).
+   - Rapport `twine check`.
+   - Génération du SBOM CycloneDX et attestations de provenance Sigstore / SLSA.
+   - Preuve du test consommateur public isolé (`scripts/public_consumer_smoke.py`).
 
 ---
 
