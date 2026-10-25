@@ -7,7 +7,7 @@
 - **Date de création :** 2026-10-25
 - **Date d'achèvement :** 2026-10-25
 - **Branche Git :** `feat/http-ssrf-hardening-and-oauth`
-- **Commit SHA :** <!-- En cours de commit -->
+- **Commit SHA :** [`8e77f8c`](https://github.com/tawounfouet/pyingestkit/commit/8e77f8c1be918da8912b8291dbafbe85c674292a) (PR [#73](https://github.com/tawounfouet/pyingestkit/pull/73))
 
 ---
 
