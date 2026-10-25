@@ -11,7 +11,7 @@ Ce document constitue le **tableau de bord opérationnel centralisé** des tâch
 │ TABLEAU DE BORD D'AVANCEMENT GLOBAL DES TÂCHES                                                   │
 ├─────────────────┬─────────────────┬─────────────────┬─────────────────┬──────────────────────────┤
 │ TOTAL TÂCHES    │ TERMINÉES (DONE)│ EN COURS (WIP)  │ À FAIRE (TODO)  │ TAUX DE COMPLÉTION       │
-│ 9               │ 9               │ 0               │ 0               │ 100.0 % [████████████████]│
+│ 10              │ 9               │ 1               │ 0               │ 90.0 % [██████████████░░] │
 └─────────────────┴─────────────────┴─────────────────┴─────────────────┴──────────────────────────┘
 ```
 
@@ -30,6 +30,7 @@ Ce document constitue le **tableau de bord opérationnel centralisé** des tâch
 | [`TASK-LOT34-01`](./TASK-LOT34-01_pypi-oidc-release-automation.md) | Automatisation Release PyPI OIDC & Supply Chain | LOT-34 | [`ITEM-004`](../backlog/ITEM-004_pypi-supply-chain-and-release-automation.md) | CI/CD & Supply Chain | AWF / Antigravity | ✅ **DONE** | 2026-10-24 | 2026-10-25 | [`PR#70`](https://github.com/) | [`FEEDBACK-LOT34-01`](../feedback/FEEDBACK-LOT34-01_pypi-oidc-release-automation.md) |
 | [`TASK-LOT35-01`](./TASK-LOT35-01_replay-provenance-and-historical-reconstruction.md) | Provenance Replay & Reconstruction Historique d'Ingestion | LOT-35 | [`ITEM-005`](../backlog/ITEM-005_replay-provenance-and-historical-reconstruction.md) | Core Domain & Replay | AWF / Antigravity | ✅ **DONE** | 2026-10-25 | 2026-10-25 | [`PR#71`](https://github.com/) | [`FEEDBACK-LOT35-01`](../feedback/FEEDBACK-LOT35-01_replay-provenance-and-historical-reconstruction.md) |
 | [`TASK-LOT36-01`](./TASK-LOT36-01_postgres-upsert-merge-and-staging.md) | Adaptateur PostgreSQL UPSERT/MERGE et Staging Transactionnel | LOT-36 | [`ITEM-006`](../backlog/ITEM-006_postgresql-target-upsert-merge-and-staging.md) | Target Adapter & Postgres | AWF / Antigravity | ✅ **DONE** | 2026-10-25 | 2026-10-25 | [`28b6a75`](https://github.com/) | [`FEEDBACK-LOT36-01`](../feedback/FEEDBACK-LOT36-01_postgres-upsert-merge-and-staging.md) |
+| [`TASK-LOT37-01`](./TASK-LOT37-01_advanced-http-acquisition-and-ssrf-hardening.md) | Acquisition HTTP Avancée, Rafraîchissement OAuth & Durcissement SSRF | LOT-37 | [`ITEM-007`](../backlog/ITEM-007_advanced-http-acquisition-and-ssrf-hardening.md) | Source Adapter & HTTP | AWF / Antigravity | 🚧 **IN_PROGRESS** | 2026-10-25 | - | - | - |
 
 ---
 
@@ -39,7 +40,7 @@ Les tâches ci-dessous sont issues des items de backlog approuvés et seront act
 
 | Réf. Future Tâche | Intitulé Prévu | LOT | Item Backlog | Priorité | Statut |
 | :--- | :--- | :--- | :--- | :---: | :---: |
-| `TASK-LOT37-01` | Client HTTP durci avec validation anti-SSRF et retry exponentiel | LOT-37 | [`ITEM-007`](../backlog/ITEM-007_advanced-http-acquisition-and-ssrf-hardening.md) | MOYENNE | 💡 **CANDIDAT** |
+| `TASK-LOT37-01` | Client HTTP durci avec validation anti-SSRF et retry exponentiel | LOT-37 | [`ITEM-007`](../backlog/ITEM-007_advanced-http-acquisition-and-ssrf-hardening.md) | MOYENNE | 🚧 **ACTIVÉ (WIP)** |
 
 ---
 
