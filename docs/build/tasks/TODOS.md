@@ -11,7 +11,7 @@ Ce document constitue le **tableau de bord opérationnel centralisé** des tâch
 │ TABLEAU DE BORD D'AVANCEMENT GLOBAL DES TÂCHES                                                   │
 ├─────────────────┬─────────────────┬─────────────────┬─────────────────┬──────────────────────────┤
 │ TOTAL TÂCHES    │ TERMINÉES (DONE)│ EN COURS (WIP)  │ À FAIRE (TODO)  │ TAUX DE COMPLÉTION       │
-│ 10              │ 10              │ 0               │ 0               │ 100.0 % [████████████████] │
+│ 11              │ 10              │ 0               │ 1               │ 90.9 % [██████████████░░] │
 └─────────────────┴─────────────────┴─────────────────┴─────────────────┴──────────────────────────┘
 ```
 
@@ -31,6 +31,7 @@ Ce document constitue le **tableau de bord opérationnel centralisé** des tâch
 | [`TASK-LOT35-01`](./TASK-LOT35-01_replay-provenance-and-historical-reconstruction.md) | Provenance Replay & Reconstruction Historique d'Ingestion | LOT-35 | [`ITEM-005`](../backlog/ITEM-005_replay-provenance-and-historical-reconstruction.md) | Core Domain & Replay | AWF / Antigravity | ✅ **DONE** | 2026-10-25 | 2026-10-25 | [`PR#71`](https://github.com/) | [`FEEDBACK-LOT35-01`](../feedback/FEEDBACK-LOT35-01_replay-provenance-and-historical-reconstruction.md) |
 | [`TASK-LOT36-01`](./TASK-LOT36-01_postgres-upsert-merge-and-staging.md) | Adaptateur PostgreSQL UPSERT/MERGE et Staging Transactionnel | LOT-36 | [`ITEM-006`](../backlog/ITEM-006_postgresql-target-upsert-merge-and-staging.md) | Target Adapter & Postgres | AWF / Antigravity | ✅ **DONE** | 2026-10-25 | 2026-10-25 | [`28b6a75`](https://github.com/) | [`FEEDBACK-LOT36-01`](../feedback/FEEDBACK-LOT36-01_postgres-upsert-merge-and-staging.md) |
 | [`TASK-LOT37-01`](./TASK-LOT37-01_advanced-http-acquisition-and-ssrf-hardening.md) | Acquisition HTTP Avancée, Rafraîchissement OAuth & Durcissement SSRF | LOT-37 | [`ITEM-007`](../backlog/ITEM-007_advanced-http-acquisition-and-ssrf-hardening.md) | Source Adapter & HTTP | AWF / Antigravity | ✅ **DONE** | 2026-10-25 | 2026-10-25 | [`8e77f8c`](https://github.com/tawounfouet/pyingestkit/commit/8e77f8c1be918da8912b8291dbafbe85c674292a) | [`FEEDBACK-LOT37-01`](../feedback/FEEDBACK-LOT37-01_advanced-http-acquisition-and-ssrf-hardening.md) |
+| [`TASK-REL-v2.2.0`](./TASK-REL-v2.2.0_stable-release-publication.md) | Publication Officielle de la Version Stable v2.2.0 | RELEASE | - | Release Management | AWF / Antigravity | 📋 **TODO** | 2026-10-25 | - | - | - |
 
 ---
 
@@ -40,7 +41,7 @@ Les tâches ci-dessous sont issues des items de backlog approuvés et seront act
 
 | Réf. Future Tâche | Intitulé Prévu | LOT | Item Backlog | Priorité | Statut |
 | :--- | :--- | :--- | :--- | :---: | :---: |
-| - | Prochain lot candidat à qualifier et cadrer | - | - | - | 📋 **EN ATTENTE** |
+| - | Prochain lot candidat (v2.3.0) à cadrer après la release v2.2.0 | LOT-38 | - | MOYENNE | 📋 **EN ATTENTE** |
 
 ---
 
