@@ -73,9 +73,9 @@ jobs:
           set -euo pipefail
           TAG_VERSION="${RELEASE_TAG#v}"
           PACKAGE_VERSION="$(python - <<'PY'
-          import tomllib
+          import sys
           from pathlib import Path
-          pyproject = tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))
+          sys.path.insert(0, str(Path("src").resolve()))
           from pyingestkit._version import __version__
           print(__version__)
           PY
