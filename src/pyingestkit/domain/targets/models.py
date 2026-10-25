@@ -29,6 +29,8 @@ class TargetLoadModeV2(StrEnum):
     APPEND = "append"
     TRUNCATE_LOAD = "truncate_load"
     REPLACE = "replace"
+    UPSERT = "upsert"
+    MERGE = "merge"
 
 
 class TargetLoadStatusV2(StrEnum):
@@ -57,6 +59,9 @@ class TargetLoadRequestV2:
     mode: TargetLoadModeV2 = TargetLoadModeV2.APPEND
     expected_row_count: int | None = None
     columns: tuple[str, ...] = ()
+    key_columns: tuple[str, ...] = ()
+    update_columns: tuple[str, ...] = ()
+    idempotent: bool = False
 
     def __post_init__(self) -> None:
         require_non_blank(self.target_id, "TargetLoadRequestV2 target_id")
@@ -79,6 +84,8 @@ class TargetLoadRequestV2:
         validate_optional_text(self.schema, "TargetLoadRequestV2 schema")
         if not isinstance(self.mode, TargetLoadModeV2):
             raise TypeError("TargetLoadRequestV2 mode must be TargetLoadModeV2.")
+        if not isinstance(self.idempotent, bool):
+            raise TypeError("TargetLoadRequestV2 idempotent must be bool.")
         if self.expected_row_count is not None:
             if not isinstance(self.expected_row_count, int):
                 raise TypeError("TargetLoadRequestV2 expected_row_count must be int.")
@@ -94,6 +101,20 @@ class TargetLoadRequestV2:
             raise ValueError("TargetLoadRequestV2 columns must contain non-blank strings.")
         if len(set(self.columns)) != len(self.columns):
             raise ValueError("TargetLoadRequestV2 columns must be unique.")
+
+        if not isinstance(self.key_columns, tuple):
+            raise TypeError("TargetLoadRequestV2 key_columns must be a tuple.")
+        if any(not isinstance(column, str) or not column.strip() for column in self.key_columns):
+            raise ValueError("TargetLoadRequestV2 key_columns must contain non-blank strings.")
+        if len(set(self.key_columns)) != len(self.key_columns):
+            raise ValueError("TargetLoadRequestV2 key_columns must be unique.")
+
+        if not isinstance(self.update_columns, tuple):
+            raise TypeError("TargetLoadRequestV2 update_columns must be a tuple.")
+        if any(not isinstance(column, str) or not column.strip() for column in self.update_columns):
+            raise ValueError("TargetLoadRequestV2 update_columns must contain non-blank strings.")
+        if len(set(self.update_columns)) != len(self.update_columns):
+            raise ValueError("TargetLoadRequestV2 update_columns must be unique.")
 
         actual_fingerprint = dataset_content_fingerprint(self.representation)
         if actual_fingerprint != self.dataset_version.version_id:
@@ -112,6 +133,29 @@ class TargetLoadRequestV2:
                 "TargetLoadRequestV2 requires explicit columns for an empty representation."
             )
 
+        resolved = self.resolved_columns
+        if self.mode in (TargetLoadModeV2.UPSERT, TargetLoadModeV2.MERGE):
+            if not self.key_columns:
+                raise ValueError(
+                    f"TargetLoadRequestV2 requires key_columns for {self.mode.value} mode."
+                )
+
+        for key in self.key_columns:
+            if key not in resolved:
+                raise ValueError(
+                    f"TargetLoadRequestV2 key_column {key!r} must be in resolved columns."
+                )
+
+        for update_col in self.update_columns:
+            if update_col not in resolved:
+                raise ValueError(
+                    f"TargetLoadRequestV2 update_column {update_col!r} must be in resolved columns."
+                )
+            if update_col in self.key_columns:
+                raise ValueError(
+                    f"TargetLoadRequestV2 update_column {update_col!r} cannot overlap with key_columns."
+                )
+
     @property
     def dataset_id(self) -> str:
         return self.dataset_version.dataset_id
@@ -119,6 +163,12 @@ class TargetLoadRequestV2:
     @property
     def resolved_columns(self) -> tuple[str, ...]:
         return self.columns or self.observed_columns
+
+    @property
+    def effective_update_columns(self) -> tuple[str, ...]:
+        if self.update_columns:
+            return self.update_columns
+        return tuple(column for column in self.resolved_columns if column not in self.key_columns)
 
     @property
     def observed_columns(self) -> tuple[str, ...]:

@@ -33,6 +33,39 @@ graph TD
     H -->|Promote published=True| G
 ```
 
+```text
+┌──────────────────────────┐
+│  Dataset Version Store   │
+└────────────┬─────────────┘
+             │ Lookup metadata
+             ▼
+┌──────────────────────────────────────┐
+│   DefaultReplayProvenanceResolver    │
+└──────────────────┬───────────────────┘
+                   │ Construct
+                   ▼
+       ┌────────────────────────┐
+       │     ReplayRequest      │
+       └───────────┬────────────┘
+                   │ Execute
+                   ▼
+┌──────────────────────────┐        ┌──────────────────────────┐
+│   Durable RAW Artifact   │───────>│     ReplayServiceV2      │
+│  (Read & Verify SHA-256) │        └────────────┬─────────────┘
+└──────────────────────────┘                     │
+                   ┌─────────────────────────────┴─────────────────────────────┐
+                   │ Produce                                                   │ Record
+                   ▼                                                           ▼
+       ┌────────────────────────┐                                  ┌───────────────────────┐
+       │      ReplayResult      │                                  │  ReplayLineageLedger  │
+       └───────────┬────────────┘                                  └───────────▲───────────┘
+                   │ (Optional CAS)                                            │
+                   ▼                                                           │ Promote published=True
+┌──────────────────────────────────────┐                                       │
+│   FileConditionalDatasetPublisher    │───────────────────────────────────────┘
+└──────────────────────────────────────┘
+```
+
 ### Domain Models (`pyingestkit.domain.replay`)
 - `ReplayLineage`: Immutable causal lineage record with `lineage_id`, `source_run_id`, `replay_run_id`, `dataset_id`, `version_id`, checksum verification, and `published` boolean status.
 - `ReplayRequest`: Framework value describing the historical target, reconstructed definition, and expected dataset version.
