@@ -5,7 +5,7 @@
 - **Item Backlog :** [`docs/build/backlog/ITEM-007_advanced-http-acquisition-and-ssrf-hardening.md`](../../build/backlog/ITEM-007_advanced-http-acquisition-and-ssrf-hardening.md)
 - **Document Source :** [`docs/roadmap/post-2.0-scope-review.md`](../../roadmap/post-2.0-scope-review.md) (Section 3.4)
 - **LOT Cible :** LOT-37 (v2.3.0)
-- **Statut :** PROPOSÉ
+- **Statut :** VALIDÉ
 - **Documents aval :**
   - Analyse d'architecture : [`docs/analyses/2026-10-25_advanced-http-acquisition-and-ssrf-hardening-analysis.md`](../)
   - Plan de réalisation : [`docs/build/plans/2026-10-25_plan-advanced-http-acquisition-and-ssrf-hardening.md`](../../build/plans/)
@@ -200,24 +200,21 @@ flowchart TD
 
 ---
 
-## 6. Points de Cadrage & Décisions Soumises à Arbitrage
+## 6. Points de Cadrage & Décisions Retenues
 
 1. **Politique Anti-SSRF : Comportement vis-à-vis des réseaux privés / Intranets :**
    - *Question :* Dans les environnements d'entreprise, certains pipelines doivent acquérir des données depuis un serveur interne (ex: SAP interne sur `10.x.x.x` ou passerelle locale `http://intranet.corp`). Comment concilier la protection SSRF stricte et ces cas légitimes ?
-   - *Option A (Recommandée) :* Bloquer les plages privées par défaut, mais permettre une exemption explicite et contrôlée dans `HttpAccessPolicy` via `allow_private_networks: bool = False` et `allowed_ip_ranges: tuple[str, ...] = ()`.
-   - *Option B :* Bloquer inconditionnellement toute IP privée sans dérogation possible.
+   - *Décision retenue :* **Option A.** Bloquer inconditionnellement les plages privées (RFC 1918, link-local, loopback, cloud metadata) par défaut, tout en permettant une exemption explicite et contrôlée dans `HttpAccessPolicy` via `allow_private_networks: bool = False` et `allowed_ip_ranges: tuple[str, ...] = ()`.
 
 2. **Épinglage IP (*IP Pinning*) contre le DNS Rebinding sous HTTPX :**
    - *Question :* Comment garantir techniquement qu'HTTPX contacte exactement l'IP vérifiée lors du pre-flight DNS, tout en préservant le SNI et la vérification des certificats TLS/SSL ?
-   - *Option A (Recommandée) :* Implémenter un custom `httpx.HTTPTransport` / resolver qui surcharge la résolution DNS pour la requête en ne retournant que l'IP déjà approuvée par le filtre SSRF.
-   - *Option B :* Réécrire l'URL en remplaçant l'hôte par l'IP et en positionnant le header `Host: <original_host>`, avec configuration du `server_hostname` TLS.
+   - *Décision retenue :* **Option A.** Implémenter un custom `httpx.HTTPTransport` / resolver qui injecte l'adresse IP validée au niveau de la connexion socket tout en préservant le nom d'hôte d'origine pour l'en-tête `Host` et le handshake TLS (SNI et validation de certificat).
 
 3. **Transmission du verbe HTTP (`POST`/`PUT`) et du Payload depuis `AcquisitionRequest` :**
    - *Question :* Le contrat `AcquisitionRequest` actuel du domaine possède `source.locator` (l'URL) et `source.credential`. Comment spécifier la méthode HTTP et le payload sans modifier le contrat universel du domaine pour tous les connecteurs ?
-   - *Option A (Recommandée) :* Transporter la méthode et le payload via les métadonnées de requête / source (`source.metadata: tuple[tuple[str, str], ...]`) ou des options d'acquisition spécifiques (avec `GET` par défaut).
-   - *Option B :* Ajouter des champs optionnels génériques dans `AcquisitionRequest`.
+   - *Décision retenue :* **Option A.** Transporter la méthode (`http_method`) et le payload (`http_payload` ou body) via les métadonnées de requête / source (`source.metadata: tuple[tuple[str, str], ...]`) ou des options de source spécifiques, avec `GET` par défaut si omis, garantissant la stricte pureté du domaine universel.
 
 4. **Étendue des flux OAuth 2.0 intégrés en natif :**
    - *Question :* Quels flux d'authentification OAuth 2.0 doivent être supportés nativement dans l'adaptateur ?
-   - *Option A (Recommandée) :* Supporter nativement **Client Credentials Grant** (machine-to-machine le plus fréquent en data engineering) et **Refresh Token Grant** (APIs SaaS avec pré-authentification humaine), avec une interface extensible `OAuthTokenProvider` pour les flux sur-mesure.
-   - *Option B :* Ne supporter que le rafraîchissement par `Refresh Token`.
+   - *Décision retenue :* **Option A.** Supporter nativement **Client Credentials Grant** (flux M2M standard) et **Refresh Token Grant** avec cache thread-safe en mémoire, marge de sécurité (*clock skew* de 60s) et renouvellement transparent lors d'une réponse 401, avec une interface extensible `OAuthTokenProvider` pour des fournisseurs personnalisés.
+
