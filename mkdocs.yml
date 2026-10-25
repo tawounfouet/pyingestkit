@@ -98,6 +98,7 @@ nav:
       - Provider compatibility matrix: reference/provider-compatibility-v2.md
       - Historical Replay & Provenance: guides/historical-replay-and-provenance.md
       - PostgreSQL UPSERT, MERGE & Staging: guides/postgres-upsert-merge-and-staging.md
+      - HTTP Acquisition & SSRF Hardening: guides/http-acquisition-and-ssrf-hardening.md
       - Historical 2.0.0 release: releases/v2.0.0.md
       - Historical 2.0 qualification: releases/v2.0.0-qualification.md
       - Historical 2.0 evidence: releases/v2.0.0-evidence.md
