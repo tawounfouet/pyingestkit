@@ -1,6 +1,6 @@
 # ITEM-007 : Acquisition HTTP Avancée, Rafraîchissement OAuth & Durcissement SSRF
 
-- **Statut :** PROPOSED
+- **Statut :** DONE
 - **Auteur :** Antigravity / AWF
 - **Date d'émission :** 2026-10-24
 - **Priorité :** MOYENNE
