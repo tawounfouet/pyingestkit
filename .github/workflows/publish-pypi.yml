@@ -1,0 +1,169 @@
+name: Publish to PyPI
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Tag immuable existant à publier (ex: v2.1.0)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-publish:
+    name: Build distributions and publish to PyPI
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write     # OIDC requis pour PyPI Trusted Publishing
+      contents: write     # Requis pour attacher le SBOM et les hashs à la Release GitHub
+      actions: read       # Requis pour vérifier la qualification du commit
+      attestations: write # Requis pour Sigstore build provenance
+
+    environment:
+      name: pypi
+      url: https://pypi.org/p/pyingestkit
+
+    steps:
+      - name: Resolve immutable release tag
+        id: release
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          RELEASE_EVENT_TAG: ${{ github.event.release.tag_name }}
+          DISPATCH_TAG: ${{ inputs.release_tag }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" = "release" ]; then
+            RELEASE_TAG="$RELEASE_EVENT_TAG"
+          else
+            RELEASE_TAG="$DISPATCH_TAG"
+          fi
+
+          case "$RELEASE_TAG" in
+            v[0-9]*.[0-9]*.[0-9]*) ;;
+            *)
+              echo "Publishing requires an immutable vX.Y.Z tag; got: $RELEASE_TAG" >&2
+              exit 1
+              ;;
+          esac
+          echo "tag=$RELEASE_TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.release.outputs.tag }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Validate release tag against package version
+        id: identity
+        shell: bash
+        env:
+          RELEASE_TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          set -euo pipefail
+          TAG_VERSION="${RELEASE_TAG#v}"
+          PACKAGE_VERSION="$(python - <<'PY'
+          import tomllib
+          from pathlib import Path
+          pyproject = tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))
+          from pyingestkit._version import __version__
+          print(__version__)
+          PY
+          )"
+          RELEASE_SHA="$(git rev-parse HEAD)"
+
+          if [ "$TAG_VERSION" != "$PACKAGE_VERSION" ]; then
+            echo "Tag/package version mismatch: tag=$TAG_VERSION package=$PACKAGE_VERSION" >&2
+            exit 1
+          fi
+
+          echo "sha=$RELEASE_SHA" >> "$GITHUB_OUTPUT"
+          echo "version=$PACKAGE_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Require successful CI for exact release SHA
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_SHA: ${{ steps.identity.outputs.sha }}
+        run: |
+          set -euo pipefail
+          SUCCESSFUL_RUNS="$(gh api -X GET \
+            "repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs" \
+            -f head_sha="$RELEASE_SHA" \
+            -f status="success" \
+            -f per_page=100 \
+            --jq '.workflow_runs | length')"
+
+          if [ "$SUCCESSFUL_RUNS" -lt 1 ]; then
+            echo "No successful CI workflow run found for SHA $RELEASE_SHA" >&2
+            exit 1
+          fi
+
+      - name: Build sdist and wheel
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip build twine cyclonedx-bom
+          python -m build
+          python -m twine check dist/*
+          mkdir -p pypi-dist release-assets
+          cp dist/*.whl dist/*.tar.gz pypi-dist/
+          cp pypi-dist/*.whl pypi-dist/*.tar.gz release-assets/
+
+      - name: Generate CycloneDX SBOM
+        run: |
+          cyclonedx-py environment -o release-assets/pyingestkit-cyclonedx.json
+
+      - name: Generate and verify SHA256 checksums
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd release-assets
+          sha256sum *.whl *.tar.gz pyingestkit-cyclonedx.json > SHA256SUMS
+          sha256sum -c SHA256SUMS
+
+      - name: Generate Artifact Attestations (Sigstore)
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: "release-assets/*"
+
+      - name: Attach artifacts to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.release.outputs.tag }}
+          files: |
+            release-assets/*
+          fail_on_unmatched_files: true
+
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@v1
+        with:
+          packages-dir: pypi-dist/
+
+  public-consumer-smoke:
+    name: Verify public PyPI consumer
+    needs: [build-and-publish]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name || inputs.release_tag }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Wait for PyPI propagation and verify consumer
+        run: |
+          python scripts/public_consumer_smoke.py --package pyingestkit
