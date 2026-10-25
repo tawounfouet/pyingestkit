@@ -1,12 +1,15 @@
-"""HTTPX-backed implementation of the V2 HTTP transport port."""
+"""HTTPX-backed implementation of the V2 HTTP transport port with SSRF hardening."""
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from types import TracebackType
-from typing import Self
+from typing import Any, Self
 
+import httpcore
 import httpx
 
+from pyingestkit.adapters.http._ssrf import AntiSsrfValidator, SsrfSecurityError
 from pyingestkit.adapters.http.transport import (
     HttpRequestV2,
     HttpResponseTooLargeErrorV2,
@@ -16,18 +19,78 @@ from pyingestkit.adapters.http.transport import (
 )
 
 
-class HttpxHttpClientV2:
-    """Synchronous HTTPX adapter with bounded response-body reads."""
+class SsrfSafeNetworkBackend(httpcore.NetworkBackend):
+    """NetworkBackend that validates destinations against SSRF rules before TCP connect."""
 
-    def __init__(self, *, client: httpx.Client | None = None) -> None:
-        self._client = client or httpx.Client()
-        self._owns_client = client is None
+    def __init__(self, validator: AntiSsrfValidator) -> None:
+        self._validator = validator
+        self._real_backend = httpcore.NetworkBackend()
+
+    def connect_tcp(
+        self,
+        host: str,
+        port: int,
+        timeout: float | None = None,
+        local_address: str | None = None,
+        socket_options: Iterable[Any] | None = None,
+    ) -> httpcore.NetworkStream:
+        resolved_ips = self._validator.resolve_and_validate(host, port)
+        target_ip = resolved_ips[0]
+        return self._real_backend.connect_tcp(
+            target_ip,
+            port,
+            timeout=timeout,
+            local_address=local_address,
+            socket_options=socket_options,
+        )
+
+    def connect_unix_socket(
+        self,
+        path: str,
+        timeout: float | None = None,
+        socket_options: Iterable[Any] | None = None,
+    ) -> httpcore.NetworkStream:
+        raise SsrfSecurityError("UNIX domain socket connections are forbidden by SSRF policy.")
+
+    def sleep(self, seconds: float) -> None:
+        self._real_backend.sleep(seconds)
+
+
+def create_ssrf_safe_transport(
+    validator: AntiSsrfValidator | None = None,
+) -> httpx.HTTPTransport:
+    """Create an HTTPX transport with SSRF protection and DNS rebinding immunity."""
+    effective_validator = validator or AntiSsrfValidator()
+    backend = SsrfSafeNetworkBackend(effective_validator)
+    pool = httpcore.ConnectionPool(network_backend=backend)
+    transport = httpx.HTTPTransport()
+    transport._pool = pool
+    return transport
+
+
+class HttpxHttpClientV2:
+    """Synchronous HTTPX adapter with bounded response-body reads and SSRF hardening."""
+
+    def __init__(
+        self,
+        *,
+        client: httpx.Client | None = None,
+        validator: AntiSsrfValidator | None = None,
+    ) -> None:
+        if client is not None:
+            self._client = client
+            self._owns_client = False
+        else:
+            transport = create_ssrf_safe_transport(validator)
+            self._client = httpx.Client(transport=transport)
+            self._owns_client = True
 
     def send(self, request: HttpRequestV2) -> HttpResponseV2:
         try:
             with self._client.stream(
-                "GET",
+                request.method,
                 request.url,
+                content=request.body if request.body else None,
                 headers=dict(request.headers),
                 timeout=request.timeout_seconds,
                 follow_redirects=False,
@@ -58,6 +121,8 @@ class HttpxHttpClientV2:
                     content=bytes(body),
                 )
         except HttpResponseTooLargeErrorV2:
+            raise
+        except SsrfSecurityError:
             raise
         except httpx.TimeoutException as exc:
             raise HttpTimeoutErrorV2("HTTP acquisition timed out.") from exc

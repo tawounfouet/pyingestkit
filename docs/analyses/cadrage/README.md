@@ -70,3 +70,4 @@ Le modèle de référence pour rédiger une nouvelle note de cadrage est disponi
 | Date | Fichier | LOT | Intitulé | Statut |
 | :--- | :--- | :---: | :--- | :---: |
 | 2026-10-25 | [`2026-10-25_cadrage-lot36-postgres-upsert-merge-and-staging.md`](./2026-10-25_cadrage-lot36-postgres-upsert-merge-and-staging.md) | LOT-36 | Adaptateur PostgreSQL UPSERT/MERGE et Staging Transactionnel | ✅ VALIDÉ |
+| 2026-10-25 | [`2026-10-25_cadrage-lot37-advanced-http-acquisition-and-ssrf-hardening.md`](./2026-10-25_cadrage-lot37-advanced-http-acquisition-and-ssrf-hardening.md) | LOT-37 | Acquisition HTTP Avancée, Rafraîchissement OAuth & Durcissement SSRF | ✅ VALIDÉ |

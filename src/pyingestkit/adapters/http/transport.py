@@ -20,17 +20,34 @@ class HttpResponseTooLargeErrorV2(Exception):
     """The HTTP body exceeded the acquisition byte limit."""
 
 
+_ALLOWED_HTTP_METHODS: frozenset[str] = frozenset({"GET", "POST", "PUT", "HEAD"})
+
+
 @dataclass(frozen=True, slots=True)
 class HttpRequestV2:
     """One dependency-neutral HTTP request issued by HttpSourceConnector."""
 
     url: str
+    method: str = "GET"
+    body: bytes = b""
     headers: tuple[tuple[str, str], ...] = ()
     timeout_seconds: float = 30.0
     max_bytes: int = 128 * 1024 * 1024
+    pinned_ip: str | None = None
 
     def __post_init__(self) -> None:
         require_non_blank(self.url, "HttpRequestV2 url")
+        if not isinstance(self.method, str):
+            raise TypeError("HttpRequestV2 method must be a string.")
+        normalized_method = self.method.strip().upper()
+        if normalized_method not in _ALLOWED_HTTP_METHODS:
+            raise ValueError(
+                f"HttpRequestV2 method must be one of {sorted(_ALLOWED_HTTP_METHODS)}, got {self.method!r}."
+            )
+        if not isinstance(self.body, bytes):
+            raise TypeError("HttpRequestV2 body must be bytes.")
+        if self.pinned_ip is not None:
+            require_non_blank(self.pinned_ip, "HttpRequestV2 pinned_ip")
         if not isinstance(self.headers, tuple):
             raise TypeError("HttpRequestV2 headers must be a tuple.")
         seen: set[str] = set()

@@ -1,17 +1,21 @@
-"""Secure synchronous HTTP source connector for PyIngestKit V2."""
+"""Secure synchronous HTTP source connector for PyIngestKit V2 with SSRF and OAuth hardening."""
 
 from __future__ import annotations
 
 import hashlib
 import importlib.util
-import math
+import ipaddress
+import secrets
 import time
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from pathlib import PurePosixPath
 from urllib.parse import parse_qsl, urlencode, urljoin, urlsplit, urlunsplit
 
+from pyingestkit.adapters.http._ssrf import AntiSsrfValidator, SsrfSecurityError
+from pyingestkit.adapters.http.oauth import OAuthError, OAuthTokenManager
 from pyingestkit.adapters.http.transport import (
+    _ALLOWED_HTTP_METHODS,
     HttpClientV2,
     HttpRequestV2,
     HttpResponseTooLargeErrorV2,
@@ -71,6 +75,10 @@ class HttpAccessPolicy:
     retry_statuses: tuple[int, ...] = _DEFAULT_RETRY_STATUSES
     allow_http: bool = False
     allowed_ports: tuple[int, ...] = ()
+    allow_private_networks: bool = False
+    allowed_ip_ranges: tuple[str, ...] = ()
+    retry_jitter: bool = True
+    max_backoff_seconds: float = 30.0
 
     def __post_init__(self) -> None:
         if not isinstance(self.allowed_hosts, tuple):
@@ -122,6 +130,23 @@ class HttpAccessPolicy:
             raise ValueError("HttpAccessPolicy allowed_ports must contain valid TCP ports.")
         if len(set(self.allowed_ports)) != len(self.allowed_ports):
             raise ValueError("HttpAccessPolicy allowed_ports must be unique.")
+        if not isinstance(self.allow_private_networks, bool):
+            raise TypeError("HttpAccessPolicy allow_private_networks must be bool.")
+        if not isinstance(self.allowed_ip_ranges, tuple):
+            raise TypeError("HttpAccessPolicy allowed_ip_ranges must be a tuple.")
+        for cidr in self.allowed_ip_ranges:
+            if not isinstance(cidr, str) or not cidr.strip():
+                raise ValueError("HttpAccessPolicy allowed_ip_ranges must be non-blank CIDRs.")
+            try:
+                ipaddress.ip_network(cidr.strip(), strict=False)
+            except ValueError as exc:
+                raise ValueError(f"HttpAccessPolicy invalid CIDR range: {cidr!r}.") from exc
+        if len(set(self.allowed_ip_ranges)) != len(self.allowed_ip_ranges):
+            raise ValueError("HttpAccessPolicy allowed_ip_ranges must be unique.")
+        if not isinstance(self.retry_jitter, bool):
+            raise TypeError("HttpAccessPolicy retry_jitter must be bool.")
+        if not isinstance(self.max_backoff_seconds, (int, float)) or self.max_backoff_seconds < 0:
+            raise ValueError("HttpAccessPolicy max_backoff_seconds must be >= 0.")
 
     @property
     def normalized_hosts(self) -> frozenset[str]:
@@ -160,8 +185,24 @@ class HttpCredentialResolverV2:
         return tuple(headers)
 
 
+def _extract_http_options(
+    request: AcquisitionRequest,
+) -> tuple[str, bytes]:
+    """Extract HTTP method and body payload non-invasively from request source metadata."""
+    method = "GET"
+    body = b""
+    if request.source.metadata:
+        for key, value in request.source.metadata:
+            norm_key = key.strip().lower()
+            if norm_key in {"http_method", "method"}:
+                method = value.strip().upper()
+            elif norm_key in {"http_payload", "body", "payload"}:
+                body = value.encode("utf-8") if isinstance(value, str) else bytes(value)
+    return method, body
+
+
 class HttpSourceConnector:
-    """Acquire one HTTP(S) resource into bounded, secret-safe V2 evidence."""
+    """Acquire one HTTP(S) resource into bounded, secret-safe V2 evidence with SSRF & OAuth protection."""
 
     def __init__(
         self,
@@ -169,6 +210,8 @@ class HttpSourceConnector:
         policy: HttpAccessPolicy,
         client: HttpClientV2 | None = None,
         credential_resolver: HttpCredentialResolverV2 | None = None,
+        oauth_manager: OAuthTokenManager | None = None,
+        validator: AntiSsrfValidator | None = None,
         sleep: Callable[[float], None] = time.sleep,
     ) -> None:
         if not isinstance(policy, HttpAccessPolicy):
@@ -182,11 +225,20 @@ class HttpSourceConnector:
             raise TypeError(
                 "HttpSourceConnector credential_resolver must be HttpCredentialResolverV2."
             )
+        if oauth_manager is not None and not isinstance(oauth_manager, OAuthTokenManager):
+            raise TypeError("HttpSourceConnector oauth_manager must be OAuthTokenManager.")
+        if validator is not None and not isinstance(validator, AntiSsrfValidator):
+            raise TypeError("HttpSourceConnector validator must be AntiSsrfValidator.")
         if not callable(sleep):
             raise TypeError("HttpSourceConnector sleep must be callable.")
         self._policy = policy
         self._client = client
         self._credential_resolver = credential_resolver
+        self._oauth_manager = oauth_manager
+        self._validator = validator or AntiSsrfValidator(
+            allow_private_networks=policy.allow_private_networks,
+            allowed_ip_ranges=policy.allowed_ip_ranges,
+        )
         self._sleep = sleep
 
     @property
@@ -206,6 +258,10 @@ class HttpSourceConnector:
     def policy(self) -> HttpAccessPolicy:
         return self._policy
 
+    @property
+    def validator(self) -> AntiSsrfValidator:
+        return self._validator
+
     def acquire(self, request: AcquisitionRequest) -> AcquisitionResult:
         if not isinstance(request, AcquisitionRequest):
             raise TypeError("HttpSourceConnector.acquire expects AcquisitionRequest.")
@@ -213,6 +269,16 @@ class HttpSourceConnector:
             raise ValueError("HttpSourceConnector only supports SourceKind.HTTP.")
         if request.source.locator is None:
             raise ValueError("HTTP Source requires a locator.")
+
+        method, body = _extract_http_options(request)
+        if method not in _ALLOWED_HTTP_METHODS:
+            return self._failed(
+                request,
+                code="acquisition.http.invalid_method",
+                category=FailureCategory.CONFIGURATION,
+                retryability=Retryability.NON_RETRYABLE,
+                summary=f"HTTP source method {method!r} is not supported.",
+            )
 
         validation_failure = self._validate_url(request.source.locator)
         if validation_failure is not None:
@@ -224,15 +290,21 @@ class HttpSourceConnector:
                 summary=validation_failure[2],
             )
 
+        parsed_initial = urlsplit(request.source.locator)
+        initial_host = parsed_initial.hostname or ""
+        initial_port = parsed_initial.port or (
+            443 if parsed_initial.scheme.lower() == "https" else 80
+        )
         try:
-            headers = self._credential_headers(request)
-        except (TypeError, ValueError):
+            resolved_ips = self._validator.resolve_and_validate(initial_host, initial_port)
+            pinned_ip = resolved_ips[0]
+        except SsrfSecurityError as exc:
             return self._failed(
                 request,
-                code="acquisition.http.credential_resolution_failed",
-                category=FailureCategory.AUTHENTICATION,
+                code="acquisition.http.ssrf_blocked",
+                category=FailureCategory.AUTHORIZATION,
                 retryability=Retryability.NON_RETRYABLE,
-                summary="HTTP credentials could not be resolved into request headers.",
+                summary=f"HTTP source destination violates anti-SSRF policy: {exc}",
             )
 
         client, owns_client = self._client_for_acquisition()
@@ -245,15 +317,51 @@ class HttpSourceConnector:
                 summary="HTTP acquisition requires the HTTPX transport dependency.",
             )
 
+        try:
+            headers = self._credential_headers(request, client)
+        except (TypeError, ValueError):
+            if owns_client:
+                self._close_client(client)
+            return self._failed(
+                request,
+                code="acquisition.http.credential_resolution_failed",
+                category=FailureCategory.AUTHENTICATION,
+                retryability=Retryability.NON_RETRYABLE,
+                summary="HTTP credentials could not be resolved into request headers.",
+            )
+
         requested_url, _ = _sanitize_url_for_persistence(request.source.locator)
         current_url = request.source.locator
         redirect_count = 0
         total_attempts = 0
         response: HttpResponseV2 | None = None
+        oauth_refreshed = False
+
         try:
             while True:
-                response, attempts = self._send_with_retry(client, current_url, headers)
+                response, attempts = self._send_with_retry(
+                    client,
+                    current_url,
+                    method,
+                    body,
+                    headers,
+                    pinned_ip=pinned_ip,
+                )
                 total_attempts += attempts
+
+                # Handle OAuth 401 automatic token refresh and single retry
+                if (
+                    response.status_code == 401
+                    and self._oauth_manager is not None
+                    and not oauth_refreshed
+                ):
+                    oauth_refreshed = True
+                    self._oauth_manager.invalidate()
+                    try:
+                        headers = self._credential_headers(request, client)
+                        continue
+                    except (OAuthError, HttpTransportErrorV2, RuntimeError):
+                        return self._status_failure(request, response)
 
                 if response.status_code in _REDIRECT_STATUSES:
                     location = response.header("location")
@@ -281,10 +389,26 @@ class HttpSourceConnector:
                             code="acquisition.http.redirect_forbidden",
                             category=FailureCategory.AUTHORIZATION,
                             retryability=Retryability.NON_RETRYABLE,
-                            summary=(
-                                "HTTP redirect target is outside the configured network policy."
-                            ),
+                            summary="HTTP redirect target is outside the configured network policy.",
                         )
+
+                    next_parsed = urlsplit(next_url)
+                    next_host = next_parsed.hostname or ""
+                    next_port = next_parsed.port or (
+                        443 if next_parsed.scheme.lower() == "https" else 80
+                    )
+                    try:
+                        next_resolved = self._validator.resolve_and_validate(next_host, next_port)
+                        pinned_ip = next_resolved[0]
+                    except SsrfSecurityError:
+                        return self._failed(
+                            request,
+                            code="acquisition.http.redirect_forbidden",
+                            category=FailureCategory.AUTHORIZATION,
+                            retryability=Retryability.NON_RETRYABLE,
+                            summary="HTTP redirect target violates anti-SSRF policy.",
+                        )
+
                     current_url = next_url
                     redirect_count += 1
                     continue
@@ -300,27 +424,45 @@ class HttpSourceConnector:
                 retryability=Retryability.NON_RETRYABLE,
                 summary="HTTP response exceeds the configured acquisition byte limit.",
             )
+        except SsrfSecurityError as exc:
+            return self._failed(
+                request,
+                code="acquisition.http.ssrf_blocked",
+                category=FailureCategory.AUTHORIZATION,
+                retryability=Retryability.NON_RETRYABLE,
+                summary=f"HTTP source destination violates anti-SSRF policy: {exc}",
+            )
         except HttpTimeoutErrorV2:
+            uncertainty = (
+                OutcomeUncertainty.REQUIRES_RECONCILIATION
+                if method in {"POST", "PUT"}
+                else OutcomeUncertainty.KNOWN
+            )
             return self._failed(
                 request,
                 code="acquisition.http.timeout",
                 category=FailureCategory.TIMEOUT,
                 retryability=Retryability.RETRYABLE,
                 summary="HTTP acquisition timed out after exhausting retry attempts.",
+                uncertainty=uncertainty,
             )
         except HttpTransportErrorV2:
+            uncertainty = (
+                OutcomeUncertainty.REQUIRES_RECONCILIATION
+                if method in {"POST", "PUT"}
+                else OutcomeUncertainty.KNOWN
+            )
             return self._failed(
                 request,
                 code="acquisition.http.transport",
                 category=FailureCategory.EXTERNAL_PROVIDER,
                 retryability=Retryability.RETRYABLE,
                 summary="HTTP transport failed after exhausting retry attempts.",
+                uncertainty=uncertainty,
             )
         finally:
             if owns_client:
-                close = getattr(client, "close", None)
-                if callable(close):
-                    close()
+                self._close_client(client)
 
         if response is None:
             raise AssertionError("HTTP acquisition ended without a terminal response.")
@@ -340,6 +482,7 @@ class HttpSourceConnector:
         metadata = [
             ("requested_url", requested_url),
             ("resolved_url", persisted_url),
+            ("method", method),
             ("status_code", str(response.status_code)),
             ("attempts", str(total_attempts)),
             ("redirect_count", str(redirect_count)),
@@ -368,6 +511,7 @@ class HttpSourceConnector:
             stage="acquire",
             source_context="http",
             details=(
+                ("method", method),
                 ("status_code", str(response.status_code)),
                 ("attempts", str(total_attempts)),
                 ("redirect_count", str(redirect_count)),
@@ -392,12 +536,20 @@ class HttpSourceConnector:
             diagnostics=(diagnostic,),
         )
 
-    def _credential_headers(self, request: AcquisitionRequest) -> tuple[tuple[str, str], ...]:
+    def _credential_headers(
+        self,
+        request: AcquisitionRequest,
+        client: HttpClientV2,
+    ) -> tuple[tuple[str, str], ...]:
         credential = request.source.credential
         if credential is None:
             return ()
+        if self._oauth_manager is not None:
+            return (self._oauth_manager.get_authorization_header(client),)
         if self._credential_resolver is None:
-            raise ValueError("HTTP Source declares a credential but no resolver is configured.")
+            raise ValueError(
+                "HTTP Source declares a credential but no resolver or OAuth manager is configured."
+            )
         return self._credential_resolver.headers_for(credential)
 
     def _client_for_acquisition(self) -> tuple[HttpClientV2 | None, bool]:
@@ -407,13 +559,22 @@ class HttpSourceConnector:
             return None, False
         from pyingestkit.adapters.http._httpx import HttpxHttpClientV2
 
-        return HttpxHttpClientV2(), True
+        return HttpxHttpClientV2(validator=self._validator), True
+
+    @staticmethod
+    def _close_client(client: HttpClientV2) -> None:
+        close = getattr(client, "close", None)
+        if callable(close):
+            close()
 
     def _send_with_retry(
         self,
         client: HttpClientV2,
         url: str,
+        method: str,
+        body: bytes,
         headers: tuple[tuple[str, str], ...],
+        pinned_ip: str | None = None,
     ) -> tuple[HttpResponseV2, int]:
         attempt = 0
         while True:
@@ -422,9 +583,12 @@ class HttpSourceConnector:
                 response = client.send(
                     HttpRequestV2(
                         url=url,
+                        method=method,
+                        body=body,
                         headers=headers,
                         timeout_seconds=self._policy.timeout_seconds,
                         max_bytes=self._policy.max_bytes,
+                        pinned_ip=pinned_ip,
                     )
                 )
             except (HttpTimeoutErrorV2, HttpTransportErrorV2):
@@ -452,7 +616,11 @@ class HttpSourceConnector:
                 if parsed >= 0:
                     retry_cap: float = self._policy.max_retry_after_seconds
                     return parsed if parsed <= retry_cap else retry_cap
-        return math.ldexp(float(self._policy.retry_backoff_seconds), attempt - 1)
+        base_delay = float(self._policy.retry_backoff_seconds) * (2 ** (attempt - 1))
+        capped: float = min(base_delay, float(self._policy.max_backoff_seconds))
+        if self._policy.retry_jitter:
+            return float(secrets.SystemRandom().uniform(0.0, capped))
+        return float(capped)
 
     def _validate_url(
         self,
@@ -547,13 +715,14 @@ class HttpSourceConnector:
         category: FailureCategory,
         retryability: Retryability,
         summary: str,
+        uncertainty: OutcomeUncertainty = OutcomeUncertainty.KNOWN,
         details: tuple[tuple[str, str], ...] = (),
     ) -> AcquisitionResult:
         failure = FailureEvidence(
             error_code=code,
             category=category,
             retryability=retryability,
-            uncertainty=OutcomeUncertainty.KNOWN,
+            uncertainty=uncertainty,
             ingestion_run_id=request.ingestion_run_id,
             correlation_id=request.correlation.correlation_id,
             source_component="http_source_connector",
