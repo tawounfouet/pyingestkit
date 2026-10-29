@@ -132,7 +132,7 @@ jobs:
           sha256sum -c SHA256SUMS
 
       - name: Generate Artifact Attestations (Sigstore)
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@v4
         with:
           subject-path: "release-assets/*"
 
